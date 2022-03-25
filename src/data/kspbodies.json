@@ -1,0 +1,449 @@
+[
+    {
+      "id": 0,
+      "name": "Sun",
+      "radius": 261600000,
+      "atmosphereHeight": 0,
+      "mass": 1.7565459e+28,
+      "stdGravParam": 1172332800000000000,
+      "soi": 1e+9999,
+      "color": {
+        "r": 254, 
+        "g": 198,
+        "b": 20
+      }
+    },
+    {
+      "id": 4,
+      "name": "Moho",
+      "radius": 250000,
+      "atmosphereHeight": 0,
+      "mass": 2.5263314e+21,
+      "stdGravParam": 168609380000,
+      "soi": 9646663,
+      "orbit": {
+        "semiMajorAxis": 5263138304,
+        "apoapsis": 6315765981,
+        "periapsis": 4210510628,
+        "eccentricity": 0.2,
+        "inclination": 7,
+        "argOfPeriapsis": 15,
+        "ascNodeLongitude": 70,
+        "siderealPeriod": 2215754,
+        "meanAnomalyEpoch": 3.14,
+        "epoch": 0
+      },
+      "orbiting": 0,
+      "color": {
+        "r": 210, 
+        "g": 178,
+        "b": 110
+      }
+    },
+    {
+      "id": 5,
+      "name": "Eve",
+      "radius": 700000,
+      "atmosphereHeight": 90000,
+      "mass": 1.224398e+23,
+      "stdGravParam": 8171730200000,
+      "soi": 85109365,
+      "orbit": {
+        "semiMajorAxis": 9832684544,
+        "apoapsis": 9931011387,
+        "periapsis": 9734357701,
+        "eccentricity": 0.01,
+        "inclination": 2.1,
+        "argOfPeriapsis": 0,
+        "ascNodeLongitude": 15,
+        "siderealPeriod": 5657995,
+        "meanAnomalyEpoch": 3.14,
+        "epoch": 0
+      },
+      "orbiting": 0,
+      "color": {
+        "r": 200, 
+        "g": 160,
+        "b": 240
+      }
+    },
+    {
+      "id": 13,
+      "name": "Gilly",
+      "radius": 13000,
+      "atmosphereHeight": 0,
+      "mass": 124203630000000000,
+      "stdGravParam": 8289449.8,
+      "soi": 126123.27,
+      "orbit": {
+        "semiMajorAxis": 31500000,
+        "apoapsis": 48825000,
+        "periapsis": 14175000,
+        "eccentricity": 0.55,
+        "inclination": 12,
+        "argOfPeriapsis": 10,
+        "ascNodeLongitude": 80,
+        "siderealPeriod": 388587,
+        "meanAnomalyEpoch": 0.9,
+        "epoch": 0
+      },
+      "orbiting": 5,
+      "color": {
+        "r": 230, 
+        "g": 218,
+        "b": 166
+      }
+    },
+    {
+      "id": 1,
+      "name": "Kerbin",
+      "radius": 600000,
+      "atmosphereHeight": 70000,
+      "mass": 5.2915158e+22,
+      "stdGravParam": 3531600000000,
+      "soi": 84159286,
+      "orbit": {
+        "semiMajorAxis": 13599840256,
+        "apoapsis": 13599840256,
+        "periapsis": 13599840256,
+        "eccentricity": 0,
+        "inclination": 0,
+        "argOfPeriapsis": 0,
+        "ascNodeLongitude": 0,
+        "siderealPeriod": 9203545,
+        "meanAnomalyEpoch": 3.14,
+        "epoch": 0
+      },
+      "orbiting": 0,
+      "color": {
+        "r": 6, 
+        "g": 154,
+        "b": 244
+      }
+    },
+    {
+      "id": 2,
+      "name": "Mun",
+      "radius": 200000,
+      "atmosphereHeight": 0,
+      "mass": 975990660000000000000,
+      "stdGravParam": 65138398000,
+      "soi": 2429559.1,
+      "orbit": {
+        "semiMajorAxis": 12000000,
+        "apoapsis": 12000000,
+        "periapsis": 12000000,
+        "eccentricity": 0,
+        "inclination": 0,
+        "argOfPeriapsis": 0,
+        "ascNodeLongitude": 0,
+        "siderealPeriod": 138984,
+        "meanAnomalyEpoch": 1.7,
+        "epoch": 0
+      },
+      "orbiting": 1,
+      "color": {
+        "r": 146, 
+        "g": 150,
+        "b": 146
+      }
+    },
+    {
+      "id": 3,
+      "name": "Minmus",
+      "radius": 60000,
+      "atmosphereHeight": 0,
+      "mass": 26457580000000000000,
+      "stdGravParam": 1765800000,
+      "soi": 2247428.4,
+      "orbit": {
+        "semiMajorAxis": 47000000,
+        "apoapsis": 47000000,
+        "periapsis": 47000000,
+        "eccentricity": 0,
+        "inclination": 6,
+        "argOfPeriapsis": 38,
+        "ascNodeLongitude": 78,
+        "siderealPeriod": 1077311,
+        "meanAnomalyEpoch": 0.9,
+        "epoch": 0
+      },
+      "orbiting": 1,
+      "color": {
+        "r": 160, 
+        "g": 254,
+        "b": 176
+      }
+    },
+    {
+      "id": 6,
+      "name": "Duna",
+      "radius": 320000,
+      "atmosphereHeight": 50000,
+      "mass": 4.515427e+21,
+      "stdGravParam": 301363210000,
+      "soi": 47921949,
+      "orbit": {
+        "semiMajorAxis": 20726155264,
+        "apoapsis": 21783189163,
+        "periapsis": 19669121365,
+        "eccentricity": 0.051,
+        "inclination": 0.06,
+        "argOfPeriapsis": 0,
+        "ascNodeLongitude": 135.5,
+        "siderealPeriod": 17315400,
+        "meanAnomalyEpoch": 3.14,
+        "epoch": 0
+      },
+      "orbiting": 0,
+      "color": {
+        "r": 254, 
+        "g": 66,
+        "b": 30
+      }
+    },
+    {
+      "id": 7,
+      "name": "Ike",
+      "radius": 130000,
+      "atmosphereHeight": 0,
+      "mass": 278216150000000000000,
+      "stdGravParam": 18568369000,
+      "soi": 1049598.9,
+      "orbit": {
+        "semiMajorAxis": 3200000,
+        "apoapsis": 3296000,
+        "periapsis": 3104000,
+        "eccentricity": 0.03,
+        "inclination": 0.2,
+        "argOfPeriapsis": 0,
+        "ascNodeLongitude": 0,
+        "siderealPeriod": 65518,
+        "meanAnomalyEpoch": 1.7,
+        "epoch": 0
+      },
+      "orbiting": 6,
+      "color": {
+        "r": 168, 
+        "g": 164,
+        "b": 150
+      }
+    },
+    {
+      "id": 15,
+      "name": "Dres",
+      "radius": 138000,
+      "atmosphereHeight": 0,
+      "mass": 321909370000000000000,
+      "stdGravParam": 21484489000,
+      "soi": 32832840,
+      "orbit": {
+        "semiMajorAxis": 40839348203,
+        "apoapsis": 46761053692,
+        "periapsis": 34917642714,
+        "eccentricity": 0.145,
+        "inclination": 5,
+        "argOfPeriapsis": 90,
+        "ascNodeLongitude": 280,
+        "siderealPeriod": 47893063,
+        "meanAnomalyEpoch": 3.14,
+        "epoch": 0
+      },
+      "orbiting": 0,
+      "color": {
+        "r": 198, 
+        "g": 202,
+        "b": 200
+      }
+    },
+    {
+      "id": 8,
+      "name": "Jool",
+      "radius": 6000000,
+      "atmosphereHeight": 200000,
+      "mass": 4.2332127e+24,
+      "stdGravParam": 282528000000000,
+      "soi": 2455985200,
+      "orbit": {
+        "semiMajorAxis": 68773560320,
+        "apoapsis": 72212238387,
+        "periapsis": 65334882253,
+        "eccentricity": 0.05,
+        "inclination": 1.304,
+        "argOfPeriapsis": 0,
+        "ascNodeLongitude": 52,
+        "siderealPeriod": 104661432,
+        "meanAnomalyEpoch": 0.1,
+        "epoch": 0
+      },
+      "orbiting": 0,
+      "color": {
+        "r": 126, 
+        "g": 190,
+        "b": 2
+      }
+    },
+    {
+      "id": 9,
+      "name": "Laythe",
+      "radius": 500000,
+      "atmosphereHeight": 50000,
+      "mass": 2.9397311e+22,
+      "stdGravParam": 1962000000000,
+      "soi": 3723645.8,
+      "orbit": {
+        "semiMajorAxis": 27184000,
+        "apoapsis": 27184000,
+        "periapsis": 27184000,
+        "eccentricity": 0,
+        "inclination": 0,
+        "argOfPeriapsis": 0,
+        "ascNodeLongitude": 0,
+        "siderealPeriod": 52981,
+        "meanAnomalyEpoch": 3.14,
+        "epoch": 0
+      },
+      "orbiting": 8,
+      "color": {
+        "r": 90, 
+        "g": 126,
+        "b": 154
+      }
+    },
+    {
+      "id": 10,
+      "name": "Vall",
+      "radius": 300000,
+      "atmosphereHeight": 0,
+      "mass": 3.1087655e+21,
+      "stdGravParam": 207481500000,
+      "soi": 2406401.4,
+      "orbit": {
+        "semiMajorAxis": 43152000,
+        "apoapsis": 43152000,
+        "periapsis": 43152000,
+        "eccentricity": 0,
+        "inclination": 0,
+        "argOfPeriapsis": 0,
+        "ascNodeLongitude": 0,
+        "siderealPeriod": 105962,
+        "meanAnomalyEpoch": 0.9,
+        "epoch": 0
+      },
+      "orbiting": 8,
+      "color": {
+        "r": 196, 
+        "g": 154,
+        "b": 248
+      }
+    },
+    {
+      "id": 12,
+      "name": "Tylo",
+      "radius": 600000,
+      "atmosphereHeight": 0,
+      "mass": 4.2332127e+22,
+      "stdGravParam": 2825280000000,
+      "soi": 10856518,
+      "orbit": {
+        "semiMajorAxis": 68500000,
+        "apoapsis": 68500000,
+        "periapsis": 68500000,
+        "eccentricity": 0,
+        "inclination": 0.025,
+        "argOfPeriapsis": 0,
+        "ascNodeLongitude": 0,
+        "siderealPeriod": 211926,
+        "meanAnomalyEpoch": 3.14,
+        "epoch": 0
+      },
+      "orbiting": 8,
+      "color": {
+        "r": 216, 
+        "g": 220,
+        "b": 214
+      }
+    },
+    {
+      "id": 11,
+      "name": "Bop",
+      "radius": 65000,
+      "atmosphereHeight": 0,
+      "mass": 37261090000000000000,
+      "stdGravParam": 2486834900,
+      "soi": 1221060.9,
+      "orbit": {
+        "semiMajorAxis": 128500000,
+        "apoapsis": 158697500,
+        "periapsis": 98302500,
+        "eccentricity": 0.235,
+        "inclination": 15,
+        "argOfPeriapsis": 25,
+        "ascNodeLongitude": 10,
+        "meanAnomaly": 0.9,
+        "siderealPeriod": 544507,
+        "meanAnomalyEpoch": 0.9,
+        "epoch": 0
+      },
+      "orbiting": 8,
+      "color": {
+        "r": 226, 
+        "g": 202,
+        "b": 118
+      }
+    },
+    {
+      "id": 14,
+      "name": "Pol",
+      "radius": 44000,
+      "atmosphereHeight": 0,
+      "mass": 10813507000000000000,
+      "stdGravParam": 721702080,
+      "soi": 1042138.9,
+      "orbit": {
+        "semiMajorAxis": 179890000,
+        "apoapsis": 210624207,
+        "periapsis": 149155794,
+        "eccentricity": 0.171,
+        "inclination": 4.25,
+        "argOfPeriapsis": 15,
+        "ascNodeLongitude": 2,
+        "siderealPeriod": 901903,
+        "meanAnomalyEpoch": 0.9,
+        "epoch": 0
+      },
+      "orbiting": 8,
+      "color": {
+        "r": 214, 
+        "g": 182,
+        "b": 10
+      }
+    },
+    {
+      "id": 16,
+      "name": "Eeloo",
+      "radius": 210000,
+      "atmosphereHeight": 0,
+      "mass": 1.1149224e+21,
+      "stdGravParam": 74410815000,
+      "soi": 119082940,
+      "orbit": {
+        "semiMajorAxis": 90118820000,
+        "apoapsis": 113549713200,
+        "periapsis": 66687926800,
+        "eccentricity": 0.26,
+        "inclination": 6.15,
+        "argOfPeriapsis": 260,
+        "ascNodeLongitude": 50,
+        "siderealPeriod": 156992048,
+        "meanAnomalyEpoch": 3.14,
+        "epoch": 0
+      },
+      "orbiting": 0,
+      "color": {
+        "r": 244, 
+        "g": 244,
+        "b": 218
+      }
+    }
+  ]
