@@ -90,15 +90,15 @@ namespace FlybyCalcs {
         const inNu = -Kepler.trueAnomalyAtDistance(soi, inEcc,  inSLR);
         const inPerifocalDirection  = Kepler.motionDirectionAtTrueAnomaly(inNu,  inEcc);
 
-        const {rotationAngle, rotationAxis} = alignVectorsAngleAxis(inPerifocalDirection, params.inDirection);
+        const {axis, angle} = alignVectorsAngleAxis(inPerifocalDirection, params.inDirection);
 
-        const periapsisPos = roderigues(vec3(periapsis, 0, 0), rotationAxis, rotationAngle);
+        const periapsisPos = roderigues(vec3(periapsis, 0, 0), axis, angle);
 
         const inPeriapsisSpeed  = Math.sqrt(mu * (2 / periapsis - 1 / inSMA));
         const outPeriapsisSpeed = Math.sqrt(mu * (2 / periapsis - 1 / outSMA));
 
-        const inPeriapsisVel  = roderigues(vec3(0, inPeriapsisSpeed,  0), rotationAxis, rotationAngle);
-        const outPeriapsisVel = roderigues(vec3(0, outPeriapsisSpeed, 0), rotationAxis, rotationAngle);
+        const inPeriapsisVel  = roderigues(vec3(0, inPeriapsisSpeed,  0), axis, angle);
+        const outPeriapsisVel = roderigues(vec3(0, outPeriapsisSpeed, 0), axis, angle);
 
         const inPeriapsisState  = {date: params.time, pos: periapsisPos, vel: inPeriapsisVel};
         const outPeriapsisState = {date: params.time, pos: periapsisPos, vel: outPeriapsisVel};

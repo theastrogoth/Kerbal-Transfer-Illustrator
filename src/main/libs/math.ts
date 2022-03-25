@@ -151,23 +151,23 @@ export function roderigues(v: Vector3, axis: Vector3, angle: number) : Vector3 {
 export function alignVectorsAngleAxis(x: Vector3, y: Vector3) {
     const xHat = normalize3(x);
     const yHat = normalize3(y);
-    const rotationAxis  = normalize3(cross3(x,y));
-    const rotationAngle = acosClamped(dot3(xHat, yHat));
-    return {rotationAxis, rotationAngle}
+    const axis  = normalize3(cross3(x,y));
+    const angle = acosClamped(dot3(xHat, yHat));
+    return {axis, angle}
 }
 
 export function counterClockwiseAngleInPlane(x: Vector3, y: Vector3, normalDirection: Vector3) {
-    let {rotationAxis, rotationAngle} = alignVectorsAngleAxis(vec3(0, 0, 1), normalDirection);
-    if(isNaN(rotationAxis.x)) {
-        rotationAxis = X_DIR;
+    let {axis, angle} = alignVectorsAngleAxis(normalDirection, vec3(0, 0, 1));
+    if(isNaN(axis.x)) {
+        axis = X_DIR;
     }
-    const xPlane = roderigues(x, rotationAxis, rotationAngle);
-    const yPlane = roderigues(y, rotationAxis, rotationAngle);
+    const xPlane = roderigues(x, axis, angle);
+    const yPlane = roderigues(y, axis, angle);
     const xAngle = Math.atan2(xPlane.y, xPlane.x);
     const yAngle = Math.atan2(yPlane.y, yPlane.x);
-    if(isNaN(xAngle + yAngle)) {
-        console.log(rotationAxis, rotationAngle, normalDirection, xPlane, yPlane)
-    }
+    // if(Math.abs(xPlane.z) > 1e-8 || Math.abs(yPlane.z) > 1e-8) {
+    //     console.log(x, y, normalDirection)
+    // }
     return wrapAngle(yAngle - xAngle);
 }
 

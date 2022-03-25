@@ -124,7 +124,7 @@ namespace Trajectories {
     }
 
     export function ejectionTrajectories(system: ISolarSystem, startOrbit: IOrbit, transferOrbit: IOrbit, ejectionSequence: number[], transferStartDate: number, 
-                                         matchStartMo: boolean = true, type: "simple" | "direct" | "oberth" = "simple", soiPatchPositions: Vector3[] = ejectionSequence.slice(-1).map((i) => vec3(0,0,0))): Trajectory[] {
+                                         matchStartMo: boolean = true, type: "fastdirect" | "direct" | "fastoberth" | "oberth" = "fastdirect", soiPatchPositions: Vector3[] = ejectionSequence.slice(-1).map((i) => vec3(0,0,0))): Trajectory[] {
         let ejectionInfos: Trajectory[] = [];
         
         let nextOrbit: IOrbit;
@@ -169,13 +169,14 @@ namespace Trajectories {
             const matchOrb = i > 0 ? true : matchStartMo;
 
             // calculate the ejection trajectory
-            let currentEjection: Trajectory = type === "simple" ? DepartArrive.simpleDeparture(previousOrbit,  currentBody, relativeVel, escapeDate, matchOrb) :
-                                              type === "direct" ? DepartArrive.optimalDeparture(previousOrbit, currentBody, relativeVel, escapeDate, matchOrb, "direct", soiPatchPositions[i]) :
-                                              type === "oberth" ? DepartArrive.optimalDeparture(previousOrbit, currentBody, relativeVel, escapeDate, matchOrb, "oberth", soiPatchPositions[i]) :
-                                              DepartArrive.simpleDeparture(previousOrbit,  currentBody, relativeVel, escapeDate, matchOrb);
+            let currentEjection: Trajectory = type === "fastdirect" ? DepartArrive.fastDeparture(previousOrbit,       currentBody, relativeVel, escapeDate, matchOrb) :
+                                              type === "direct"     ? DepartArrive.optimalDeparture(previousOrbit,    currentBody, relativeVel, escapeDate, matchOrb, "direct", soiPatchPositions[i]) :
+                                              type === "fastoberth" ? DepartArrive.fastOberthDeparture(previousOrbit, currentBody, relativeVel, escapeDate, matchOrb, soiPatchPositions[i]) :
+                                              type === "oberth"     ? DepartArrive.optimalDeparture(previousOrbit,    currentBody, relativeVel, escapeDate, matchOrb, "oberth", soiPatchPositions[i]) :
+                                              DepartArrive.fastDeparture(previousOrbit,  currentBody, relativeVel, escapeDate, matchOrb);
 
-            // if there is a nonzero SoI patch position for this ejection, and the "simple" type was used, recalculate the ejection with the modified start position
-            if(i > 0 && type === "simple") {
+            // if there is a nonzero SoI patch position for this ejection, and the "fastdirect" type was used, recalculate the ejection with the modified start position
+            if(i > 0 && type === "fastdirect") {
                 const currentPatch =soiPatchPositions[i-1]
                 if(mag3(currentPatch) > 0) {
                     // optimize ejection eccentricity based on starting position
@@ -211,7 +212,7 @@ namespace Trajectories {
     }
 
     export function insertionTrajectories(system: ISolarSystem, endOrbit: IOrbit, transferOrbit: IOrbit, insertionSequence: number[], transferEndDate: number, 
-                                          matchEndMo: boolean = true, type: "simple" | "direct" | "oberth" = "simple", soiPatchPositions: Vector3[] = insertionSequence.slice(0,-1).map((i) => vec3(0,0,0))): Trajectory[] {
+                                          matchEndMo: boolean = true, type: "fastdirect" | "direct" | "fastoberth" | "oberth" = "fastdirect", soiPatchPositions: Vector3[] = insertionSequence.slice(0,-1).map((i) => vec3(0,0,0))): Trajectory[] {
         let insertionInfos: Trajectory[] = [];
 
         let previousOrbit: IOrbit;
@@ -258,13 +259,14 @@ namespace Trajectories {
             const matchOrb = i < nInsertions ? true : matchEndMo;
 
             // calculate the insertion trajectory
-            let currentInsertion = type === "simple" ? DepartArrive.simpleArrival(nextOrbit,  currentBody, relativeVel, encounterDate, matchOrb) :
-                                   type === "direct" ? DepartArrive.optimalArrival(nextOrbit, currentBody, relativeVel, encounterDate, matchOrb, "direct", soiPatchPositions[i]) :
-                                   type === "oberth" ? DepartArrive.optimalArrival(nextOrbit, currentBody, relativeVel, encounterDate, matchOrb, "oberth", soiPatchPositions[i]) :
-                                   DepartArrive.simpleArrival(nextOrbit, currentBody, relativeVel, encounterDate, matchOrb);
+            let currentInsertion = type === "fastdirect"   ? DepartArrive.fastArrival(nextOrbit,     currentBody, relativeVel, encounterDate, matchOrb) :
+                                   type === "direct" ? DepartArrive.optimalArrival(nextOrbit,        currentBody, relativeVel, encounterDate, matchOrb, "direct", soiPatchPositions[i]) :
+                                   type === "fastoberth" ? DepartArrive.fastOberthArrival(nextOrbit, currentBody, relativeVel, encounterDate, matchOrb, soiPatchPositions[i]) :
+                                   type === "oberth" ? DepartArrive.optimalArrival(nextOrbit,        currentBody, relativeVel, encounterDate, matchOrb, "oberth", soiPatchPositions[i]) :
+                                   DepartArrive.fastArrival(nextOrbit, currentBody, relativeVel, encounterDate, matchOrb);
             
             // if there is a nonzero SoI patch position for this insertion, and it's not the last one,  recalculate the ejection with the modified start position
-            if(i < nInsertions && type === "simple") {
+            if(i < nInsertions && type === "fastdirect") {
                 if(mag3(soiPatchPositions[i]) > 0) {
                     const manLen = currentInsertion.maneuvers.length;
                     const patchedInOrb = DepartArrive.departArriveForPosition(add3(currentInsertion.maneuvers[manLen - 1].postState.pos, soiPatchPositions[i]),

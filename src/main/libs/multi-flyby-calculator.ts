@@ -38,7 +38,7 @@ class MultiFlybyCalculator {
     private _soiPatchBodies:            IOrbitingBody[];
     private _flybyDurations:            {inTime: number, outTime: number, total: number}[];
 
-    private _ejectionInsertionType:    "simple" | "direct" | "oberth";
+    private _ejectionInsertionType:    "fastdirect" | "fastoberth" | "direct" | "oberth";
     private _planeChange:               boolean;
     private _matchStartMo:              boolean;
     private _matchEndMo:                boolean;
@@ -62,7 +62,7 @@ class MultiFlybyCalculator {
         this._endBody           = this.bodyFromId(this._endOrbit.orbiting);
         this._transferBody      = this.bodyFromId(this.commonAttractorId(this._startBody.id, this._endBody.id));
 
-        this._ejectionInsertionType = inputs.ejectionInsertionType === undefined ? "simple" : inputs.ejectionInsertionType;
+        this._ejectionInsertionType = inputs.ejectionInsertionType === undefined ? "fastdirect" : inputs.ejectionInsertionType;
         this._planeChange       = inputs.planeChange     === undefined ? false : inputs.planeChange;    
         this._matchStartMo      = inputs.matchStartMo    === undefined ? true  : inputs.matchStartMo;
         this._matchEndMo        = inputs.matchEndMo      === undefined ? false : inputs.matchEndMo;     
