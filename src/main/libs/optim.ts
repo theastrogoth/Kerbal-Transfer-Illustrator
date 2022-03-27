@@ -146,10 +146,10 @@ export function brentRootFind(func: Function, min: number, max: number, tol: num
         }
     }
 
-    // no root found, throw error
-    if (Math.abs(fs) > warntol) {
-        console.log("Brent's method failed to find a root. Function value of %f at %f", fs, s)
-    }
+    // no root found, print warning message
+    // if (Math.abs(fs) > warntol) {
+    //     console.log("Brent's method failed to find a root. Function value of %f at %f", fs, s)
+    // }
     return s;
 }
 

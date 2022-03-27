@@ -152,6 +152,19 @@ namespace DepartArrive {
         // bounds for elliptical starting orbit
         let minNu = -TWO_PI;
         let maxNu = TWO_PI - Number.EPSILON;
+        if(type === "direct") {
+            const mu = parkBody.stdGravParam;
+            const soi = parkBody.soi;
+            const soiSpeedSq = magSq3(relativeVel);
+    
+            const a = 1 / (2 / soi - soiSpeedSq / mu);
+            const periapsis = parkOrbit.semiMajorAxis;
+            const relativeVelPlane = Kepler.rotateToPerifocalFromInertial(relativeVel, parkOrbit);
+
+            const {parkNu} = simpleDepartureArrivalPeriapsisResult(periapsis, parkOrbit, mu, soi, relativeVelPlane, soiSpeedSq, a, c);
+            minNu = parkNu - Math.PI;
+            maxNu = parkNu + Math.PI;
+        }
         // bounds for hyperbolic starting orbit
         if(parkOrbit.eccentricity > 1) {
             maxNu = ejectionTrueAnomaly(parkOrbit, parkBody) - 2 * Number.EPSILON;
@@ -319,7 +332,7 @@ namespace DepartArrive {
         const parkPos = add3(Kepler.positionAtTrueAnomaly(parkOrbit, nu), soiPatchPosition);
         const parkVel = Kepler.velocityAtTrueAnomaly(parkOrbit, parkBody.stdGravParam, nu);
         
-        const {deltaV, obrPreState, obrPostState, hypPreState, hypPostState} = oberthDepartArriveForPosition(parkPos, parkVel, parkBody, relativeVel, soiDate, c);
+        const {deltaV, obrPreState, obrPostState, hypPreState, hypPostState} = oberthDepartArriveForPosition(parkPos, parkVel, parkBody, relativeVel, soiDate, c, fullResult);
 
         let trajectoryInfo: Trajectory = {orbits: [], intersectTimes: [], maneuvers: []};
         if(fullResult) {
@@ -335,7 +348,7 @@ namespace DepartArrive {
 
             if(c === 1) {
                 const obrManeuver = Kepler.maneuverFromOrbitalStates(obrPreState, obrPostState);
-                const hypManeuver = Kepler.maneuverFromOrbitalStates(hypPostState, hypPostState);
+                const hypManeuver = Kepler.maneuverFromOrbitalStates(hypPreState, hypPostState);
                 trajectoryInfo = {
                     orbits:             [obrOrbit, hypOrbit],
                     intersectTimes:     [obrOrbit.epoch, hypOrbit.epoch, adjustedSoiDate],
@@ -343,7 +356,7 @@ namespace DepartArrive {
                 }
             } else {
                 const obrManeuver = Kepler.maneuverFromOrbitalStates(obrPostState, obrPreState);
-                const hypManeuver = Kepler.maneuverFromOrbitalStates(hypPostState, hypPostState);
+                const hypManeuver = Kepler.maneuverFromOrbitalStates(hypPostState, hypPreState);
                 trajectoryInfo = {
                     orbits:             [hypOrbit, obrOrbit],
                     intersectTimes:     [adjustedSoiDate, hypOrbit.epoch, obrOrbit.epoch],
@@ -356,7 +369,7 @@ namespace DepartArrive {
     }
 
 
-    export function oberthDepartArriveForPosition(parkPos: Vector3, parkVel: Vector3, parkBody: IOrbitingBody, relativeVel: Vector3, soiDate: number, c: 1 | -1) {
+    export function oberthDepartArriveForPosition(parkPos: Vector3, parkVel: Vector3, parkBody: IOrbitingBody, relativeVel: Vector3, soiDate: number, c: 1 | -1, fullResult: boolean = true) {
         const mu = parkBody.stdGravParam;
         const soi = parkBody.soi;
 
@@ -368,8 +381,31 @@ namespace DepartArrive {
         const hypEnergy  = soiVelSq  / 2 - mu / soi;
         const hypSMA = -mu / (2 * hypEnergy);  
 
-        const hDir = normalize3(cross3(parkPosDir, soiDir));            // direction of angular moment vector, normal to the trajectory plane
-        const delta = counterClockwiseAngleInPlane(parkPosDir, soiDir, hDir);  // angle between incoming and outgoing velocity vectors (flyby angle)
+        const hDir = normalize3(cross3(parkPosDir, soiDir));                             // direction of angular moment vector, normal to the trajectory plane
+        const delta = c === 1 ? counterClockwiseAngleInPlane(parkPosDir, soiDir, hDir) : // angle between incoming and outgoing velocity vectors (flyby angle)
+                                counterClockwiseAngleInPlane(soiDir, parkPosDir, hDir)  
+        
+        if(isNaN(delta)) {
+            console.log(parkPosDir, soiDir, hDir)
+        }
+
+        const denominator = (periapsis: number) => {
+            const hypEcc    = 1 - periapsis / hypSMA;
+            const hypSLR    = hypSMA  * (1 - hypEcc  * hypEcc); 
+            const hypNu     = c * Kepler.trueAnomalyAtDistance(soi, hypEcc,  hypSLR);   // true anomaly at SoI
+            const hypDelta  = Kepler.motionAngleAtTrueAnomaly(hypNu, hypEcc);           // angle of motion direction at SoI
+            const obrNu     = wrapAngle(hypDelta - c * delta, -Math.PI * (c + 1));      // true anomaly at Oberth maneuver start
+            const denom    = (periapsis - mr * Math.cos(obrNu));
+            return denom;
+        }
+
+        // define the search space by eliminating periapses that result in negative eccentricity
+        let minPeriapsis = FlybyCalcs.minFlybyRadius(parkBody);
+        const minDenomPeriapsis = brentMinimize(denominator, minPeriapsis, mr);
+        const minDenom = denominator(minDenomPeriapsis)
+        if(minDenom < 0) {
+            minPeriapsis = brentRootFind(denominator, minDenomPeriapsis, mr) + 1;
+        }
 
         // require that the incoming and outgoing orbits intersect at their periapses.
         // find the periapsis height that gives the correct flyby angle at the lowest deltaV
@@ -378,8 +414,8 @@ namespace DepartArrive {
             const hypSLR    = hypSMA  * (1 - hypEcc  * hypEcc); 
             const hypNu     = c * Kepler.trueAnomalyAtDistance(soi, hypEcc,  hypSLR);   // true anomaly at SoI
             const hypDelta  = Kepler.motionAngleAtTrueAnomaly(hypNu, hypEcc);           // angle of motion direction at SoI
-            const obrNu     = wrapAngle(hypDelta - delta, -Math.PI * (c + 1));          // true anomaly at Oberth maneuver start
-            const obrEcc    = (periapsis / mr - 1) / Math.cos(obrNu);
+            const obrNu     = wrapAngle(hypDelta - c * delta, -Math.PI * (c + 1));      // true anomaly at Oberth maneuver start
+            const obrEcc    = (mr - periapsis) / (periapsis - mr * Math.cos(obrNu));
             const obrSMA    = periapsis / (1 - obrEcc);
             const obrEnergy = -mu  / (2 * obrSMA) ;
 
@@ -388,11 +424,13 @@ namespace DepartArrive {
 
             // align perifocal frame with the inertial frame 
             const perifocalSoiDir = vec3(Math.cos(hypDelta), Math.sin(hypDelta), 0);
-            const {rotationAxis, rotationAngle} = alignVectorsAngleAxis(perifocalSoiDir, soiDir);
+            // let {rotationAxis, rotationAngle} = alignVectorsAngleAxis(perifocalSoiDir, soiDir);
 
             // velocity of the Oberth maneuver at the intersect with the parking orbit
             const obrSpeed = Math.sqrt((obrEnergy + mu / mr) * 2);
             const perifocalObrDir = Kepler.motionDirectionAtTrueAnomaly(obrNu, obrEcc);
+            const perifocalParkDir = vec3(Math.cos(obrNu), Math.sin(obrNu), 0);
+            const {rotationAxis, rotationAngle} = alignVectorsAngleAxis(perifocalParkDir, normalize3(parkPos));
             const obrDir = roderigues(perifocalObrDir, rotationAxis, rotationAngle);
             const obrVel = mult3(obrDir, obrSpeed);
 
@@ -412,6 +450,12 @@ namespace DepartArrive {
                 obrDuration = Math.abs(Kepler.trueAnomalyToDate(obrNu, obrEcc, Kepler.siderealPeriod(obrSMA, mu), 0, 0));
             }
 
+            if(isNaN(deltaV)) {
+                console.log(parkBody.name, mr, minPeriapsis, denominator(mr), denominator(minPeriapsis));
+                console.log(periapsis, (mr - periapsis), (periapsis - mr * Math.cos(obrNu)), delta, hypDelta);
+                // console.log(mu, mr, periapsis, obrNu, obrEcc, obrSMA, obrEnergy, obrPeriapsisSpeed, obrSpeed);
+            }
+
             return {
                 deltaV,
                 obrVel,
@@ -422,8 +466,8 @@ namespace DepartArrive {
                 obrDuration,
             };
         }
-        const periapsis = brentMinimize((p: number) => objective(p).deltaV, FlybyCalcs.minFlybyRadius(parkBody), FlybyCalcs.maxFlybyRadius(parkBody), 1e-8)
-        const {deltaV, obrVel, periapsisPos, hypPeriapsisVel, obrPeriapsisVel, hypDuration, obrDuration} = objective(periapsis);
+        const periapsis = brentMinimize((p: number) => objective(p).deltaV, minPeriapsis, mr, 1e-8)
+        const {deltaV, obrVel, periapsisPos, hypPeriapsisVel, obrPeriapsisVel, hypDuration, obrDuration} = objective(periapsis, fullResult);
 
         const periapsisDate = soiDate - c * hypDuration;
         const obrDate = periapsisDate - c * obrDuration;

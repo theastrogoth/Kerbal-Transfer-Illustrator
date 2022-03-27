@@ -43,6 +43,7 @@ function PorkchopPlot({inputs, timeSettings, transfer, plotCount, setTransfer, s
                 console.log("...Porkchop worker returned new plot data with best transfer.")
                 setPlotData(event.data)
                 setTransfer(new Transfer(event.data.bestTransfer))
+                console.log(event.data.bestTransfer)
                 setCalculating(false);
                 setPlotCount(plotCount + 1)
             }

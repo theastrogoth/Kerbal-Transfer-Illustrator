@@ -157,11 +157,17 @@ export function alignVectorsAngleAxis(x: Vector3, y: Vector3) {
 }
 
 export function counterClockwiseAngleInPlane(x: Vector3, y: Vector3, normalDirection: Vector3) {
-    const {rotationAxis, rotationAngle} = alignVectorsAngleAxis(vec3(0, 0, 1), normalDirection);
+    let {rotationAxis, rotationAngle} = alignVectorsAngleAxis(vec3(0, 0, 1), normalDirection);
+    if(isNaN(rotationAxis.x)) {
+        rotationAxis = X_DIR;
+    }
     const xPlane = roderigues(x, rotationAxis, rotationAngle);
     const yPlane = roderigues(y, rotationAxis, rotationAngle);
     const xAngle = Math.atan2(xPlane.y, xPlane.x);
     const yAngle = Math.atan2(yPlane.y, yPlane.x);
+    if(isNaN(xAngle + yAngle)) {
+        console.log(rotationAxis, rotationAngle, normalDirection, xPlane, yPlane)
+    }
     return wrapAngle(yAngle - xAngle);
 }
 
