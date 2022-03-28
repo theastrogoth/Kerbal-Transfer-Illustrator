@@ -27,7 +27,7 @@ class TransferCalculator {
     private _soiPatchPositions:         Vector3[];
     private _soiPatchBodies:            ICelestialBody[];
 
-    private _ejectionInsertionType:     "simple" | "direct" | "oberth";
+    private _ejectionInsertionType:     "fastdirect" | "direct" | "fastoberth" | "oberth";
 
     private _planeChange:               boolean;
     private _noInsertionBurn:           boolean;
@@ -71,7 +71,7 @@ class TransferCalculator {
         const soiPatchSequence = [...this._sequenceUp.slice(0, this._sequenceUp.length - 1), ...this._sequenceDown.slice(1, this._sequenceDown.length)];
         this._soiPatchBodies = soiPatchSequence.map(i => this.bodyFromId(i));
 
-        this._ejectionInsertionType = inputs.ejectionInsertionType === undefined ? "simple" : inputs.ejectionInsertionType;
+        this._ejectionInsertionType = inputs.ejectionInsertionType === undefined ? "fastdirect" : inputs.ejectionInsertionType;
         this._planeChange     = inputs.planeChange     === undefined ? false : inputs.planeChange;    
         this._matchStartMo    = inputs.matchStartMo    === undefined ? true  : inputs.matchStartMo;
         this._matchEndMo      = inputs.matchEndMo      === undefined ? false : inputs.matchEndMo;     

@@ -36,7 +36,7 @@ function trajectoryTraces(trajectory: Trajectory, timeSettings: TimeSettings, or
         const orb = trajectory.orbits[i];
         const sTime = trajectory.intersectTimes[i];
         const eTime = trajectory.intersectTimes[i + 1];
-        orbitTraces.push(Draw.drawOrbitPathFromTimes(orb, sTime, eTime, timeSettings, new Color({r: 255, g: 255, b: 255}), orbitName.concat(String(i + 1))));
+        orbitTraces.push(Draw.drawOrbitPathFromTimes(orb, sTime, eTime, timeSettings, new Color({r: 255, g: 255, b: 255}), orbitName.concat(String(i + 1)), false, "solid"));
     }
     return orbitTraces;
 }
