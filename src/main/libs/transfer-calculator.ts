@@ -251,7 +251,7 @@ class TransferCalculator {
     private setEjectionOrbits() {
         const nEjections = this._sequenceUp.length - 1;
         this._ejections = Trajectories.ejectionTrajectories(this._system, this._startOrbit, this._transferTrajectory.orbits[0], this._sequenceUp, this._startDate, 
-                                                            this._matchStartMo, this._ejectionInsertionType, this._soiPatchPositions.slice(0, nEjections + 1));
+                                                            this._matchStartMo, this._ejectionInsertionType, this._soiPatchPositions.slice(0, nEjections));
         // store ejection maneuvers
         const ejectionManeuvers: Maneuver[] = [];
         for(let i=0; i<nEjections; i++) {
@@ -306,6 +306,7 @@ class TransferCalculator {
             const inDate = this._insertions[j].intersectTimes[0];
             soiPatchPositions.push(Kepler.orbitToPositionAtDate(inOrbit, inDate));
         }
+        console.log(soiPatchPositions.map(p => mag3(p)))
         return soiPatchPositions
     }
 

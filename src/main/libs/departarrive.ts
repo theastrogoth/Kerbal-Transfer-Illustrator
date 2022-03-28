@@ -150,6 +150,12 @@ namespace DepartArrive {
         const hypSLR    = hypSMA  * (1 - hypEcc  * hypEcc); 
         const hypNu     = c * Kepler.trueAnomalyAtDistance(soi, hypEcc,  hypSLR);   // true anomaly at SoI
         const obrNu     = -c * Math.PI
+
+        // TO DO: use law of cosines to deal with oberth maneuver start position
+        // get angle between start postion direction and the SoI patch vector
+        // calculate the radius of the start position
+        // set the start position and true anomaly of the parking orbit
+
         const hypDelta  = Kepler.motionAngleAtTrueAnomaly(hypNu, hypEcc);           // angle of motion direction at SoI
 
         const delta     = c * (hypDelta - obrNu);
@@ -166,7 +172,7 @@ namespace DepartArrive {
         const soiVelSq = magSq3(relativeVel);
         const hypEnergy  = soiVelSq  / 2 - mu / soi;
 
-        const obrEcc    = (apoapsis - periapsis) / (periapsis - apoapsis * Math.cos(obrNu));
+        const obrEcc    = (apoapsis - periapsis) / (periapsis + apoapsis);
         const obrSMA    = periapsis / (1 - obrEcc);
         const obrEnergy = -mu  / (2 * obrSMA) ;
 

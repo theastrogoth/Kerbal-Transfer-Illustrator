@@ -177,7 +177,7 @@ function porkchopInputsFromUI(system: SolarSystem, startOrbitControlsState: Orbi
   startDateMax,
   flightTimeMin,
   flightTimeMax,
-  nTimes:                51,
+  nTimes:                201,
   ejectionInsertionType: "fastoberth",
   planeChange,
   matchStartMo,
