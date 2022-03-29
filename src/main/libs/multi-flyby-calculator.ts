@@ -130,6 +130,7 @@ class MultiFlybyCalculator {
             flybys:                 this._flybys,
             soiPatchPositions:      this._soiPatchPositions,
             flybyDurations:         this._flybyDurations,
+            ejectionInsertionType:  this._ejectionInsertionType,
             planeChange:            this._planeChange,
             matchStartMo:           this._matchStartMo,
             matchEndMo:             this._matchEndMo,

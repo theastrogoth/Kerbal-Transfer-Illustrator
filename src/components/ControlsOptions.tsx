@@ -13,10 +13,12 @@ export type ControlsOptionsState = {
     planeChange:        boolean,
     matchStartMo:       boolean,
     matchEndMo:         boolean,
+    oberthManeuvers:    boolean,
     noInsertionBurn:    boolean,
     setPlaneChange:     React.Dispatch<React.SetStateAction<boolean>>,
     setMatchStartMo:    React.Dispatch<React.SetStateAction<boolean>>,
     setMatchEndMo:      React.Dispatch<React.SetStateAction<boolean>>,
+    setOberthManeuvers: React.Dispatch<React.SetStateAction<boolean>>,
     setNoInsertionBurn: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
@@ -46,6 +48,16 @@ function ControlsOptions({state}: {state: ControlsOptionsState}) {
                 >
                     <FormControlLabel value={false} control={<Radio />} label="Ballistic" />
                     <FormControlLabel value={true}  control={<Radio />} label="Mid-course plane change" />
+                </RadioGroup>
+            </FormControl>
+            <FormControl>
+                <FormLabel>Departure/Arrival Type</FormLabel>
+                <RadioGroup
+                    defaultValue={false}
+                    onChange={handleChange(state.setOberthManeuvers)}
+                >
+                    <FormControlLabel value={false} control={<Radio />} label="Direct maneuvers (one-impulse)" />
+                    <FormControlLabel value={true}  control={<Radio />} label="Oberth maneuvers (two-impulse)" />
                 </RadioGroup>
             </FormControl>
             <FormGroup>

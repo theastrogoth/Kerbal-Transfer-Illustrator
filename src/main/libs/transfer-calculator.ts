@@ -306,7 +306,6 @@ class TransferCalculator {
             const inDate = this._insertions[j].intersectTimes[0];
             soiPatchPositions.push(Kepler.orbitToPositionAtDate(inOrbit, inDate));
         }
-        console.log(soiPatchPositions.map(p => mag3(p)))
         return soiPatchPositions
     }
 
@@ -363,14 +362,6 @@ class TransferCalculator {
         return err;
     }
 
-    // private upTimeOffset() {
-    //     return this.soiPatchUpTimeErrors().reduce((p,c) => p + c);
-    // }
-
-    // private downTimeOffset() {
-    //     return this.soiPatchDownTimeErrors().reduce((p,c) => p + c);
-    // }
-
     private patchPositionsToAngles(positions: Vector3[] = this._soiPatchPositions): number[] {
         // angles are returned in a single vector, [theta_1, phi_1, theta_2, phi_2, ...]
         const angles: number[] = [];
@@ -387,26 +378,6 @@ class TransferCalculator {
             this._soiPatchPositions[i] = sphericalToCartesian({r: this._soiPatchBodies[i].soi, theta: angles[2*i], phi: angles[2*i + 1]});
         }
     }
-    
-    // private startDateOffset() {
-    //     let off = 0.0;
-    //     const lastEjIdx = this._ejections.length - 1;
-    //     if(lastEjIdx >= 0) {
-    //         const ejLen = this._ejections[lastEjIdx].orbits.length;
-    //         const ejTime = this._ejections[ejLen -1].intersectTimes[ejLen];
-    //         off += ejTime - this._startDate;
-    //     }
-    //     return off;
-    // }
-
-    // private endDateOffset() {
-    //     let off = 0.0;
-    //     if(this._insertions.length > 0) {
-    //         const inTime = this._insertions[0].intersectTimes[0];
-    //         off += inTime - this._endDate;
-    //     }
-    //     return off;
-    // }
 
     public optimizeSoiPatchPositions(tol: number = 0.001, maxit: number = this._soiPatchPositions.length * 100) {
         console.log("\tOptimizing transfer SoI patch positions only.")

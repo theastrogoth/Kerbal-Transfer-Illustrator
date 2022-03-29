@@ -127,16 +127,17 @@ namespace FlybyCalcs {
             flightTimes.push(ft);
         }
         return  {
-            system:          inputs.system,
-            startOrbit:      inputs.startOrbit,
-            endOrbit:        inputs.endOrbit,
-            flybyIdSequence: inputs.flybyIdSequence,
+            system:                 inputs.system,
+            startOrbit:             inputs.startOrbit,
+            endOrbit:               inputs.endOrbit,
+            flybyIdSequence:        inputs.flybyIdSequence,
             startDate,
             flightTimes,
-            planeChange:     inputs.planeChange,
-            matchStartMo:    inputs.matchStartMo,
-            matchEndMo:      inputs.matchEndMo,
-            noInsertionBurn: inputs.noInsertionBurn,
+            ejectionInsertionType:  inputs.ejectionInsertionType,
+            planeChange:            inputs.planeChange,
+            matchStartMo:           inputs.matchStartMo,
+            matchEndMo:             inputs.matchEndMo,
+            noInsertionBurn:        inputs.noInsertionBurn,
         };
     }
 }

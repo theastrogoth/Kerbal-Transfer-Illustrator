@@ -99,6 +99,7 @@ interface IMultiFlyby {
     readonly soiPatchPositions:     Vector3[],
     readonly flybyDurations:        {inTime: number, outTime: number, total: number}[];
     readonly deltaV:                number,
+    readonly ejectionInsertionType: "fastdirect" | "direct" | "fastoberth" | "oberth";
     readonly planeChange:           boolean,
     readonly matchStartMo:          boolean,
     readonly matchEndMo:            boolean,
@@ -223,18 +224,19 @@ type MultiFlybyInputs = {
 }
 
 type MultiFlybySearchInputs = {
-    readonly system:            SolarSystem;
-    readonly startOrbit:        IOrbit;
-    readonly endOrbit:          IOrbit;
-    readonly flybyIdSequence:   number[];
-    readonly startDateMin:      number;
-    readonly startDateMax:      number;
-    readonly flightTimesMin:    number[];
-    readonly flightTimesMax:    number[];
-    readonly planeChange?:      boolean;
-    readonly matchStartMo?:     boolean;
-    readonly matchEndMo?:       boolean;
-    readonly noInsertionBurn?:  boolean;
+    readonly system:                    SolarSystem;
+    readonly startOrbit:                IOrbit;
+    readonly endOrbit:                  IOrbit;
+    readonly flybyIdSequence:           number[];
+    readonly startDateMin:              number;
+    readonly startDateMax:              number;
+    readonly flightTimesMin:            number[];
+    readonly flightTimesMax:            number[];
+    readonly ejectionInsertionType?:    "fastdirect" | "direct" | "fastoberth" | "oberth",
+    readonly planeChange?:              boolean;
+    readonly matchStartMo?:             boolean;
+    readonly matchEndMo?:               boolean;
+    readonly noInsertionBurn?:          boolean;
 }
 
 // Plotting and Display

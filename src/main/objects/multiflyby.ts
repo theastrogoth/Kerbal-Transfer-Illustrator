@@ -19,6 +19,7 @@ class MultiFlyby implements IMultiFlyby {
     readonly deltaV:                 number;
     readonly soiPatchPositions:      Vector3[];
     readonly flybyDurations:         { inTime: number; outTime: number; total: number; }[];
+    readonly ejectionInsertionType:  "fastdirect" | "direct" | "fastoberth" | "oberth";
     readonly planeChange:            boolean;
     readonly matchStartMo:           boolean;
     readonly matchEndMo:             boolean;
@@ -50,6 +51,8 @@ class MultiFlyby implements IMultiFlyby {
         this.soiPatchPositions      = inputs.soiPatchPositions;
         this.flybyDurations         = inputs.flybyDurations;
 
+        this.ejectionInsertionType = inputs.ejectionInsertionType;
+        
         this.planeChange     = inputs.planeChange;
         this.matchStartMo    = inputs.matchStartMo;
         this.matchEndMo      = inputs.matchEndMo;
@@ -77,6 +80,7 @@ class MultiFlyby implements IMultiFlyby {
             deltaV:                 this.deltaV,
             soiPatchPositions:      this.soiPatchPositions,
             flybyDurations:         this.flybyDurations,
+            ejectionInsertionType:  this.ejectionInsertionType,
             planeChange:            this.planeChange,
             matchStartMo:           this.matchStartMo,
             matchEndMo:             this.matchEndMo,
