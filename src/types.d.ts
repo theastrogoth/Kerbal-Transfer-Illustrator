@@ -46,6 +46,7 @@ interface ITransfer {
     readonly ejections:                 Trajectory[];
     readonly insertions:                Trajectory[];
     readonly maneuvers:                 Maneuver[];
+    readonly maneuverContexts:          String[];
     readonly deltaV:                    number;
     readonly soiPatchPositions:         Vector3[];
     readonly ejectionInsertionType:     "fastdirect" | "direct" | "fastoberth" | "oberth";
@@ -96,6 +97,7 @@ interface IMultiFlyby {
     readonly transfers:             Trajectory[],
     readonly flybys:                Trajectory[],
     readonly maneuvers:             Maneuver[],
+    readonly maneuverContexts:      String[],
     readonly soiPatchPositions:     Vector3[],
     readonly flybyDurations:        {inTime: number, outTime: number, total: number}[];
     readonly deltaV:                number,

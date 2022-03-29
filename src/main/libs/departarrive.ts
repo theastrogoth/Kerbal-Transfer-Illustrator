@@ -155,43 +155,33 @@ namespace DepartArrive {
 
         const delta     = c * (hypDelta - obrNu);
 
-        // FIX: delta describes angle in the maneuver plane, not the parking plane!
-        const startNu = wrapAngle(Kepler.angleInOrbitPlane(relativeVel, parkOrbit) - c * delta);
-        let startPos  = Kepler.positionAtTrueAnomaly(parkOrbit, startNu);
-        let parkNu    = startNu;
-        let parkPos   = startPos;
+        // Find the true anomaly for the parking orbit that makes the Oberth orbit a half-ellipse
+        let parkNu = wrapAngle(Kepler.angleInOrbitPlane(relativeVel, parkOrbit) - c * delta);
 
-        // use law of cosines to deal with oberth maneuver start position
-        if(mag3(soiPatchPosition) > 0) {
-            // get angle between start postion direction and the SoI patch vector
-            const cosStartPatchAngle = dot3(normalize3(startPos), normalize3(mult3(soiPatchPosition, -1)));                            
-
-            // calculate the radius of the start position
-            const cSq = magSq3(startPos);
-            const c   = Math.sqrt(cSq);
-            const aSq = magSq3(soiPatchPosition);
-            const a   = Math.sqrt(aSq);
-            const startDist = a*cosStartPatchAngle + Math.sqrt(aSq * cosStartPatchAngle * cosStartPatchAngle - aSq + cSq);  
-
-            // update the start and parking orbit positions
-            startPos = mult3(startPos, startDist / c);
-            parkPos  = sub3(startPos, soiPatchPosition);
-            parkNu   = Kepler.angleInOrbitPlane(parkPos, parkOrbit);
-
-            const parkPosAgain = Kepler.positionAtTrueAnomaly(parkOrbit, parkNu);
-            const err = mag3(sub3(parkPos, parkPosAgain));
-            if(err > 1) {
-                console.log(parkNu, parkPos, startPos, soiPatchPosition, err)
+        const parkNuObj = (parkNu: number) => {
+            const parkPos = Kepler.positionAtTrueAnomaly(parkOrbit, parkNu);
+            const startPos = add3(parkPos, soiPatchPosition);
+            let nDir = normalize3(cross3(startPos, relativeVel));    // direction normal to the trajectory plane
+            if(nDir.z < 0) {
+                nDir = mult3(nDir, -1);
             }
+            const deltaForNu = c === 1 ? counterClockwiseAngleInPlane(startPos, relativeVel, nDir) : // angle between incoming and outgoing velocity vectors (flyby angle)
+                                         counterClockwiseAngleInPlane(relativeVel, startPos, nDir) 
+            return Math.abs(deltaForNu - delta);
         }
+        parkNu = parkOrbit.eccentricity < 1 ? brentMinimize(parkNuObj, parkNu - Math.PI, parkNu + Math.PI) 
+                                            : brentMinimize(parkNuObj, insertionTrueAnomaly(parkOrbit, parkBody), ejectionTrueAnomaly(parkOrbit, parkBody));
 
-        const apoapsis  = mag3(startPos);
-
+        // set positions and speeds
+        const parkPos  = Kepler.positionAtTrueAnomaly(parkOrbit, parkNu);
+        const startPos = add3(parkPos, soiPatchPosition);
         let nDir = normalize3(cross3(startPos, relativeVel));    // direction normal to the trajectory plane
         if(nDir.z < 0) {
             nDir = mult3(nDir, -1);
         }
-  
+
+        const apoapsis  = mag3(startPos);
+
         const soiVelSq = magSq3(relativeVel);
         const hypEnergy  = soiVelSq  / 2 - mu / soi;
 

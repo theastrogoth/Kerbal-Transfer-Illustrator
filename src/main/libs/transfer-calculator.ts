@@ -35,6 +35,7 @@ class TransferCalculator {
     private _matchEndMo:                boolean;
 
     private _maneuvers:                 Maneuver[];
+    private _maneuverContexts:          String[];
     private _deltaV!:                   number;
 
     constructor(inputs: TransferInputs) {
@@ -82,6 +83,7 @@ class TransferCalculator {
         this._ejections = [];
         this._insertions = [];
         this._maneuvers = [];
+        this._maneuverContexts = [];
 
         // if not provided set all soi patch corrections to zero
         if(!inputs.soiPatchPositions) {
@@ -121,6 +123,7 @@ class TransferCalculator {
             ejections:   this._ejections,
             insertions:  this._insertions,
             maneuvers:              this._maneuvers,
+            maneuverContexts:       this._maneuverContexts,
             deltaV:                 this._deltaV,
             soiPatchPositions:      this._soiPatchPositions,
             ejectionInsertionType:  this._ejectionInsertionType,
@@ -142,6 +145,7 @@ class TransferCalculator {
         this._ejections = [];
         this._insertions = [];
         this._maneuvers = [];
+        this._maneuverContexts = [];
     }
 
     ///// Trajectory calculation /////
@@ -151,6 +155,7 @@ class TransferCalculator {
         this.setTransferOrbit();
         this.setEjectionOrbits();
         this.setInsertionOrbits();
+        this.setManeuvers();
         this.setDeltaV();        
     }
 
@@ -232,51 +237,84 @@ class TransferCalculator {
         const endPatchPos = endPatchIdx <= this._soiPatchPositions.length ? this._soiPatchPositions[endPatchIdx] : vec3(0.0, 0.0, 0.0);
 
         this._transferTrajectory = Trajectories.transferTrajectory(sOrb, eOrb, this._transferBody, this._startDate, this._flightTime, this._endDate, this._planeChange, startPatchPos, endPatchPos);
-
-        // If there are no ejection orbits, add the first burn maneuver to the list
-        if(this._sequenceUp.length === 1) {
-            this._maneuvers.push(this._transferTrajectory.maneuvers[0]);
-        }
-        // If there is a plane change burn, add it to the maneuver list
-        if(this._planeChange) {
-            this._maneuvers.push(this._transferTrajectory.maneuvers[1]);
-        }
-        // If there are no insertion orbits, add the last burn maneuver to the list
-        if(this._sequenceUp.length === 1) {
-            const transferLength = this._transferTrajectory.orbits.length;
-            this._maneuvers.push(this._transferTrajectory.maneuvers[transferLength]);
-        }
     }
 
     private setEjectionOrbits() {
         const nEjections = this._sequenceUp.length - 1;
         this._ejections = Trajectories.ejectionTrajectories(this._system, this._startOrbit, this._transferTrajectory.orbits[0], this._sequenceUp, this._startDate, 
                                                             this._matchStartMo, this._ejectionInsertionType, this._soiPatchPositions.slice(0, nEjections));
-        // store ejection maneuvers
-        const ejectionManeuvers: Maneuver[] = [];
-        for(let i=0; i<nEjections; i++) {
-            if(i > 0) { // ignore the periapsis burn 
-                ejectionManeuvers.push(...this._ejections[i].maneuvers.slice(1));
-            } else {    // except for the first ejection
-                ejectionManeuvers.push(...this._ejections[i].maneuvers);
-            }
-        }
-        this._maneuvers = [...ejectionManeuvers, ...this._maneuvers]
     }
 
     private setInsertionOrbits() {
         const nEjections  = this._sequenceUp.length   - 1;
-        const nInsertions = this._sequenceDown.length - 1;
         const transferLength = this._transferTrajectory.orbits.length;
         this._insertions = Trajectories.insertionTrajectories(this._system, this._endOrbit, this._transferTrajectory.orbits[transferLength- 1], this._sequenceDown, this._endDate, 
                                                               this._matchEndMo, this._ejectionInsertionType, this._soiPatchPositions.slice(nEjections));
-        // store insertion orbits and maneuvers
-        for(let i=0; i<nInsertions; i++) {
-            if(i < nInsertions - 1) { // ignore the periapsis burn
-                this._maneuvers.push(...this._insertions[i].maneuvers.slice(0,-1));
-            } else {                  // except for the last insertion
-                this._maneuvers.push(...this._insertions[i].maneuvers)
+    }
+
+    private setManeuvers() {
+        this._maneuvers = [];
+        this._maneuverContexts = [];
+        if(this._ejections.length > 0) {
+            for(let i=0; i<this._ejections.length; i++) {
+                if(i === 0) {
+                    const maneuvers = this._ejections[i].maneuvers;
+                    const bodyname = this.bodyFromId(this._ejections[i].orbits[0].orbiting).name;
+                    const contexts = ["Departure Burn"];
+                    for(let j=0; j<maneuvers.length - 1; j++) {
+                        contexts.push("Oberth Maneuver Burn over " + bodyname)
+                    }
+                    this._maneuvers.push(...maneuvers);
+                    this._maneuverContexts.push(...contexts);
+                } else {
+                    const maneuvers = this._ejections[i].maneuvers.slice(1)
+                    const bodyname = this.bodyFromId(this._ejections[i].orbits[0].orbiting).name;
+                    const contexts: String[] = [];
+                    for(let j=0; j<maneuvers.length; j++) {
+                        contexts.push("Oberth Maneuver Burn over " + bodyname)
+                    }
+                    this._maneuvers.push(...maneuvers);
+                    this._maneuverContexts.push(...contexts);
+                }
             }
+        } else {
+            this._maneuvers.push(this._transferTrajectory.maneuvers[0]);
+            this._maneuverContexts.push("Departure Burn")
+        }
+
+        if(this._transferTrajectory.maneuvers.length > 2) {
+            const maneuvers = this._transferTrajectory.maneuvers.slice(1,-1);
+            const contexts  = maneuvers.map(m => "Plane Change Burn")
+            this._maneuvers.push(...maneuvers);
+            this._maneuverContexts.push(...contexts);
+        }
+
+        if(this._insertions.length > 0) {
+            for(let i=0; i<this._insertions.length; i++) {
+                if(i === this._insertions.length - 1) {
+                    const maneuvers = this._insertions[i].maneuvers;
+                    const bodyname = this.bodyFromId(this._insertions[i].orbits[0].orbiting).name;
+                    const contexts = ["Arrival Burn"];
+                    for(let j=0; j<maneuvers.length - 1; j++) {
+                        contexts.push("Oberth Maneuver Burn over " + bodyname)
+                    }
+                    this._maneuvers.push(...maneuvers);
+                    this._maneuverContexts.push(...contexts);
+                } else {
+                    const maneuvers = this._insertions[i].maneuvers.slice(0,-1);
+                    const bodyname = this.bodyFromId(this._insertions[i].orbits[0].orbiting).name;
+                    const contexts: String[] = [];
+                    for(let j=0; j<maneuvers.length; j++) {
+                        contexts.push("Oberth Maneuver Burn over " + bodyname)
+                    }
+                    this._maneuvers.push(...maneuvers);
+                    this._maneuverContexts.push(...contexts)
+                }
+            }
+        } else {
+            const lastManLen = this._transferTrajectory.maneuvers.length;
+            this._maneuvers.push(this._transferTrajectory.maneuvers[lastManLen - 1]);
+            this._maneuverContexts.push("Arrival Burn")
         }
     }
 
@@ -408,13 +446,6 @@ class TransferCalculator {
     }
 
     private initialPositionAndAnglePoints() {
-        const sOrb = this._sequenceUp.length === 1 ? 
-        this._startOrbit : 
-            (this.bodyFromId(this._sequenceUp[this._sequenceUp.length - 2]) as IOrbitingBody).orbit;
-        const eOrb = this._sequenceDown.length ===1 ? 
-            this._endOrbit : 
-            (this.bodyFromId(this._sequenceDown[1]) as IOrbitingBody).orbit;
-
         const initialPoints: number[][] = [[this._startDate, this._flightTime, ...this.patchPositionsToAngles()],                                                                                           // current start and end dates
                                            [this._startDate + randomSign() * Math.random() * this._transferTrajectory.orbits[0].siderealPeriod / 4, this._flightTime, ...this.patchPositionsToAngles()],    // perturb start date
                                            [this._startDate, this._flightTime + randomSign() * Math.random() * this._transferTrajectory.orbits[0].siderealPeriod / 4, ...this.patchPositionsToAngles()]];   // perturb end date

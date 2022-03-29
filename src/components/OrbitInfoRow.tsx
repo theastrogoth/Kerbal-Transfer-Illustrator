@@ -31,7 +31,7 @@ function OrbitInfoRow({name, orbit, system}: {name: string, orbit: IOrbit, syste
                     {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
                 </IconButton>
             </TableCell>
-            <TableCell sx={{ borderBottom: 0, fontWeight: 700 }}>{name}</TableCell>
+            <TableCell sx={{ borderBottom: 0}}>{name}</TableCell>
         </TableRow>
         <TableRow>
             <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={2}>

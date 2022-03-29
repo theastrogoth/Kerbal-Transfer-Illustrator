@@ -183,6 +183,7 @@ const blankMultiFlyby: MultiFlyby = new MultiFlyby({
   insertions:             [],
   flybys:                 [],
   maneuvers:              [],
+  maneuverContexts:       [],
   deltaV:                 0,
   soiPatchPositions:      [],
   flybyDurations:         [],

@@ -369,6 +369,7 @@ function TransferAppContent() {
     ejections:              [],
     insertions:             [],
     maneuvers:              [],
+    maneuverContexts:       [],
     deltaV:                 0.0,
     ejectionInsertionType:  "fastoberth",
     planeChange:            false,

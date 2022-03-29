@@ -50,8 +50,6 @@ function EvolutionPlot({inputs, buttonPresses, searchCount, setMultiFlyby, setCa
                     const calculator = new MultiFlybyCalculator(mfInputs);
                     calculator.computeFullTrajectory();
                     setMultiFlyby(calculator.multiFlyby)
-                    console.log(calculator.data.soiPatchPositions)
-                    console.log(calculator.data.insertions)
                     setCalculating(false);
                     setSearchCount(searchCount + 1);
                 }

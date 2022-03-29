@@ -10,7 +10,7 @@ import Stack from "@mui/material/Stack";
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 
-import OrbitInfoRow from "../OrbitInfoRow";
+import TrajectoryInfoRow from "../TrajectoryInfoRow";
 import ManeuverInfoRow from "../ManeuverInfoRow";
 
 import MultiFlyby from "../../main/objects/multiflyby";
@@ -25,42 +25,28 @@ function MultiFlybyInfo({multiFlyby, timeSettings}: {multiFlyby: MultiFlyby, tim
     const duration = arrivalTime - departureTime;
 
     const lastIdx = multiFlyby.transfers.length - 1;
-    const lastManeuverIdx = multiFlyby.maneuvers.length - 1;
 
     const maneuverInfoRows: JSX.Element[] = []
-    if(lastManeuverIdx >= 0) {
-        maneuverInfoRows.push(<ManeuverInfoRow key={"maneuverDepart"}  name={"Departure Burn"}  maneuver={multiFlyby.maneuvers[0]} timeSettings={timeSettings}/>);
-        let maneuverCounter = 1;
-        for(let i=0; i<= lastIdx; i++) {
-            if(multiFlyby.transfers[i].maneuvers.length > 2) {
-                maneuverInfoRows.push(<ManeuverInfoRow key={"planeChange"+String(i+1)} name={"Plane Change "+String(i+1)}  maneuver={multiFlyby.maneuvers[maneuverCounter]} timeSettings={timeSettings}/>);
-                maneuverCounter++;
-            }
-            if(i < lastIdx) {
-                maneuverInfoRows.push(<ManeuverInfoRow key={"flyby"+String(i+1)}  name={multiFlyby.system.bodyFromId(multiFlyby.flybyIdSequence[i]).name + " Flyby"}  maneuver={multiFlyby.maneuvers[maneuverCounter]} timeSettings={timeSettings}/>)
-                maneuverCounter++;
-            }
-        }
-        if(!multiFlyby.noInsertionBurn) {
-            maneuverInfoRows.push(<ManeuverInfoRow key={"maneuverArrive"+String(lastManeuverIdx+1)} name={"Arrival Burn"} maneuver={multiFlyby.maneuvers[lastManeuverIdx]} timeSettings={timeSettings}/>)
+    if(multiFlyby.maneuvers.length > 0) {
+        for(let i=0; i<multiFlyby.maneuvers.length; i++) {
+            maneuverInfoRows.push(<ManeuverInfoRow key={"maneuver"+String(i+1)} name={multiFlyby.maneuverContexts[i]}  maneuver={multiFlyby.maneuvers[i]} timeSettings={timeSettings}/>)
         }
     }
 
-    const orbitInfoRows: JSX.Element[] = [];
+    const trajectoryInfoRows: JSX.Element[] = [];
     if(lastIdx >= 0){
-        orbitInfoRows.push(<OrbitInfoRow key="start" name="Starting Orbit" orbit={multiFlyby.startOrbit} system={multiFlyby.system}/>)
-        orbitInfoRows.push(...multiFlyby.ejections.map((traj, tidx) => traj.orbits.map((orbit, index) => <OrbitInfoRow key={"ejection"+String(tidx+1)+String(index+1)}  name={"Ejection from " + multiFlyby.system.bodyFromId(orbit.orbiting).name}  orbit={orbit} system={multiFlyby.system}/>)).flat());
+        trajectoryInfoRows.push(<TrajectoryInfoRow key="start" name="Start" orbitnames={["Starting Orbit"]} trajectory={[multiFlyby.startOrbit]} system={multiFlyby.system}/>)
+        trajectoryInfoRows.push(...multiFlyby.ejections.map((traj, idx) => <TrajectoryInfoRow key={"ejection"+String(idx+1)} name={"Escape from " + multiFlyby.system.bodyFromId(traj.orbits[0].orbiting).name} orbitnames={traj.orbits.length > 1 ? ["Oberth Maneuver Orbit", "Outgoing Orbit"] : ["Outgoing Orbit"]} trajectory={traj.orbits} system={multiFlyby.system}/>));
         for(let i=0; i<=lastIdx; i++) {
             const bodyName = i < lastIdx ? multiFlyby.system.bodyFromId(multiFlyby.flybyIdSequence[i]).name : multiFlyby.insertions.length > 0 ? multiFlyby.system.bodyFromId(multiFlyby.insertions[0].orbits[0].orbiting).name : "Target";
-            orbitInfoRows.push(...multiFlyby.transfers[i].orbits.map((orbit,index) => <OrbitInfoRow key={"transfer"+String(i+1)+String(index+1)} name={"Transfer To " + bodyName} orbit={orbit} system={multiFlyby.system}/>));
+            trajectoryInfoRows.push(<TrajectoryInfoRow key={"transfer"+String(i+1)} name={"Transfer to " + bodyName} orbitnames={multiFlyby.transfers[i].orbits.length > 1 ? ["Orbit before plane change", "Orbit after plane change"] : ["Transfer Orbit"]} trajectory={multiFlyby.transfers[i].orbits} system={multiFlyby.system}/>);
             if(i < lastIdx) {
-                orbitInfoRows.push(...[<OrbitInfoRow key={"inflyby"+String(i+1)}  name={bodyName +" Encounter"} orbit={multiFlyby.flybys[i].orbits[0]}  system={multiFlyby.system}/>, 
-                                       <OrbitInfoRow key={"outflyby"+String(i+1)} name={bodyName +" Escape"}    orbit={multiFlyby.flybys[i].orbits[1]} system={multiFlyby.system}/>]);
+                trajectoryInfoRows.push(<TrajectoryInfoRow key={"flyby"+String(i+1)} name={bodyName +" Flyby"} orbitnames={["Incoming Orbit", "Outgoing Orbit"]} trajectory={multiFlyby.flybys[i].orbits} system={multiFlyby.system}/>);
             }
         }
-        orbitInfoRows.push(...multiFlyby.insertions.map((traj, tidx) => traj.orbits.map((orbit, index) => <OrbitInfoRow key={"insertion"+String(tidx+1)+String(index+1)}  name={"Insertion at " + multiFlyby.system.bodyFromId(orbit.orbiting).name}  orbit={orbit} system={multiFlyby.system}/>)).flat());
+        trajectoryInfoRows.push(...multiFlyby.insertions.map((traj, idx) => <TrajectoryInfoRow key={"insertion"+String(idx+1)} name={"Encounter at " + multiFlyby.system.bodyFromId(traj.orbits[0].orbiting).name}  orbitnames={traj.orbits.length > 1 ? [ "Incoming Orbit", "Oberth Maneuver Orbit"] : ["Incoming Orbit"]} trajectory={traj.orbits} system={multiFlyby.system}/>));
         if(!multiFlyby.noInsertionBurn) {
-           orbitInfoRows.push(<OrbitInfoRow key="end" name="Target Orbit" orbit={multiFlyby.endOrbit} system={multiFlyby.system}/>)
+           trajectoryInfoRows.push(<TrajectoryInfoRow key="end" name="End" orbitnames={["Target Orbit"]} trajectory={[multiFlyby.endOrbit]} system={multiFlyby.system}/>)
         }
     }
 
@@ -113,7 +99,7 @@ function MultiFlybyInfo({multiFlyby, timeSettings}: {multiFlyby: MultiFlyby, tim
             <TableContainer>
                 <Table size="small">
                     <TableBody>
-                        {orbitInfoRows}
+                        {trajectoryInfoRows}
                     </TableBody>
                 </Table>
             </TableContainer>

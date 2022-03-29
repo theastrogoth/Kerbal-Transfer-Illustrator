@@ -17,6 +17,7 @@ export class Transfer implements ITransfer {
     readonly ejections:                 Trajectory[];
     readonly insertions:                Trajectory[];
     readonly maneuvers:                 Maneuver[];
+    readonly maneuverContexts:          String[];
     readonly deltaV:                    number;
     readonly soiPatchPositions:         Vector3[];
     readonly ejectionInsertionType:     "fastdirect" | "direct" | "fastoberth" | "oberth";
@@ -40,18 +41,19 @@ export class Transfer implements ITransfer {
             this.endDate = inputs.startDate + inputs.flightTime
         };
         this.transferTrajectory = inputs.transferTrajectory;
-        this.ejections = inputs.ejections;
-        this.insertions = inputs.insertions;
-        this.maneuvers = inputs.maneuvers;
-        this.deltaV = inputs.deltaV;
+        this.ejections          = inputs.ejections;
+        this.insertions         = inputs.insertions;
+        this.maneuvers          = inputs.maneuvers;
+        this.maneuverContexts   = inputs.maneuverContexts;
+        this.deltaV             = inputs.deltaV;
 
-        this.ejectionInsertionType = inputs.ejectionInsertionType;
-        this.planeChange     = inputs.planeChange;    
-        this.matchStartMo    = inputs.matchStartMo;
-        this.matchEndMo      = inputs.matchEndMo;       
-        this.noInsertionBurn = inputs.noInsertionBurn;
+        this.ejectionInsertionType  = inputs.ejectionInsertionType;
+        this.planeChange            = inputs.planeChange;    
+        this.matchStartMo           = inputs.matchStartMo;
+        this.matchEndMo             = inputs.matchEndMo;       
+        this.noInsertionBurn        = inputs.noInsertionBurn;
 
-        this.soiPatchPositions = inputs.soiPatchPositions;
+        this.soiPatchPositions  = inputs.soiPatchPositions;
 
         this.patchPositionError = inputs.patchPositionError;
         this.patchTimeError     = inputs.patchTimeError;
@@ -69,6 +71,7 @@ export class Transfer implements ITransfer {
             ejections:              this.ejections,
             insertions:             this.insertions,
             maneuvers:              this.maneuvers,
+            maneuverContexts:       this.maneuverContexts,
             deltaV:                 this.deltaV,
             soiPatchPositions:      this.soiPatchPositions,
             ejectionInsertionType:  this.ejectionInsertionType,
