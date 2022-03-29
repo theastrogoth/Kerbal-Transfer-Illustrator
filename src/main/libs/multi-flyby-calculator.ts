@@ -4,7 +4,6 @@ import FlybyCalcs from "./flybycalcs";
 import Kepler from "./kepler";
 import { sub3, mag3, vec3, randomSign, cartesianToSpherical, sphericalToCartesian, mult3 } from "./math";
 import { nelderMeadMinimize } from "./optim";
-import { createNamedExports } from "typescript";
 
 class MultiFlybyCalculator {
     private readonly _system!:          ISolarSystem;
@@ -27,24 +26,25 @@ class MultiFlybyCalculator {
     private _sequenceDown!:             number[];
 
     private _transferVelocities!:       {velOut: Vector3, velIn: Vector3}[];
-    private _flybyParams!:              FlybyParams[];
+    private _flybyParams:               FlybyParams[];
 
     private _transfers:                 Trajectory[];
     private _ejections:                 Trajectory[];
     private _insertions:                Trajectory[];
-    private _flybys!:                   Trajectory[];
+    private _flybys:                    Trajectory[];
 
     private _soiPatchPositions:         Vector3[];
     private _soiPatchBodies:            IOrbitingBody[];
     private _flybyDurations:            {inTime: number, outTime: number, total: number}[];
 
-    private _ejectionInsertionType:    "simple" | "direct" | "oberth";
+    private _ejectionInsertionType:    "fastdirect" | "fastoberth" | "direct" | "oberth";
     private _planeChange:               boolean;
     private _matchStartMo:              boolean;
     private _matchEndMo:                boolean;
     private _noInsertionBurn:           boolean;
 
-    private _maneuvers!:                Maneuver[];
+    private _maneuvers:                 Maneuver[];
+    private _maneuverContexts:          String[];
     private _deltaV!:                   number;
 
     constructor(inputs: MultiFlybyInputs) {
@@ -62,7 +62,7 @@ class MultiFlybyCalculator {
         this._endBody           = this.bodyFromId(this._endOrbit.orbiting);
         this._transferBody      = this.bodyFromId(this.commonAttractorId(this._startBody.id, this._endBody.id));
 
-        this._ejectionInsertionType = inputs.ejectionInsertionType === undefined ? "simple" : inputs.ejectionInsertionType;
+        this._ejectionInsertionType = inputs.ejectionInsertionType === undefined ? "fastdirect" : inputs.ejectionInsertionType;
         this._planeChange       = inputs.planeChange     === undefined ? false : inputs.planeChange;    
         this._matchStartMo      = inputs.matchStartMo    === undefined ? true  : inputs.matchStartMo;
         this._matchEndMo        = inputs.matchEndMo      === undefined ? false : inputs.matchEndMo;     
@@ -74,6 +74,7 @@ class MultiFlybyCalculator {
         this._transfers           = [];
         this._flybys              = [];
         this._maneuvers           = [];
+        this._maneuverContexts    = [];
         this._ejections           = [];
         this._insertions          = [];
 
@@ -130,11 +131,13 @@ class MultiFlybyCalculator {
             flybys:                 this._flybys,
             soiPatchPositions:      this._soiPatchPositions,
             flybyDurations:         this._flybyDurations,
+            ejectionInsertionType:  this._ejectionInsertionType,
             planeChange:            this._planeChange,
             matchStartMo:           this._matchStartMo,
             matchEndMo:             this._matchEndMo,
             noInsertionBurn:        this._noInsertionBurn,
             maneuvers:              this._maneuvers,
+            maneuverContexts:       this._maneuverContexts,
             deltaV:                 this._deltaV,
             patchPositionError:     this.soiPatchPositionError(),
             patchTimeError:         this.soiPatchTimeError(),
@@ -173,6 +176,8 @@ class MultiFlybyCalculator {
         this._transfers             = [];
         this._transferVelocities    = [];
         this._flybyEncounterDates   = [];
+        this._maneuvers             = [];
+        this._maneuverContexts      = [];
     }
 
     private bodyFromId(id: number) {
@@ -258,8 +263,6 @@ class MultiFlybyCalculator {
             const trajectory = Trajectories.transferTrajectory(sOrb, eOrb, this._transferBody, sDate, fTime, eDate, this._planeChange, sPatchPosition, ePatchPosition)
             this._transfers.push(trajectory);
             const manLen = trajectory.maneuvers.length;
-            const sVel = Kepler.orbitToVelocityAtDate(sOrb, this._transferBody, sDate);
-            const eVel = Kepler.orbitToVelocityAtDate(eOrb, this._transferBody, eDate);
             this._transferVelocities.push({
                 velOut: trajectory.maneuvers[0].deltaV, 
                 velIn:  mult3(trajectory.maneuvers[manLen - 1].deltaV, -1),
@@ -362,35 +365,77 @@ class MultiFlybyCalculator {
 
     private setManeuvers() {
         this._maneuvers = [];
+        this._maneuverContexts = [];
         if(this._ejections.length > 0) {
             for(let i=0; i<this._ejections.length; i++) {
                 if(i === 0) {
-                    this._maneuvers.push(...this._ejections[i].maneuvers);
+                    const maneuvers = this._ejections[i].maneuvers;
+                    const bodyname = this.bodyFromId(this._ejections[i].orbits[0].orbiting).name;
+                    const contexts = ["Departure Burn"];
+                    for(let j=0; j<maneuvers.length - 1; j++) {
+                        contexts.push("Oberth Maneuver Burn over " + bodyname)
+                    }
+                    this._maneuvers.push(...maneuvers);
+                    this._maneuverContexts.push(...contexts);
                 } else {
-                    this._maneuvers.push(...this._ejections[i].maneuvers.slice(1));
+                    const maneuvers = this._ejections[i].maneuvers.slice(1)
+                    const bodyname = this.bodyFromId(this._ejections[i].orbits[0].orbiting).name;
+                    const contexts: String[] = [];
+                    for(let j=0; j<maneuvers.length; j++) {
+                        contexts.push("Oberth Maneuver Burn over " + bodyname)
+                    }
+                    this._maneuvers.push(...maneuvers);
+                    this._maneuverContexts.push(...contexts);
                 }
             }
         } else {
             this._maneuvers.push(this._transfers[0].maneuvers[0]);
+            this._maneuverContexts.push("Departure Burn");
         }
         for(let i=0; i<this._transfers.length; i++) {
-            this._maneuvers.push(...this._transfers[i].maneuvers.slice(1,-1));
+            const tferManeuvers = this._transfers[i].maneuvers.slice(1,-1)
+            const tferContexts: String[] = [];
+            for(let j=0; j<tferManeuvers.length; j++) {
+                tferContexts.push("Plane Change Burn");
+            }
+            this._maneuvers.push(...tferManeuvers);
+            this._maneuverContexts.push(...tferContexts)
             if(i<this._transfers.length - 1) {
                 this._maneuvers.push(...this._flybys[i].maneuvers);
+                const flybyContexts: String[] = [];
+                for(let j=0; j<this._flybys[i].maneuvers.length; j++) {
+                    flybyContexts.push("Flyby Burn over " + this._flybyBodySequence[i].name);
+                }
+                this._maneuverContexts.push(...flybyContexts);
             }
         }
         if(this._insertions.length > 0) {
             for(let i=0; i<this._insertions.length; i++) {
                 if(i === this._insertions.length - 1) {
-                    this._maneuvers.push(...this._insertions[i].maneuvers);
+                    const maneuvers = this._insertions[i].maneuvers;
+                    const bodyname = this.bodyFromId(this._insertions[i].orbits[0].orbiting).name;
+                    const contexts = ["Arrival Burn"];
+                    for(let j=0; j<maneuvers.length - 1; j++) {
+                        contexts.push("Oberth Maneuver Burn over " + bodyname)
+                    }
+                    this._maneuvers.push(...maneuvers);
+                    this._maneuverContexts.push(...contexts);
                 } else {
-                    this._maneuvers.push(...this._insertions[i].maneuvers.slice(0,-1));
+                    const maneuvers = this._insertions[i].maneuvers.slice(0,-1);
+                    const bodyname = this.bodyFromId(this._insertions[i].orbits[0].orbiting).name;
+                    const contexts: String[] = [];
+                    for(let j=0; j<maneuvers.length; j++) {
+                        contexts.push("Oberth Maneuver Burn over " + bodyname)
+                    }
+                    this._maneuvers.push(...maneuvers);
+                    this._maneuverContexts.push(...contexts)
                 }
             }
         } else {
             const tferLen = this._transfers.length;
             const lastManLen = this._transfers[tferLen - 1].maneuvers.length;
             this._maneuvers.push(this._transfers[tferLen - 1].maneuvers[lastManLen - 1]);
+            this._maneuverContexts.push("Arrival Burn")
         }
     }
 

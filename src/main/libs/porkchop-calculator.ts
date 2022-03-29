@@ -19,7 +19,7 @@ class PorkchopCalculator {
     private _startDates!:           number[];
     private _nTimes:                number;
 
-    private _ejectionInsertionType: "simple" | "direct" | "oberth";
+    private _ejectionInsertionType: "fastdirect" | "direct" | "fastoberth" | "oberth";
     private _planeChange:           boolean;
     private _matchStartMo:          boolean;
     private _matchEndMo:            boolean;
@@ -43,8 +43,7 @@ class PorkchopCalculator {
         this._flightTimeMax = inputs.flightTimeMax;
         this._nTimes!       = inputs.nTimes;
 
-        this._ejectionInsertionType = inputs.ejectionInsertionType === undefined ? "simple" : inputs.ejectionInsertionType;
-        console.log(this._ejectionInsertionType)
+        this._ejectionInsertionType = inputs.ejectionInsertionType === undefined ? "fastdirect" : inputs.ejectionInsertionType;
         this._planeChange     = inputs.planeChange     === undefined ? false : inputs.planeChange;    
         this._matchStartMo    = inputs.matchStartMo    === undefined ? true  : inputs.matchStartMo;
         this._matchEndMo      = inputs.matchEndMo      === undefined ? false : inputs.matchEndMo;     

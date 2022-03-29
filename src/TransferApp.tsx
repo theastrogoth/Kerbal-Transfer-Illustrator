@@ -145,7 +145,7 @@ function defaultPorkchopTimes(system: SolarSystem, startOrbit: IOrbit, endOrbit:
 
 function porkchopInputsFromUI(system: SolarSystem, startOrbitControlsState: OrbitControlsState, endOrbitControlsState: OrbitControlsState,
                               earlyStartField: DateFieldState, lateStartField: DateFieldState, shortFlightField: DateFieldState, longFlightField: DateFieldState,
-                              planeChange: boolean, matchStartMo: boolean, matchEndMo: boolean, noInsertionBurn: boolean, timeSettings: TimeSettings): PorkchopInputs {
+                              planeChange: boolean, matchStartMo: boolean, matchEndMo: boolean, oberthManeuvers: boolean, noInsertionBurn: boolean, timeSettings: TimeSettings): PorkchopInputs {
   const startOrbit     = orbitFromControlsState(system, startOrbitControlsState);
   const endOrbit       = orbitFromControlsState(system, endOrbitControlsState);
 
@@ -178,7 +178,7 @@ function porkchopInputsFromUI(system: SolarSystem, startOrbitControlsState: Orbi
   flightTimeMin,
   flightTimeMax,
   nTimes:                201,
-  ejectionInsertionType: "simple",
+  ejectionInsertionType: oberthManeuvers ? "fastoberth" : "fastdirect",
   planeChange,
   matchStartMo,
   matchEndMo, 
@@ -340,16 +340,19 @@ function TransferAppContent() {
   const [planeChange, setPlaneChange] = useState(false);
   const [matchStartMo, setMatchStartMo] = useState(true);
   const [matchEndMo, setMatchEndMo] = useState(false);
+  const [oberthManeuvers, setOberthManeuvers] = useState(false);
   const [noInsertionBurn, setNoInsertionBurn] = useState(false);
 
   const controlsOptionsState: ControlsOptionsState = {
     planeChange,
     matchStartMo,
     matchEndMo,
+    oberthManeuvers,
     noInsertionBurn,
     setPlaneChange,
     setMatchStartMo,
     setMatchEndMo,
+    setOberthManeuvers,
     setNoInsertionBurn,
   }
 
@@ -366,8 +369,9 @@ function TransferAppContent() {
     ejections:              [],
     insertions:             [],
     maneuvers:              [],
+    maneuverContexts:       [],
     deltaV:                 0.0,
-    ejectionInsertionType:  "simple",
+    ejectionInsertionType:  "fastoberth",
     planeChange:            false,
     matchStartMo:           true,
     matchEndMo:             false,
@@ -404,7 +408,7 @@ function TransferAppContent() {
 
     // prepare porkchop inputs
     const porkInputs = porkchopInputsFromUI(system, startOrbitControlsState, endOrbitControlsState, earlyStartField, lateStartField, shortFlightField, longFlightField, 
-                                            planeChange, matchStartMo, matchEndMo, noInsertionBurn, timeSettings);
+                                            planeChange, matchStartMo, matchEndMo, oberthManeuvers, noInsertionBurn, timeSettings);
 
     setPorkchopInputs(porkInputs);
     console.log('"Plot!" button pressed.');

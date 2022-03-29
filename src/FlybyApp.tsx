@@ -143,7 +143,7 @@ function isInvalidOrbitInput(ocState: OrbitControlsState): boolean {
 }
 
 function searchInputsFromUI(system: SolarSystem, startOrbitControlsState: OrbitControlsState, endOrbitControlsState: OrbitControlsState, flybyIdSequence: number[], earlyStartField: DateFieldState, 
-                            lateStartField: DateFieldState, planeChange: boolean, matchStartMo: boolean, matchEndMo: boolean, noInsertionBurn: boolean, timeSettings: TimeSettings): MultiFlybySearchInputs {
+                            lateStartField: DateFieldState, planeChange: boolean, matchStartMo: boolean, matchEndMo: boolean, oberthManeuvers: boolean, noInsertionBurn: boolean, timeSettings: TimeSettings): MultiFlybySearchInputs {
   const startDateMin   = dateFieldIsEmpty(earlyStartField) ? 0.0 : timeFromDateFieldState(earlyStartField, timeSettings, 1, 1); 
   const startDateMax   = dateFieldIsEmpty(lateStartField)  ? startDateMin + 5 * 365 * 24 * 3600 : timeFromDateFieldState(lateStartField, timeSettings, 1, 1);
   const startOrbit     = orbitFromControlsState(system, startOrbitControlsState);
@@ -164,6 +164,7 @@ function searchInputsFromUI(system: SolarSystem, startOrbitControlsState: OrbitC
     matchStartMo,
     matchEndMo,
     noInsertionBurn,
+    ejectionInsertionType: oberthManeuvers ? "fastoberth" : "fastdirect",
   }
 }
 
@@ -182,9 +183,11 @@ const blankMultiFlyby: MultiFlyby = new MultiFlyby({
   insertions:             [],
   flybys:                 [],
   maneuvers:              [],
+  maneuverContexts:       [],
   deltaV:                 0,
   soiPatchPositions:      [],
   flybyDurations:         [],
+  ejectionInsertionType:  'fastdirect',
   planeChange:            false,
   matchStartMo:           false,
   matchEndMo:             false,
@@ -322,23 +325,26 @@ function FlybyAppContent() {
   const [planeChange, setPlaneChange] = useState(false);
   const [matchStartMo, setMatchStartMo] = useState(true);
   const [matchEndMo, setMatchEndMo] = useState(false);
+  const [oberthManeuvers, setOberthManeuvers] = useState(false);
   const [noInsertionBurn, setNoInsertionBurn] = useState(false);
 
   const controlsOptionsState: ControlsOptionsState = {
     planeChange,
     matchStartMo,
     matchEndMo,
+    oberthManeuvers,
     noInsertionBurn,
     setPlaneChange,
     setMatchStartMo,
     setMatchEndMo,
+    setOberthManeuvers,
     setNoInsertionBurn,
   }
 
 
   ///// Multi-flyby search inputs /////
   const [mfSearchInputs, setMfSearchInputs] = useState(searchInputsFromUI(system, startOrbitControlsState, endOrbitControlsState, flybyIdSequence, earlyStartField,
-                                                                          lateStartField, planeChange, matchStartMo, matchEndMo, noInsertionBurn, timeSettings))
+                                                                          lateStartField, planeChange, matchStartMo, matchEndMo, oberthManeuvers, noInsertionBurn, timeSettings))
 
   ///// Multi-flyby trajectory /////
   const [multiFlyby, setMultiFlyby] = useState(blankMultiFlyby);
@@ -375,7 +381,7 @@ function FlybyAppContent() {
     }
 
     const newMfSearchInputs = searchInputsFromUI(system, startOrbitControlsState, endOrbitControlsState, flybyIdSequence, earlyStartField,
-                                                 lateStartField, planeChange, matchStartMo, matchEndMo, noInsertionBurn, timeSettings);
+                                                 lateStartField, planeChange, matchStartMo, matchEndMo, oberthManeuvers, noInsertionBurn, timeSettings);
 
     setMfSearchInputs(newMfSearchInputs);
     setButtonPresses(buttonPresses + 1);

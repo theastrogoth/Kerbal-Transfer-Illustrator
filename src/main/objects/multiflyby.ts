@@ -16,9 +16,11 @@ class MultiFlyby implements IMultiFlyby {
     readonly transfers:              Trajectory[];
     readonly flybys:                 Trajectory[];
     readonly maneuvers:              Maneuver[];
+    readonly maneuverContexts:       String[];
     readonly deltaV:                 number;
     readonly soiPatchPositions:      Vector3[];
     readonly flybyDurations:         { inTime: number; outTime: number; total: number; }[];
+    readonly ejectionInsertionType:  "fastdirect" | "direct" | "fastoberth" | "oberth";
     readonly planeChange:            boolean;
     readonly matchStartMo:           boolean;
     readonly matchEndMo:             boolean;
@@ -40,23 +42,26 @@ class MultiFlyby implements IMultiFlyby {
         };
         this.transferBody           = this.system.bodyFromId(inputs.transferBody.id);
         this.flybyIdSequence        = inputs.flybyIdSequence;
-        this.transfers   = inputs.transfers;
-        this.ejections   = inputs.ejections;
-        this.insertions  = inputs.insertions;
+        this.transfers              = inputs.transfers;
+        this.ejections              = inputs.ejections;
+        this.insertions             = inputs.insertions;
         this.flybys                 = inputs.flybys;
         this.maneuvers              = inputs.maneuvers;
+        this.maneuverContexts       = inputs.maneuverContexts;
         this.deltaV                 = inputs.deltaV;
 
         this.soiPatchPositions      = inputs.soiPatchPositions;
         this.flybyDurations         = inputs.flybyDurations;
 
-        this.planeChange     = inputs.planeChange;
-        this.matchStartMo    = inputs.matchStartMo;
-        this.matchEndMo      = inputs.matchEndMo;
-        this.noInsertionBurn = inputs.noInsertionBurn;
+        this.ejectionInsertionType = inputs.ejectionInsertionType;
+        
+        this.planeChange            = inputs.planeChange;
+        this.matchStartMo           = inputs.matchStartMo;
+        this.matchEndMo             = inputs.matchEndMo;
+        this.noInsertionBurn        = inputs.noInsertionBurn;
 
-        this.patchPositionError = inputs.patchPositionError;
-        this.patchTimeError     = inputs.patchTimeError;
+        this.patchPositionError     = inputs.patchPositionError;
+        this.patchTimeError         = inputs.patchTimeError;
     }
 
     public get data(): IMultiFlyby {
@@ -74,9 +79,11 @@ class MultiFlyby implements IMultiFlyby {
             transfers:              this.transfers,
             flybys:                 this.flybys,
             maneuvers:              this.maneuvers,
+            maneuverContexts:       this.maneuverContexts,
             deltaV:                 this.deltaV,
             soiPatchPositions:      this.soiPatchPositions,
             flybyDurations:         this.flybyDurations,
+            ejectionInsertionType:  this.ejectionInsertionType,
             planeChange:            this.planeChange,
             matchStartMo:           this.matchStartMo,
             matchEndMo:             this.matchEndMo,
