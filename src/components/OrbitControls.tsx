@@ -99,7 +99,7 @@ function OrbitControls({label, system, vessels, state}: OrbitControlsProps) {
             state.setLan('0');
             state.setMoe('0');
             state.setEpoch('0');
-        } else if(event.target.value > 0 && event.target.value < vessels.length) {
+        } else if(event.target.value >= 0 && event.target.value < vessels.length) {
             state.setVesselId(event.target.value);
             const vessel = vessels[event.target.value];
             state.setBodyId(vessel.orbit.orbiting);
