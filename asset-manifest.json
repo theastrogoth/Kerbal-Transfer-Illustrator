@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/Kerbal-Transfer-Illustrator/static/css/main.dd10cbc9.css",
-    "main.js": "/Kerbal-Transfer-Illustrator/static/js/main.bcd5424a.js",
+    "main.js": "/Kerbal-Transfer-Illustrator/static/js/main.543ca583.js",
     "static/js/936.ff3eee49.chunk.js": "/Kerbal-Transfer-Illustrator/static/js/936.ff3eee49.chunk.js",
     "static/js/410.3ac2264d.chunk.js": "/Kerbal-Transfer-Illustrator/static/js/410.3ac2264d.chunk.js",
     "static/js/549.30c18eae.chunk.js": "/Kerbal-Transfer-Illustrator/static/js/549.30c18eae.chunk.js",
@@ -10,7 +10,7 @@
     "static/js/454.590c107a.chunk.js": "/Kerbal-Transfer-Illustrator/static/js/454.590c107a.chunk.js",
     "static/js/315.f1633ae0.chunk.js": "/Kerbal-Transfer-Illustrator/static/js/315.f1633ae0.chunk.js",
     "index.html": "/Kerbal-Transfer-Illustrator/index.html",
-    "main.bcd5424a.js.map": "/Kerbal-Transfer-Illustrator/static/js/main.bcd5424a.js.map",
+    "main.543ca583.js.map": "/Kerbal-Transfer-Illustrator/static/js/main.543ca583.js.map",
     "936.ff3eee49.chunk.js.map": "/Kerbal-Transfer-Illustrator/static/js/936.ff3eee49.chunk.js.map",
     "410.3ac2264d.chunk.js.map": "/Kerbal-Transfer-Illustrator/static/js/410.3ac2264d.chunk.js.map",
     "549.30c18eae.chunk.js.map": "/Kerbal-Transfer-Illustrator/static/js/549.30c18eae.chunk.js.map",
@@ -21,6 +21,6 @@
   },
   "entrypoints": [
     "static/css/main.dd10cbc9.css",
-    "static/js/main.bcd5424a.js"
+    "static/js/main.543ca583.js"
   ]
 }
