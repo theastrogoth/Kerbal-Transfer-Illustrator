@@ -1,4 +1,4 @@
-import { TWO_PI, HALF_PI, X_DIR, Z_DIR, copysign, acosClamped, wrapAngle, vec3, magSq3, mag3, sub3, div3, mult3, dot3, cross3, zxz, normalize3 } from "./math"
+import { TWO_PI, HALF_PI, X_DIR, Z_DIR, copysign, acosClamped, wrapAngle, vec3, magSq3, mag3, sub3, div3, mult3, dot3, cross3, zxz, normalize3, add3 } from "./math"
 import { newtonRootSolve } from "./optim"
 
 namespace Kepler {
@@ -54,7 +54,31 @@ namespace Kepler {
             prograde: dot3(maneuver.deltaV, progradeDir),
             normal:   dot3(maneuver.deltaV, normalDir),
             radial:   dot3(maneuver.deltaV, radialDir),
+            date:     maneuver.preState.date,
         }
+    }
+
+    export function maneuverComponentsToManeuver(components: ManeuverComponents, preState: OrbitalState): Maneuver {
+        const progradeDir = normalize3(preState.vel);
+        const normalDir   = normalize3(cross3(preState.pos, progradeDir));
+        const radialDir   = cross3(normalDir, progradeDir);
+
+        const deltaV = add3(mult3(progradeDir, components.prograde), add3(mult3(normalDir, components.normal), mult3(radialDir, components.radial)));
+
+        const postState: OrbitalState = {
+            date:   preState.date,
+            pos:    preState.pos,
+            vel:    add3(preState.vel, deltaV),
+        }
+
+        const maneuver: Maneuver = {
+            preState,
+            postState,
+            deltaV,
+            deltaVMag: mag3(deltaV),
+        }
+
+        return maneuver;
     }
 
     export function rotateToInertialFromPerifocal(x: Vector3, orbit: OrbitalElements): Vector3 {

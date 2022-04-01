@@ -152,7 +152,10 @@ type ManeuverComponents = {
     readonly prograde:  number,
     readonly normal:    number,
     readonly radial:    number,
+    readonly date:      number,
 }
+
+
 
 type FlybyInputs = {
     readonly velIn:             Vector3;

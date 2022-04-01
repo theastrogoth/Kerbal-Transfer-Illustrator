@@ -21,6 +21,7 @@ function ManeuverInfoRow({name, maneuver, timeSettings}: {name: String, maneuver
     }
 
     const maneuverComponents: ManeuverComponents = Kepler.maneuverToComponents(maneuver);
+    // const maneuverString = JSON.stringify(maneuverComponents);
 
     return (
     <>
@@ -63,7 +64,7 @@ function ManeuverInfoRow({name, maneuver, timeSettings}: {name: String, maneuver
                                 </TableRow>
                                 <TableRow>
                                     <TableCell sx={{ borderBottom: 0 }}>UT:</TableCell>
-                                    <TableCell sx={{ borderBottom: 0 }}>{String(maneuver.preState.date).concat(" s")}</TableCell>
+                                    <TableCell sx={{ borderBottom: 0 }}>{String(maneuverComponents.date).concat(" s")}</TableCell>
                                 </TableRow>
                             </TableBody>
                         </Table>
