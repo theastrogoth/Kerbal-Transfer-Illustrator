@@ -11,9 +11,11 @@ import Box from "@mui/system/Box";
 
 import SolarSystem from "../main/objects/system";
 import { radToDeg } from "../main/libs/math";
+import CopyButton from "./CopyButton";
+import Orbit from "../main/objects/orbit";
 
 
-function OrbitInfoRow({name, orbit, system}: {name: string, orbit: IOrbit, system: SolarSystem}) {
+function OrbitInfoRow({name, orbit, system, copiedOrbit, setCopiedOrbit}: {name: string, orbit: IOrbit, system: SolarSystem, copiedOrbit: IOrbit, setCopiedOrbit: React.Dispatch<React.SetStateAction<IOrbit>>}) {
     const [open, setOpen] = useState(false);
 
     const handleToggle = () => {
@@ -32,6 +34,9 @@ function OrbitInfoRow({name, orbit, system}: {name: string, orbit: IOrbit, syste
                 </IconButton>
             </TableCell>
             <TableCell sx={{ borderBottom: 0}}>{name}</TableCell>
+            <TableCell sx={{ borderBottom: 0}}>
+                <CopyButton obj={orbit} copiedObj={copiedOrbit} setCopiedObj={setCopiedOrbit} />
+            </TableCell>
         </TableRow>
         <TableRow>
             <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={2}>

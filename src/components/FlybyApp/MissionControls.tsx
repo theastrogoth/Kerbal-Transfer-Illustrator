@@ -21,13 +21,14 @@ type MissionControlsProps = {
     startOrbitControlsState:    OrbitControlsState,
     endOrbitControlsState:      OrbitControlsState,
     flybySequenceControlsState: FlybySequenceControlsState,
+    copiedOrbit:                IOrbit,
     timeSettings:               TimeSettings
     setTimeSettings:            React.Dispatch<SetStateAction<TimeSettings>>,
     dateControlsState:          DateControlsState,
     controlsOptionsState:       ControlsOptionsState,
 }
 
-function MissionControls({system, vessels, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState, dateControlsState, timeSettings, setTimeSettings, controlsOptionsState}: MissionControlsProps) {
+function MissionControls({system, vessels, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState, copiedOrbit, dateControlsState, timeSettings, setTimeSettings, controlsOptionsState}: MissionControlsProps) {
     return (
         <Stack spacing={1} sx={{ my: 2, mx: 2 }}>
             <Box textAlign="center">
@@ -35,8 +36,8 @@ function MissionControls({system, vessels, startOrbitControlsState, endOrbitCont
             </Box>
             <Divider />
             <Typography variant="h6">Orbit Settings</Typography>
-            <OrbitControls label='Starting Orbit' system={system} vessels={vessels} state={startOrbitControlsState} />
-            <OrbitControls label='Target Orbit'   system={system} vessels={vessels} state={endOrbitControlsState} />
+            <OrbitControls label='Starting Orbit' system={system} vessels={vessels} state={startOrbitControlsState} copiedOrbit={copiedOrbit} />
+            <OrbitControls label='Target Orbit'   system={system} vessels={vessels} state={endOrbitControlsState} copiedOrbit={copiedOrbit} />
             <Divider />
             <Typography variant="h6">Flyby Sequence</Typography>
             <FlybySequenceControls {...flybySequenceControlsState} />

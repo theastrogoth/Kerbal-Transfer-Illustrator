@@ -7,7 +7,6 @@ import { DateFieldState } from '../components/DateField';
 
 import Navbar from '../components/Navbar';
 
-import '../App.css';
 import {useState } from "react";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';

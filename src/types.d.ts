@@ -155,8 +155,6 @@ type ManeuverComponents = {
     readonly date:      number,
 }
 
-
-
 type FlybyInputs = {
     readonly velIn:             Vector3;
     readonly velOut:            Vector3;

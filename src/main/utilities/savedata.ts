@@ -109,6 +109,8 @@ function setValue(obj: Object, addressList: any[]) {
 function vesselDataToVessel(vesselObject: any, system: ISolarSystem): IVessel {
     const name  = vesselObject.name;
 
+    console.log(vesselObject)
+
     const sma   = parseFloat(vesselObject.ORBIT.SMA);
     const ecc   = parseFloat(vesselObject.ORBIT.ECC);
     const inc   = degToRad(parseFloat(vesselObject.ORBIT.INC));

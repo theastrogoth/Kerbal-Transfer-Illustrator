@@ -243,6 +243,9 @@ class TransferCalculator {
         const nEjections = this._sequenceUp.length - 1;
         this._ejections = Trajectories.ejectionTrajectories(this._system, this._startOrbit, this._transferTrajectory.orbits[0], this._sequenceUp, this._startDate, 
                                                             this._matchStartMo, this._ejectionInsertionType, this._soiPatchPositions.slice(0, nEjections));
+        if(nEjections > 0 && !this._matchStartMo) {
+            this._startOrbit = Kepler.stateToOrbit(this._ejections[0].maneuvers[0].preState, this._startBody)
+        }
     }
 
     private setInsertionOrbits() {
@@ -250,6 +253,11 @@ class TransferCalculator {
         const transferLength = this._transferTrajectory.orbits.length;
         this._insertions = Trajectories.insertionTrajectories(this._system, this._endOrbit, this._transferTrajectory.orbits[transferLength- 1], this._sequenceDown, this._endDate, 
                                                               this._matchEndMo, this._ejectionInsertionType, this._soiPatchPositions.slice(nEjections));
+        const nInsertions = this._insertions.length;
+        if(nInsertions > 0 && !this._matchEndMo) {
+            const nManeuvers = this._insertions[nInsertions-1].maneuvers.length;
+            this._endOrbit = Kepler.stateToOrbit(this._insertions[nInsertions-1].maneuvers[nManeuvers-1].postState, this._endBody)
+        }
     }
 
     private setManeuvers() {
@@ -320,7 +328,8 @@ class TransferCalculator {
 
     private setDeltaV() {
         let dv = 0;
-        for(let i=0; i<this._maneuvers.length; i++) {
+        const lastManeuverIdx = this._noInsertionBurn ? this._maneuvers.length - 2 : this._maneuvers.length - 1;
+        for(let i=0; i<=lastManeuverIdx; i++) {
             dv += this._maneuvers[i].deltaVMag;
         }
         if (isNaN(dv)) {

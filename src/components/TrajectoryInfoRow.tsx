@@ -13,7 +13,7 @@ import SolarSystem from "../main/objects/system";
 import OrbitInfoRow from "./OrbitInfoRow";
 
 
-function TrajectoryInfoRow({name, orbitnames, trajectory, system}: {name: string, orbitnames: string[], trajectory: IOrbit[], system: SolarSystem}) {
+function TrajectoryInfoRow({name, orbitnames, trajectory, system, copiedOrbit, setCopiedOrbit}: {name: string, orbitnames: string[], trajectory: IOrbit[], system: SolarSystem, copiedOrbit: IOrbit, setCopiedOrbit: React.Dispatch<React.SetStateAction<IOrbit>>}) {
     const [open, setOpen] = useState(false);
 
     const handleToggle = () => {
@@ -39,7 +39,7 @@ function TrajectoryInfoRow({name, orbitnames, trajectory, system}: {name: string
                     <Box sx={{ margin: 1 }}>
                         <Table size="small">
                             <TableBody>
-                                {trajectory.map((orbit, index) => <OrbitInfoRow key={index} name={orbitnames[index]} orbit={orbit} system={system}/>)}
+                                {trajectory.map((orbit, index) => <OrbitInfoRow key={index} name={orbitnames[index]} orbit={orbit} system={system} copiedOrbit={copiedOrbit} setCopiedOrbit={setCopiedOrbit} />)}
                             </TableBody>
                         </Table>
                     </Box>

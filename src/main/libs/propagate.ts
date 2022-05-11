@@ -101,12 +101,6 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
     }
 }
 
-// function applyOrbitalManeuver(components: ManeuverComponents, orbit: IOrbit, attractor: ICelestialBody, date: number) {
-//     const preState = Kepler.orbitToStateAtDate(orbit, attractor, date);
-//     const maneuver = Kepler.maneuverComponentsToManeuver(components, preState);
-//     return Kepler.stateToOrbit(maneuver.postState, attractor);
-// }
-
 // function sortManeuvers(man1: Maneuver, man2: Maneuver): number {
 //     return man1.preState.date - man2.preState.date;
 // }

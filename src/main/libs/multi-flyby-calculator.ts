@@ -287,6 +287,9 @@ class MultiFlybyCalculator {
             const patchPositions = this._soiPatchPositions.slice(0, this._sequenceUp.length - 1);
             this._ejections = Trajectories.ejectionTrajectories(this._system, this._startOrbit, this._transfers[0].orbits[0], this._sequenceUp, this._startDate, this._matchStartMo, this._ejectionInsertionType, patchPositions);
         }
+        if(this._ejections.length > 0 && !this._matchStartMo) {
+            this._startOrbit = Kepler.stateToOrbit(this._ejections[0].maneuvers[0].preState, this._startBody)
+        }
     }
 
     private computeInsertionTrajectories() {
@@ -295,6 +298,11 @@ class MultiFlybyCalculator {
             const lastTrajLen = this._transfers[tferLen - 1].orbits.length;
             const patchPositions = this._soiPatchPositions.slice(this._sequenceUp.length - 1 + 2 * this._flybyIdSequence.length);
             this._insertions = Trajectories.insertionTrajectories(this._system, this._endOrbit, this._transfers[tferLen - 1].orbits[lastTrajLen - 1], this._sequenceDown, this._endDate, this._matchEndMo, this._ejectionInsertionType, patchPositions);
+        }
+        const nInsertions = this._insertions.length;
+        if(nInsertions > 0 && !this._matchEndMo) {
+            const nManeuvers = this._insertions[nInsertions-1].maneuvers.length;
+            this._endOrbit = Kepler.stateToOrbit(this._insertions[nInsertions-1].maneuvers[nManeuvers-1].postState, this._endBody)
         }
     }
 

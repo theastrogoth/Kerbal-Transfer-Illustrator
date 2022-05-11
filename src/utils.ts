@@ -63,6 +63,33 @@ export function isInvalidOrbitInput(ocState: OrbitControlsState): boolean {
     return invalid;
 }
 
+export function defaultOrbit(system: SolarSystem, id: number = 1, altitude: number = 100000): Orbit {
+    const body = system.bodyFromId(id);
+    const a = altitude + body.radius;
+    const elements: OrbitalElements = {
+        semiMajorAxis:      a,
+        eccentricity:       0.0,
+        inclination:        0.0,
+        ascNodeLongitude:   0.0,
+        argOfPeriapsis:     0.0,
+        meanAnomalyEpoch:   0.0,
+        epoch:              0.0,
+    }
+    const data = Kepler.orbitFromElements(elements, body)
+    return new Orbit(data, body, false)
+}
+
+export function defaultManeuver(): Maneuver {
+    const zeroVec = {x: 0, y: 0, z:0};
+    const zeroState: OrbitalState = {date: 0, pos: zeroVec, vel: zeroVec};
+    return {
+        preState:   zeroState,
+        postState:  zeroState,
+        deltaV:     zeroVec,
+        deltaVMag:  0.0,
+    }
+}
+
 export function useOrbitControls(system: SolarSystem, id: number) {
     const [vesselId, setVesselId] = useState(-1);
     const [bodyId, setBodyId] = useState(id);

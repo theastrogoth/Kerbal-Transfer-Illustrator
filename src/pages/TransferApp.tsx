@@ -1,6 +1,7 @@
 import SolarSystem from '../main/objects/system';
 import Vessel from '../main/objects/vessel';
 import Transfer from '../main/objects/transfer';
+import Orbit from '../main/objects/orbit';
 
 import { DateControlsState } from '../components/DateControls';
 import { OrbitControlsState } from '../components/OrbitControls';
@@ -15,7 +16,6 @@ import Navbar from '../components/Navbar';
 
 import { isInvalidOrbitInput, porkchopInputsFromUI } from '../utils';
 
-import '../App.css';
 import React, { useState } from "react";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -39,6 +39,10 @@ type TransferAppState = {
   setTimeSettings:         React.Dispatch<React.SetStateAction<TimeSettings>>,
   vessels:                 Vessel[],
   setVessels:              React.Dispatch<React.SetStateAction<Vessel[]>>,
+  copiedOrbit:             IOrbit,
+  setCopiedOrbit:          React.Dispatch<React.SetStateAction<IOrbit>>,
+  copiedManeuver:          Maneuver,
+  setCopiedManeuver:       React.Dispatch<React.SetStateAction<Maneuver>>,
   startOrbitControlsState: OrbitControlsState,
   endOrbitControlsState:   OrbitControlsState,
   dateControlsState:       DateControlsState,
@@ -68,7 +72,7 @@ const mdTheme = createTheme({
 
 ////////// App Content //////////
 
-function TransferAppContent({system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, startOrbitControlsState, endOrbitControlsState,
+function TransferAppContent({system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, startOrbitControlsState, endOrbitControlsState,
                              dateControlsState, controlsOptionsState, transfer, setTransfer, porkchopInputs, setPorkchopInputs, porkchopPlotData, setPorkchopPlotData, 
                              plotCount, setPlotCount}: TransferAppState) { 
 
@@ -132,6 +136,7 @@ function TransferAppContent({system, setSystem, timeSettings, setTimeSettings, v
                 endOrbitControlsState= {endOrbitControlsState} 
                 dateControlsState={dateControlsState}
                 controlsOptionsState={controlsOptionsState}
+                copiedOrbit={copiedOrbit}
                 timeSettings={timeSettings}
                 setTimeSettings={setTimeSettings}
                 />
@@ -202,7 +207,7 @@ function TransferAppContent({system, setSystem, timeSettings, setTimeSettings, v
                   flexDirection: 'column',
               }}
               >
-                <TransferInfo transfer={transfer} timeSettings={timeSettings}/>
+                <TransferInfo transfer={transfer} timeSettings={timeSettings} copiedOrbit={copiedOrbit} setCopiedOrbit={setCopiedOrbit} copiedManeuver={copiedManeuver} setCopiedManeuver={setCopiedManeuver} />
               </Paper>
             </Fade>
           </Grid>

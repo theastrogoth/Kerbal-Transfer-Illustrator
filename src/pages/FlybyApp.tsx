@@ -1,4 +1,5 @@
 import SolarSystem from '../main/objects/system';
+import Orbit from '../main/objects/orbit';
 import Vessel from '../main/objects/vessel';
 import MultiFlyby from '../main/objects/multiflyby';
 
@@ -15,8 +16,7 @@ import OrbitDisplayTabs from '../components/FlybyApp/OrbitDisplayTabs';
 import MultiFlybyInfo from '../components/FlybyApp/MultiFlybyInfo';
 import Navbar from '../components/Navbar';
 
-import '../App.css';
-import { useState } from "react";
+import React, { useState } from "react";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
@@ -52,6 +52,10 @@ type FlybyAppState = {
   setTimeSettings:            React.Dispatch<React.SetStateAction<TimeSettings>>,
   vessels:                    Vessel[],
   setVessels:                 React.Dispatch<React.SetStateAction<Vessel[]>>,
+  copiedOrbit:                IOrbit,
+  setCopiedOrbit:             React.Dispatch<React.SetStateAction<IOrbit>>,
+  copiedManeuver:             Maneuver,
+  setCopiedManeuver:          React.Dispatch<React.SetStateAction<Maneuver>>,
   startOrbitControlsState:    OrbitControlsState,
   endOrbitControlsState:      OrbitControlsState,
   flybySequenceControlsState: FlybySequenceControlsState,
@@ -66,8 +70,8 @@ type FlybyAppState = {
 
 
 ///// App Content /////
-function FlybyAppContent({system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState,
-                          dateControlsState, controlsOptionsState, multiFlyby, setMultiFlyby, evolutionPlotData, searchCount, setSearchCount}: FlybyAppState) {
+function FlybyAppContent({system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, startOrbitControlsState, endOrbitControlsState, 
+                          flybySequenceControlsState,  dateControlsState, controlsOptionsState, multiFlyby, setMultiFlyby, evolutionPlotData, searchCount, setSearchCount}: FlybyAppState) {
 
   ///// Multi-flyby search inputs /////
   const [mfSearchInputs, setMfSearchInputs] = useState(searchInputsFromUI(system, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState.flybyIdSequence, dateControlsState, controlsOptionsState, timeSettings))
@@ -146,6 +150,7 @@ function FlybyAppContent({system, setSystem, timeSettings, setTimeSettings, vess
                 startOrbitControlsState={startOrbitControlsState}
                 endOrbitControlsState={endOrbitControlsState} 
                 flybySequenceControlsState={flybySequenceControlsState}
+                copiedOrbit={copiedOrbit}
                 dateControlsState={dateControlsState}
                 timeSettings={timeSettings}
                 setTimeSettings={setTimeSettings}
@@ -206,7 +211,7 @@ function FlybyAppContent({system, setSystem, timeSettings, setTimeSettings, vess
                   flexDirection: 'column',
               }}
               >
-                <MultiFlybyInfo multiFlyby={multiFlyby} timeSettings={timeSettings}/>
+                <MultiFlybyInfo multiFlyby={multiFlyby} timeSettings={timeSettings} copiedOrbit={copiedOrbit} setCopiedOrbit={setCopiedOrbit} copiedManeuver={copiedManeuver} setCopiedManeuver={setCopiedManeuver} />
               </Paper>
             </Fade>
           </Grid>
