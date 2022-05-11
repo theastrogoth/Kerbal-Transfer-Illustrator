@@ -5,7 +5,7 @@ import MultiFlyby from '../main/objects/multiflyby';
 
 import { isInvalidOrbitInput, searchInputsFromUI } from '../utils';
 
-import { DateControlsState } from '../components/DateControls';
+import { FlybyDateControlsState } from '../components/FlybyApp/FlybyDateControls';
 import { OrbitControlsState } from '../components/OrbitControls';
 import { ControlsOptionsState } from '../components/ControlsOptions';
 import { FlybySequenceControlsState } from '../components/FlybyApp/FlybySequenceControls';
@@ -59,7 +59,7 @@ type FlybyAppState = {
   startOrbitControlsState:    OrbitControlsState,
   endOrbitControlsState:      OrbitControlsState,
   flybySequenceControlsState: FlybySequenceControlsState,
-  dateControlsState:          DateControlsState,
+  dateControlsState:          FlybyDateControlsState,
   controlsOptionsState:       ControlsOptionsState,
   multiFlyby:                 MultiFlyby,
   setMultiFlyby:              React.Dispatch<React.SetStateAction<MultiFlyby>>,
@@ -89,10 +89,7 @@ function FlybyAppContent({system, setSystem, timeSettings, setTimeSettings, vess
     let invalid = isInvalidOrbitInput(startOrbitControlsState);
     invalid = isInvalidOrbitInput(endOrbitControlsState) ? true : invalid;
 
-    // check to make sure the start and end orbits share a near-enough common parent
     const transferBody = system.bodyFromId(system.commonAttractorId(flybySequenceControlsState.startBodyId, flybySequenceControlsState.endBodyId));
-    // invalid = transferBody.orbiterIds.includes(startBodyId) || transferBody.id === startBodyId ? invalid: true;
-    // invalid = transferBody.orbiterIds.includes(endBodyId)   || transferBody.id === endBodyId   ? invalid: true;
 
     // make sure that the flyby sequence contains appropriate bodies.
     for(let i=0; i<flybySequenceControlsState.flybyIdSequence.length; i++) {

@@ -14,7 +14,8 @@ import Transfer from './main/objects/transfer';
 import MultiFlyby from './main/objects/multiflyby';
 import Vessel from './main/objects/vessel';
 
-import { DateControlsState } from './components/DateControls';
+import { DateControlsState } from './components/TransferApp/DateControls';
+import { FlybyDateControlsState } from './components/FlybyApp/FlybyDateControls';
 
 // import { createTheme } from '@mui/material/styles';
 import { defaultManeuver, defaultOrbit, useControlOptions, useDateField, useOrbitControls } from './utils';
@@ -144,25 +145,25 @@ function AppBody() {
   const flybyStartOrbit= useOrbitControls(kspSystem, 1);
   const flybyEndOrbit  = useOrbitControls(kspSystem, 16);
 
-  const [flybyIdSequence, setFlybyIdSequence] = useState([5, 8]);
-  const flybySequenceControlsState = {
-    system:           kspSystem,            
-    startBodyId:      1,        
-    endBodyId:        16,         
-    flybyIdSequence,    
-    setFlybyIdSequence, 
-  };
-
   const flybyEarlyStartDate = useDateField('1','1','0');
   const flybyLateStartDate= useDateField();
-  const flybyShortFlightTime = useDateField();
-  const flybyLongFlightTime = useDateField();
-  const flybyDateControlsState: DateControlsState = {
+  const [flybyFlightTimes, setFlightTimes] = useState([useDateField(), useDateField(), useDateField(), useDateField(), useDateField(), useDateField()]);
+  const flybyDateControlsState: FlybyDateControlsState = {
     earlyStartDate:     flybyEarlyStartDate,
     lateStartDate:      flybyLateStartDate,
-    shortFlightTime:    flybyShortFlightTime,
-    longFlightTime:     flybyLongFlightTime,
+    flightTimes:        flybyFlightTimes,
+    setFlightTimes:     setFlightTimes,
   }
+
+  const [flybyIdSequence, setFlybyIdSequence] = useState([5, 8]);
+  const flybySequenceControlsState = {
+    system:             kspSystem,            
+    startBodyId:        1,        
+    endBodyId:          16,         
+    flybyIdSequence,    
+    setFlybyIdSequence, 
+    dateControlsState:  flybyDateControlsState,
+  };
 
   const flybyControlsState = useControlOptions();
   const [multiFlyby, setMultiFlyby] = useState(blankMultiFlyby);

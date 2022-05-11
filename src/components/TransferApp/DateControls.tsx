@@ -1,5 +1,5 @@
-import DateField from "./DateField"
-import { DateFieldState } from "./DateField";
+import DateField from "../DateField"
+import { DateFieldState } from "../DateField";
 
 import React, { useState } from "react"
 import Box from "@mui/material/Box";
@@ -14,11 +14,7 @@ export type DateControlsState = {
     longFlightTime:   DateFieldState,
   }
 
-type DateControlsProps = {
-    state: DateControlsState,
-}
-
-function DateControls({state}: DateControlsProps) {
+function DateControls({earlyStartDate, lateStartDate, shortFlightTime, longFlightTime}: DateControlsState) {
     const [optsVisible, setOptsVisible] = useState(false)
 
     return (
@@ -26,21 +22,21 @@ function DateControls({state}: DateControlsProps) {
             <DateField 
                 id='early-start-date' 
                 label='Earliest Departure Date'
-                state={state.earlyStartDate}
+                state={earlyStartDate}
                 required={true} />
             <Collapse in={optsVisible} timeout="auto">
                 <DateField
                     id='late-start-date'
                     label='Latest Departure Date'
-                    state={state.lateStartDate} />
+                    state={lateStartDate} />
                 <DateField
                     id='short-flight-time'
                     label='Shortest Flight Duration'
-                    state={state.shortFlightTime} />
+                    state={shortFlightTime} />
                 <DateField
                     id='long-flight-time'
                     label='Longest Flight Duration'
-                    state={state.longFlightTime} />
+                    state={longFlightTime} />
             </Collapse>
             <Box textAlign='center'>
                 <Button 

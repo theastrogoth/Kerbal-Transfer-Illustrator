@@ -3,7 +3,7 @@ import Vessel from '../main/objects/vessel';
 import Transfer from '../main/objects/transfer';
 import Orbit from '../main/objects/orbit';
 
-import { DateControlsState } from '../components/DateControls';
+import { DateControlsState } from '../components/TransferApp/DateControls';
 import { OrbitControlsState } from '../components/OrbitControls';
 import {ControlsOptionsState } from '../components/ControlsOptions';
 

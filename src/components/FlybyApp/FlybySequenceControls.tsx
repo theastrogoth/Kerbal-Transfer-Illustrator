@@ -10,6 +10,10 @@ import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import Button from '@mui/material/Button';
 
+import { FlybyDateControlsState } from './FlybyDateControls';
+import { useDateField } from '../../utils';
+import { DateFieldState } from '../DateField';
+
 function handleBodyIdChange(index: number, flybyIdSequence: number[], setFlybyIdSequence: React.Dispatch<React.SetStateAction<number[]>>) {
     return (event: any): void => {
         const newFlybyIdSequence = flybyIdSequence.slice();
@@ -29,7 +33,7 @@ function createBodyItems(system: SolarSystem, startBodyId: number, endBodyId: nu
     return options;
 }
 
-function handleAddFlyby(flybyIdSequence: number[], setFlybyIdSequence: React.Dispatch<React.SetStateAction<number[]>>, system: SolarSystem, startBodyId: number, endBodyId: number) {
+function handleAddFlyby(flybyIdSequence: number[], setFlybyIdSequence: React.Dispatch<React.SetStateAction<number[]>>, dateControlsState: FlybyDateControlsState, newDateField1: DateFieldState, newDateField2: DateFieldState, system: SolarSystem, startBodyId: number, endBodyId: number) {
     return (event: any): void => {
         const transferBodyId = system.commonAttractorId(startBodyId, endBodyId);
         const transferBody = system.bodyFromId(transferBodyId);
@@ -37,14 +41,16 @@ function handleAddFlyby(flybyIdSequence: number[], setFlybyIdSequence: React.Dis
             const newFlybyIdSequence = flybyIdSequence.slice();
             newFlybyIdSequence.push(transferBody.orbiterIds[0]);
             setFlybyIdSequence(newFlybyIdSequence);
+            dateControlsState.setFlightTimes([...dateControlsState.flightTimes, newDateField1, newDateField2]);
         }
     };
 }
 
-function handleRemoveFlyby(flybyIdSequence: number[], setFlybyIdSequence: React.Dispatch<React.SetStateAction<number[]>>) {
+function handleRemoveFlyby(flybyIdSequence: number[], setFlybyIdSequence: React.Dispatch<React.SetStateAction<number[]>>, dateControlsState: FlybyDateControlsState) {
     return (event: any): void => {
         const newFlybyIdSequence = flybyIdSequence.slice(0,-1);
         setFlybyIdSequence(newFlybyIdSequence);
+        dateControlsState.setFlightTimes(dateControlsState.flightTimes.slice(0,-2));
     };
 }
 
@@ -74,9 +80,10 @@ export type FlybySequenceControlsState = {
     endBodyId:          number,
     flybyIdSequence:    number[],
     setFlybyIdSequence: React.Dispatch<React.SetStateAction<number[]>>,
+    dateControlsState:  FlybyDateControlsState,
 }
 
-function FlybySequenceControls({system, startBodyId, endBodyId, flybyIdSequence, setFlybyIdSequence}: FlybySequenceControlsState) {
+function FlybySequenceControls({system, startBodyId, endBodyId, flybyIdSequence, setFlybyIdSequence, dateControlsState}: FlybySequenceControlsState) {
     
     const [bodyOptions, setBodyOptions] = useState(createBodyItems(system, startBodyId, endBodyId));
 
@@ -89,10 +96,10 @@ function FlybySequenceControls({system, startBodyId, endBodyId, flybyIdSequence,
         <Stack spacing={1.5}>
             {flybyIdSequence.map((id, index) => createBodyDropdown(bodyOptions, index, id, flybyIdSequence, setFlybyIdSequence))}
             <Stack direction="row" spacing={2} textAlign="center" justifyContent="center">
-                <Button variant="outlined" onClick={handleAddFlyby(flybyIdSequence, setFlybyIdSequence, system, startBodyId, endBodyId)}>
+                <Button variant="outlined" onClick={handleAddFlyby(flybyIdSequence, setFlybyIdSequence, dateControlsState, useDateField('1','2','3'), useDateField(), system, startBodyId, endBodyId)}>
                     <AddIcon />
                 </Button>
-                <Button variant="outlined" onClick={handleRemoveFlyby(flybyIdSequence, setFlybyIdSequence)}>
+                <Button variant="outlined" onClick={handleRemoveFlyby(flybyIdSequence, setFlybyIdSequence, dateControlsState)}>
                     <RemoveIcon />
                 </Button>
             </Stack>

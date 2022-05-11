@@ -2,7 +2,7 @@ import { SolarSystem } from "../../main/objects/system";
 import Vessel from "../../main/objects/vessel";
 
 import OrbitControls, { OrbitControlsState } from "../OrbitControls";
-import DateControls, { DateControlsState } from "../DateControls";
+import DateControls, { DateControlsState } from "./DateControls";
 import TimeSettingsControls from "../TimeSettingsControls";
 import ControlsOptions, { ControlsOptionsState } from "../ControlsOptions";
 
@@ -37,7 +37,7 @@ function MissionControls({system, vessels, startOrbitControlsState, endOrbitCont
             <Divider />
             <Typography variant="h6">Time Settings</Typography>
             <TimeSettingsControls timeSettings={timeSettings} setTimeSettings={setTimeSettings} />
-            <DateControls state={dateControlsState} />
+            <DateControls {...dateControlsState} />
             <Divider />
             <Typography variant="h6">Transfer Settings</Typography>
             <ControlsOptions state={controlsOptionsState} />

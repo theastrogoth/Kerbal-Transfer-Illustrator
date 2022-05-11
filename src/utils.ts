@@ -9,7 +9,8 @@ import FlybyCalcs from './main/libs/flybycalcs';
 
 import { DateFieldState } from './components/DateField';
 import { OrbitControlsState } from './components/OrbitControls';
-import { DateControlsState } from './components/DateControls';
+import { DateControlsState } from './components/TransferApp/DateControls';
+import { FlybyDateControlsState } from './components/FlybyApp/FlybyDateControls';
 import { ControlsOptionsState } from './components/ControlsOptions';
 
 // for re-used components
@@ -275,42 +276,28 @@ function flightTimesBounds(system: SolarSystem, startOrbit: Orbit, endOrbit: Orb
 
 
 export function searchInputsFromUI(system: SolarSystem, startOrbitControlsState: OrbitControlsState, endOrbitControlsState: OrbitControlsState, flybyIdSequence: number[],  
-                                   dateControlsState: DateControlsState, controlsOptionsState: ControlsOptionsState, timeSettings: TimeSettings): MultiFlybySearchInputs {
+                                   dateControlsState: FlybyDateControlsState, controlsOptionsState: ControlsOptionsState, timeSettings: TimeSettings): MultiFlybySearchInputs {
                                        
-    const startOrbit     = orbitFromControlsState(system, startOrbitControlsState);
-    const endOrbit       = orbitFromControlsState(system, endOrbitControlsState);
-    const ftBounds       = flightTimesBounds(system, startOrbit, endOrbit, flybyIdSequence);
-    const flightTimesMin = ftBounds.flightTimesMin;
-    const flightTimesMax = ftBounds.flightTimesMax;
-    // const sumFlightTimesMin = flightTimesMin.reduce((p,c) => p + c);
-    // const sumFlightTimesMax = flightTimesMax.reduce((p,c) => p + c);
+    const startOrbit        = orbitFromControlsState(system, startOrbitControlsState);
+    const endOrbit          = orbitFromControlsState(system, endOrbitControlsState);
+    const defaultFtBounds   = flightTimesBounds(system, startOrbit, endOrbit, flybyIdSequence);
+    // const flightTimesMin: number[] = [];
+    // const flightTimesMax: number[] = [];
+    // for(let i=0; i<dateControlsState.flightTimes.length; i++) {
+    //     const ft = dateControlsState.flightTimes[i];
+    //     if(i % 2 == 0) {
+    //         flightTimesMin.push(dateFieldIsEmpty(ft) ? defaultFtBounds.flightTimesMin[i / 2] : timeFromDateFieldState(ft, timeSettings, 0, 0));
+    //     } else {
+    //         flightTimesMax.push(dateFieldIsEmpty(ft) ? defaultFtBounds.flightTimesMax[(i+1) / 2] : timeFromDateFieldState(ft, timeSettings, 0, 0));
+    //     }
+    // }
+    const flightTimesMin = defaultFtBounds.flightTimesMin;
+    const flightTimesMax = defaultFtBounds.flightTimesMax;
 
     const startDateMin   = dateFieldIsEmpty(dateControlsState.earlyStartDate)  ? 0.0 : timeFromDateFieldState(dateControlsState.earlyStartDate, timeSettings, 1, 1); 
     let startDateMax     = dateFieldIsEmpty(dateControlsState.lateStartDate)   ? startDateMin + 5 * 365 * 24 * 3600 : timeFromDateFieldState(dateControlsState.lateStartDate, timeSettings, 1, 1);
     startDateMax = startDateMax < startDateMin ? startDateMin + 5 * 365 * 24 * 3600 : startDateMax;
-    // let flightTimeMin    = dateFieldIsEmpty(dateControlsState.shortFlightTime) ? sumFlightTimesMin : timeFromDateFieldState(dateControlsState.shortFlightTime, timeSettings, 0, 0);
-    // flightTimeMin = flightTimeMin < 0 ? sumFlightTimesMin : flightTimeMin;
-    // let flightTimeMax    = dateFieldIsEmpty(dateControlsState.longFlightTime)  ? sumFlightTimesMax : timeFromDateFieldState(dateControlsState.longFlightTime, timeSettings, 0, 0);
-    // flightTimeMax = (flightTimeMax < flightTimeMin) ? Math.max(sumFlightTimesMax, flightTimeMin) : flightTimeMax;
-
-    // const overshoot = sumFlightTimesMax - flightTimeMax;
-    // if(overshoot > 0) {
-    //     const proportions = flightTimesMax.map(ft => ft / sumFlightTimesMax)
-    //     for(let i=0; i<flightTimesMax.length; i++) {
-    //         flightTimesMax[i] = flightTimesMax[i] - overshoot * proportions[i]
-    //     }
-    // }
-
-    // const undershoot = flightTimeMin - sumFlightTimesMin;
-    // if(undershoot > 0) {
-    //     const squaredTimes = flightTimesMin.map(t => t * t);
-    //     const squaredSum = squaredTimes.reduce((p, c) => p + c);
-    //     const sqProportions = squaredTimes.map(sqt => sqt / squaredSum)
-    //     for(let i=0; i<flightTimesMin.length; i++) {
-    //         flightTimesMin[i] = flightTimesMin[i] + undershoot * sqProportions[i]
-    //     }
-    // }
-
+   
     return {
         system,
         startOrbit,

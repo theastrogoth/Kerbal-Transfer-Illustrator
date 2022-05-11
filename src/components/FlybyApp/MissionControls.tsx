@@ -3,7 +3,7 @@ import Vessel from "../../main/objects/vessel";
 
 import OrbitControls, { OrbitControlsState } from "../OrbitControls";
 import FlybySequenceControls, { FlybySequenceControlsState } from "./FlybySequenceControls";
-import DateControls, { DateControlsState } from "../DateControls";
+import FlybyDateControls, { FlybyDateControlsState } from "./FlybyDateControls";
 import TimeSettingsControls from "../TimeSettingsControls";
 import ControlsOptions, { ControlsOptionsState } from "../ControlsOptions";
 
@@ -24,7 +24,7 @@ type MissionControlsProps = {
     copiedOrbit:                IOrbit,
     timeSettings:               TimeSettings
     setTimeSettings:            React.Dispatch<SetStateAction<TimeSettings>>,
-    dateControlsState:          DateControlsState,
+    dateControlsState:          FlybyDateControlsState,
     controlsOptionsState:       ControlsOptionsState,
 }
 
@@ -40,11 +40,11 @@ function MissionControls({system, vessels, startOrbitControlsState, endOrbitCont
             <OrbitControls label='Target Orbit'   system={system} vessels={vessels} state={endOrbitControlsState} copiedOrbit={copiedOrbit} />
             <Divider />
             <Typography variant="h6">Flyby Sequence</Typography>
-            <FlybySequenceControls {...flybySequenceControlsState} />
+            <FlybySequenceControls {...flybySequenceControlsState} dateControlsState={dateControlsState} />
             <Divider />
             <Typography variant="h6">Time Settings</Typography>
             <TimeSettingsControls timeSettings={timeSettings} setTimeSettings={setTimeSettings}/>
-            <DateControls state={dateControlsState} />
+            <FlybyDateControls {...dateControlsState} />
             <Divider />
             <Typography variant="h6">Mission Settings</Typography>
             <ControlsOptions state={controlsOptionsState}/>

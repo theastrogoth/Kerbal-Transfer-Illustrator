@@ -19,15 +19,15 @@ type DateFieldProps = {
     required?:      boolean,
 }
 
-function DateField({id, label, state, required = false}: DateFieldProps) {
+function handleChange(setFunction: Function) {
+    return (
+        (event: React.ChangeEvent<HTMLInputElement>): void => {
+            setFunction(event.target.value)
+        }
+    )
+}
 
-    function handleChange(setFunction: Function) {
-        return (
-            (event: React.ChangeEvent<HTMLInputElement>): void => {
-                setFunction(event.target.value)
-            }
-        )
-    }
+function DateField({id, label, state, required = false}: DateFieldProps) {
 
     if(required) {
         return (
