@@ -5,8 +5,17 @@ import FlybyCalcs from "../../main/libs/flybycalcs";
 import React, { useEffect, useState } from "react";
 import Plot from "react-plotly.js";
 
+export type EvolutionPlotData = {
+    x:              number[],
+    setX:           React.Dispatch<React.SetStateAction<number[]>>,
+    meanY:          number[],
+    setMeanY:       React.Dispatch<React.SetStateAction<number[]>>,
+    bestY:          number[],
+    setBestY:       React.Dispatch<React.SetStateAction<number[]>>,
+}
 type EvolutionPlotProps = {
     inputs:         MultiFlybySearchInputs, 
+    plotData:       EvolutionPlotData,
     buttonPresses:  number, 
     searchCount:    number,
     setMultiFlyby:  React.Dispatch<React.SetStateAction<MultiFlyby>>,
@@ -16,12 +25,10 @@ type EvolutionPlotProps = {
 
 const multiFlybyOptWorker = new Worker(new URL("../../workers/multi-flyby-search.worker.ts", import.meta.url));
 
-const emptyNumberArray: number[] = [];
-
-function EvolutionPlot({inputs, buttonPresses, searchCount, setMultiFlyby, setCalculating, setSearchCount}: EvolutionPlotProps) {
-    const [x, setX] = useState(emptyNumberArray);
-    const [meanY, setMeanY] = useState(emptyNumberArray);
-    const [bestY, setBestY] = useState(emptyNumberArray);
+function EvolutionPlot({inputs, plotData, buttonPresses, searchCount, setMultiFlyby, setCalculating, setSearchCount}: EvolutionPlotProps) {
+    const [x, setX] = useState(plotData.x);
+    const [meanY, setMeanY] = useState(plotData.meanY);
+    const [bestY, setBestY] = useState(plotData.bestY);
 
     useEffect(() => {
         multiFlybyOptWorker.onmessage = (event: MessageEvent<{inputs: MultiFlybySearchInputs, population: Agent[], fitnesses: number[], generation: number, x: number[], bestY: number[], meanY: number[]}>) => {
@@ -52,6 +59,9 @@ function EvolutionPlot({inputs, buttonPresses, searchCount, setMultiFlyby, setCa
                     setMultiFlyby(calculator.multiFlyby)
                     setCalculating(false);
                     setSearchCount(searchCount + 1);
+                    plotData.setX(event.data.x);
+                    plotData.setMeanY(event.data.meanY);
+                    plotData.setBestY(event.data.bestY);
                 }
             }
         }

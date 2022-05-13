@@ -48,7 +48,7 @@ function transferPlotProps(transfer: Transfer, timeSettings: TimeSettings): Orbi
     const endDate = transfer.endDate;
     const orbits = trajectory.orbits.slice();
 
-    const systemTraces = Draw.drawSystemAtTime(body, startDate, timeSettings);
+    const systemTraces: SystemTraces = Draw.drawSystemAtTime(body, startDate, timeSettings);
     const orbitTraces = trajectoryTraces(trajectory, timeSettings, 'Transfer Orbit ');
     let markerTraces: Marker3DTrace[] | undefined = undefined;
     if(trajectory.orbits.length > 0) {

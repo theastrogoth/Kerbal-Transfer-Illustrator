@@ -2,8 +2,8 @@ import { SolarSystem } from "../../main/objects/system";
 import Vessel from "../../main/objects/vessel";
 
 import OrbitControls, { OrbitControlsState } from "../OrbitControls";
-import DateControls, { DateControlsState } from "./DateControls";
-import TimeSettingsControls, { TimeSettingsControlsState } from "../TimeSettingsControls";
+import DateControls, { DateControlsState } from "../DateControls";
+import TimeSettingsControls from "../TimeSettingsControls";
 import ControlsOptions, { ControlsOptionsState } from "../ControlsOptions";
 
 import React from "react";
@@ -19,10 +19,11 @@ type MissionControlsProps = {
     endOrbitControlsState:      OrbitControlsState,
     dateControlsState:          DateControlsState,
     controlsOptionsState:       ControlsOptionsState,
-    timeSettingsControlsState:  TimeSettingsControlsState,
+    timeSettings:               TimeSettings,
+    setTimeSettings:            React.Dispatch<React.SetStateAction<TimeSettings>>,
 }
 
-function MissionControls({system, vessels, startOrbitControlsState, endOrbitControlsState, dateControlsState, controlsOptionsState, timeSettingsControlsState}: MissionControlsProps) {
+function MissionControls({system, vessels, startOrbitControlsState, endOrbitControlsState, dateControlsState, controlsOptionsState, timeSettings, setTimeSettings}: MissionControlsProps) {
     return (
         <Stack spacing={1} sx={{ my: 2, mx: 2 }}>
             <Box textAlign="center">
@@ -34,7 +35,7 @@ function MissionControls({system, vessels, startOrbitControlsState, endOrbitCont
             <OrbitControls label='Target Orbit'   system={system} vessels={vessels} state={endOrbitControlsState} />
             <Divider />
             <Typography variant="h6">Time Settings</Typography>
-            <TimeSettingsControls state={timeSettingsControlsState}/>
+            <TimeSettingsControls timeSettings={timeSettings} setTimeSettings={setTimeSettings} />
             <DateControls state={dateControlsState} />
             <Divider />
             <Typography variant="h6">Transfer Settings</Typography>

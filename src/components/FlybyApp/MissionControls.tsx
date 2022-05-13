@@ -3,11 +3,11 @@ import Vessel from "../../main/objects/vessel";
 
 import OrbitControls, { OrbitControlsState } from "../OrbitControls";
 import FlybySequenceControls, { FlybySequenceControlsState } from "./FlybySequenceControls";
-import DateControls, { DateControlsState } from "./DateControls";
-import TimeSettingsControls, { TimeSettingsControlsState } from "../TimeSettingsControls";
+import DateControls, { DateControlsState } from "../DateControls";
+import TimeSettingsControls from "../TimeSettingsControls";
 import ControlsOptions, { ControlsOptionsState } from "../ControlsOptions";
 
-import React from "react";
+import React, { SetStateAction } from "react";
 import Stack from "@mui/material/Stack";
 import Box from '@mui/system/Box';
 import Typography from '@mui/material/Typography';
@@ -21,12 +21,13 @@ type MissionControlsProps = {
     startOrbitControlsState:    OrbitControlsState,
     endOrbitControlsState:      OrbitControlsState,
     flybySequenceControlsState: FlybySequenceControlsState,
-    timeSettingsControlsState:  TimeSettingsControlsState,
+    timeSettings:               TimeSettings
+    setTimeSettings:            React.Dispatch<SetStateAction<TimeSettings>>,
     dateControlsState:          DateControlsState,
     controlsOptionsState:       ControlsOptionsState,
 }
 
-function MissionControls({system, vessels, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState, dateControlsState, timeSettingsControlsState, controlsOptionsState}: MissionControlsProps) {
+function MissionControls({system, vessels, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState, dateControlsState, timeSettings, setTimeSettings, controlsOptionsState}: MissionControlsProps) {
     return (
         <Stack spacing={1} sx={{ my: 2, mx: 2 }}>
             <Box textAlign="center">
@@ -41,7 +42,7 @@ function MissionControls({system, vessels, startOrbitControlsState, endOrbitCont
             <FlybySequenceControls {...flybySequenceControlsState} />
             <Divider />
             <Typography variant="h6">Time Settings</Typography>
-            <TimeSettingsControls state={timeSettingsControlsState}/>
+            <TimeSettingsControls timeSettings={timeSettings} setTimeSettings={setTimeSettings}/>
             <DateControls state={dateControlsState} />
             <Divider />
             <Typography variant="h6">Mission Settings</Typography>

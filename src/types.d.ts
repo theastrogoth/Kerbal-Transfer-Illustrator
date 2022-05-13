@@ -270,6 +270,7 @@ interface IColor {
     readonly r:      number,
     readonly g:      number,
     readonly b:      number,
+    readonly a?:     number,
 }
 
 type LineOptions = {
@@ -330,9 +331,22 @@ type Marker3DTrace = {
     readonly visible?:       "legendonly" | undefined,            
 }
 
+type Mesh3DTrace = {
+    x:                       number[],
+    y:                       number[],
+    z:                       number[],
+    i:                       number[],
+    j:                       number[],
+    k:                       number[],
+    readonly type:           "mesh3d",
+    opacity:                 number,
+    intensity:               number[],
+    colorscale:              [number, String][];
+}
+
 type SystemTraces = {
     bodyOrbitTraces:        Line3DTrace[],
-    centralBodyTrace:       Line3DTrace,
+    centralBodyTrace:       Line3DTrace | Mesh3DTrace,
     centralBodyOrbitTrace?: Line3DTrace,
     orbitingBodyTraces:     Line3DTrace[],
     orbitingSoiTraces:      Line3DTrace[],

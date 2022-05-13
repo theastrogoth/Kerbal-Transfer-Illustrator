@@ -13,6 +13,7 @@ export class OrbitPlot extends React.Component<{ uirevision: string, plotSize: n
     render() {
         return (
             <Plot
+            // @ts-ignore
                 data={[
                     ...this.props.traces.orbitTraces,
                     this.props.traces.systemTraces.centralBodyTrace,
