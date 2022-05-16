@@ -73,8 +73,9 @@ interface IPorkchop {
 }
 
 interface IVessel {
-    readonly name:     string,
-    readonly orbit:    IOrbit,
+    readonly name:          string,
+    readonly orbit:         IOrbit,
+    readonly maneuvers?:    ManeuverComponents[],
 }
 
 interface IFlyby {
@@ -240,6 +241,12 @@ type MultiFlybySearchInputs = {
     readonly matchStartMo?:             boolean;
     readonly matchEndMo?:               boolean;
     readonly noInsertionBurn?:          boolean;
+}
+
+type FlightPlan = {
+    readonly name:                      string;
+    readonly color:                     IColor;
+    readonly trajectories:              Trajectory[];
 }
 
 // Plotting and Display
