@@ -87,6 +87,7 @@ function transferPlotProps(multiFlyby: MultiFlyby, timeSettings: TimeSettings): 
         endDate:        endDate,
         defaultTraces:  {systemTraces, orbitTraces, markerTraces},
         plotSize,
+        timeSettings,
     };
 }
 
@@ -128,6 +129,7 @@ function ejectionPlotProps(multiFlyby: MultiFlyby, ejectionIdx: number, timeSett
         endDate:        endDate,
         defaultTraces:  {systemTraces, orbitTraces, markerTraces},
         plotSize,
+        timeSettings,
     };
 }
 
@@ -169,6 +171,7 @@ function insertionPlotProps(multiFlyby: MultiFlyby, insertionIdx: number, timeSe
         endDate:        endDate,
         defaultTraces:  {systemTraces, orbitTraces, markerTraces},
         plotSize,
+        timeSettings,
     };
 }
 
@@ -211,6 +214,7 @@ function flybyPlotProps(multiFlyby: MultiFlyby, flybyIdx: number, timeSettings: 
         endDate:        endDate,
         defaultTraces:  {systemTraces, orbitTraces, markerTraces},
         plotSize,
+        timeSettings,
     };
 }
 

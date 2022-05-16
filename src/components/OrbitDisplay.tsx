@@ -1,13 +1,16 @@
 import React, {useEffect, useState } from "react";
 import Slider from "@mui/material/Slider";
+import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
 
+import DateField, { DateFieldState } from "./DateField";
 import OrbitPlot from "./OrbitPlot";
 
 import Kepler from "../main/libs/kepler";
 import Draw from "../main/libs/draw";
-import { vec3, wrapAngle } from "../main/libs/math";
+import { calendarDateToString, timeToCalendarDate, vec3, wrapAngle } from "../main/libs/math";
 import { CelestialBody, isOrbitingBody } from "../main/objects/body";
+import { timeFromDateFieldState, useDateField } from "../utils";
 
 export type OrbitDisplayProps = {
     index:              number,
@@ -20,6 +23,8 @@ export type OrbitDisplayProps = {
     endDate:            number,
     defaultTraces:      OrbitPlotTraces,
     plotSize:           number,
+    slider?:            boolean,
+    timeSettings:       TimeSettings,   
 }
 
 function updateOrbitColorFade(newStartAngle: number, trace: Line3DTrace) {
@@ -74,43 +79,76 @@ function updateDate(date: number, centralBody: CelestialBody, orbits: IOrbit[], 
     return newTraces
 }
 
+export function updateYDHwithDate(dateField: DateFieldState, date: number, timeSettings: TimeSettings) {
+    const calendarDate = timeToCalendarDate(date, timeSettings, 1, 1);
+    dateField.setYear(String(calendarDate.year));
+    dateField.setDay(String(calendarDate.day));
+    dateField.setHour(String(calendarDate.hour + (calendarDate.minute >= 30 ? 1 : 0)));    
+}
 
-function OrbitDisplay({index, label, marks, centralBody, orbits, trajectories, startDate, endDate, defaultTraces, plotSize}: OrbitDisplayProps) {
+function OrbitDisplay({index, label, marks, centralBody, orbits, trajectories, startDate, endDate, defaultTraces, plotSize, timeSettings, slider=true}: OrbitDisplayProps) {
     const [date, setDate] = useState(startDate);
+    const [fieldsDate, setFieldsDate] = useState(startDate);
+    const [updateFields, setUpdateFields] = useState(false);
     const [traces, setTraces] = useState(defaultTraces);
+
+    const defaultCalendarDate = timeToCalendarDate(startDate, timeSettings, 1, 1)
+    const dateField = useDateField(String(defaultCalendarDate.year), String(defaultCalendarDate.day), String(defaultCalendarDate.hour));
 
     useEffect(() => {
         setDate(Math.ceil(startDate));
-        const newTraces = updateDate(Math.ceil(startDate), centralBody, orbits, trajectories, defaultTraces);
+        const roundedDate = Math.round(startDate / 3600) * 3600;
+        updateYDHwithDate(dateField, roundedDate, timeSettings)
+        setFieldsDate(roundedDate)
+        const newTraces = updateDate(startDate, centralBody, orbits, trajectories, defaultTraces);
         setTraces(newTraces)
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [startDate, defaultTraces]);
 
-    const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-        const newDate = Number(event.target.value);
-        setDate(newDate);
-        const newTraces = updateDate(newDate, centralBody, orbits, trajectories, traces);
-        setTraces(newTraces);
-        // console.log('Orbit plot traces updated with new slider time')
-    };
+    useEffect(() => {
+        const newTraces = updateDate(date, centralBody, orbits, trajectories, traces);
+        setTraces(newTraces);  
+        if(updateFields) {
+            const roundedDate = Math.round(date / 3600) * 3600;
+            if(roundedDate !== date) {
+                updateYDHwithDate(dateField, date, timeSettings)
+                setFieldsDate(roundedDate)
+            }
+            setUpdateFields(false);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [date, updateFields, timeSettings]);
+
+    useEffect(() => {
+        const newDate = timeFromDateFieldState(dateField, timeSettings, 1, 1);
+        if(newDate !== fieldsDate) {
+            setDate(newDate)
+            setFieldsDate(newDate)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dateField, timeSettings]);
 
     return (
         <>
             <OrbitPlot uirevision={label} plotSize={plotSize} traces={traces}/>
-            <Box display="flex" alignItems="center" justifyContent="center">
-                <Slider
+            <Stack sx={{my: 1}} display="flex" alignItems="center" justifyContent="center">
+                <Box display="flex" alignItems="center" justifyContent="center" minWidth="250px" maxWidth="350px">
+                    <DateField id={'plot-date'} label={'Date'} state={dateField} correctFormat={true} timeSettings={timeSettings} />
+                </Box>
+                {/* @ts-ignore */}
+                { slider ? <Slider
                     sx={{ width: "60%" }}
                     valueLabelDisplay="auto"
-                    defaultValue={Math.ceil(startDate)}
-                    value={Math.round(date)}
-                    min={Math.ceil(startDate)}
+                    value={date}
+                    valueLabelFormat={(d: number) => calendarDateToString(timeToCalendarDate(d, timeSettings, 1, 1))}
+                    min={Math.ceil(startDate)}     
                     max={Math.floor(endDate)}
-                    step={Math.round(Math.max((endDate-startDate)/1000, 1))}
+                    step={Math.max((endDate-startDate)/1000, 1)}
                     marks={marks}
-                    // @ts-ignore
-                    onChange={handleDateChange}
-                />
-            </Box>
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => setDate(Number(event.target.value)) }
+                    onChangeCommitted={(event: React.SyntheticEvent<Element, Event>, value: number) => { setUpdateFields(true) }}
+                /> : <></> }
+            </Stack>
         </>
     )
 }
