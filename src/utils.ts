@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Orbit from './main/objects/orbit';
 import { OrbitingBody } from './main/objects/body';
 import SolarSystem from './main/objects/system';
+import CelestialBody from './main/objects/body';
 
 import Kepler from './main/libs/kepler';
 import FlybyCalcs from './main/libs/flybycalcs';
@@ -12,6 +13,7 @@ import { OrbitControlsState } from './components/OrbitControls';
 import { DateControlsState } from './components/TransferApp/DateControls';
 import { FlybyDateControlsState } from './components/FlybyApp/FlybyDateControls';
 import { ControlsOptionsState } from './components/ControlsOptions';
+import { DynamicDateFieldState } from './components/DynamicDateFields';
 
 // for re-used components
 
@@ -24,6 +26,13 @@ export function timeFromDateFieldState(state: DateFieldState, timeSettings: Time
     const days  = state.day  === "" ? 0 : parseFloat(state.day)  - dayOffset;
     const hours = state.hour === "" ? 0 : parseFloat(state.hour);
     return ( (timeSettings.daysPerYear * years + days) * timeSettings.hoursPerDay + hours ) * 3600
+}
+
+export function timesFromDynamicDateFieldState(state: DynamicDateFieldState, timeSettings: TimeSettings, yearOffset: number = 0, dayOffset: number = 0) : number[] {
+    const years = state.years.map(y => y === "" ? 0 : parseFloat(y) - yearOffset);
+    const days  = state.days.map(d => d  === "" ? 0 : parseFloat(d) - dayOffset);
+    const hours = state.hours.map(h => h === "" ? 0 : parseFloat(h));
+    return years.map((y, idx) => ( (y * timeSettings.daysPerYear + days[idx]) * timeSettings.hoursPerDay + hours[idx] ) * 3600 );
 }
 
 export function orbitFromControlsState(system: SolarSystem, state: OrbitControlsState): Orbit {
@@ -243,6 +252,7 @@ export function defaultPorkchopTimes(system: SolarSystem, startOrbit: IOrbit, en
 }
 
 // for multi-flyby
+
 function flightTimesBounds(system: SolarSystem, startOrbit: Orbit, endOrbit: Orbit, flybyIdSequence: number[]) {
     const transferBodyId = system.commonAttractorId(startOrbit.orbiting, endOrbit.orbiting);
     const transferBody = system.bodyFromId(transferBodyId);
@@ -274,25 +284,25 @@ function flightTimesBounds(system: SolarSystem, startOrbit: Orbit, endOrbit: Orb
     return {flightTimesMin: ftBounds.map(b => b.lb), flightTimesMax: ftBounds.map(b => b.ub)}
 }
 
-
 export function searchInputsFromUI(system: SolarSystem, startOrbitControlsState: OrbitControlsState, endOrbitControlsState: OrbitControlsState, flybyIdSequence: number[],  
                                    dateControlsState: FlybyDateControlsState, controlsOptionsState: ControlsOptionsState, timeSettings: TimeSettings): MultiFlybySearchInputs {
                                        
     const startOrbit        = orbitFromControlsState(system, startOrbitControlsState);
     const endOrbit          = orbitFromControlsState(system, endOrbitControlsState);
+
     const defaultFtBounds   = flightTimesBounds(system, startOrbit, endOrbit, flybyIdSequence);
-    // const flightTimesMin: number[] = [];
-    // const flightTimesMax: number[] = [];
-    // for(let i=0; i<dateControlsState.flightTimes.length; i++) {
-    //     const ft = dateControlsState.flightTimes[i];
-    //     if(i % 2 == 0) {
-    //         flightTimesMin.push(dateFieldIsEmpty(ft) ? defaultFtBounds.flightTimesMin[i / 2] : timeFromDateFieldState(ft, timeSettings, 0, 0));
-    //     } else {
-    //         flightTimesMax.push(dateFieldIsEmpty(ft) ? defaultFtBounds.flightTimesMax[(i+1) / 2] : timeFromDateFieldState(ft, timeSettings, 0, 0));
-    //     }
-    // }
-    const flightTimesMin = defaultFtBounds.flightTimesMin;
-    const flightTimesMax = defaultFtBounds.flightTimesMax;
+    const inputFlightTimes  = timesFromDynamicDateFieldState(dateControlsState.flightTimes, timeSettings, 0, 0);
+
+    const flightTimesMin: number[] = [];
+    const flightTimesMax: number[] = [];
+    for(let i=0; i<inputFlightTimes.length; i++) {
+        const ft = inputFlightTimes[i];
+        if(i % 2 == 0) {
+            flightTimesMin.push(ft > 0 ? ft : defaultFtBounds.flightTimesMin[i / 2]);
+        } else {
+            flightTimesMax.push(ft > 0 ? ft : defaultFtBounds.flightTimesMax[(i-1) / 2]);
+        }
+    }
 
     const startDateMin   = dateFieldIsEmpty(dateControlsState.earlyStartDate)  ? 0.0 : timeFromDateFieldState(dateControlsState.earlyStartDate, timeSettings, 1, 1); 
     let startDateMax     = dateFieldIsEmpty(dateControlsState.lateStartDate)   ? startDateMin + 5 * 365 * 24 * 3600 : timeFromDateFieldState(dateControlsState.lateStartDate, timeSettings, 1, 1);

@@ -1,7 +1,8 @@
 import RequiredNumberField, { NumberField } from "./NumberField";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Stack from "@mui/material/Stack";
+import { timeFromDateFieldState } from "../utils";
 
 export type DateFieldState = {
     year:     string,
@@ -17,6 +18,7 @@ type DateFieldProps = {
     label:          string,
     state:          DateFieldState,
     required?:      boolean,
+    error?:         boolean
 }
 
 function handleChange(setFunction: Function) {
@@ -27,61 +29,36 @@ function handleChange(setFunction: Function) {
     )
 }
 
-function DateField({id, label, state, required = false}: DateFieldProps) {
-
-    if(required) {
-        return (
-            <label>
-                {label}
-                <Stack spacing={2} direction="row">
-                    <RequiredNumberField
-                        id={'year-'+String(id)}
-                        label='Year'
-                        type='number'
-                        value={state.year}
-                        onChange={handleChange(state.setYear)} />            
-                    <RequiredNumberField
-                        id={'day-'+String(id)}
-                        label='Day'
-                        type='number'
-                        value={state.day} 
-                        onChange={handleChange(state.setDay)} />            
-                    <RequiredNumberField
-                        id={'hour-'+String(id)}
-                        label='Hour'
-                        type='number'
-                        value={state.hour}
-                        onChange={handleChange(state.setHour)}  />
-                </Stack>
-            </label>
-        )
-    } else {
-        return (
-            <label>
-                {label}
-                <Stack spacing={2} direction="row">
-                    <NumberField
-                        id={'year-'+String(id)}
-                        label='Year'
-                        type='number'
-                        value={state.year}
-                        onChange={handleChange(state.setYear)} />            
-                    <NumberField
-                        id={'day-'+String(id)}
-                        label='Day'
-                        type='number'
-                        value={state.day} 
-                        onChange={handleChange(state.setDay)} />             
-                    <NumberField
-                        id={'hour-'+String(id)}
-                        label='Hour'
-                        type='number'
-                        value={state.hour}
-                        onChange={handleChange(state.setHour)}  />
-                </Stack>
-            </label>
-        )
-    }
+function DateField({id, label, state, required = false, error = false}: DateFieldProps) {
+    const NumField = required ? RequiredNumberField : NumberField;
+    return (
+        <label>
+            {label}
+            <Stack spacing={2} direction="row">
+                <NumField
+                    id={'year-'+String(id)}
+                    label='Year'
+                    type='number'
+                    value={state.year}
+                    error={error}    
+                    onChange={handleChange(state.setYear)} />      
+                <NumField
+                    id={'day-'+String(id)}
+                    label='Day'
+                    type='number'
+                    value={state.day} 
+                    error={error}    
+                    onChange={handleChange(state.setDay)} />            
+                <NumField
+                    id={'hour-'+String(id)}
+                    label='Hour'
+                    type='number'
+                    value={state.hour}
+                    error={error}    
+                    onChange={handleChange(state.setHour)}  />
+            </Stack>
+        </label>
+    )
 }
 
-export default React.memo(DateField, (prevProps, nextProps) => prevProps.state === nextProps.state)
+export default React.memo(DateField)

@@ -33,7 +33,7 @@ function createBodyItems(system: SolarSystem, startBodyId: number, endBodyId: nu
     return options;
 }
 
-function handleAddFlyby(flybyIdSequence: number[], setFlybyIdSequence: React.Dispatch<React.SetStateAction<number[]>>, dateControlsState: FlybyDateControlsState, newDateField1: DateFieldState, newDateField2: DateFieldState, system: SolarSystem, startBodyId: number, endBodyId: number) {
+function handleAddFlyby(flybyIdSequence: number[], setFlybyIdSequence: React.Dispatch<React.SetStateAction<number[]>>, dateControlsState: FlybyDateControlsState, system: SolarSystem, startBodyId: number, endBodyId: number) {
     return (event: any): void => {
         const transferBodyId = system.commonAttractorId(startBodyId, endBodyId);
         const transferBody = system.bodyFromId(transferBodyId);
@@ -41,7 +41,9 @@ function handleAddFlyby(flybyIdSequence: number[], setFlybyIdSequence: React.Dis
             const newFlybyIdSequence = flybyIdSequence.slice();
             newFlybyIdSequence.push(transferBody.orbiterIds[0]);
             setFlybyIdSequence(newFlybyIdSequence);
-            dateControlsState.setFlightTimes([...dateControlsState.flightTimes, newDateField1, newDateField2]);
+            dateControlsState.flightTimes.setYears([...dateControlsState.flightTimes.years, '', '']);
+            dateControlsState.flightTimes.setDays([...dateControlsState.flightTimes.days, '', '']);
+            dateControlsState.flightTimes.setHours([...dateControlsState.flightTimes.hours, '', '']);
         }
     };
 }
@@ -50,7 +52,10 @@ function handleRemoveFlyby(flybyIdSequence: number[], setFlybyIdSequence: React.
     return (event: any): void => {
         const newFlybyIdSequence = flybyIdSequence.slice(0,-1);
         setFlybyIdSequence(newFlybyIdSequence);
-        dateControlsState.setFlightTimes(dateControlsState.flightTimes.slice(0,-2));
+        dateControlsState.flightTimes.setYears(dateControlsState.flightTimes.years.slice(0,-2));
+        dateControlsState.flightTimes.setDays(dateControlsState.flightTimes.days.slice(0,-2));
+        dateControlsState.flightTimes.setHours(dateControlsState.flightTimes.hours.slice(0,-2));
+
     };
 }
 
@@ -96,7 +101,7 @@ function FlybySequenceControls({system, startBodyId, endBodyId, flybyIdSequence,
         <Stack spacing={1.5}>
             {flybyIdSequence.map((id, index) => createBodyDropdown(bodyOptions, index, id, flybyIdSequence, setFlybyIdSequence))}
             <Stack direction="row" spacing={2} textAlign="center" justifyContent="center">
-                <Button variant="outlined" onClick={handleAddFlyby(flybyIdSequence, setFlybyIdSequence, dateControlsState, useDateField('1','2','3'), useDateField(), system, startBodyId, endBodyId)}>
+                <Button variant="outlined" onClick={handleAddFlyby(flybyIdSequence, setFlybyIdSequence, dateControlsState, system, startBodyId, endBodyId)}>
                     <AddIcon />
                 </Button>
                 <Button variant="outlined" onClick={handleRemoveFlyby(flybyIdSequence, setFlybyIdSequence, dateControlsState)}>
@@ -107,4 +112,4 @@ function FlybySequenceControls({system, startBodyId, endBodyId, flybyIdSequence,
     )
 }
 
-export default React.memo(FlybySequenceControls);
+export default FlybySequenceControls;

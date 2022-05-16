@@ -52,4 +52,4 @@ function MissionControls({system, vessels, startOrbitControlsState, endOrbitCont
     )
 }
 
-export default React.memo(MissionControls);
+export default MissionControls;

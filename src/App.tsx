@@ -20,6 +20,7 @@ import { FlybyDateControlsState } from './components/FlybyApp/FlybyDateControls'
 // import { createTheme } from '@mui/material/styles';
 import { defaultManeuver, defaultOrbit, useControlOptions, useDateField, useOrbitControls } from './utils';
 import { EvolutionPlotData } from './components/FlybyApp/EvolutionPlot';
+import { DynamicDateFieldState } from './components/DynamicDateFields';
 
 const bodiesData = {
   sun:      kspbodies[0]       as ICelestialBody,
@@ -131,6 +132,7 @@ function AppBody() {
     lateStartDate:      transferLateStartDate,
     shortFlightTime:    transferShortFlightTime,
     longFlightTime:     transferLongFlightTime,
+    timeSettings:       timeSettings,
   }
 
   const transferControlsState = useControlOptions();
@@ -147,12 +149,22 @@ function AppBody() {
 
   const flybyEarlyStartDate = useDateField('1','1','0');
   const flybyLateStartDate= useDateField();
-  const [flybyFlightTimes, setFlightTimes] = useState([useDateField(), useDateField(), useDateField(), useDateField(), useDateField(), useDateField()]);
+  const [flybyFlightYears, setFlybyFlightYears] = useState(['', '', '', '', '', '']);
+  const [flybyFlightDays, setFlybyFlightDays]   = useState(['', '', '', '', '', '']);
+  const [flybyFlightHours, setFlybyFlightHours] = useState(['', '', '', '', '', '']);
+  const flybyFlightTimes: DynamicDateFieldState = {
+    years:    flybyFlightYears,
+    days:     flybyFlightDays,
+    hours:    flybyFlightHours,
+    setYears: setFlybyFlightYears,
+    setDays:  setFlybyFlightDays,
+    setHours: setFlybyFlightHours,
+  }
   const flybyDateControlsState: FlybyDateControlsState = {
     earlyStartDate:     flybyEarlyStartDate,
     lateStartDate:      flybyLateStartDate,
     flightTimes:        flybyFlightTimes,
-    setFlightTimes:     setFlightTimes,
+    timeSettings:       timeSettings,
   }
 
   const [flybyIdSequence, setFlybyIdSequence] = useState([5, 8]);

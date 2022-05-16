@@ -96,6 +96,9 @@ function FlybyAppContent({system, setSystem, timeSettings, setTimeSettings, vess
       invalid = transferBody.orbiterIds.includes(flybySequenceControlsState.flybyIdSequence[i]) ? invalid : true;
     }
 
+    // make sure that the time settings are valid
+    // TO DO
+
     // display a warning and do not calculate a Porkchop if the inputs are invalid
     setInvalidInput(invalid);
     if(invalid) {
