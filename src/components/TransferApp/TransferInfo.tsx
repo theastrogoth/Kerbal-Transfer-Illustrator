@@ -15,11 +15,12 @@ import ManeuverInfoRow from "../ManeuverInfoRow";
 
 import Transfer from "../../main/objects/transfer";
 import { radToDeg, timeToCalendarDate, calendarDateToString, calendarDateToDurationString} from "../../main/libs/math";
-import Orbit from "../../main/objects/orbit";
+import CopyButton from "../CopyButton";
 
 
-function TransferInfo({transfer, timeSettings, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver}: 
-    {transfer: Transfer, timeSettings: TimeSettings, copiedOrbit: IOrbit, setCopiedOrbit: React.Dispatch<React.SetStateAction<IOrbit>>, copiedManeuver: Maneuver, setCopiedManeuver: React.Dispatch<React.SetStateAction<Maneuver>>}) {
+function TransferInfo({transfer, timeSettings, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, copiedFlightPlan, setCopiedFlightPlan}: 
+    {transfer: Transfer, timeSettings: TimeSettings, copiedOrbit: IOrbit, setCopiedOrbit: React.Dispatch<React.SetStateAction<IOrbit>>, 
+     copiedManeuver: Maneuver, setCopiedManeuver: React.Dispatch<React.SetStateAction<Maneuver>>, copiedFlightPlan: FlightPlan, setCopiedFlightPlan: React.Dispatch<React.SetStateAction<FlightPlan>>}) {
 
     const departureTime = transfer.ejections.length === 0 ? transfer.startDate : transfer.ejections[0].orbits[0].epoch;
     let lastInsertionLen = 0;
@@ -28,6 +29,12 @@ function TransferInfo({transfer, timeSettings, copiedOrbit, setCopiedOrbit, copi
     }
     const arrivalTime = transfer.insertions.length === 0 ? transfer.endDate : transfer.insertions[transfer.insertions.length - 1].orbits[lastInsertionLen - 1].epoch;
     const duration = arrivalTime - departureTime;
+
+    const flightPlan: FlightPlan = {
+        trajectories:   [...transfer.ejections, transfer.transferTrajectory, ...transfer.insertions],
+        name:           'Copied Transfer Trajectory',
+        color:          {r: 255, g: 255, b: 255},
+    }
 
     return (
         <Stack spacing={1} sx={{ my: 2, mx: 2 }}>
@@ -95,6 +102,12 @@ function TransferInfo({transfer, timeSettings, copiedOrbit, setCopiedOrbit, copi
                     </TableBody>
                 </Table>
             </TableContainer>
+            <Box display="flex" justifyContent="center" alignItems="center">
+                <Typography variant="body1" sx={{fontWeight: 600}}>
+                        Copy Flight Plan
+                </Typography>
+                <CopyButton obj={flightPlan} copiedObj={copiedFlightPlan} setCopiedObj={setCopiedFlightPlan} size={"large"}/>
+            </Box>
         </Stack>
     )
 }
