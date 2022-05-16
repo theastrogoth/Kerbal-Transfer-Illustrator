@@ -86,6 +86,7 @@ function transferPlotProps(transfer: Transfer, timeSettings: TimeSettings): Orbi
         endDate:        transfer.endDate,
         defaultTraces:  {systemTraces, orbitTraces, markerTraces},
         plotSize,
+        timeSettings,
     };
 }
 
@@ -128,6 +129,7 @@ function ejectionPlotProps(transfer: Transfer, ejectionIdx: number, timeSettings
         endDate:        endDate,
         defaultTraces:  {systemTraces, orbitTraces, markerTraces},
         plotSize,
+        timeSettings,
     };
 }
 
@@ -169,6 +171,7 @@ function insertionPlotProps(transfer: Transfer, insertionIdx: number, timeSettin
         endDate,
         defaultTraces:  {systemTraces, orbitTraces, markerTraces},
         plotSize,
+        timeSettings,
     };
 }
 
