@@ -32,7 +32,7 @@ function updateOrbitColorFade(newStartAngle: number, trace: Line3DTrace) {
     return newTrace
 }
 
-function updateTrajectoryMarker(date: number, trajectory: Trajectory, trace: Marker3DTrace) {
+export function updateTrajectoryMarker(date: number, trajectory: Trajectory, trace: Marker3DTrace) {
     const newTrace = Object.assign({}, trace);
 
     let orbIdx = -1;
