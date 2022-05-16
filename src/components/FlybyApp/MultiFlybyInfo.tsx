@@ -12,14 +12,16 @@ import Divider from '@mui/material/Divider';
 
 import TrajectoryInfoRow from "../TrajectoryInfoRow";
 import ManeuverInfoRow from "../ManeuverInfoRow";
+import CopyButton from "../CopyButton";
 
-import Orbit from "../../main/objects/orbit";
 import MultiFlyby from "../../main/objects/multiflyby";
 import { timeToCalendarDate, calendarDateToString, calendarDateToDurationString} from "../../main/libs/math";
 
 
 
-function MultiFlybyInfo({multiFlyby, timeSettings, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver}: {multiFlyby: MultiFlyby, timeSettings: TimeSettings, copiedOrbit: IOrbit, setCopiedOrbit: React.Dispatch<React.SetStateAction<IOrbit>>, copiedManeuver: Maneuver, setCopiedManeuver: React.Dispatch<React.SetStateAction<Maneuver>>}) {
+function MultiFlybyInfo({multiFlyby, timeSettings, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, copiedFlightPlan, setCopiedFlightPlan}: 
+    {multiFlyby: MultiFlyby, timeSettings: TimeSettings, copiedOrbit: IOrbit, setCopiedOrbit: React.Dispatch<React.SetStateAction<IOrbit>>, 
+     copiedManeuver: Maneuver, setCopiedManeuver: React.Dispatch<React.SetStateAction<Maneuver>>, copiedFlightPlan: FlightPlan, setCopiedFlightPlan: React.Dispatch<React.SetStateAction<FlightPlan>>}) {
 
     const departureTime = multiFlyby.ejections.length  === 0 ? multiFlyby.startDate : multiFlyby.ejections[0].orbits[0].epoch;
     const arrivalTime   = multiFlyby.insertions.length === 0 ? multiFlyby.endDate   : multiFlyby.insertions[0].orbits[0].epoch;
@@ -49,6 +51,12 @@ function MultiFlybyInfo({multiFlyby, timeSettings, copiedOrbit, setCopiedOrbit, 
         if(!multiFlyby.noInsertionBurn) {
            trajectoryInfoRows.push(<TrajectoryInfoRow key="end" name="End" orbitnames={["Target Orbit"]} trajectory={[multiFlyby.endOrbit]} system={multiFlyby.system} copiedOrbit={copiedOrbit} setCopiedOrbit={setCopiedOrbit} />)
         }
+    }
+
+    const flightPlan: FlightPlan = {
+        trajectories:   [...multiFlyby.ejections, ...multiFlyby.transfers, ...multiFlyby.insertions],
+        name:           'Copied Multi-Flyby Trajectory',
+        color:          {r: 255, g: 255, b: 255},
     }
 
     return (
@@ -104,6 +112,12 @@ function MultiFlybyInfo({multiFlyby, timeSettings, copiedOrbit, setCopiedOrbit, 
                     </TableBody>
                 </Table>
             </TableContainer>
+            <Box display="flex" justifyContent="center" alignItems="center">
+                <Typography variant="body1" sx={{fontWeight: 600}}>
+                        Copy Flight Plan
+                </Typography>
+                <CopyButton obj={flightPlan} copiedObj={copiedFlightPlan} setCopiedObj={setCopiedFlightPlan} size={"large"}/>
+            </Box>
         </Stack>
     )
 }
