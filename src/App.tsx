@@ -32,6 +32,7 @@ const kspTimeSettings: TimeSettings = {hoursPerDay: 6, daysPerYear: 426};
 
 const emptyVessels: Vessel[] = [];
 const emptyNumberArray: number[] = [];
+const blankFlightPlan: FlightPlan = {trajectories: [], name: 'Blank Flight Plan', color: {r: 255, g: 255, b: 255}};
 
 // initial values
 const initialTransfer: Transfer = new Transfer({
@@ -118,6 +119,7 @@ function AppBody() {
 
   const [copiedOrbit, setCopiedOrbit] = useState(defaultOrbit(kspSystem) as IOrbit);
   const [copiedManeuver, setCopiedManeuver] = useState(defaultManeuver());
+  const [copiedFlightPlan, setCopiedFlightPlan] = useState(blankFlightPlan);
 
   // state for transfer calculator
   const transferStartOrbit = useOrbitControls(kspSystem, 1);
@@ -191,23 +193,28 @@ function AppBody() {
     setMeanY,
     bestY,
     setBestY,
-}
+  }
 
   const [flybySearchCount, setFlybySearchCount] = useState(0);
+
+  // state for flight plan illustrator
+
 
   return (
     <Routes>
       <Route path='/' element={<TransferApp
         system={system}
         setSystem={setSystem}
-        setCopiedManeuver={setCopiedManeuver}
         timeSettings={timeSettings}
+        setTimeSettings={setTimeSettings}
         vessels={vessels}
         setVessels={setVessels}
         copiedOrbit={copiedOrbit}
         setCopiedOrbit={setCopiedOrbit}
         copiedManeuver={copiedManeuver}
-        setTimeSettings={setTimeSettings}
+        setCopiedManeuver={setCopiedManeuver}
+        copiedFlightPlan={copiedFlightPlan}
+        setCopiedFlightPlan={setCopiedFlightPlan}
         startOrbitControlsState={transferStartOrbit}
         endOrbitControlsState={transferEndOrbit}
         dateControlsState={transferDateControlsState}
@@ -232,6 +239,8 @@ function AppBody() {
         setCopiedOrbit={setCopiedOrbit}
         copiedManeuver={copiedManeuver}
         setCopiedManeuver={setCopiedManeuver}
+        copiedFlightPlan={copiedFlightPlan}
+        setCopiedFlightPlan={setCopiedFlightPlan}
         startOrbitControlsState={flybyStartOrbit}
         endOrbitControlsState={flybyEndOrbit}
         flybySequenceControlsState={flybySequenceControlsState}

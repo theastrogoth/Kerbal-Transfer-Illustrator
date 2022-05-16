@@ -1,7 +1,6 @@
 import SolarSystem from '../main/objects/system';
 import Vessel from '../main/objects/vessel';
 import Transfer from '../main/objects/transfer';
-import Orbit from '../main/objects/orbit';
 
 import { DateControlsState } from '../components/TransferApp/DateControls';
 import { OrbitControlsState } from '../components/OrbitControls';
@@ -43,6 +42,8 @@ type TransferAppState = {
   setCopiedOrbit:          React.Dispatch<React.SetStateAction<IOrbit>>,
   copiedManeuver:          Maneuver,
   setCopiedManeuver:       React.Dispatch<React.SetStateAction<Maneuver>>,
+  copiedFlightPlan:        FlightPlan,
+  setCopiedFlightPlan:     React.Dispatch<React.SetStateAction<FlightPlan>>,
   startOrbitControlsState: OrbitControlsState,
   endOrbitControlsState:   OrbitControlsState,
   dateControlsState:       DateControlsState,
@@ -72,9 +73,9 @@ const mdTheme = createTheme({
 
 ////////// App Content //////////
 
-function TransferAppContent({system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, startOrbitControlsState, endOrbitControlsState,
-                             dateControlsState, controlsOptionsState, transfer, setTransfer, porkchopInputs, setPorkchopInputs, porkchopPlotData, setPorkchopPlotData, 
-                             plotCount, setPlotCount}: TransferAppState) { 
+function TransferAppContent({system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver,
+                             copiedFlightPlan, setCopiedFlightPlan, startOrbitControlsState, endOrbitControlsState, dateControlsState, controlsOptionsState, transfer, setTransfer, 
+                             porkchopInputs, setPorkchopInputs, porkchopPlotData, setPorkchopPlotData, plotCount, setPlotCount}: TransferAppState) { 
 
   const [invalidInput, setInvalidInput] = useState(false);
   const [porkCalculating, setPorkCalculating] = useState(false);
@@ -207,7 +208,8 @@ function TransferAppContent({system, setSystem, timeSettings, setTimeSettings, v
                   flexDirection: 'column',
               }}
               >
-                <TransferInfo transfer={transfer} timeSettings={timeSettings} copiedOrbit={copiedOrbit} setCopiedOrbit={setCopiedOrbit} copiedManeuver={copiedManeuver} setCopiedManeuver={setCopiedManeuver} />
+                <TransferInfo transfer={transfer} timeSettings={timeSettings} copiedOrbit={copiedOrbit} setCopiedOrbit={setCopiedOrbit} copiedManeuver={copiedManeuver}
+                  setCopiedManeuver={setCopiedManeuver} copiedFlightPlan={copiedFlightPlan} setCopiedFlightPlan={setCopiedFlightPlan}/>
               </Paper>
             </Fade>
           </Grid>

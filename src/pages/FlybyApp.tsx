@@ -56,6 +56,8 @@ type FlybyAppState = {
   setCopiedOrbit:             React.Dispatch<React.SetStateAction<IOrbit>>,
   copiedManeuver:             Maneuver,
   setCopiedManeuver:          React.Dispatch<React.SetStateAction<Maneuver>>,
+  copiedFlightPlan:           FlightPlan,
+  setCopiedFlightPlan:        React.Dispatch<React.SetStateAction<FlightPlan>>,
   startOrbitControlsState:    OrbitControlsState,
   endOrbitControlsState:      OrbitControlsState,
   flybySequenceControlsState: FlybySequenceControlsState,
@@ -70,8 +72,9 @@ type FlybyAppState = {
 
 
 ///// App Content /////
-function FlybyAppContent({system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, startOrbitControlsState, endOrbitControlsState, 
-                          flybySequenceControlsState,  dateControlsState, controlsOptionsState, multiFlyby, setMultiFlyby, evolutionPlotData, searchCount, setSearchCount}: FlybyAppState) {
+function FlybyAppContent({system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, 
+                          copiedFlightPlan, setCopiedFlightPlan, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState,  dateControlsState, 
+                          controlsOptionsState, multiFlyby, setMultiFlyby, evolutionPlotData, searchCount, setSearchCount}: FlybyAppState) {
 
   ///// Multi-flyby search inputs /////
   const [mfSearchInputs, setMfSearchInputs] = useState(searchInputsFromUI(system, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState.flybyIdSequence, dateControlsState, controlsOptionsState, timeSettings))
@@ -211,7 +214,8 @@ function FlybyAppContent({system, setSystem, timeSettings, setTimeSettings, vess
                   flexDirection: 'column',
               }}
               >
-                <MultiFlybyInfo multiFlyby={multiFlyby} timeSettings={timeSettings} copiedOrbit={copiedOrbit} setCopiedOrbit={setCopiedOrbit} copiedManeuver={copiedManeuver} setCopiedManeuver={setCopiedManeuver} />
+                <MultiFlybyInfo multiFlyby={multiFlyby} timeSettings={timeSettings} copiedOrbit={copiedOrbit} setCopiedOrbit={setCopiedOrbit} 
+                  copiedManeuver={copiedManeuver} setCopiedManeuver={setCopiedManeuver} copiedFlightPlan={copiedFlightPlan} setCopiedFlightPlan={setCopiedFlightPlan}/>
               </Paper>
             </Fade>
           </Grid>
