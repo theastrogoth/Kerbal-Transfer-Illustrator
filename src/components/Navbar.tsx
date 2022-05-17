@@ -32,9 +32,9 @@ function Navbar({system, setVessels, showHelp, setShowHelp}: {system: ISolarSyst
                     <Button href="/#/Flyby" sx={{ my: 2, color: 'white', display: 'block' }}>
                         Flyby
                     </Button>
-                    <Button href="/#/FlightPlan" sx={{ my: 2, color: 'white', display: 'block' }}>
+                    {/* <Button href="/#/FlightPlan" sx={{ my: 2, color: 'white', display: 'block' }}>
                         Flight Plan
-                    </Button>
+                    </Button> */}
                 </Box>
                 <Box sx={{ flexGrow: 1 }} />
                 <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
