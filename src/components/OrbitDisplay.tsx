@@ -83,7 +83,7 @@ export function updateYDHwithDate(dateField: DateFieldState, date: number, timeS
     const calendarDate = timeToCalendarDate(date, timeSettings, 1, 1);
     dateField.setYear(String(calendarDate.year));
     dateField.setDay(String(calendarDate.day));
-    dateField.setHour(String(calendarDate.hour + (calendarDate.minute >= 30 ? 1 : 0)));    
+    dateField.setSec(String(calendarDate.hour * 3600 + calendarDate.minute * 60 + calendarDate.second));    
 }
 
 function OrbitDisplay({index, label, marks, centralBody, orbits, trajectories, startDate, endDate, defaultTraces, plotSize, timeSettings, slider=true}: OrbitDisplayProps) {
