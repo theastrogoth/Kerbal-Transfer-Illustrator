@@ -25,6 +25,7 @@ function createBodyItems(system: SolarSystem, startBodyId: number, endBodyId: nu
     const transferBody = system.bodyFromId(transferBodyId);
     const options: JSX.Element[] = [];
     const bds = transferBody.orbiters;
+    console.log(startBodyId, endBodyId, transferBodyId)
     for (let i = 0; i < bds.length; i++) {
         options.push(<MenuItem key={bds[i].id} value={bds[i].id}>{bds[i].name}</MenuItem>)
     }

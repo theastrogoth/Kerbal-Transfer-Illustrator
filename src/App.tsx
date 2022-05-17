@@ -172,8 +172,8 @@ function AppBody() {
   const [flybyIdSequence, setFlybyIdSequence] = useState([5, 8]);
   const flybySequenceControlsState = {
     system:             kspSystem,            
-    startBodyId:        1,        
-    endBodyId:          16,         
+    startBodyId:        flybyStartOrbit.bodyId,        
+    endBodyId:          flybyEndOrbit.bodyId,         
     flybyIdSequence,    
     setFlybyIdSequence, 
     dateControlsState:  flybyDateControlsState,
