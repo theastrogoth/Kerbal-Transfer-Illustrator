@@ -1,8 +1,7 @@
 import RequiredNumberField, { NumberField } from "./NumberField";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import Stack from "@mui/material/Stack";
-import { timeFromDateFieldState } from "../utils";
 import HourMinSecField from "./HourMinSecField";
 
 export type DateFieldState = {
@@ -82,6 +81,7 @@ function DateField({id, label, state, required = false, error = false, correctFo
             state.setDay(String(newDay));
             state.setSec(String(newSec));
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state.year, state.day, state.sec])
 
     return (

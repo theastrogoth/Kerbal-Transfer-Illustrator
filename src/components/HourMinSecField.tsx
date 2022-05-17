@@ -57,6 +57,7 @@ function HourMinSecField({sec, setSec, error = false}: {sec: string, setSec: Rea
     if(sec !== value) {
       setValue(toHHMMSS(Number(sec)))
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sec])
 
   return (

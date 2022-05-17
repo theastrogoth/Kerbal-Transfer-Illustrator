@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Plot from "react-plotly.js";
 import Box from "@mui/material/Box";
 import Fade from "@mui/material/Fade";

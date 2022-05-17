@@ -1,5 +1,4 @@
 import RequiredNumberField, { NumberField } from "./NumberField";
-import { timesFromDynamicDateFieldState } from "../utils";
 
 import React, { useEffect, useState } from "react";
 import Stack from "@mui/material/Stack";
@@ -38,16 +37,19 @@ function DynamicDateField({id, label, state, required = false, error = false}: {
         const newYears = state.years.slice();
         newYears[id] = y;
         state.setYears(newYears)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [y])
     useEffect(() => {
         const newDays = state.days.slice();
         newDays[id] = d;
         state.setDays(newDays)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [d])
     useEffect(() => {
         const newHours = state.hours.slice();
         newHours[id] = h;
         state.setHours(newHours)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [h])
 
     const NumField = required ? RequiredNumberField : NumberField; 

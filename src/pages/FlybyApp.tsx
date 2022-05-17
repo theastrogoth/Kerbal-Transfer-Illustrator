@@ -1,5 +1,4 @@
 import SolarSystem from '../main/objects/system';
-import Orbit from '../main/objects/orbit';
 import Vessel from '../main/objects/vessel';
 import MultiFlyby from '../main/objects/multiflyby';
 

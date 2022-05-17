@@ -15,7 +15,7 @@ export type FlybyDateControlsState = {
 }
 
 function flybyTimesLabel(id: number): string {
-    if(id % 2 == 0) {
+    if(id % 2 === 0) {
         return 'Minimum Leg #' + String(id / 2 + 1) + ' Duration';
     } else {
         return 'Maximum Leg #' + String((id+1) / 2) + ' Duration';
@@ -40,7 +40,8 @@ function FlybyDateControls({earlyStartDate, lateStartDate, flightTimes, timeSett
         } else {
             setStartErr(false)
         }
-      }, [earlyStartDate, lateStartDate, timeSettings]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [earlyStartDate, lateStartDate, timeSettings]);
 
     useEffect(() => {
         const times = timesFromDynamicDateFieldState(flightTimes, timeSettings, 0, 0);
@@ -62,6 +63,7 @@ function FlybyDateControls({earlyStartDate, lateStartDate, flightTimes, timeSett
             }
         }
         setFlightErrs(newFlightErrs)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [flightTimes, timeSettings])
 
     return (

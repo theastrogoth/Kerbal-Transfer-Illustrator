@@ -626,7 +626,8 @@ class MultiFlybyCalculator {
         }
 
         const optimizedPoint = nelderMeadMinimize(initialPoints, objective, tol, maxit);
-        const score = objective(optimizedPoint)
+        objective(optimizedPoint)
+        // const score = objective(optimizedPoint)
         // console.log(this._soiPatchPositions)
         // console.log(this.calculateSoiPatches())
         // console.log(score)

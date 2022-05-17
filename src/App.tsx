@@ -4,7 +4,7 @@ import './App.css';
 
 import TransferApp from './pages/TransferApp';
 import FlybyApp from './pages/FlybyApp';
-import ManeuversApp from './pages/ManeuversApp';
+// import ManeuversApp from './pages/ManeuversApp';
 
 import kspbodies from './data/kspbodies.json';
 
@@ -228,7 +228,7 @@ function AppBody() {
         plotCount={transferPlotCount}
         setPlotCount={setTransferPlotCount}
        />} />
-      <Route path='/Flyby/' element={<FlybyApp 
+      <Route path='Flyby' element={<FlybyApp 
         system={system}
         setSystem={setSystem}
         timeSettings={timeSettings}
@@ -252,7 +252,7 @@ function AppBody() {
         searchCount={flybySearchCount}
         setSearchCount={setFlybySearchCount}
       />} />
-      <Route path='/FlightPlan/' element={<ManeuversApp />} />
+      {/* <Route path='Kerbal-Transfer-Illustrator/FlightPlan/' element={<ManeuversApp />} /> */}
     </Routes>
   );
 }

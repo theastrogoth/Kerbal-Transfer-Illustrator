@@ -491,7 +491,8 @@ class TransferCalculator {
 
         const initialPoints = this.initialPositionAndAnglePoints();
         const optimizedPoint = nelderMeadMinimize(initialPoints, objective, tol, maxit);
-        const optimizedPointObj = objective(optimizedPoint);
+        objective(optimizedPoint);
+        // const optimizedPointObj = objective(optimizedPoint);
         // console.log(this._soiPatchPositions)
         // console.log(this.calculateSoiPatches())
         // console.log(optimizedPointObj)

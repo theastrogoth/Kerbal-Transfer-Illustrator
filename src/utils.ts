@@ -3,7 +3,6 @@ import { useState } from 'react';
 import Orbit from './main/objects/orbit';
 import { OrbitingBody } from './main/objects/body';
 import SolarSystem from './main/objects/system';
-import CelestialBody from './main/objects/body';
 
 import Kepler from './main/libs/kepler';
 import FlybyCalcs from './main/libs/flybycalcs';
@@ -14,7 +13,6 @@ import { DateControlsState } from './components/TransferApp/DateControls';
 import { FlybyDateControlsState } from './components/FlybyApp/FlybyDateControls';
 import { ControlsOptionsState } from './components/ControlsOptions';
 import { DynamicDateFieldState } from './components/DynamicDateFields';
-import { timeToCalendarDate } from './main/libs/math';
 
 // for re-used components
 
@@ -298,7 +296,7 @@ export function searchInputsFromUI(system: SolarSystem, startOrbitControlsState:
     const flightTimesMax: number[] = [];
     for(let i=0; i<inputFlightTimes.length; i++) {
         const ft = inputFlightTimes[i];
-        if(i % 2 == 0) {
+        if(i % 2 === 0) {
             flightTimesMin.push(ft > 0 ? ft : defaultFtBounds.flightTimesMin[i / 2]);
         } else {
             flightTimesMax.push(ft > 0 ? ft : defaultFtBounds.flightTimesMax[(i-1) / 2]);

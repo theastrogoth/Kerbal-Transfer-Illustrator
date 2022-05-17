@@ -22,7 +22,7 @@ function TimeSettingsControls({timeSettings, setTimeSettings}: {timeSettings: Ti
     return (
         <FormControl>
             <RadioGroup
-                value={timeSettings.daysPerYear == kspTimeSettings.daysPerYear ? 0 : 1}
+                value={timeSettings.daysPerYear === kspTimeSettings.daysPerYear ? 0 : 1}
                 onChange={handleChange(setTimeSettings)}
             >
                 {options.map((ts, index) => <FormControlLabel key={index} value={index} control={<Radio />} label={labels[index]} />)}
