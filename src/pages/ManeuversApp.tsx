@@ -50,14 +50,14 @@ const mdTheme = createTheme({
 
 // constant functions
 function dateFieldIsEmpty(field: DateFieldState): boolean {
-  return ((field.year === '') && (field.day === '') && (field.hour === ''))
+  return ((field.year === '') && (field.day === '') && (field.sec === ''))
 }
 
 function timeFromDateFieldState(state: DateFieldState, timeSettings: TimeSettings, yearOffset: number = 1, dayOffset: number = 1): number {
   const years = state.year === "" ? 0 : parseFloat(state.year) - yearOffset;
   const days  = state.day  === "" ? 0 : parseFloat(state.day)  - dayOffset;
-  const hours = state.hour === "" ? 0 : parseFloat(state.hour);
-  return ( (timeSettings.daysPerYear * years + days) * timeSettings.hoursPerDay + hours ) * 3600
+  const secs = state.sec === "" ? 0 : parseFloat(state.sec);
+  return ( (timeSettings.daysPerYear * years + days) * timeSettings.hoursPerDay) * 3600 + secs;
 }
 
 // other constants
@@ -86,26 +86,26 @@ function ManeuversAppContent() {
   ///// Date parameters states /////
   const [earlyStartYear, setEarlyStartYear] = useState('1')
   const [earlyStartDay, setEarlyStartDay] = useState('1')
-  const [earlyStartHour, setEarlyStartHour] = useState('0')
+  const [earlyStartSec, setEarlyStartSec] = useState('0')
   const earlyStartField: DateFieldState = {
     year:     earlyStartYear,
     day:      earlyStartDay,
-    hour:     earlyStartHour,
+    sec:      earlyStartSec,
     setYear:  setEarlyStartYear,
     setDay:   setEarlyStartDay,
-    setHour:  setEarlyStartHour,
+    setSec:   setEarlyStartSec,
   }
 
   const [lateStartYear, setLateStartYear] = useState('')
   const [lateStartDay, setLateStartDay] = useState('')
-  const [lateStartHour, setLateStartHour] = useState('')
+  const [lateStartSec, setLateStartSec] = useState('')
   const lateStartField: DateFieldState = {
     year:     lateStartYear,
     day:      lateStartDay,
-    hour:     lateStartHour,
+    sec:     lateStartSec,
     setYear:  setLateStartYear,
     setDay:   setLateStartDay,
-    setHour:  setLateStartHour,
+    setSec:  setLateStartSec,
   }
 
 

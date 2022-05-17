@@ -19,14 +19,14 @@ import { timeToCalendarDate } from './main/libs/math';
 // for re-used components
 
 export function dateFieldIsEmpty(field: DateFieldState): boolean {
-    return ((field.year === '') && (field.day === '') && (field.hour === ''))
+    return ((field.year === '') && (field.day === '') && (field.sec === ''))
 }
 
 export function timeFromDateFieldState(state: DateFieldState, timeSettings: TimeSettings, yearOffset: number = 1, dayOffset: number = 1): number {
     const years = state.year === "" ? 0 : parseFloat(state.year) - yearOffset;
     const days  = state.day  === "" ? 0 : parseFloat(state.day)  - dayOffset;
-    const hours = state.hour === "" ? 0 : parseFloat(state.hour);
-    return ( (timeSettings.daysPerYear * years + days) * timeSettings.hoursPerDay + hours ) * 3600
+    const secs  = state.sec  === "" ? 0 : parseFloat(state.sec);
+    return ( (timeSettings.daysPerYear * years + days) * timeSettings.hoursPerDay) * 3600 + secs;
 }
 
 export function timesFromDynamicDateFieldState(state: DynamicDateFieldState, timeSettings: TimeSettings, yearOffset: number = 0, dayOffset: number = 0) : number[] {
@@ -136,17 +136,17 @@ export function useOrbitControls(system: SolarSystem, id: number) {
     return orbitControlsState;
 }
 
-export function useDateField(y: string = '', d: string = '', h: string = '') {
+export function useDateField(y: string = '', d: string = '', s: string = '') {
     const [year, setYear] = useState(y)
     const [day, setDay] = useState(d)
-    const [hour, setHour] = useState(h)
+    const [sec, setSec] = useState(s)
     const dateFieldState: DateFieldState = {
         year:     year,
         day:      day,
-        hour:     hour,
+        sec:      sec,
         setYear:  setYear,
         setDay:   setDay,
-        setHour:  setHour,
+        setSec:   setSec,
     };
 
     return dateFieldState
