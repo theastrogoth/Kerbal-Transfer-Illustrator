@@ -96,11 +96,11 @@ function OrbitDisplay({index, label, marks, centralBody, orbits, trajectories, s
     const dateField = useDateField(String(defaultCalendarDate.year), String(defaultCalendarDate.day), String(defaultCalendarDate.hour));
 
     useEffect(() => {
-        setDate(Math.ceil(startDate));
-        const roundedDate = Math.round(startDate / 3600) * 3600;
-        updateYDHwithDate(dateField, roundedDate, timeSettings)
-        setFieldsDate(roundedDate)
-        const newTraces = updateDate(startDate, centralBody, orbits, trajectories, defaultTraces);
+        const d = Math.ceil(startDate)
+        setDate(d);
+        updateYDHwithDate(dateField, d, timeSettings)
+        setFieldsDate(d)
+        const newTraces = updateDate(d, centralBody, orbits, trajectories, defaultTraces);
         setTraces(newTraces)
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [startDate, defaultTraces]);
@@ -109,11 +109,8 @@ function OrbitDisplay({index, label, marks, centralBody, orbits, trajectories, s
         const newTraces = updateDate(date, centralBody, orbits, trajectories, traces);
         setTraces(newTraces);  
         if(updateFields) {
-            const roundedDate = Math.round(date / 3600) * 3600;
-            if(roundedDate !== date) {
-                updateYDHwithDate(dateField, date, timeSettings)
-                setFieldsDate(roundedDate)
-            }
+            updateYDHwithDate(dateField, date, timeSettings)
+            setFieldsDate(date)
             setUpdateFields(false);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
