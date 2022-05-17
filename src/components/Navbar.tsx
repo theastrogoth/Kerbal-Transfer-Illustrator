@@ -26,15 +26,15 @@ function Navbar({system, setVessels, showHelp, setShowHelp}: {system: ISolarSyst
                     Kerbal Transfer Illustrator 
                 </Typography>
                 <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                    <Button href="/#/" sx={{ my: 2, color: 'white', display: 'block' }}>
+                    <Button href="/Kerbal-Transfer-Illustrator/" sx={{ my: 2, color: 'white', display: 'block' }}>
                         Transfer
                     </Button>
-                    <Button href="/#/Flyby" sx={{ my: 2, color: 'white', display: 'block' }}>
+                    <Button href="/Kerbal-Transfer-Illustrator/#/Flyby" sx={{ my: 2, color: 'white', display: 'block' }}>
                         Flyby
                     </Button>
-                    <Button href="/#/FlightPlan" sx={{ my: 2, color: 'white', display: 'block' }}>
+                    {/* <Button href="/Kerbal-Transfer-Illustrator/#/FlightPlan" sx={{ my: 2, color: 'white', display: 'block' }}>
                         Flight Plan
-                    </Button>
+                    </Button> */}
                 </Box>
                 <Box sx={{ flexGrow: 1 }} />
                 <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
