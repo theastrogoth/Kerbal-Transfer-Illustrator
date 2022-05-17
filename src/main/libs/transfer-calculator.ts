@@ -302,10 +302,11 @@ class TransferCalculator {
                 if(i === this._insertions.length - 1) {
                     const maneuvers = this._insertions[i].maneuvers;
                     const bodyname = this.bodyFromId(this._insertions[i].orbits[0].orbiting).name;
-                    const contexts = ["Arrival Burn"];
+                    const contexts: string[] = [];
                     for(let j=0; j<maneuvers.length - 1; j++) {
                         contexts.push("Oberth Maneuver Burn over " + bodyname)
                     }
+                    contexts.push("Arrival Burn");
                     this._maneuvers.push(...maneuvers);
                     this._maneuverContexts.push(...contexts);
                 } else {
