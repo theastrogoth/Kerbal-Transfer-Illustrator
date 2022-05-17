@@ -13,6 +13,7 @@ import Select from "@mui/material/Select";
 import Button from '@mui/material/Button';
 import Stack from "@mui/material/Stack";
 import Collapse from "@mui/material/Collapse";
+import PasteButton from "./PasteButton";
 
 
 export type OrbitControlsState = {
@@ -41,6 +42,7 @@ type OrbitControlsProps = {
     system:         SolarSystem,
     vessels:        Vessel[],
     state:          OrbitControlsState,
+    copiedOrbit:    IOrbit,
 };
 
 function createBodyItems(system: SolarSystem) {
@@ -68,8 +70,20 @@ function handleChange(setFunction: Function) {
     )
 }
 
+function setOrbit(state: OrbitControlsState, orbit: IOrbit) {
+    state.setBodyId(orbit.orbiting)
+    state.setSma(String(orbit.semiMajorAxis));
+    state.setEcc(String(orbit.eccentricity));
+    state.setInc(String(orbit.inclination));
+    state.setLan(String(orbit.ascNodeLongitude));
+    state.setArg(String(orbit.argOfPeriapsis));
+    state.setMoe(String(orbit.meanAnomalyEpoch));
+    state.setEpoch(String(orbit.epoch));
+    state.setVesselId(-1);
+}
 
-function OrbitControls({label, system, vessels, state}: OrbitControlsProps) {
+
+function OrbitControls({label, system, vessels, state, copiedOrbit}: OrbitControlsProps) {
     const [body, setBody] = useState(system.bodyFromId(state.bodyId))
     const [alt, setAlt] = useState(String(parseFloat(state.sma) - body.radius));
 
@@ -223,8 +237,11 @@ function OrbitControls({label, system, vessels, state}: OrbitControlsProps) {
                             value={state.epoch}
                             onChange={handleChange(state.setEpoch)}
                             sx={{ fullWidth: true }} />
-                        </Stack>
-                    </Collapse>
+                        <Box justifyContent="center" sx={{ display: { xs: 'none', md: 'flex' } }} >
+                            <PasteButton setObj={(o: IOrbit) => setOrbit(state, o)} copiedObj={copiedOrbit}/>
+                        </Box>
+                    </Stack>
+                </Collapse>
             </Stack>   
             <Box textAlign='center'>
                 <Button 
@@ -232,7 +249,7 @@ function OrbitControls({label, system, vessels, state}: OrbitControlsProps) {
                     onClick={() => setOptsVisible(!optsVisible)}
                     sx={{ mx: 'auto' }}
                 >
-                    {(optsVisible ? "⏶" : "⏷" ) + ' Advanced Options'}
+                    {(optsVisible ? '\u25B4' : '\u25BE' ) + ' Advanced Options'}
                 </Button>
             </Box>
         </label>

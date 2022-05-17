@@ -18,7 +18,7 @@ export namespace Draw {
 
     }
 
-    // Orbit drawing
+    ///// Orbit drawing /////
     export function drawOrbitPathFromAngles(orbit: IOrbit, minTrueAnomaly: number, maxTrueAnomaly: number, startTime: number, timeSettings: TimeSettings,color: IColor, name: string | undefined, 
                                             colorfade: boolean = true, dash: "dash" | "dot" | "longdash" | "solid" | undefined = "solid", nPoints: number = 201): Line3DTrace {
         // true anomalies, positions, and times
@@ -183,8 +183,8 @@ export namespace Draw {
         return drawCentralBodyOrbitAtAngle(body, nu, colorfade, nPoints);
     }
 
-    // Body/Object drawing
-
+    ///// Body/Object drawing /////
+    // wireframe
     export function drawWireframeSphere(center: Vector3, radius: number, line: LineOptions | undefined, name: string | undefined = '', nPoints: number = 11): Line3DTrace {
         const phis = linspace(0, TWO_PI, nPoints);              // this is the angle of a vector projected to the x-y plane from the +x-axis
         const thetas = linspace(-HALF_PI, HALF_PI, nPoints);    // this is the angle of a vector with the positive z-axis
@@ -216,6 +216,9 @@ export namespace Draw {
                 showlegend: false,
         }
     }
+
+    // mesh3D
+    // export function drawMeshSphere() {}
 
     export function drawCentralBodySphere(body: ICelestialBody, nPoints = 11): Line3DTrace {
         const center = vec3(0,0,0);
@@ -251,7 +254,7 @@ export namespace Draw {
         return drawSoiSphereAtAngle(body, nu, nPoints);
     }
 
-    // markers and text
+    ///// markers and text /////
 
     export function drawReferenceDirection(centralBody: CelestialBody): Line3DTrace {
         const dist = centralBody.orbiters.length > 0 ? centralBody.furtherstOrbiterDistance * 2 : centralBody.soi;
@@ -284,7 +287,7 @@ export namespace Draw {
         }
     }
 
-    // draw entire system
+    ///// draw entire system //////
 
     export function drawSystemAtTime(centralBody: CelestialBody, time: number, timeSettings: TimeSettings, 
                                      colorfade: boolean = true, dash: "dash" | "dot" | "longdash" | "solid" | undefined = "solid", nPoints: number = 201): SystemTraces {

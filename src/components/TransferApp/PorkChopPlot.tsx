@@ -8,11 +8,13 @@ import Transfer from "../../main/objects/transfer"
 
 type PorkchopPlotProps = {
     inputs:         PorkchopInputs,
+    plotData:       PorkchopPlotData,
     timeSettings:   TimeSettings, 
     startDate:      number, 
     flightTime:     number, 
     transfer:       Transfer, 
     plotCount:      number, 
+    setPlotData:    React.Dispatch<React.SetStateAction<PorkchopPlotData>>,
     setTransfer:    React.Dispatch<React.SetStateAction<Transfer>>, 
     setCalculating: React.Dispatch<React.SetStateAction<boolean>>, 
     setPlotCount:   React.Dispatch<React.SetStateAction<number>>,
@@ -20,22 +22,7 @@ type PorkchopPlotProps = {
 
 const porkchopWorker = new Worker(new URL("../../workers/porkchop.worker.ts", import.meta.url));
 
-function PorkchopPlot({inputs, timeSettings, transfer, plotCount, setTransfer, setCalculating, setPlotCount}: PorkchopPlotProps) {
-
-    const [plotData, setPlotData]: [PorkchopPlotData, React.Dispatch<React.SetStateAction<PorkchopPlotData>>] = useState({
-        deltaVs:            [[0]],
-        startDates:         [0],
-        flightTimes:        [0],
-        logDeltaVs:         [[0]],
-        startDays:          [0],
-        flightDays:         [0],
-        levels:             [0],
-        logLevels:          [0],
-        tickLabels:         [""],
-        bestTransfer:       transfer.data,
-        transferStartDay:   0,
-        transferFlightDay:  0,
-    })
+function PorkchopPlot({inputs, plotData, timeSettings, transfer, plotCount, setPlotData, setTransfer, setCalculating, setPlotCount}: PorkchopPlotProps) {
 
     useEffect(() => {
         porkchopWorker.onmessage = (event: MessageEvent<PorkchopPlotData>) => {

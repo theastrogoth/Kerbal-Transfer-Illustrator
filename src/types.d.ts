@@ -73,8 +73,9 @@ interface IPorkchop {
 }
 
 interface IVessel {
-    readonly name:     string,
-    readonly orbit:    IOrbit,
+    readonly name:          string,
+    readonly orbit:         IOrbit,
+    readonly maneuvers?:    ManeuverComponents[],
 }
 
 interface IFlyby {
@@ -152,6 +153,7 @@ type ManeuverComponents = {
     readonly prograde:  number,
     readonly normal:    number,
     readonly radial:    number,
+    readonly date:      number,
 }
 
 type FlybyInputs = {
@@ -241,6 +243,12 @@ type MultiFlybySearchInputs = {
     readonly noInsertionBurn?:          boolean;
 }
 
+type FlightPlan = {
+    readonly name:                      string;
+    readonly color:                     IColor;
+    readonly trajectories:              Trajectory[];
+}
+
 // Plotting and Display
 
 type TimeSettings = {
@@ -267,6 +275,7 @@ interface IColor {
     readonly r:      number,
     readonly g:      number,
     readonly b:      number,
+    readonly a?:     number,
 }
 
 type LineOptions = {
@@ -327,9 +336,22 @@ type Marker3DTrace = {
     readonly visible?:       "legendonly" | undefined,            
 }
 
+type Mesh3DTrace = {
+    x:                       number[],
+    y:                       number[],
+    z:                       number[],
+    i:                       number[],
+    j:                       number[],
+    k:                       number[],
+    readonly type:           "mesh3d",
+    opacity:                 number,
+    intensity:               number[],
+    colorscale:              [number, String][];
+}
+
 type SystemTraces = {
     bodyOrbitTraces:        Line3DTrace[],
-    centralBodyTrace:       Line3DTrace,
+    centralBodyTrace:       Line3DTrace | Mesh3DTrace,
     centralBodyOrbitTrace?: Line3DTrace,
     orbitingBodyTraces:     Line3DTrace[],
     orbitingSoiTraces:      Line3DTrace[],

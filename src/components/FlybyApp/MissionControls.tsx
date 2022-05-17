@@ -3,11 +3,11 @@ import Vessel from "../../main/objects/vessel";
 
 import OrbitControls, { OrbitControlsState } from "../OrbitControls";
 import FlybySequenceControls, { FlybySequenceControlsState } from "./FlybySequenceControls";
-import DateControls, { DateControlsState } from "./DateControls";
-import TimeSettingsControls, { TimeSettingsControlsState } from "../TimeSettingsControls";
+import FlybyDateControls, { FlybyDateControlsState } from "./FlybyDateControls";
+import TimeSettingsControls from "../TimeSettingsControls";
 import ControlsOptions, { ControlsOptionsState } from "../ControlsOptions";
 
-import React from "react";
+import React, { SetStateAction } from "react";
 import Stack from "@mui/material/Stack";
 import Box from '@mui/system/Box';
 import Typography from '@mui/material/Typography';
@@ -21,12 +21,14 @@ type MissionControlsProps = {
     startOrbitControlsState:    OrbitControlsState,
     endOrbitControlsState:      OrbitControlsState,
     flybySequenceControlsState: FlybySequenceControlsState,
-    timeSettingsControlsState:  TimeSettingsControlsState,
-    dateControlsState:          DateControlsState,
+    copiedOrbit:                IOrbit,
+    timeSettings:               TimeSettings
+    setTimeSettings:            React.Dispatch<SetStateAction<TimeSettings>>,
+    dateControlsState:          FlybyDateControlsState,
     controlsOptionsState:       ControlsOptionsState,
 }
 
-function MissionControls({system, vessels, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState, dateControlsState, timeSettingsControlsState, controlsOptionsState}: MissionControlsProps) {
+function MissionControls({system, vessels, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState, copiedOrbit, dateControlsState, timeSettings, setTimeSettings, controlsOptionsState}: MissionControlsProps) {
     return (
         <Stack spacing={1} sx={{ my: 2, mx: 2 }}>
             <Box textAlign="center">
@@ -34,15 +36,15 @@ function MissionControls({system, vessels, startOrbitControlsState, endOrbitCont
             </Box>
             <Divider />
             <Typography variant="h6">Orbit Settings</Typography>
-            <OrbitControls label='Starting Orbit' system={system} vessels={vessels} state={startOrbitControlsState} />
-            <OrbitControls label='Target Orbit'   system={system} vessels={vessels} state={endOrbitControlsState} />
+            <OrbitControls label='Starting Orbit' system={system} vessels={vessels} state={startOrbitControlsState} copiedOrbit={copiedOrbit} />
+            <OrbitControls label='Target Orbit'   system={system} vessels={vessels} state={endOrbitControlsState} copiedOrbit={copiedOrbit} />
             <Divider />
             <Typography variant="h6">Flyby Sequence</Typography>
-            <FlybySequenceControls {...flybySequenceControlsState} />
+            <FlybySequenceControls {...flybySequenceControlsState} dateControlsState={dateControlsState} />
             <Divider />
             <Typography variant="h6">Time Settings</Typography>
-            <TimeSettingsControls state={timeSettingsControlsState}/>
-            <DateControls state={dateControlsState} />
+            <TimeSettingsControls timeSettings={timeSettings} setTimeSettings={setTimeSettings}/>
+            <FlybyDateControls {...dateControlsState} />
             <Divider />
             <Typography variant="h6">Mission Settings</Typography>
             <ControlsOptions state={controlsOptionsState}/>
@@ -50,4 +52,4 @@ function MissionControls({system, vessels, startOrbitControlsState, endOrbitCont
     )
 }
 
-export default React.memo(MissionControls);
+export default MissionControls;

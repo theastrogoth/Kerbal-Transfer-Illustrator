@@ -30,7 +30,7 @@ function SaveFileUploadButton({system, setVessels}: {system: ISolarSystem, setVe
     />
     <label htmlFor="uploaded-save-file">
       <Button variant="text" 
-              color="info" 
+              color="inherit" 
               component="span" 
               startIcon={<UploadFileOutlined />}
       >

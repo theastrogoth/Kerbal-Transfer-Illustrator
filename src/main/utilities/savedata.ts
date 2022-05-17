@@ -109,6 +109,7 @@ function setValue(obj: Object, addressList: any[]) {
 function vesselDataToVessel(vesselObject: any, system: ISolarSystem): IVessel {
     const name  = vesselObject.name;
 
+    // orbit
     const sma   = parseFloat(vesselObject.ORBIT.SMA);
     const ecc   = parseFloat(vesselObject.ORBIT.ECC);
     const inc   = degToRad(parseFloat(vesselObject.ORBIT.INC));
@@ -132,8 +133,37 @@ function vesselDataToVessel(vesselObject: any, system: ISolarSystem): IVessel {
     }
 
     const orbit: IOrbit = Kepler.orbitFromElements(elements, body);
-    
-    const vessel: IVessel = {name, orbit};
+
+    // maneuvers
+
+
+
+    const maneuvers: ManeuverComponents[] = [];
+    if(vesselObject.FLIGHTPLAN !== undefined) {
+        if(vesselObject.FLIGHTPLAN.MANEUVER !== undefined) {
+            if(Array.isArray(vesselObject.FLIGHTPLAN.MANEUVER)) {
+                for(let i=0; i<vesselObject.FLIGHTPLAN.MANEUVER.length; i++) {
+                    const date = parseFloat(vesselObject.FLIGHTPLAN.MANEUVER[i].UT);
+                    const dVstrings = vesselObject.FLIGHTPLAN.MANEUVER[i].dV.split(',');
+                    const prograde = parseFloat(dVstrings[2]);
+                    const normal = parseFloat(dVstrings[1]);
+                    const radial = parseFloat(dVstrings[0]);
+                    const maneuver: ManeuverComponents = { date, prograde, normal, radial };
+                    maneuvers.push(maneuver)
+                }
+            } else {
+                const date = parseFloat(vesselObject.FLIGHTPLAN.MANEUVER.UT);
+                const dVstrings = vesselObject.FLIGHTPLAN.MANEUVER.dV.split(',');
+                const prograde = parseFloat(dVstrings[2]);
+                const normal = parseFloat(dVstrings[1]);
+                const radial = parseFloat(dVstrings[0]);
+                const maneuver: ManeuverComponents = { date, prograde, normal, radial };
+                maneuvers.push(maneuver)
+            }
+        }
+    }
+
+    const vessel: IVessel = {name, orbit, maneuvers};
     return vessel;
 }
 

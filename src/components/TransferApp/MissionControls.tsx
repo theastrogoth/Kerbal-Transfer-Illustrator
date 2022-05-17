@@ -3,7 +3,7 @@ import Vessel from "../../main/objects/vessel";
 
 import OrbitControls, { OrbitControlsState } from "../OrbitControls";
 import DateControls, { DateControlsState } from "./DateControls";
-import TimeSettingsControls, { TimeSettingsControlsState } from "../TimeSettingsControls";
+import TimeSettingsControls from "../TimeSettingsControls";
 import ControlsOptions, { ControlsOptionsState } from "../ControlsOptions";
 
 import React from "react";
@@ -19,10 +19,12 @@ type MissionControlsProps = {
     endOrbitControlsState:      OrbitControlsState,
     dateControlsState:          DateControlsState,
     controlsOptionsState:       ControlsOptionsState,
-    timeSettingsControlsState:  TimeSettingsControlsState,
+    copiedOrbit:                IOrbit,
+    timeSettings:               TimeSettings,
+    setTimeSettings:            React.Dispatch<React.SetStateAction<TimeSettings>>,
 }
 
-function MissionControls({system, vessels, startOrbitControlsState, endOrbitControlsState, dateControlsState, controlsOptionsState, timeSettingsControlsState}: MissionControlsProps) {
+function MissionControls({system, vessels, startOrbitControlsState, endOrbitControlsState, dateControlsState, controlsOptionsState, copiedOrbit, timeSettings, setTimeSettings}: MissionControlsProps) {
     return (
         <Stack spacing={1} sx={{ my: 2, mx: 2 }}>
             <Box textAlign="center">
@@ -30,12 +32,12 @@ function MissionControls({system, vessels, startOrbitControlsState, endOrbitCont
             </Box>
             <Divider />
             <Typography variant="h6">Orbit Settings</Typography>
-            <OrbitControls label='Starting Orbit' system={system} vessels={vessels} state={startOrbitControlsState} />
-            <OrbitControls label='Target Orbit'   system={system} vessels={vessels} state={endOrbitControlsState} />
+            <OrbitControls label='Starting Orbit' system={system} vessels={vessels} state={startOrbitControlsState} copiedOrbit={copiedOrbit} />
+            <OrbitControls label='Target Orbit'   system={system} vessels={vessels} state={endOrbitControlsState} copiedOrbit={copiedOrbit} />
             <Divider />
             <Typography variant="h6">Time Settings</Typography>
-            <TimeSettingsControls state={timeSettingsControlsState}/>
-            <DateControls state={dateControlsState} />
+            <TimeSettingsControls timeSettings={timeSettings} setTimeSettings={setTimeSettings} />
+            <DateControls {...dateControlsState} />
             <Divider />
             <Typography variant="h6">Transfer Settings</Typography>
             <ControlsOptions state={controlsOptionsState} />

@@ -1,15 +1,17 @@
 import RequiredNumberField, { NumberField } from "./NumberField";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Stack from "@mui/material/Stack";
+import { timeFromDateFieldState } from "../utils";
+import HourMinSecField from "./HourMinSecField";
 
 export type DateFieldState = {
-    year:     string,
-    day:      string,
-    hour:     string,
-    setYear:  React.Dispatch<React.SetStateAction<string>>
-    setDay:   React.Dispatch<React.SetStateAction<string>>
-    setHour:  React.Dispatch<React.SetStateAction<string>>
+    year:       string,
+    day:        string,
+    sec:        string,
+    setYear:    React.Dispatch<React.SetStateAction<string>>
+    setDay:     React.Dispatch<React.SetStateAction<string>>
+    setSec:     React.Dispatch<React.SetStateAction<string>>
 }
 
 type DateFieldProps = {
@@ -17,71 +19,95 @@ type DateFieldProps = {
     label:          string,
     state:          DateFieldState,
     required?:      boolean,
+    error?:         boolean,
+    correctFormat?: boolean,
+    hhmmss?:        boolean,
+    timeSettings?:  TimeSettings,
 }
 
-function DateField({id, label, state, required = false}: DateFieldProps) {
+function handleChange(setFunction: Function) {
+    return (
+        (event: React.ChangeEvent<HTMLInputElement>): void => {
+            setFunction(event.target.value)
+        }
+    )
+}
 
-    function handleChange(setFunction: Function) {
-        return (
-            (event: React.ChangeEvent<HTMLInputElement>): void => {
-                setFunction(event.target.value)
+function handleHourChange(setFunction: Function) {
+    return (
+        (event: React.ChangeEvent<HTMLInputElement>): void => {
+            setFunction(String(3600 * Number(event.target.value)))
+        }
+    )
+}
+
+function DateField({id, label, state, required = false, error = false, correctFormat = false, hhmmss = false, timeSettings = {} as TimeSettings }: DateFieldProps) {
+    
+    const NumField = required ? RequiredNumberField : NumberField;
+    const HourField = hhmmss ? <HourMinSecField
+                                    sec={state.sec}
+                                    setSec={state.setSec}
+                                    error={error} /> :
+                                <NumField
+                                    id={'hour-'+String(id)}
+                                    label='Hour'
+                                    type='number'
+                                    step="3600"
+                                    value={String(Number(state.sec) /  3600)} 
+                                    error={error}    
+                                    onChange={handleHourChange(state.setSec)} />   ;
+
+    useEffect(() => {
+        if(correctFormat) {
+            let newYear = Number(state.year);
+            let newDay  = Number(state.day);
+            let newSec = Number(state.sec);
+            while(newSec < 0) {
+                newDay -= 1;
+                newSec += timeSettings.hoursPerDay * 3600;
             }
-        )
-    }
+            while(newSec >= timeSettings.hoursPerDay * 3600) {
+                newDay += 1;
+                newSec -= timeSettings.hoursPerDay * 3600;
+            }
+            while(newDay < 0) {
+                newYear -= 1;
+                newDay += timeSettings.daysPerYear
+            }
+            while(newDay >= timeSettings.daysPerYear) {
+                newYear += 1;
+                newDay -= timeSettings.daysPerYear
+            }
+            state.setYear(String(newYear));
+            state.setDay(String(newDay));
+            state.setSec(String(newSec));
+        }
+    }, [state.year, state.day, state.sec])
 
-    if(required) {
-        return (
-            <label>
-                {label}
-                <Stack spacing={2} direction="row">
-                    <RequiredNumberField
-                        id={'year-'+String(id)}
-                        label='Year'
-                        type='number'
-                        value={state.year}
-                        onChange={handleChange(state.setYear)} />            
-                    <RequiredNumberField
-                        id={'day-'+String(id)}
-                        label='Day'
-                        type='number'
-                        value={state.day} 
-                        onChange={handleChange(state.setDay)} />            
-                    <RequiredNumberField
-                        id={'hour-'+String(id)}
-                        label='Hour'
-                        type='number'
-                        value={state.hour}
-                        onChange={handleChange(state.setHour)}  />
-                </Stack>
-            </label>
-        )
-    } else {
-        return (
-            <label>
-                {label}
-                <Stack spacing={2} direction="row">
-                    <NumberField
-                        id={'year-'+String(id)}
-                        label='Year'
-                        type='number'
-                        value={state.year}
-                        onChange={handleChange(state.setYear)} />            
-                    <NumberField
-                        id={'day-'+String(id)}
-                        label='Day'
-                        type='number'
-                        value={state.day} 
-                        onChange={handleChange(state.setDay)} />             
-                    <NumberField
-                        id={'hour-'+String(id)}
-                        label='Hour'
-                        type='number'
-                        value={state.hour}
-                        onChange={handleChange(state.setHour)}  />
-                </Stack>
-            </label>
-        )
-    }
+    return (
+        <label>
+            {label}
+            <Stack spacing={0.5} direction="row">
+                <NumField
+                    id={'year-'+String(id)}
+                    label='Year'
+                    type='number'
+                    step='any'
+                    value={state.year}
+                    error={error}    
+                    onChange={handleChange(state.setYear)} />      
+                <NumField
+                    id={'day-'+String(id)}
+                    label='Day'
+                    type='number'
+                    step='any'
+                    value={state.day} 
+                    error={error}    
+                    onChange={handleChange(state.setDay)} />            
+                {HourField}
+            </Stack>
+        </label>
+    )
 }
 
-export default React.memo(DateField, (prevProps, nextProps) => prevProps.state === nextProps.state)
+export default React.memo(DateField)

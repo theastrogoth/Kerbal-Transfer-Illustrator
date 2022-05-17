@@ -4,11 +4,6 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import RadioGroup from "@mui/material/RadioGroup";
 import Radio from "@mui/material/Radio";
 
-export type TimeSettingsControlsState = {
-    timeSettings:       TimeSettings,
-    setTimeSettings:    React.Dispatch<React.SetStateAction<TimeSettings>>,
-}
-
 const kspTimeSettings:   TimeSettings = {hoursPerDay: 6,   daysPerYear: 426};
 const earthTimeSettings: TimeSettings = {hoursPerDay: 24,  daysPerYear: 365};
 
@@ -23,12 +18,12 @@ function handleChange(setFunction: Function) {
     )
 }
 
-function TimeSettingsControls({state}: {state: TimeSettingsControlsState}) {
+function TimeSettingsControls({timeSettings, setTimeSettings}: {timeSettings: TimeSettings, setTimeSettings: React.Dispatch<React.SetStateAction<TimeSettings>>}) {
     return (
         <FormControl>
             <RadioGroup
-                defaultValue={0}
-                onChange={handleChange(state.setTimeSettings)}
+                value={timeSettings.daysPerYear == kspTimeSettings.daysPerYear ? 0 : 1}
+                onChange={handleChange(setTimeSettings)}
             >
                 {options.map((ts, index) => <FormControlLabel key={index} value={index} control={<Radio />} label={labels[index]} />)}
             </RadioGroup>

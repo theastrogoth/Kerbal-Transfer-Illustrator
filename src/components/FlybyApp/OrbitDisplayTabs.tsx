@@ -23,6 +23,7 @@ type OrbitDisplayTabsProps  = {
     multiFlyby:             MultiFlyby,
     timeSettings:           TimeSettings,
     setMultiFlyby:          React.Dispatch<React.SetStateAction<MultiFlyby>>,   
+    searchCount:            number,
 }
 
 const emptyProps: OrbitDisplayProps[] = [];
@@ -86,6 +87,7 @@ function transferPlotProps(multiFlyby: MultiFlyby, timeSettings: TimeSettings): 
         endDate:        endDate,
         defaultTraces:  {systemTraces, orbitTraces, markerTraces},
         plotSize,
+        timeSettings,
     };
 }
 
@@ -127,6 +129,7 @@ function ejectionPlotProps(multiFlyby: MultiFlyby, ejectionIdx: number, timeSett
         endDate:        endDate,
         defaultTraces:  {systemTraces, orbitTraces, markerTraces},
         plotSize,
+        timeSettings,
     };
 }
 
@@ -168,6 +171,7 @@ function insertionPlotProps(multiFlyby: MultiFlyby, insertionIdx: number, timeSe
         endDate:        endDate,
         defaultTraces:  {systemTraces, orbitTraces, markerTraces},
         plotSize,
+        timeSettings,
     };
 }
 
@@ -210,6 +214,7 @@ function flybyPlotProps(multiFlyby: MultiFlyby, flybyIdx: number, timeSettings: 
         endDate:        endDate,
         defaultTraces:  {systemTraces, orbitTraces, markerTraces},
         plotSize,
+        timeSettings,
     };
 }
 
@@ -258,8 +263,7 @@ const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, pr
 
 const multiFlybyOptWorker = new Worker(new URL("../../workers/multi-flyby-optimizer.worker.ts", import.meta.url));
 
-function OrbitDisplayTabs({multiFlyby, timeSettings, setMultiFlyby}: OrbitDisplayTabsProps) {
-    const [mfNumber, setMfNumber] = useState(0);
+function OrbitDisplayTabs({multiFlyby, timeSettings, setMultiFlyby, searchCount}: OrbitDisplayTabsProps) {
     const [value, setValue] = useState(0);
     const [refined, setRefined] = useState(false);
     const [calculating, setCalculating] = useState(false);
@@ -291,7 +295,6 @@ function OrbitDisplayTabs({multiFlyby, timeSettings, setMultiFlyby}: OrbitDispla
             setValue(0);
         }
         setOrbitDisplayProps(prepareAllDisplayProps(multiFlyby, timeSettings));
-        setMfNumber(mfNumber + 1);
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [multiFlyby]);
 
@@ -306,7 +309,7 @@ function OrbitDisplayTabs({multiFlyby, timeSettings, setMultiFlyby}: OrbitDispla
                 {orbitDisplayProps.map((props, index) => <Tab key={index} value={props.index} label={props.label} ></Tab>)}
             </Tabs>
             {orbitDisplayProps.map((props, index) => <OrbitTabPanel key={index} value={value} index={props.index} props={props}/>)}
-            {mfNumber > 1 &&
+            {searchCount > 0 &&
             <Box textAlign='center'>
                 <Button 
                     variant="contained" 
