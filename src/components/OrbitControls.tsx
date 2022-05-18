@@ -202,7 +202,6 @@ function OrbitControls({label, system, vessels, state, copiedOrbit}: OrbitContro
                         <RequiredNumberField
                             id={'ecc-'+label}
                             label='Eccentricity' 
-                            InputLabelProps={{ shrink: state.ecc !== ''}}
                             value={state.ecc}
                             onChange={handleChange(state.setEcc)}
                             error={parseFloat(state.ecc) < 0 || parseFloat(state.ecc) === 1 || (parseFloat(state.ecc) < 1 && parseFloat(state.sma) < 0) || (parseFloat(state.ecc) > 1 && parseFloat(state.sma) > 0)}
