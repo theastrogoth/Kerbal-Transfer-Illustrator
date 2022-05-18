@@ -4,8 +4,14 @@ import { lerp, vec3, magSq3, div3, normalize3, cross3, dot3, acosClamped, roderi
 import { brentMinimize } from "./optim";
 
 namespace FlybyCalcs {
-    export function minFlybyRadius(body: IOrbitingBody) {
-        return body.radius +body.atmosphereHeight;
+    export function minFlybyRadius(body: IOrbitingBody): number {
+        const margin = 1000; // leave a 1km buffer
+        if(body.atmosphereHeight !== 0) {
+            return body.radius + body.atmosphereHeight + margin;
+        } else {
+            const terrain = body.maxTerrainHeight ? body.maxTerrainHeight : 0.0;
+            return body.radius + terrain + margin;
+        }
     }
 
     export function maxFlybyRadius(body: IOrbitingBody) {

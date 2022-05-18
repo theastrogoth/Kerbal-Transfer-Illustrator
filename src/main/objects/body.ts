@@ -5,6 +5,7 @@ export class CelestialBody implements ICelestialBody {
     readonly id!:               number;
     readonly name!:             string;
     readonly radius!:           number;
+    readonly maxTerrainHeight:  number;
     readonly atmosphereHeight!: number;
     readonly mass!:             number;
     readonly stdGravParam!:     number;
@@ -16,6 +17,7 @@ export class CelestialBody implements ICelestialBody {
         this.id                 = data.id;
         this.name               = data.name;
         this.radius             = data.radius;
+        this.maxTerrainHeight   = data.maxTerrainHeight ? data.maxTerrainHeight : 0.0;
         this.atmosphereHeight   = data.atmosphereHeight;
         this.mass               = data.mass;
         this.stdGravParam       = data.stdGravParam;

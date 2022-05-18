@@ -8,6 +8,7 @@ interface ICelestialBody {
     readonly id:                number;
     readonly name:              string;
     readonly radius:            number;
+    readonly maxTerrainHeight?: number;
     readonly atmosphereHeight:  number;
     readonly mass:              number;
     readonly stdGravParam:      number;
