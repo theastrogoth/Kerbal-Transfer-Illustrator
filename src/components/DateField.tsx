@@ -7,10 +7,10 @@ import HourMinSecField from "./HourMinSecField";
 export type DateFieldState = {
     year:       string,
     day:        string,
-    sec:        string,
+    hour:        string,
     setYear:    React.Dispatch<React.SetStateAction<string>>
     setDay:     React.Dispatch<React.SetStateAction<string>>
-    setSec:     React.Dispatch<React.SetStateAction<string>>
+    setHour:     React.Dispatch<React.SetStateAction<string>>
 }
 
 type DateFieldProps = {
@@ -32,57 +32,67 @@ function handleChange(setFunction: Function) {
     )
 }
 
-function handleHourChange(setFunction: Function) {
-    return (
-        (event: React.ChangeEvent<HTMLInputElement>): void => {
-            setFunction(String(3600 * Number(event.target.value)))
-        }
-    )
-}
-
 function DateField({id, label, state, required = false, error = false, correctFormat = false, hhmmss = false, timeSettings = {} as TimeSettings }: DateFieldProps) {
     
     const NumField = required ? RequiredNumberField : NumberField;
     const HourField = hhmmss ? <HourMinSecField
-                                    sec={state.sec}
-                                    setSec={state.setSec}
+                                    hour={state.hour}
+                                    setHour={state.setHour}
                                     error={error} /> :
                                 <NumField
                                     id={'hour-'+String(id)}
                                     label='Hour'
                                     type='number'
-                                    step="3600"
-                                    value={String(Number(state.sec) /  3600)} 
+                                    step="1"
+                                    value={state.hour} 
                                     error={error}    
-                                    onChange={handleHourChange(state.setSec)} />   ;
+                                    onChange={handleChange(state.setHour)} />   ;
 
     useEffect(() => {
         if(correctFormat) {
             let newYear = Number(state.year);
             let newDay  = Number(state.day);
-            let newSec = Number(state.sec);
-            while(newSec < 0) {
-                newDay -= 1;
-                newSec += timeSettings.hoursPerDay * 3600;
+            let newHour = Number(state.hour);
+            let changeYear = false;
+            let changeDay = false;
+            let changeHour = false;
+            if(newYear % 1 !== 0) {
+                newDay += (newYear % 1) * timeSettings.daysPerYear;
+                newYear = Math.floor(newYear);
+                changeYear = true;
             }
-            while(newSec >= timeSettings.hoursPerDay * 3600) {
+            if(newDay % 1 !== 0) {
+                newHour += (newDay % 1) * timeSettings.hoursPerDay;
+                newDay = Math.floor(newDay);
+                changeDay = true;
+            }
+            while(newHour < 0) {
+                newDay -= 1;
+                newHour += timeSettings.hoursPerDay;
+                changeHour = true;
+            }
+            while(newHour >= timeSettings.hoursPerDay) {
                 newDay += 1;
-                newSec -= timeSettings.hoursPerDay * 3600;
+                newHour -= timeSettings.hoursPerDay;
+                changeHour = true;
             }
             while(newDay < 0) {
                 newYear -= 1;
-                newDay += timeSettings.daysPerYear
+                newDay += timeSettings.daysPerYear;
+                changeDay = true;
             }
             while(newDay >= timeSettings.daysPerYear) {
                 newYear += 1;
-                newDay -= timeSettings.daysPerYear
+                newDay -= timeSettings.daysPerYear;
+                changeDay = true;
             }
-            state.setYear(String(newYear));
-            state.setDay(String(newDay));
-            state.setSec(String(newSec));
+
+            if(changeYear) { state.setYear(String(newYear)) };
+            if(changeDay) { state.setDay(String(newDay)) };
+            if(changeHour) { state.setHour(String(newHour)) };
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [state.year, state.day, state.sec])
+    }, [state.year, state.day, state.hour])
 
     return (
         <label>

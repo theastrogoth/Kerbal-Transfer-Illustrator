@@ -36,8 +36,8 @@ const getSecondsFromHHMMSS = (value: string) => {
   return NaN;
 };
 
-function HourMinSecField({sec, setSec, error = false}: {sec: string, setSec: React.Dispatch<React.SetStateAction<string>>, error: boolean}) {
-  const [value, setValue] = React.useState(toHHMMSS(Number(sec)));
+function HourMinSecField({hour, setHour, error = false}: {hour: string, setHour: React.Dispatch<React.SetStateAction<string>>, error: boolean}) {
+  const [value, setValue] = React.useState(toHHMMSS(Number(hour)*3600));
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
@@ -50,15 +50,16 @@ function HourMinSecField({sec, setSec, error = false}: {sec: string, setSec: Rea
     setValue(time);
 
     const secString = isNaN(seconds) ? '' : String(seconds);
-    setSec(secString);
+    setHour(secString);
   };
 
   useEffect(() => {
-    if(sec !== value) {
-      setValue(toHHMMSS(Number(sec)))
+    const hourSecs = 3600 * Number(hour)
+    if(hourSecs !== Number(value)) {
+      setValue(toHHMMSS(hourSecs))
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sec])
+  }, [hour])
 
   return (
     <TextField 
