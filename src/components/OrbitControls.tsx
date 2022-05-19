@@ -3,6 +3,7 @@ import Vessel from "../main/objects/vessel";
 import { radToDeg } from "../main/libs/math";
 
 import RequiredNumberField from "./NumberField";
+import VesselSelect from "./VesselSelect";
 
 import React, {useEffect, useState } from "react";
 import Box from "@mui/material/Box";
@@ -17,24 +18,10 @@ import PasteButton from "./PasteButton";
 
 
 export type OrbitControlsState = {
+    orbit:      OrbitalElements,
+    setOrbit:   React.Dispatch<React.SetStateAction<OrbitalElements>>,
     vesselId:   number,
-    bodyId:     number,
-    sma:        string,
-    ecc:        string,
-    inc:        string,
-    arg:        string,
-    lan:        string,
-    moe:        string,
-    epoch:      string,
     setVesselId: React.Dispatch<React.SetStateAction<number>>,
-    setBodyId:   React.Dispatch<React.SetStateAction<number>>,
-    setSma:      React.Dispatch<React.SetStateAction<string>>,
-    setEcc:      React.Dispatch<React.SetStateAction<string>>,
-    setInc:      React.Dispatch<React.SetStateAction<string>>,
-    setArg:      React.Dispatch<React.SetStateAction<string>>,
-    setLan:      React.Dispatch<React.SetStateAction<string>>,
-    setMoe:      React.Dispatch<React.SetStateAction<string>>,
-    setEpoch:    React.Dispatch<React.SetStateAction<string>>,
   }
 
 type OrbitControlsProps = {
@@ -43,6 +30,7 @@ type OrbitControlsProps = {
     vessels:        Vessel[],
     state:          OrbitControlsState,
     copiedOrbit:    IOrbit,
+    vesselSelect?:  boolean,
 };
 
 function createBodyItems(system: SolarSystem) {
@@ -50,14 +38,6 @@ function createBodyItems(system: SolarSystem) {
     const bds = system.orbiting;
     for (let i = 0; i < bds.length; i++) {
         options.push(<MenuItem key={bds[i].id} value={bds[i].id}>{bds[i].name}</MenuItem>)
-    }
-    return options;
-}
-
-function createVesselItems(vessels: Vessel[]) {
-    const options = [<MenuItem key={-1} value={-1}>None</MenuItem>];
-    for(let i=0; i<vessels.length; i++) {
-        options.push(<MenuItem key={i} value={i}>{vessels[i].name}</MenuItem>)
     }
     return options;
 }
@@ -70,105 +50,118 @@ function handleChange(setFunction: Function) {
     )
 }
 
-function setOrbit(state: OrbitControlsState, orbit: IOrbit) {
-    state.setBodyId(orbit.orbiting)
-    state.setSma(String(orbit.semiMajorAxis));
-    state.setEcc(String(orbit.eccentricity));
-    state.setInc(String(orbit.inclination));
-    state.setLan(String(orbit.ascNodeLongitude));
-    state.setArg(String(orbit.argOfPeriapsis));
-    state.setMoe(String(orbit.meanAnomalyEpoch));
-    state.setEpoch(String(orbit.epoch));
-    state.setVesselId(-1);
+export function setOrbitState(state: OrbitControlsState, orbit: IOrbit, vesselId: number = -1) {
+    state.setOrbit(orbit)
+    state.setVesselId(vesselId);
 }
 
 
-function OrbitControls({label, system, vessels, state, copiedOrbit}: OrbitControlsProps) {
-    const [body, setBody] = useState(system.bodyFromId(state.bodyId))
-    const [alt, setAlt] = useState(String(parseFloat(state.sma) - body.radius));
+function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect = true}: OrbitControlsProps) {
+    const [sma, setSma] = useState(String(state.orbit.semiMajorAxis));
+    const [ecc, setEcc] = useState(String(state.orbit.eccentricity));
+    const [inc, setInc] = useState(String(state.orbit.inclination));
+    const [arg, setArg] = useState(String(state.orbit.argOfPeriapsis));
+    const [lan, setLan] = useState(String(state.orbit.ascNodeLongitude));
+    const [moe, setMoe] = useState(String(state.orbit.meanAnomalyEpoch));
+    const [epoch, setEpoch] = useState(String(state.orbit.epoch));
+    const [bodyId, setBodyId] = useState(state.orbit.orbiting);
+
+    const [body, setBody] = useState(system.bodyFromId(state.orbit.orbiting))
+    const [vesselId, setVesselId] = useState(-1);
+
+    const [alt, setAlt] = useState(String(state.orbit.semiMajorAxis - body.radius));
 
     const [optsVisible, setOptsVisible] = useState(false);
-
     const [bodyOptions, setBodyOptions] = useState(createBodyItems(system));
-    const [vesselOptions, setVesselOptions] = useState(createVesselItems(vessels));
 
     const handleBodyIdChange = (event: any): void => {
         const newBody = system.bodyFromId(event.target.value);
-        state.setBodyId(event.target.value);
+        setBodyId(event.target.value);
         setBody(newBody)
-        state.setSma(String(parseFloat(alt) + newBody.radius))
+        setSma(String(parseFloat(alt) + newBody.radius))
     };
 
     const handleVesselIdChange = (event: any): void => {
-        if(event.target.value === -1) {
-            state.setVesselId(event.target.value);     
-            state.setBodyId(1);
+        if(Number(event.target.value) === -1) {
+            setVesselId(Number(event.target.value));     
+            setBodyId(1);
             const body = system.bodyFromId(1);
             setBody(system.bodyFromId(1));
-            state.setSma(String(100000 + body.radius));
+            setSma(String(100000 + body.radius));
             setAlt('100000');
-            state.setEcc('0');
-            state.setInc('0');
-            state.setArg('0');
-            state.setLan('0');
-            state.setMoe('0');
-            state.setEpoch('0');
-        } else if(event.target.value >= 0 && event.target.value < vessels.length) {
-            state.setVesselId(event.target.value);
-            const vessel = vessels[event.target.value];
-            state.setBodyId(vessel.orbit.orbiting);
+            setEcc('0');
+            setInc('0');
+            setArg('0');
+            setLan('0');
+            setMoe('0');
+            setEpoch('0');
+        } else if(Number(event.target.value) >= 0 && Number(event.target.value) < vessels.length) {
+            setVesselId(Number(event.target.value));
+            const vessel = vessels[Number(event.target.value)];
+            setBodyId(vessel.orbit.orbiting);
             const body = system.bodyFromId(vessel.orbit.orbiting);
             setBody(body);
-            state.setSma(String(vessel.orbit.semiMajorAxis));
+            setSma(String(vessel.orbit.semiMajorAxis));
             setAlt(String(vessel.orbit.semiMajorAxis - body.radius));
-            state.setEcc(String(vessel.orbit.eccentricity));
-            state.setInc(String(radToDeg(vessel.orbit.inclination)));
-            state.setArg(String(radToDeg(vessel.orbit.argOfPeriapsis)));
-            state.setLan(String(radToDeg(vessel.orbit.ascNodeLongitude)));
-            state.setMoe(String(vessel.orbit.meanAnomalyEpoch));
-            state.setEpoch(String(vessel.orbit.epoch));
+            setEcc(String(vessel.orbit.eccentricity));
+            setInc(String(radToDeg(vessel.orbit.inclination)));
+            setArg(String(radToDeg(vessel.orbit.argOfPeriapsis)));
+            setLan(String(radToDeg(vessel.orbit.ascNodeLongitude)));
+            setMoe(String(vessel.orbit.meanAnomalyEpoch));
+            setEpoch(String(vessel.orbit.epoch));
         }
     }
 
     const handleAltChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
         setAlt(event.target.value);
         if(!isNaN(Number(event.target.value)) && event.target.value !== '') {
-            state.setSma(String(+event.target.value + body.radius));
+            setSma(String(+event.target.value + body.radius));
         }
     };
     const handleSmaChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-        state.setSma(event.target.value);
+        setSma(event.target.value);
         if(!isNaN(Number(event.target.value)) && event.target.value !== '') {
             setAlt(String(+event.target.value - body.radius));
         }
     };
 
     useEffect(() => {
-        setBodyOptions(createBodyItems(system));
-      }, [system]);    
+        const newSma = Number(sma)
+        if(!isNaN(newSma) && sma !== '') {
+            const newAlt = String(newSma - body.radius);
+            if(newAlt !== alt) {
+                setAlt(newAlt);
+            }
+        }
+    }, [sma])
 
-      
     useEffect(() => {
-        setVesselOptions(createVesselItems(vessels));
-      }, [vessels]);   
+        setBodyOptions(createBodyItems(system));
+      }, [system]);
+
+    useEffect(() => {
+        state.setOrbit({
+            semiMajorAxis:      Number(sma),
+            eccentricity:       Number(ecc),
+            inclination:        Number(inc),
+            argOfPeriapsis:     Number(arg),
+            ascNodeLongitude:   Number(lan),
+            meanAnomalyEpoch:   Number(moe),
+            epoch:              Number(epoch),
+            orbiting:           bodyId,
+        })
+    }, [sma, ecc, inc, arg, lan, moe, epoch, bodyId])
 
     return (
         <label>
             {label}
             <Stack spacing={1.5}>
-                {(vessels.length > 0) &&
-                   <FormControl sx={{ minWidth: 120 }}>
-                        <InputLabel id={"vessel-select-label-"+label}>Vessel</InputLabel>
-                        <Select
-                            labelId={"vessel-select-label-"+label}
-                            label='Vessel'
-                            id={'vessel-'+label}
-                            value={state.vesselId}
-                            onChange={handleVesselIdChange}
-                        >
-                            {vesselOptions}
-                        </Select>
-                    </FormControl>
+                {vesselSelect &&
+                    <VesselSelect 
+                        vessels={vessels}
+                        vesselId={state.vesselId} 
+                        label={label}
+                        handleVesselIdChange={handleVesselIdChange} />
                 }
                 <FormControl sx={{ minWidth: 120 }}>
                     <InputLabel id={"body-select-label-"+label}>Body</InputLabel>
@@ -176,9 +169,9 @@ function OrbitControls({label, system, vessels, state, copiedOrbit}: OrbitContro
                         labelId={"body-select-label-"+label}
                         label='Body'
                         id={'body-'+label}
-                        value={state.bodyId}
+                        value={bodyId}
                         onChange={handleBodyIdChange}
-                        error={isNaN(state.bodyId)}
+                        error={isNaN(bodyId)}
                     >
                         {bodyOptions}
                     </Select>
@@ -195,49 +188,49 @@ function OrbitControls({label, system, vessels, state, copiedOrbit}: OrbitContro
                         <RequiredNumberField
                             id={'sma-'+label}
                             label='Semi-major Axis (m)' 
-                            value={state.sma}
+                            value={sma}
                             onChange={handleSmaChange}
-                            error = {parseFloat(state.sma) === 0 || parseFloat(state.ecc) === 1 || (parseFloat(state.ecc) < 1 && parseFloat(state.sma) < 0) || (parseFloat(state.ecc) > 1 && parseFloat(state.sma) > 0)}
+                            error = {parseFloat(sma) === 0 || parseFloat(ecc) === 1 || (parseFloat(ecc) < 1 && parseFloat(sma) < 0) || (parseFloat(ecc) > 1 && parseFloat(sma) > 0)}
                             sx={{ fullWidth: true }}/>
                         <RequiredNumberField
                             id={'ecc-'+label}
                             label='Eccentricity' 
-                            value={state.ecc}
-                            onChange={handleChange(state.setEcc)}
-                            error={parseFloat(state.ecc) < 0 || parseFloat(state.ecc) === 1 || (parseFloat(state.ecc) < 1 && parseFloat(state.sma) < 0) || (parseFloat(state.ecc) > 1 && parseFloat(state.sma) > 0)}
+                            value={ecc}
+                            onChange={handleChange(setEcc)}
+                            error={parseFloat(ecc) < 0 || parseFloat(ecc) === 1 || (parseFloat(ecc) < 1 && parseFloat(sma) < 0) || (parseFloat(ecc) > 1 && parseFloat(sma) > 0)}
                             sx={{ fullWidth: true }} />
                         <RequiredNumberField
                             id={'inc-'+label}
                             label={'Inclination (\u00B0)'} 
-                            value={state.inc}
-                            onChange={handleChange(state.setInc)}
+                            value={inc}
+                            onChange={handleChange(setInc)}
                             sx={{ fullWidth: true }} />
                         <RequiredNumberField
                             id={'arg-'+label}
                             label={'Argument of the Periapsis (\u00B0)'} 
-                            value={state.arg}
-                            onChange={handleChange(state.setArg)}
+                            value={arg}
+                            onChange={handleChange(setArg)}
                             sx={{ fullWidth: true }} />
                         <RequiredNumberField
                             id={'lan-'+label}
                             label={'Longitude of the Ascending Node (\u00B0)'} 
-                            value={state.lan}
-                            onChange={handleChange(state.setLan)}
+                            value={lan}
+                            onChange={handleChange(setLan)}
                             sx={{ fullWidth: true }} />
                         <RequiredNumberField
                             id={'moe-'+label}
                             label='Mean Anomaly at Epoch (rad)' 
-                            value={state.moe}
-                            onChange={handleChange(state.setMoe)}
+                            value={moe}
+                            onChange={handleChange(setMoe)}
                             sx={{ fullWidth: true }} />
                         <RequiredNumberField
                             id={'epoch-'+label}
                             label='Epoch (s)' 
-                            value={state.epoch}
-                            onChange={handleChange(state.setEpoch)}
+                            value={epoch}
+                            onChange={handleChange(setEpoch)}
                             sx={{ fullWidth: true }} />
                         <Box justifyContent="center" sx={{ display: { xs: 'none', md: 'flex' } }} >
-                            <PasteButton setObj={(o: IOrbit) => setOrbit(state, o)} copiedObj={copiedOrbit}/>
+                            <PasteButton setObj={(o: IOrbit) => setOrbitState(state, o)} copiedObj={copiedOrbit}/>
                         </Box>
                     </Stack>
                 </Collapse>

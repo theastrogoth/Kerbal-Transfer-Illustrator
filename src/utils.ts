@@ -34,36 +34,30 @@ export function timesFromDynamicDateFieldState(state: DynamicDateFieldState, tim
     return years.map((y, idx) => ( (y * timeSettings.daysPerYear + days[idx]) * timeSettings.hoursPerDay + hours[idx] ) * 3600 );
 }
 
+function orbitFromElementsAndSystem(system: SolarSystem, orbit: OrbitalElements | IOrbit): Orbit {
+    const body = system.bodyFromId(orbit.orbiting);
+    return new Orbit(Kepler.orbitFromElements(orbit, body), body, true);
+}
+
 export function orbitFromControlsState(system: SolarSystem, state: OrbitControlsState): Orbit {
-    const body = system.bodyFromId(state.bodyId);
-    return new Orbit(Kepler.orbitFromElements(
-        {
-            orbiting:         state.bodyId,
-            semiMajorAxis:    parseFloat(state.sma),
-            eccentricity:     parseFloat(state.ecc),
-            inclination:      parseFloat(state.inc),
-            argOfPeriapsis:   parseFloat(state.arg),
-            ascNodeLongitude: parseFloat(state.lan),
-            meanAnomalyEpoch: parseFloat(state.moe),
-            epoch:            parseFloat(state.epoch),
-        },
-        body
-    ), body, true)
+    return orbitFromElementsAndSystem(system, state.orbit);
 }
 
 export function isInvalidOrbitInput(ocState: OrbitControlsState): boolean {
-    let invalid = false;
-    const a = parseFloat(ocState.sma);
-    const e = parseFloat(ocState.ecc);
+    const orbit = ocState.orbit;
 
-    invalid = isNaN(ocState.bodyId) ? true : invalid;
+    let invalid = false;
+    const a = orbit.semiMajorAxis;
+    const e = orbit.eccentricity;
+
+    invalid = isNaN(orbit.orbiting) ? true : invalid;
     invalid = isNaN(a) ? true : invalid;
     invalid = isNaN(e) ? true : invalid;
-    invalid = isNaN(parseFloat(ocState.inc)) ? true : invalid;
-    invalid = isNaN(parseFloat(ocState.arg)) ? true : invalid;
-    invalid = isNaN(parseFloat(ocState.lan)) ? true : invalid;
-    invalid = isNaN(parseFloat(ocState.moe)) ? true : invalid;
-    invalid = isNaN(parseFloat(ocState.epoch)) ? true : invalid;
+    invalid = isNaN(orbit.inclination) ? true : invalid;
+    invalid = isNaN(orbit.argOfPeriapsis) ? true : invalid;
+    invalid = isNaN(orbit.ascNodeLongitude) ? true : invalid;
+    invalid = isNaN(orbit.meanAnomalyEpoch) ? true : invalid;
+    invalid = isNaN(orbit.epoch) ? true : invalid;
 
     invalid = e === 1 ? true : invalid;
     invalid = e < 0 ? true : invalid;
@@ -83,54 +77,41 @@ export function defaultOrbit(system: SolarSystem, id: number = 1, altitude: numb
         argOfPeriapsis:     0.0,
         meanAnomalyEpoch:   0.0,
         epoch:              0.0,
+        orbiting:           id,
     }
     const data = Kepler.orbitFromElements(elements, body)
     return new Orbit(data, body, false)
 }
 
-export function defaultManeuver(): Maneuver {
-    const zeroVec = {x: 0, y: 0, z:0};
-    const zeroState: OrbitalState = {date: 0, pos: zeroVec, vel: zeroVec};
+
+
+export function defaultManeuverComponents(date: number = 0): ManeuverComponents {
     return {
-        preState:   zeroState,
-        postState:  zeroState,
-        deltaV:     zeroVec,
-        deltaVMag:  0.0,
+        prograde:   0.0,
+        normal:     0.0,
+        radial:     0.0,
+        date,
     }
 }
 
-export function useOrbitControls(system: SolarSystem, id: number) {
+export function useOrbitControls(system: SolarSystem, id: number = 1, a: number = 100000 + system.bodyFromId(id).radius, e: number = 0, i: number = 0, o: number = 0, l: number = 0, m: number = 0, ep: number = 0) {
     const [vesselId, setVesselId] = useState(-1);
-    const [bodyId, setBodyId] = useState(id);
-    const [sma, setSma] = useState(String(100000 + system.bodyFromId(id).radius));
-    const [ecc, setEcc] = useState('0');
-    const [inc, setInc] = useState('0');
-    const [arg, setArg] = useState('0');
-    const [lan, setLan] = useState('0');
-    const [moe, setMoe] = useState('0');
-    const [epoch, setEpoch] = useState('0');
-  
+    const [orbit, setOrbit] = useState({
+        semiMajorAxis:      a,
+        eccentricity:       e,
+        inclination:        i,
+        argOfPeriapsis:     o,
+        ascNodeLongitude:   l,
+        meanAnomalyEpoch:   m,
+        epoch:              ep,
+        orbiting:           id,
+    });
     const orbitControlsState: OrbitControlsState = {
+        orbit,
+        setOrbit,
         vesselId,
-        bodyId,
-        sma,
-        ecc,
-        inc,
-        arg,
-        lan,
-        moe,
-        epoch,
         setVesselId,
-        setBodyId,
-        setSma,
-        setEcc,
-        setInc,
-        setArg,
-        setLan,
-        setMoe,
-        setEpoch
     };
-
     return orbitControlsState;
 }
 

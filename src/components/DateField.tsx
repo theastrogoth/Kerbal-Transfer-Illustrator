@@ -7,10 +7,10 @@ import HourMinSecField from "./HourMinSecField";
 export type DateFieldState = {
     year:       string,
     day:        string,
-    hour:        string,
+    hour:       string,
     setYear:    React.Dispatch<React.SetStateAction<string>>
     setDay:     React.Dispatch<React.SetStateAction<string>>
-    setHour:     React.Dispatch<React.SetStateAction<string>>
+    setHour:    React.Dispatch<React.SetStateAction<string>>
 }
 
 type DateFieldProps = {

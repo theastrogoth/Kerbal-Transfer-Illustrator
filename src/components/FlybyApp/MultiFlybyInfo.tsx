@@ -21,7 +21,7 @@ import { timeToCalendarDate, calendarDateToString, calendarDateToDurationString}
 
 function MultiFlybyInfo({multiFlyby, timeSettings, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, copiedFlightPlan, setCopiedFlightPlan}: 
     {multiFlyby: MultiFlyby, timeSettings: TimeSettings, copiedOrbit: IOrbit, setCopiedOrbit: React.Dispatch<React.SetStateAction<IOrbit>>, 
-     copiedManeuver: Maneuver, setCopiedManeuver: React.Dispatch<React.SetStateAction<Maneuver>>, copiedFlightPlan: FlightPlan, setCopiedFlightPlan: React.Dispatch<React.SetStateAction<FlightPlan>>}) {
+     copiedManeuver: ManeuverComponents, setCopiedManeuver: React.Dispatch<React.SetStateAction<ManeuverComponents>>, copiedFlightPlan: FlightPlan, setCopiedFlightPlan: React.Dispatch<React.SetStateAction<FlightPlan>>}) {
 
     const departureTime = multiFlyby.ejections.length  === 0 ? multiFlyby.startDate : multiFlyby.ejections[0].orbits[0].epoch;
     const arrivalTime   = multiFlyby.insertions.length === 0 ? multiFlyby.endDate   : multiFlyby.insertions[0].orbits[0].epoch;
@@ -57,6 +57,7 @@ function MultiFlybyInfo({multiFlyby, timeSettings, copiedOrbit, setCopiedOrbit, 
         trajectories:   [...multiFlyby.ejections, ...multiFlyby.transfers, ...multiFlyby.insertions],
         name:           'Copied Multi-Flyby Trajectory',
         color:          {r: 255, g: 255, b: 255},
+        startOrbit:     multiFlyby.startOrbit,
     }
 
     return (

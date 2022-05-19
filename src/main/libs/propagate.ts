@@ -105,14 +105,14 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
 //     return man1.preState.date - man2.preState.date;
 // }
 
-export function propagateFlightPlan(startOrbit: IOrbit, system: ISolarSystem, startDate: number, maneuverComponents: ManeuverComponents[], maneuverDates: number[], nRevs: number = 0): Trajectory[] {
+export function propagateFlightPlan(startOrbit: IOrbit, system: ISolarSystem, startDate: number, maneuverComponents: ManeuverComponents[], nRevs: number = 0): Trajectory[] {
     // maneuvers are assumed to be in chronological order
     
     // store the single-system trajectories in an array
     const trajectories: Trajectory[] = [];
 
     // propagate starting orbit forward
-    let orbits: IOrbit[] = [startOrbit];
+    let orbits: IOrbit[] = [];
     let intersectTimes: number[] = [startDate];
     let maneuvers: Maneuver[] = [];
     let currentOrbit: IOrbit = startOrbit;
@@ -120,7 +120,7 @@ export function propagateFlightPlan(startOrbit: IOrbit, system: ISolarSystem, st
     let eDate: number = Infinity;
     // before each maneuver, check for intercepts up to the maximum specified nRevs
     for(let i=0; i<=maneuverComponents.length; i++) {
-        eDate = i !== maneuverComponents.length ? maneuverDates[i] : Infinity;
+        eDate = i !== maneuverComponents.length ? maneuverComponents[i].date : Infinity;
         let nextOrbit: IOrbit | null = null;
         let noPatchFound = false;
         while(!noPatchFound) {
@@ -146,7 +146,7 @@ export function propagateFlightPlan(startOrbit: IOrbit, system: ISolarSystem, st
         }
         if(i !== maneuverComponents.length) {
             const currentAttractor = currentOrbit.orbiting === 0 ? system.sun : system.orbiterIds.get(currentOrbit.orbiting) as IOrbitingBody;
-            const preState = Kepler.orbitToStateAtDate(currentOrbit, currentAttractor, maneuverDates[i])
+            const preState = Kepler.orbitToStateAtDate(currentOrbit, currentAttractor, maneuverComponents[i].date)
             const maneuver = Kepler.maneuverComponentsToManeuver(maneuverComponents[i], preState);
             nextOrbit = Kepler.stateToOrbit(maneuver.postState, currentAttractor)
             sDate = nextOrbit.epoch;
@@ -166,6 +166,28 @@ export function propagateFlightPlan(startOrbit: IOrbit, system: ISolarSystem, st
         }
     }
     return trajectories;
+}
+
+export function propagateVessel(vessel: IVessel, system: ISolarSystem, startDate: number = 0, nRevs: number = 0) {
+    return propagateFlightPlan(vessel.orbit, system, startDate, vessel.maneuvers, nRevs);
+}
+
+export function vesselToFlightPlan(vessel: IVessel, system: ISolarSystem, color: IColor = {r: 255, g: 255, b: 255}, startDate: number = 0, nRevs: number = 0): FlightPlan {
+    return {
+        name:           vessel.name,
+        color,
+        startOrbit:     vessel.orbit,
+        trajectories:   propagateVessel(vessel, system, startDate, nRevs),
+    }
+}
+
+export function flightPlanToVessel(flightPlan: FlightPlan): IVessel {
+    const maneuvers: ManeuverComponents[] = flightPlan.trajectories.map(t => t.maneuvers.map(m => Kepler.maneuverToComponents(m))).flat();
+    return {
+        name:       flightPlan.name,
+        orbit:      flightPlan.startOrbit,
+        maneuvers,         
+    }
 }
 
 export default propagateFlightPlan;

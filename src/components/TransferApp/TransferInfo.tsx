@@ -20,7 +20,7 @@ import CopyButton from "../CopyButton";
 
 function TransferInfo({transfer, timeSettings, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, copiedFlightPlan, setCopiedFlightPlan}: 
     {transfer: Transfer, timeSettings: TimeSettings, copiedOrbit: IOrbit, setCopiedOrbit: React.Dispatch<React.SetStateAction<IOrbit>>, 
-     copiedManeuver: Maneuver, setCopiedManeuver: React.Dispatch<React.SetStateAction<Maneuver>>, copiedFlightPlan: FlightPlan, setCopiedFlightPlan: React.Dispatch<React.SetStateAction<FlightPlan>>}) {
+     copiedManeuver: ManeuverComponents, setCopiedManeuver: React.Dispatch<React.SetStateAction<ManeuverComponents>>, copiedFlightPlan: FlightPlan, setCopiedFlightPlan: React.Dispatch<React.SetStateAction<FlightPlan>>}) {
 
     const departureTime = transfer.ejections.length === 0 ? transfer.startDate : transfer.ejections[0].orbits[0].epoch;
     let lastInsertionLen = 0;
@@ -34,6 +34,7 @@ function TransferInfo({transfer, timeSettings, copiedOrbit, setCopiedOrbit, copi
         trajectories:   [...transfer.ejections, transfer.transferTrajectory, ...transfer.insertions],
         name:           'Copied Transfer Trajectory',
         color:          {r: 255, g: 255, b: 255},
+        startOrbit:     transfer.startOrbit,
     }
 
     return (

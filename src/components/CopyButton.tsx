@@ -7,7 +7,7 @@ function objIsEqual(obj1: Object, obj2: Object): boolean {
     return string1 === string2;
 }
 
-function CopyButton({obj, copiedObj, setCopiedObj, size = "small"}: {obj: Maneuver | IOrbit | FlightPlan, copiedObj: Maneuver | IOrbit | FlightPlan, setCopiedObj: React.Dispatch<React.SetStateAction<Maneuver>> | React.Dispatch<React.SetStateAction<IOrbit>> | React.Dispatch<React.SetStateAction<FlightPlan>>, size?: "small" | "medium" | "large"}) {
+function CopyButton({obj, copiedObj, setCopiedObj, size = "small"}: {obj: ManeuverComponents | IOrbit | FlightPlan, copiedObj: ManeuverComponents | IOrbit | FlightPlan, setCopiedObj: React.Dispatch<React.SetStateAction<ManeuverComponents>> | React.Dispatch<React.SetStateAction<IOrbit>> | React.Dispatch<React.SetStateAction<FlightPlan>>, size?: "small" | "medium" | "large"}) {
     const isCopied = objIsEqual(obj, copiedObj);
     return (
         <IconButton 

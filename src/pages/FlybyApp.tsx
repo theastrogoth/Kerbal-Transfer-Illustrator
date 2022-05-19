@@ -14,6 +14,7 @@ import EvolutionPlot, { EvolutionPlotData } from '../components/FlybyApp/Evoluti
 import OrbitDisplayTabs from '../components/FlybyApp/OrbitDisplayTabs';
 import MultiFlybyInfo from '../components/FlybyApp/MultiFlybyInfo';
 import Navbar from '../components/Navbar';
+import HelpCollapse from '../components/FlybyApp/HelpCollapse';
 
 import React, { useState } from "react";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -29,7 +30,6 @@ import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Collapse from '@mui/material/Collapse';
 import Fade from '@mui/material/Fade';
-import HelpCollapse from '../components/TransferApp/HelpCollapse';
 
 // MUI theme
 const mdTheme = createTheme({
@@ -53,8 +53,8 @@ type FlybyAppState = {
   setVessels:                 React.Dispatch<React.SetStateAction<Vessel[]>>,
   copiedOrbit:                IOrbit,
   setCopiedOrbit:             React.Dispatch<React.SetStateAction<IOrbit>>,
-  copiedManeuver:             Maneuver,
-  setCopiedManeuver:          React.Dispatch<React.SetStateAction<Maneuver>>,
+  copiedManeuver:             ManeuverComponents,
+  setCopiedManeuver:          React.Dispatch<React.SetStateAction<ManeuverComponents>>,
   copiedFlightPlan:           FlightPlan,
   setCopiedFlightPlan:        React.Dispatch<React.SetStateAction<FlightPlan>>,
   startOrbitControlsState:    OrbitControlsState,

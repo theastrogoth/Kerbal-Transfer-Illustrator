@@ -49,7 +49,7 @@ function HourMinSecField({hour, setHour, error = false}: {hour: string, setHour:
     const time = toHHMMSS(seconds);
     setValue(time);
 
-    const secString = isNaN(seconds) ? '' : String(seconds);
+    const secString = isNaN(seconds) ? '' : String(seconds / 3600);
     setHour(secString);
   };
 

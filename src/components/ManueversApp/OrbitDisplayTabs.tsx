@@ -119,12 +119,13 @@ function OrbitDisplayTabs({flightPlans, system, timeSettings}: OrbitDisplayTabsP
         if(flightPlans.length === 0) {
             const fp: FlightPlan = {
                 trajectories: [{
-                    orbits:         [(system.bodyFromId(1) as OrbitingBody).orbit],
-                    intersectTimes: [0, timeSettings.daysPerYear*timeSettings.hoursPerDay*3600],
+                    orbits:         [] as IOrbit[],
+                    intersectTimes: [0],
                     maneuvers:      [],
                 }],
-                name: '',
-                color: {r: 255, g: 255, b: 255},
+                name:       '',
+                color:      {r: 255, g: 255, b: 255},
+                startOrbit: (system.bodyFromId(1) as OrbitingBody).orbit
             }
             setOrbitDisplayProps(prepareAllDisplayProps([fp], system, timeSettings));
         } else {

@@ -54,7 +54,6 @@ function handleRemoveFlyby(flybyIdSequence: number[], setFlybyIdSequence: React.
         dateControlsState.flightTimes.setYears(dateControlsState.flightTimes.years.slice(0,-2));
         dateControlsState.flightTimes.setDays(dateControlsState.flightTimes.days.slice(0,-2));
         dateControlsState.flightTimes.setHours(dateControlsState.flightTimes.hours.slice(0,-2));
-
     };
 }
 

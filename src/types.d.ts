@@ -76,7 +76,7 @@ interface IPorkchop {
 interface IVessel {
     readonly name:          string,
     readonly orbit:         IOrbit,
-    readonly maneuvers?:    ManeuverComponents[],
+    readonly maneuvers:     ManeuverComponents[],
 }
 
 interface IFlyby {
@@ -125,7 +125,7 @@ type OrbitalState = {
 };
 
 type OrbitalElements = {
-    readonly orbiting?:          number,
+    readonly orbiting:           number,
     readonly semiMajorAxis:      number,
     readonly eccentricity:       number,
     readonly inclination:        number,
@@ -247,6 +247,7 @@ type MultiFlybySearchInputs = {
 type FlightPlan = {
     readonly name:                      string;
     readonly color:                     IColor;
+    readonly startOrbit:                IOrbit;
     readonly trajectories:              Trajectory[];
 }
 

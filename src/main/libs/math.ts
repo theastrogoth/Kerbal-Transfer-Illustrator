@@ -225,7 +225,7 @@ export function timeToCalendarDate(time: number, timeSettings: TimeSettings, yea
     secondsRemaining = secondsRemaining - h * hour;
     const minute = Math.floor(secondsRemaining / m);
     secondsRemaining = secondsRemaining - m * minute;
-    const second = Math.round(secondsRemaining);
+    const second = secondsRemaining;
     return {
         year,
         day, 

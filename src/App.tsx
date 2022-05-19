@@ -4,7 +4,7 @@ import './App.css';
 
 import TransferApp from './pages/TransferApp';
 import FlybyApp from './pages/FlybyApp';
-// import ManeuversApp from './pages/ManeuversApp';
+import ManeuversApp from './pages/ManeuversApp';
 
 import kspbodies from './data/kspbodies.json';
 
@@ -18,7 +18,7 @@ import { DateControlsState } from './components/TransferApp/DateControls';
 import { FlybyDateControlsState } from './components/FlybyApp/FlybyDateControls';
 
 // import { createTheme } from '@mui/material/styles';
-import { defaultManeuver, defaultOrbit, useControlOptions, useDateField, useOrbitControls } from './utils';
+import { defaultManeuverComponents, defaultOrbit, useControlOptions, useDateField, useOrbitControls } from './utils';
 import { EvolutionPlotData } from './components/FlybyApp/EvolutionPlot';
 import { DynamicDateFieldState } from './components/DynamicDateFields';
 
@@ -32,7 +32,7 @@ const kspTimeSettings: TimeSettings = {hoursPerDay: 6, daysPerYear: 426};
 
 const emptyVessels: Vessel[] = [];
 const emptyNumberArray: number[] = [];
-const blankFlightPlan: FlightPlan = {trajectories: [], name: 'Blank Flight Plan', color: {r: 255, g: 255, b: 255}};
+const blankFlightPlan: FlightPlan = {name: 'Blank Flight Plan', color: {r: 255, g: 255, b: 255}, startOrbit: defaultOrbit(kspSystem, 1), trajectories: []};
 
 // initial values
 const initialTransfer: Transfer = new Transfer({
@@ -118,7 +118,7 @@ function AppBody() {
   const [timeSettings, setTimeSettings] = useState(kspTimeSettings);
 
   const [copiedOrbit, setCopiedOrbit] = useState(defaultOrbit(kspSystem) as IOrbit);
-  const [copiedManeuver, setCopiedManeuver] = useState(defaultManeuver());
+  const [copiedManeuver, setCopiedManeuver] = useState(defaultManeuverComponents());
   const [copiedFlightPlan, setCopiedFlightPlan] = useState(blankFlightPlan);
 
   // state for transfer calculator
@@ -172,8 +172,8 @@ function AppBody() {
   const [flybyIdSequence, setFlybyIdSequence] = useState([5, 8]);
   const flybySequenceControlsState = {
     system:             kspSystem,            
-    startBodyId:        flybyStartOrbit.bodyId,        
-    endBodyId:          flybyEndOrbit.bodyId,         
+    startBodyId:        flybyStartOrbit.orbit.orbiting,        
+    endBodyId:          flybyEndOrbit.orbit.orbiting,         
     flybyIdSequence,    
     setFlybyIdSequence, 
     dateControlsState:  flybyDateControlsState,
@@ -198,7 +198,24 @@ function AppBody() {
   const [flybySearchCount, setFlybySearchCount] = useState(0);
 
   // state for flight plan illustrator
-
+  const [vesselPlans, setVesselPlans] = useState([{
+    name: 'Kerbin To Duna', 
+    maneuvers: [
+      {
+        prograde:   1030.8346189769754,
+        normal:     186.87264501298313,
+        radial:     2.2737367544323206e-13,
+        date:       5071258.348269287,
+      },
+      {
+        prograde:   -644.6973638319728,
+        normal:     22.308549783071122,
+        radial:     -5.691155811016825e-14,
+        date:       10773838.738968123,
+      }
+    ] as ManeuverComponents[], 
+    orbit: defaultOrbit(kspSystem, 1)
+  }] as IVessel[]);
 
   return (
     <Routes>
@@ -228,7 +245,7 @@ function AppBody() {
         plotCount={transferPlotCount}
         setPlotCount={setTransferPlotCount}
        />} />
-      <Route path='Flyby' element={<FlybyApp 
+      <Route path='/Flyby/' element={<FlybyApp 
         system={system}
         setSystem={setSystem}
         timeSettings={timeSettings}
@@ -252,7 +269,22 @@ function AppBody() {
         searchCount={flybySearchCount}
         setSearchCount={setFlybySearchCount}
       />} />
-      {/* <Route path='Kerbal-Transfer-Illustrator/FlightPlan/' element={<ManeuversApp />} /> */}
+      <Route path='/FlightPlan/' element={<ManeuversApp 
+        system={system}
+        setSystem={setSystem}
+        timeSettings={timeSettings}
+        setTimeSettings={setTimeSettings}
+        vessels={vessels}
+        setVessels={setVessels}
+        copiedOrbit={copiedOrbit}
+        setCopiedOrbit={setCopiedOrbit}
+        copiedManeuver={copiedManeuver}
+        setCopiedManeuver={setCopiedManeuver}
+        copiedFlightPlan={copiedFlightPlan}
+        setCopiedFlightPlan={setCopiedFlightPlan}
+        vesselPlans={vesselPlans}
+        setVesselPlans={setVesselPlans}
+      />} />
     </Routes>
   );
 }
