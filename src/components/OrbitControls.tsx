@@ -1,9 +1,9 @@
 import SolarSystem from "../main/objects/system";
 import Vessel from "../main/objects/vessel";
-import { radToDeg } from "../main/libs/math";
 
 import RequiredNumberField from "./NumberField";
 import VesselSelect from "./VesselSelect";
+import PasteButton from "./PasteButton";
 
 import React, {useEffect, useState } from "react";
 import Box from "@mui/material/Box";
@@ -14,7 +14,10 @@ import Select from "@mui/material/Select";
 import Button from '@mui/material/Button';
 import Stack from "@mui/material/Stack";
 import Collapse from "@mui/material/Collapse";
-import PasteButton from "./PasteButton";
+import IconButton from "@mui/material/IconButton";
+import ClearIcon from '@mui/icons-material/Clear';
+
+import { defaultOrbit } from "../utils";
 
 
 export type OrbitControlsState = {
@@ -50,12 +53,6 @@ function handleChange(setFunction: Function) {
     )
 }
 
-export function setOrbitState(state: OrbitControlsState, orbit: IOrbit, vesselId: number = -1) {
-    state.setOrbit(orbit)
-    state.setVesselId(vesselId);
-}
-
-
 function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect = true}: OrbitControlsProps) {
     const [sma, setSma] = useState(String(state.orbit.semiMajorAxis));
     const [ecc, setEcc] = useState(String(state.orbit.eccentricity));
@@ -67,12 +64,12 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
     const [bodyId, setBodyId] = useState(state.orbit.orbiting);
 
     const [body, setBody] = useState(system.bodyFromId(state.orbit.orbiting))
-    const [vesselId, setVesselId] = useState(-1);
 
     const [alt, setAlt] = useState(String(state.orbit.semiMajorAxis - body.radius));
 
     const [optsVisible, setOptsVisible] = useState(false);
     const [bodyOptions, setBodyOptions] = useState(createBodyItems(system));
+    const [vesselIdChange, setVesselIdChange] = useState(false);
 
     const handleBodyIdChange = (event: any): void => {
         const newBody = system.bodyFromId(event.target.value);
@@ -81,35 +78,17 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
         setSma(String(parseFloat(alt) + newBody.radius))
     };
 
-    const handleVesselIdChange = (event: any): void => {
-        if(Number(event.target.value) === -1) {
-            setVesselId(Number(event.target.value));     
-            setBodyId(1);
-            const body = system.bodyFromId(1);
-            setBody(system.bodyFromId(1));
-            setSma(String(100000 + body.radius));
-            setAlt('100000');
-            setEcc('0');
-            setInc('0');
-            setArg('0');
-            setLan('0');
-            setMoe('0');
-            setEpoch('0');
-        } else if(Number(event.target.value) >= 0 && Number(event.target.value) < vessels.length) {
-            setVesselId(Number(event.target.value));
-            const vessel = vessels[Number(event.target.value)];
-            setBodyId(vessel.orbit.orbiting);
-            const body = system.bodyFromId(vessel.orbit.orbiting);
-            setBody(body);
-            setSma(String(vessel.orbit.semiMajorAxis));
-            setAlt(String(vessel.orbit.semiMajorAxis - body.radius));
-            setEcc(String(vessel.orbit.eccentricity));
-            setInc(String(radToDeg(vessel.orbit.inclination)));
-            setArg(String(radToDeg(vessel.orbit.argOfPeriapsis)));
-            setLan(String(radToDeg(vessel.orbit.ascNodeLongitude)));
-            setMoe(String(vessel.orbit.meanAnomalyEpoch));
-            setEpoch(String(vessel.orbit.epoch));
-        }
+    function setOrbitState(state: OrbitControlsState, orbit: IOrbit) {
+        state.setOrbit(orbit)
+        setSma(String(orbit.semiMajorAxis));
+        setEcc(String(orbit.eccentricity));
+        setInc(String(orbit.inclination));
+        setArg(String(orbit.argOfPeriapsis));
+        setLan(String(orbit.ascNodeLongitude));
+        setMoe(String(orbit.meanAnomalyEpoch));
+        setEpoch(String(orbit.epoch));
+        setBodyId(orbit.orbiting);
+        setBody(system.bodyFromId(orbit.orbiting));
     }
 
     const handleAltChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -124,6 +103,13 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
             setAlt(String(+event.target.value - body.radius));
         }
     };
+
+    useEffect(() => {
+        if(state.vesselId > 0) {
+            setOrbitState(state, vessels[state.vesselId].orbit);
+        }
+        setVesselIdChange(true);
+    }, [state.vesselId])
 
     useEffect(() => {
         const newSma = Number(sma)
@@ -149,7 +135,13 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
             meanAnomalyEpoch:   Number(moe),
             epoch:              Number(epoch),
             orbiting:           bodyId,
-        })
+        });
+        if(vesselIdChange) {
+            setVesselIdChange(false);
+        } else {
+            state.setVesselId(-1);
+        }
+
     }, [sma, ecc, inc, arg, lan, moe, epoch, bodyId])
 
     return (
@@ -161,7 +153,9 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
                         vessels={vessels}
                         vesselId={state.vesselId} 
                         label={label}
-                        handleVesselIdChange={handleVesselIdChange} />
+                        handleVesselIdChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
+                                state.setVesselId(Number(event.target.value))
+                            }} />
                 }
                 <FormControl sx={{ minWidth: 120 }}>
                     <InputLabel id={"body-select-label-"+label}>Body</InputLabel>
@@ -229,8 +223,16 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
                             value={epoch}
                             onChange={handleChange(setEpoch)}
                             sx={{ fullWidth: true }} />
-                        <Box justifyContent="center" sx={{ display: { xs: 'none', md: 'flex' } }} >
+                        <Box display="flex" justifyContent="center" alignItems="center" >
                             <PasteButton setObj={(o: IOrbit) => setOrbitState(state, o)} copiedObj={copiedOrbit}/>
+                            <IconButton 
+                                size="small"
+                                color="inherit"
+                                // @ts-ignore
+                                onClick={() => { setOrbitState(state, defaultOrbit(system, bodyId)); setVesselId(-1) }}
+                            >
+                                <ClearIcon />
+                            </IconButton>
                         </Box>
                     </Stack>
                 </Collapse>

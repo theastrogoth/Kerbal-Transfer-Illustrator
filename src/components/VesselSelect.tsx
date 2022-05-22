@@ -5,7 +5,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 
 function createVesselItems(vessels: IVessel[]) {
-    const options = [<MenuItem key={-1} value={-1}>None</MenuItem>];
+    const options = [<MenuItem key={-1} value={-1}>Select a Craft</MenuItem>];
     for(let i=0; i<vessels.length; i++) {
         options.push(<MenuItem key={i} value={i}>{vessels[i].name}</MenuItem>)
     }

@@ -5,7 +5,7 @@ import Tabs from "@mui/material/Tabs";
 import Stack from "@mui/material/Stack"
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
-import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 
@@ -22,7 +22,7 @@ export type VesselTabsState = {
     setVesselPlans:     React.Dispatch<React.SetStateAction<IVessel[]>>,
     copiedOrbit:        IOrbit,
     copiedManeuver:     ManeuverComponents,
-    copiedFlightPlan:   FlightPlan,
+    copiedFlightPlan:   IVessel,
     timeSettings:       TimeSettings,
 }
 
@@ -68,6 +68,10 @@ function handleRemoveVessel(vesselPlans: IVessel[], setVesselPlans: React.Dispat
             const newVesselPlans = [...vesselPlans];
             newVesselPlans.splice(index, 1);
             setVesselPlans(newVesselPlans);
+
+            if(value === index && value !== 0) {
+                setValue(value - 1)
+            }
         }
     };
 }
@@ -109,16 +113,16 @@ function VesselTabs({state}: {state: VesselTabsState}) {
     return (
         <Stack spacing={1} sx={{ my: 2, mx: 2 }}>
             <Box textAlign="center" >
-                <Typography variant="h5">Mission Controls</Typography>
+                <Typography variant="h5">Flight Plan Controls</Typography>
                 <Divider />
             </Box>
             <Stack direction="row" spacing={2} textAlign="center" justifyContent="center">
-                <Button variant="outlined" onClick={handleAddVessel(state.vesselPlans, state.setVesselPlans, state.system, setValue, tabValues, setTabValues)}>
+                <IconButton sx={{border: "1px solid"}} onClick={handleAddVessel(state.vesselPlans, state.setVesselPlans, state.system, setValue, tabValues, setTabValues)}>
                     <AddIcon />
-                </Button>
-                <Button variant="outlined" onClick={handleRemoveVessel(state.vesselPlans, state.setVesselPlans, value, setValue, tabValues, setTabValues)}>
+                </IconButton>
+                <IconButton sx={{border: "1px solid"}} onClick={handleRemoveVessel(state.vesselPlans, state.setVesselPlans, value, setValue, tabValues, setTabValues)}>
                     <RemoveIcon />
-                </Button>
+                </IconButton>
             </Stack>
             <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons={true}>
                 {state.vesselPlans.map((f, index) => <Tab key={index} value={index} label={f.name} ></Tab>)}
@@ -128,4 +132,4 @@ function VesselTabs({state}: {state: VesselTabsState}) {
     )
 }
 
-export default VesselTabs;
+export default React.memo(VesselTabs);

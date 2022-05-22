@@ -1,14 +1,11 @@
 import SolarSystem from '../main/objects/system';
 import Vessel from '../main/objects/vessel';
 
-import kspbodies from '../data/kspbodies.json';
-
-import { DateFieldState } from '../components/DateField';
-
 import Navbar from '../components/Navbar';
 import VesselTabs, { VesselTabsState } from '../components/ManueversApp/VesselTabs';
+import OrbitDisplayTabs from '../components/ManueversApp/OrbitDisplayTabs';
 
-import {useState } from "react";
+import {useEffect, useState } from "react";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
@@ -22,6 +19,7 @@ import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Collapse from '@mui/material/Collapse';
 import Fade from '@mui/material/Fade';
+import { vesselToFlightPlan } from '../main/libs/propagate';
 
 // MUI theme
 const mdTheme = createTheme({
@@ -47,20 +45,23 @@ type ManeuversAppState = {
   setCopiedOrbit:          React.Dispatch<React.SetStateAction<IOrbit>>,
   copiedManeuver:          ManeuverComponents,
   setCopiedManeuver:       React.Dispatch<React.SetStateAction<ManeuverComponents>>,
-  copiedFlightPlan:        FlightPlan,
-  setCopiedFlightPlan:     React.Dispatch<React.SetStateAction<FlightPlan>>,
+  copiedFlightPlan:        IVessel,
+  setCopiedFlightPlan:     React.Dispatch<React.SetStateAction<IVessel>>,
   vesselPlans:             IVessel[],
   setVesselPlans:          React.Dispatch<React.SetStateAction<IVessel[]>>,
+  flightPlans:             FlightPlan[],
+  setFlightPlans:          React.Dispatch<React.SetStateAction<FlightPlan[]>>,
 }
 
-////////// App Content //////////
+// worker
+const propagateWorker = new Worker(new URL("../workers/propagate.worker.ts", import.meta.url));
 
-function ManeuversAppContent({system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, 
-                              copiedManeuver, setCopiedManeuver, copiedFlightPlan, setCopiedFlightPlan, vesselPlans, setVesselPlans}: ManeuversAppState) { 
+////////// App Content //////////
+function ManeuversAppContent({system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver,
+                              copiedFlightPlan, setCopiedFlightPlan, vesselPlans, setVesselPlans, flightPlans, setFlightPlans}: ManeuversAppState) { 
 
   const [invalidInput, setInvalidInput] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
-  const [plotCount, setPlotCount] = useState(0);
 
   const vesselTabsState: VesselTabsState = {
     system,
@@ -73,7 +74,40 @@ function ManeuversAppContent({system, setSystem, timeSettings, setTimeSettings, 
     timeSettings,
   }
 
- 
+
+  // function handlePlotButtonPress() {
+  //   // TO DO: ensure there are no invalid orbit inputs
+  //   let invalidFlag = false;
+  //   if(invalidFlag) {
+  //     return
+  //   }
+
+  //   // create Flight Plans by propagating orbits and applying maneuvers
+  //   const newFlightPlans = vesselPlans.map(v => vesselToFlightPlan(v, system));
+  //   setFlightPlans(newFlightPlans);
+  // }
+
+  // useEffect(() => {
+  //   const newFlightPlans = vesselPlans.map(v => vesselToFlightPlan(v, system));
+  //   setFlightPlans(newFlightPlans);
+  // }, [vesselPlans])
+
+useEffect(() => {
+  propagateWorker.onmessage = (event: MessageEvent<FlightPlan[]>) => {
+      if (event && event.data) {
+        setFlightPlans(event.data);
+      }
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [propagateWorker]);
+
+useEffect(() => {
+    propagateWorker
+      .postMessage({vesselPlans, system});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [vesselPlans]);
+
+
   ///// App Body /////
   return (
     <ThemeProvider theme={mdTheme}>
@@ -107,7 +141,7 @@ function ManeuversAppContent({system, setSystem, timeSettings, setTimeSettings, 
             </Paper>
           </Grid>
           <Grid item xs={5} xl={6}>
-            <Paper 
+            {/* <Paper 
               elevation={8}
               sx={{
                 my: 1, 
@@ -120,11 +154,12 @@ function ManeuversAppContent({system, setSystem, timeSettings, setTimeSettings, 
                   <Button 
                       variant="contained" 
                       sx={{ mx: 'auto', my: 2 }}
+                      onClick={() => handlePlotButtonPress()}
                   >
                     ⇩ Plot It!
                   </Button>
                 </Box>
-            </Paper>
+            </Paper> */}
             <Paper 
                 elevation={8}
                 sx={{
@@ -134,22 +169,20 @@ function ManeuversAppContent({system, setSystem, timeSettings, setTimeSettings, 
                   flexDirection: 'column',
                 }}
               >
-                {/* <OrbitDisplayTabs transfer={transfer} setTransfer={setTransfer} timeSettings={timeSettings}/> */}
+                <OrbitDisplayTabs flightPlans={flightPlans} system={system} timeSettings={timeSettings}/>
             </Paper>
           </Grid>
           <Grid item xs={4} xl={4}>
-            <Fade in={plotCount > 0} timeout={400}>
-              <Paper
-                elevation={8}
-                sx={{
-                  my: 1, 
-                  mx: 1,
-                  display: 'flex',
-                  flexDirection: 'column',
-              }}
-              >
-              </Paper>
-            </Fade>
+            <Paper
+              elevation={8}
+              sx={{
+                my: 1, 
+                mx: 1,
+                display: 'flex',
+                flexDirection: 'column',
+            }}
+            >
+            </Paper>
           </Grid>
         </Grid>
         <Box sx={{my:4}}>

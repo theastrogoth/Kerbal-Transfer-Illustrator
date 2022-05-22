@@ -48,7 +48,7 @@ namespace Kepler {
     export function maneuverToComponents(maneuver: Maneuver) {
         const progradeDir = normalize3(maneuver.preState.vel);
         const normalDir   = normalize3(cross3(maneuver.preState.pos, progradeDir));
-        const radialDir   = cross3(normalDir, progradeDir);
+        const radialDir   = cross3(progradeDir, normalDir);
 
         return {
             prograde: dot3(maneuver.deltaV, progradeDir),
@@ -61,7 +61,7 @@ namespace Kepler {
     export function maneuverComponentsToManeuver(components: ManeuverComponents, preState: OrbitalState): Maneuver {
         const progradeDir = normalize3(preState.vel);
         const normalDir   = normalize3(cross3(preState.pos, progradeDir));
-        const radialDir   = cross3(normalDir, progradeDir);
+        const radialDir   = cross3(progradeDir, normalDir);
 
         const deltaV = add3(mult3(progradeDir, components.prograde), add3(mult3(normalDir, components.normal), mult3(radialDir, components.radial)));
 

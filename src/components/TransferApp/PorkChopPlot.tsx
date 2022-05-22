@@ -12,17 +12,15 @@ type PorkchopPlotProps = {
     timeSettings:   TimeSettings, 
     startDate:      number, 
     flightTime:     number, 
-    transfer:       Transfer, 
     plotCount:      number, 
     setPlotData:    React.Dispatch<React.SetStateAction<PorkchopPlotData>>,
     setTransfer:    React.Dispatch<React.SetStateAction<Transfer>>, 
     setCalculating: React.Dispatch<React.SetStateAction<boolean>>, 
-    setPlotCount:   React.Dispatch<React.SetStateAction<number>>,
 }
 
 const porkchopWorker = new Worker(new URL("../../workers/porkchop.worker.ts", import.meta.url));
 
-function PorkchopPlot({inputs, plotData, timeSettings, transfer, plotCount, setPlotData, setTransfer, setCalculating, setPlotCount}: PorkchopPlotProps) {
+function PorkchopPlot({inputs, plotData, timeSettings, plotCount, setPlotData, setTransfer, setCalculating}: PorkchopPlotProps) {
 
     useEffect(() => {
         porkchopWorker.onmessage = (event: MessageEvent<PorkchopPlotData>) => {
@@ -31,14 +29,13 @@ function PorkchopPlot({inputs, plotData, timeSettings, transfer, plotCount, setP
                 setPlotData(event.data)
                 setTransfer(new Transfer(event.data.bestTransfer))
                 setCalculating(false);
-                setPlotCount(plotCount + 1)
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [porkchopWorker]);
 
     useEffect(() => {
-        if (inputs.nTimes !== 0) {
+        if (plotCount !== 0) {
             console.log('Starting Porkchop worker with new inputs...')
             setCalculating(true);
             porkchopWorker
@@ -53,7 +50,7 @@ function PorkchopPlot({inputs, plotData, timeSettings, transfer, plotCount, setP
         A Porkchop Plot will be generated here.
         </Box> 
         :
-        <Fade in={plotCount > 0} timeout={400}>
+        <Fade in={plotData.logDeltaVs.length > 1} timeout={400}>
             <Box>
                 <Plot
                     data={[

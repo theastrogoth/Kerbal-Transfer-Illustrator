@@ -14,6 +14,7 @@ import TrajectoryInfoRow from "../TrajectoryInfoRow";
 import ManeuverInfoRow from "../ManeuverInfoRow";
 import CopyButton from "../CopyButton";
 
+import Kepler from "../../main/libs/kepler";
 import MultiFlyby from "../../main/objects/multiflyby";
 import { timeToCalendarDate, calendarDateToString, calendarDateToDurationString} from "../../main/libs/math";
 
@@ -21,7 +22,7 @@ import { timeToCalendarDate, calendarDateToString, calendarDateToDurationString}
 
 function MultiFlybyInfo({multiFlyby, timeSettings, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, copiedFlightPlan, setCopiedFlightPlan}: 
     {multiFlyby: MultiFlyby, timeSettings: TimeSettings, copiedOrbit: IOrbit, setCopiedOrbit: React.Dispatch<React.SetStateAction<IOrbit>>, 
-     copiedManeuver: ManeuverComponents, setCopiedManeuver: React.Dispatch<React.SetStateAction<ManeuverComponents>>, copiedFlightPlan: FlightPlan, setCopiedFlightPlan: React.Dispatch<React.SetStateAction<FlightPlan>>}) {
+     copiedManeuver: ManeuverComponents, setCopiedManeuver: React.Dispatch<React.SetStateAction<ManeuverComponents>>, copiedFlightPlan: IVessel, setCopiedFlightPlan: React.Dispatch<React.SetStateAction<IVessel>>}) {
 
     const departureTime = multiFlyby.ejections.length  === 0 ? multiFlyby.startDate : multiFlyby.ejections[0].orbits[0].epoch;
     const arrivalTime   = multiFlyby.insertions.length === 0 ? multiFlyby.endDate   : multiFlyby.insertions[0].orbits[0].epoch;
@@ -53,11 +54,10 @@ function MultiFlybyInfo({multiFlyby, timeSettings, copiedOrbit, setCopiedOrbit, 
         }
     }
 
-    const flightPlan: FlightPlan = {
-        trajectories:   [...multiFlyby.ejections, ...multiFlyby.transfers, ...multiFlyby.insertions],
-        name:           'Copied Multi-Flyby Trajectory',
-        color:          {r: 255, g: 255, b: 255},
-        startOrbit:     multiFlyby.startOrbit,
+    const flightPlan: IVessel = {
+        name:       'Copied Multi-Flyby Trajectory',
+        orbit:      multiFlyby.startOrbit,
+        maneuvers:  multiFlyby.maneuvers.map(m => Kepler.maneuverToComponents(m)),
     }
 
     return (

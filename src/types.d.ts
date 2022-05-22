@@ -247,7 +247,6 @@ type MultiFlybySearchInputs = {
 type FlightPlan = {
     readonly name:                      string;
     readonly color:                     IColor;
-    readonly startOrbit:                IOrbit;
     readonly trajectories:              Trajectory[];
 }
 

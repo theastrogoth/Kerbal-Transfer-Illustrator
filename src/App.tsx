@@ -21,6 +21,7 @@ import { FlybyDateControlsState } from './components/FlybyApp/FlybyDateControls'
 import { defaultManeuverComponents, defaultOrbit, useControlOptions, useDateField, useOrbitControls } from './utils';
 import { EvolutionPlotData } from './components/FlybyApp/EvolutionPlot';
 import { DynamicDateFieldState } from './components/DynamicDateFields';
+import Kepler from './main/libs/kepler';
 
 const bodiesData = {
   sun:      kspbodies[0]       as ICelestialBody,
@@ -32,7 +33,7 @@ const kspTimeSettings: TimeSettings = {hoursPerDay: 6, daysPerYear: 426};
 
 const emptyVessels: Vessel[] = [];
 const emptyNumberArray: number[] = [];
-const blankFlightPlan: FlightPlan = {name: 'Blank Flight Plan', color: {r: 255, g: 255, b: 255}, startOrbit: defaultOrbit(kspSystem, 1), trajectories: []};
+const blankFlightPlan: IVessel = {name: 'Blank Flight Plan', maneuvers: [], orbit: defaultOrbit(kspSystem, 1)};
 
 // initial values
 const initialTransfer: Transfer = new Transfer({
@@ -125,7 +126,7 @@ function AppBody() {
   const transferStartOrbit = useOrbitControls(kspSystem, 1);
   const transferEndOrbit = useOrbitControls(kspSystem, 6);
 
-  const transferEarlyStartDate = useDateField('1','1','0');
+  const transferEarlyStartDate = useDateField(1, 1, 0);
   const transferLateStartDate = useDateField();
   const transferShortFlightTime = useDateField();
   const transferLongFlightTime = useDateField();
@@ -143,13 +144,11 @@ function AppBody() {
   const [porkchopInputs, setPorkchopInputs] = useState(initialPorkchopInputs);
   const [porkchopPlotData, setPorkchopPlotData] = useState(initialPorkchopPlotData);
 
-  const [transferPlotCount, setTransferPlotCount] = useState(0);
-
   // state for flyby calculator
   const flybyStartOrbit= useOrbitControls(kspSystem, 1);
   const flybyEndOrbit  = useOrbitControls(kspSystem, 16);
 
-  const flybyEarlyStartDate = useDateField('1','1','0');
+  const flybyEarlyStartDate = useDateField(1, 1, 0);
   const flybyLateStartDate= useDateField();
   const [flybyFlightYears, setFlybyFlightYears] = useState(['', '', '', '', '', '']);
   const [flybyFlightDays, setFlybyFlightDays]   = useState(['', '', '', '', '', '']);
@@ -199,23 +198,61 @@ function AppBody() {
 
   // state for flight plan illustrator
   const [vesselPlans, setVesselPlans] = useState([{
-    name: 'Kerbin To Duna', 
+    // name: 'Kerbin To Duna Example', 
+    // maneuvers: [
+    //   {
+    //     prograde:   1034.6537492357884,
+    //     normal:     189.57709325770122,
+    //     radial:     0,
+    //     date:       5249443.549858202,
+    //   },
+    //   {
+    //     prograde:   -643.4676863825554,
+    //     normal:     22.839528196905174,
+    //     radial:     0,
+    //     date:       10856519.37835302,
+    //   }
+    // ] as ManeuverComponents[], 
+    // orbit: defaultOrbit(kspSystem, 1)
+    name: 'Minmus To Ike Example', 
     maneuvers: [
       {
-        prograde:   1030.8346189769754,
-        normal:     186.87264501298313,
-        radial:     2.2737367544323206e-13,
-        date:       5071258.348269287,
+        prograde:   474.8533119242105,
+        normal:     25.89508681510052,
+        radial:     0,
+        date:       4917299.01384942,
       },
       {
-        prograde:   -644.6973638319728,
-        normal:     22.308549783071122,
-        radial:     -5.691155811016825e-14,
-        date:       10773838.738968123,
+        prograde:   -448.7532077944218,
+        normal:     21.6158998538224,
+        radial:     0,
+        date:       10861479.5706846,
       }
     ] as ManeuverComponents[], 
-    orbit: defaultOrbit(kspSystem, 1)
+    orbit: Kepler.orbitFromElements(
+      {semiMajorAxis:     70000,
+       eccentricity:      0,
+       inclination:       0,
+       argOfPeriapsis:    0,
+       ascNodeLongitude:  0,
+       meanAnomalyEpoch:  0.1480249964499558,
+       epoch:             4917299.01384942 - 2769.211791103803,
+       orbiting:          3},
+       kspSystem.bodyFromId(3)
+    )
+    // name: 'Testing', 
+    // maneuvers: [
+    //   {
+    //     prograde:   842.25,
+    //     normal:     0,
+    //     radial:     0,
+    //     date:       0,
+    //   }
+    // ] as ManeuverComponents[], 
+    // orbit: defaultOrbit(kspSystem, 1)
   }] as IVessel[]);
+
+  const [flightPlans, setFlightPlans] = useState([] as FlightPlan[]);
 
   return (
     <Routes>
@@ -242,8 +279,6 @@ function AppBody() {
         setPorkchopInputs={setPorkchopInputs}
         porkchopPlotData={porkchopPlotData}
         setPorkchopPlotData={setPorkchopPlotData}
-        plotCount={transferPlotCount}
-        setPlotCount={setTransferPlotCount}
        />} />
       <Route path='/Flyby/' element={<FlybyApp 
         system={system}
@@ -284,6 +319,8 @@ function AppBody() {
         setCopiedFlightPlan={setCopiedFlightPlan}
         vesselPlans={vesselPlans}
         setVesselPlans={setVesselPlans}
+        flightPlans={flightPlans}
+        setFlightPlans={setFlightPlans}
       />} />
     </Routes>
   );

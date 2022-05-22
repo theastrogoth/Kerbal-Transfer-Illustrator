@@ -486,7 +486,7 @@ class TransferCalculator {
             this._endDate = x[0] + x[1];
             this.setPatchPositionsFromAngles(x.slice(2,x.length));
             this.computeTransfer();
-            return this.soiPatchPositionError() + 10 * this.soiPatchTimeError() + 100 * this._deltaV;   // mixed units, so the coefficients here are arbitrary
+            return this.soiPatchPositionError() + 10 * this.soiPatchTimeError() + 5000 * this._deltaV;   // mixed units, so the coefficients here are arbitrary
         }
 
         const initialPoints = this.initialPositionAndAnglePoints();

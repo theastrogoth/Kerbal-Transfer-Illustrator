@@ -73,7 +73,8 @@ function FlybyDateControls({earlyStartDate, lateStartDate, flightTimes, timeSett
                 label='Earliest Departure Date'
                 state={earlyStartDate}
                 error={startErr}
-                required={true}
+                required={true} 
+                timeSettings={timeSettings}
             />
             <Collapse in={optsVisible} timeout="auto">
                 <DateField
@@ -81,7 +82,8 @@ function FlybyDateControls({earlyStartDate, lateStartDate, flightTimes, timeSett
                     label='Latest Departure Date'
                     state={lateStartDate} 
                     error={startErr}
-                    required={false}
+                    required={false} 
+                    timeSettings={timeSettings}
                 />
                 <DynamicDateFields
                     labelFun={flybyTimesLabel}

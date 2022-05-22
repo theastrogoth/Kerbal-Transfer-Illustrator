@@ -42,8 +42,8 @@ type TransferAppState = {
   setCopiedOrbit:          React.Dispatch<React.SetStateAction<IOrbit>>,
   copiedManeuver:          ManeuverComponents,
   setCopiedManeuver:       React.Dispatch<React.SetStateAction<ManeuverComponents>>,
-  copiedFlightPlan:        FlightPlan,
-  setCopiedFlightPlan:     React.Dispatch<React.SetStateAction<FlightPlan>>,
+  copiedFlightPlan:        IVessel,
+  setCopiedFlightPlan:     React.Dispatch<React.SetStateAction<IVessel>>,
   startOrbitControlsState: OrbitControlsState,
   endOrbitControlsState:   OrbitControlsState,
   dateControlsState:       DateControlsState,
@@ -54,8 +54,6 @@ type TransferAppState = {
   setPorkchopInputs:       React.Dispatch<React.SetStateAction<PorkchopInputs>>,
   porkchopPlotData:        PorkchopPlotData,
   setPorkchopPlotData:     React.Dispatch<React.SetStateAction<PorkchopPlotData>>,
-  plotCount:               number,
-  setPlotCount:            React.Dispatch<React.SetStateAction<number>>,
 }
 
 // MUI theme
@@ -75,10 +73,11 @@ const mdTheme = createTheme({
 
 function TransferAppContent({system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver,
                              copiedFlightPlan, setCopiedFlightPlan, startOrbitControlsState, endOrbitControlsState, dateControlsState, controlsOptionsState, transfer, setTransfer, 
-                             porkchopInputs, setPorkchopInputs, porkchopPlotData, setPorkchopPlotData, plotCount, setPlotCount}: TransferAppState) { 
+                             porkchopInputs, setPorkchopInputs, porkchopPlotData, setPorkchopPlotData}: TransferAppState) { 
 
   const [invalidInput, setInvalidInput] = useState(false);
   const [porkCalculating, setPorkCalculating] = useState(false);
+  const [plotCount, setPlotCount] = useState(0);
   const [showHelp, setShowHelp] = useState(false);
 
   function handlePlotButtonPress() {
@@ -97,6 +96,7 @@ function TransferAppContent({system, setSystem, timeSettings, setTimeSettings, v
     const porkInputs = porkchopInputsFromUI(system, startOrbitControlsState, endOrbitControlsState, dateControlsState, controlsOptionsState, timeSettings);
 
     setPorkchopInputs(porkInputs);
+    setPlotCount(plotCount + 1)
     console.log('"Plot!" button pressed.');
   }
 
@@ -177,12 +177,10 @@ function TransferAppContent({system, setSystem, timeSettings, setTimeSettings, v
                 inputs={porkchopInputs}
                 plotData={porkchopPlotData}
                 timeSettings={timeSettings}
-                transfer={transfer}
                 plotCount={plotCount}
                 setPlotData={setPorkchopPlotData}
                 setTransfer={setTransfer}
                 setCalculating={setPorkCalculating}
-                setPlotCount={setPlotCount}
               />
             </Paper>
             <Paper 
@@ -198,7 +196,7 @@ function TransferAppContent({system, setSystem, timeSettings, setTimeSettings, v
             </Paper>
           </Grid>
           <Grid item xs={4} xl={4}>
-            <Fade in={plotCount > 0} timeout={400}>
+            <Fade in={plotCount > 0 || transfer.deltaV > 0} timeout={400}>
               <Paper
                 elevation={8}
                 sx={{

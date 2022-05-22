@@ -13,18 +13,21 @@ import { DateControlsState } from './components/TransferApp/DateControls';
 import { FlybyDateControlsState } from './components/FlybyApp/FlybyDateControls';
 import { ControlsOptionsState } from './components/ControlsOptions';
 import { DynamicDateFieldState } from './components/DynamicDateFields';
+import { calendarDateToTime } from './main/libs/math';
 
 // for re-used components
 
 export function dateFieldIsEmpty(field: DateFieldState): boolean {
-    return ((field.year === '') && (field.day === '') && (field.hour === ''))
+    return ((isNaN(field.calendarDate.year)) && (isNaN(field.calendarDate.day)) && (isNaN(field.calendarDate.hour)))
 }
 
 export function timeFromDateFieldState(state: DateFieldState, timeSettings: TimeSettings, yearOffset: number = 1, dayOffset: number = 1): number {
-    const years = state.year === "" ? 0 : parseFloat(state.year) - yearOffset;
-    const days  = state.day  === "" ? 0 : parseFloat(state.day)  - dayOffset;
-    const hours  = state.hour  === "" ? 0 : parseFloat(state.hour);
-    return ( (timeSettings.daysPerYear * years + days) * timeSettings.hoursPerDay + hours) * 3600;
+    const year   = isNaN(state.calendarDate.year)   ? yearOffset : state.calendarDate.year;
+    const day    = isNaN(state.calendarDate.day)    ? dayOffset : state.calendarDate.day;
+    const hour   = isNaN(state.calendarDate.hour)   ? 0 : state.calendarDate.hour;
+    const minute = isNaN(state.calendarDate.minute) ? 0 : state.calendarDate.minute;
+    const second = isNaN(state.calendarDate.second) ? 0 : state.calendarDate.second;
+    return (calendarDateToTime({year, day, hour, minute, second}, timeSettings, yearOffset, dayOffset));
 }
 
 export function timesFromDynamicDateFieldState(state: DynamicDateFieldState, timeSettings: TimeSettings, yearOffset: number = 0, dayOffset: number = 0) : number[] {
@@ -115,17 +118,14 @@ export function useOrbitControls(system: SolarSystem, id: number = 1, a: number 
     return orbitControlsState;
 }
 
-export function useDateField(y: string = '', d: string = '', h: string = '') {
-    const [year, setYear] = useState(y)
-    const [day, setDay] = useState(d)
-    const [hour, setHour] = useState(h)
+export function useDateField(year: number = NaN, day: number = NaN, hour: number = NaN, minute: number = NaN, second: number = NaN) {
+    const [calendarDate, setCalendarDate] = useState({year, day, hour, minute, second} as CalendarDate);
+    const [updateInputs, setUpdateInputs] = useState(false);
     const dateFieldState: DateFieldState = {
-        year:     year,
-        day:      day,
-        hour:     hour,
-        setYear:  setYear,
-        setDay:   setDay,
-        setHour:  setHour,
+        calendarDate, 
+        setCalendarDate,
+        updateInputs,
+        setUpdateInputs,
     };
 
     return dateFieldState

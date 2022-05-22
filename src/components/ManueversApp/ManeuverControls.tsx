@@ -2,19 +2,21 @@ import React, { useEffect, useState } from "react";
 import Stack from "@mui/material/Stack";
 import RequiredNumberField from "../NumberField"
 import { timeFromDateFieldState, useDateField } from "../../utils";
-import DateField from "../DateField";
+import DateField, { DateFieldState } from "../DateField";
 import { timeToCalendarDate } from "../../main/libs/math";
 import Typography from "@mui/material/Typography";
 import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
+import ClearIcon from '@mui/icons-material/Clear';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { Box } from "@mui/system";
+import PasteButton from "../PasteButton";
 
 type ManeuverControlsState = {
     idx:                number,
     maneuvers:          ManeuverComponents[],
-    setManeuvers:       React.Dispatch<React.SetStateAction<ManeuverComponents[]>>,
+    setManeuvers:       (maneuvers: ManeuverComponents[]) => void,
     copiedManeuver:     ManeuverComponents,
     timeSettings:       TimeSettings,
 }
@@ -27,11 +29,13 @@ function handleChange(setFunction: Function) {
     )
 }
 
-function setUTandUpdate(setUT: React.Dispatch<React.SetStateAction<string>>, setUpdateFields: React.Dispatch<React.SetStateAction<boolean>>) {
+function setUTandUpdate(setUT: React.Dispatch<React.SetStateAction<string>>, dateField: DateFieldState, timeSettings: TimeSettings) {
     return (
         (value: string): void => {
             setUT(value);
-            setUpdateFields(true);
+            const calendarDate = timeToCalendarDate(Number(value), timeSettings, 1, 1);
+            dateField.setCalendarDate(calendarDate);
+            dateField.setUpdateInputs(true);
         }
     )
 }
@@ -43,32 +47,14 @@ function ManeuverControls({idx, maneuvers, setManeuvers, copiedManeuver, timeSet
     const [radial,   setRadial]   = useState(String(maneuverComponents.radial));
     const [UT,       setUT]       = useState('0');
     
-    const secsPerDay = timeSettings.hoursPerDay * 3600;
-    const secsPerYear = timeSettings.daysPerYear * secsPerDay;
-    const dateField = useDateField(String(Math.floor(maneuvers[idx].date / secsPerYear) + 1), String(Math.floor((maneuvers[idx].date % secsPerYear) / secsPerDay) + 1), String((maneuvers[idx].date % secsPerDay) / 3600))
+    const dateField = useDateField(...Object.values(timeToCalendarDate(maneuvers[idx].date, timeSettings, 1, 1)));
 
-    const [updateUT, setUpdateUT] = useState(false);
-    const [updateFields, setUpdateFields] = useState(false);
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(idx === 0);
+    const [loaded, setLoaded] = useState(false);
 
     const handleToggle = () => {
         setOpen(!open);
     }
-
-    useEffect(() => {
-        if(updateFields) {
-            const oldDate = timeFromDateFieldState(dateField, timeSettings, 1, 1);
-            const numUT = Number(UT)
-            if(numUT !== oldDate) {
-                const calendarDate = timeToCalendarDate(numUT, timeSettings, 1, 1);
-                const hours = calendarDate.hour + calendarDate.minute / 60 + calendarDate.second / 3600;
-                dateField.setYear(String(calendarDate.year));
-                dateField.setDay(String(calendarDate.day));
-                dateField.setHour(String(hours));
-            }
-            setUpdateFields(false);
-        }
-    }, [updateFields])
 
     useEffect(() => {
         const newDate = timeFromDateFieldState(dateField, timeSettings, 1, 1);
@@ -78,10 +64,32 @@ function ManeuverControls({idx, maneuvers, setManeuvers, copiedManeuver, timeSet
     }, [dateField])
 
     useEffect(() => {
-        const newManeuvers = [...maneuvers];
-        newManeuvers[idx] = {prograde: Number(prograde), normal: Number(normal), radial: Number(radial), date: Number(UT)}
-        setManeuvers(newManeuvers);
-    }, [prograde, normal, radial, UT])
+        if(loaded) {
+            let equal = true;
+            equal = equal && Number(prograde) === maneuvers[idx].prograde;
+            equal = equal && Number(normal)   === maneuvers[idx].normal;
+            equal = equal && Number(radial)   === maneuvers[idx].radial;
+            equal = equal && Number(UT)       === maneuvers[idx].date;
+
+            if(!equal) {
+                const newManeuvers = [...maneuvers];
+                newManeuvers[idx] = {prograde: Number(prograde), normal: Number(normal), radial: Number(radial), date: Number(UT)}
+                setManeuvers(newManeuvers);
+            }
+        } else {
+            setLoaded(true)
+        }
+    }, [prograde, normal, radial, UT, loaded])
+
+    useEffect(() => {
+        setLoaded(false);
+        setPrograde(String(maneuvers[idx].prograde));
+        setNormal(String(maneuvers[idx].normal));
+        setRadial(String(maneuvers[idx].radial));
+        setUT(String(maneuvers[idx].date));
+        dateField.setCalendarDate(timeToCalendarDate(maneuvers[idx].date, timeSettings, 1, 1));
+        dateField.setUpdateInputs(true);
+    }, [maneuvers])
 
     return (
         <>
@@ -120,14 +128,26 @@ function ManeuverControls({idx, maneuvers, setManeuvers, copiedManeuver, timeSet
                         id={'UT'}
                         label={'UT (s)'} 
                         value={UT}
-                        onChange={handleChange(setUTandUpdate(setUT, setUpdateFields))}
+                        onChange={handleChange(setUTandUpdate(setUT, dateField, timeSettings))}
                         sx={{ fullWidth: true }} />
                     <DateField 
                         id={String(idx)}
                         label={''}
                         state={dateField}
                         correctFormat={true}
-                        hhmmss={true} />
+                        variant="hour"  
+                        timeSettings={timeSettings}/>
+                    <Box display="flex" justifyContent="center" alignItems="center" >
+                        <PasteButton setObj={(m: ManeuverComponents) => { const newManeuvers = [...maneuvers]; newManeuvers[idx] = m; setManeuvers(newManeuvers)} } copiedObj={copiedManeuver}/>
+                        <IconButton 
+                            size="small"
+                            color="inherit"
+                            // @ts-ignore
+                            onClick={() => { const newManeuvers = [...maneuvers]; newManeuvers[idx] = {prograde: 0, normal: 0, radial: 0, date: maneuvers[idx].date}; setManeuvers(newManeuvers)} }
+                        >
+                            <ClearIcon />
+                        </IconButton>
+                    </Box>
                 </Stack>
             </Collapse>
         </>
