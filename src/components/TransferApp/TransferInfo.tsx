@@ -32,7 +32,7 @@ function TransferInfo({transfer, timeSettings, copiedOrbit, setCopiedOrbit, copi
     const duration = arrivalTime - departureTime;
 
     const flightPlan: IVessel = {
-        name:       'Copied Transfer Trajectory',
+        name:       'Copied Transfer',
         orbit:      transfer.startOrbit,
         maneuvers:  transfer.maneuvers.map(m => Kepler.maneuverToComponents(m))
     }

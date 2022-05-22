@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Box from "@mui/system/Box"
 import Typography from '@mui/material/Typography';
 import Stack from "@mui/material/Stack"
 import TextField from "@mui/material/TextField";
@@ -9,6 +10,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import OrbitControls, { OrbitControlsState } from "../OrbitControls";
 import ManeuverControls from "./ManeuverControls";
 import VesselSelect from "../VesselSelect";
+import PasteButton from "../PasteButton"
 import { defaultManeuverComponents, orbitFromControlsState } from "../../utils";
 
 import SolarSystem from "../../main/objects/system";
@@ -166,6 +168,14 @@ function VesselControls({system, vessels, idx, vesselPlans, setVesselPlans, copi
                     <RemoveIcon />
                 </IconButton>
             </Stack>
+            <Box></Box>
+            <Box></Box>
+            <Box display="flex" justifyContent="center" alignItems="center" >
+                <Typography variant="body1" sx={{fontWeight: 600}}>
+                        Paste Flight Plan
+                </Typography>
+                <PasteButton setObj={setPlan} copiedObj={copiedFlightPlan} />
+            </Box>
         </Stack>
     )
 }

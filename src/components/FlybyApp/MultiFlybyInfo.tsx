@@ -55,7 +55,7 @@ function MultiFlybyInfo({multiFlyby, timeSettings, copiedOrbit, setCopiedOrbit, 
     }
 
     const flightPlan: IVessel = {
-        name:       'Copied Multi-Flyby Trajectory',
+        name:       'Copied Multi-Flyby',
         orbit:      multiFlyby.startOrbit,
         maneuvers:  multiFlyby.maneuvers.map(m => Kepler.maneuverToComponents(m)),
     }
