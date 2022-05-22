@@ -35,7 +35,6 @@ function SaveFileUploadButton({system, setVessels}: {system: ISolarSystem, setVe
               startIcon={<UploadFileOutlined />}
       >
         Upload Save File
-
       </Button>
     </label>
   </>)

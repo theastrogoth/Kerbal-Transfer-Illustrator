@@ -22,34 +22,37 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
     // set search bounds
     let maxDate: number = endDate;
     let escapes: boolean = orbit.eccentricity > 1;
+    let escapeDate: number = NaN;
     const soi = attractor.soi === null ? Infinity : attractor.soi;
-    if (!escapes) {
+    if (!escapes && attractor.soi !== null) {
         const apoapsis = orbit.apoapsis ? orbit.apoapsis : orbit.semiMajorAxis * (1 + orbit.eccentricity);
         escapes = apoapsis > attractor.soi;
     }
     if (escapes) {
         if (soi === Infinity) {
             const maxDist = Math.max(...satelliteBodies.map(body => body.orbit.apoapsis ? body.orbit.apoapsis + body.soi : body.orbit.semiMajorAxis * (1 + body.orbit.eccentricity) + body.soi));
-            maxDate = Math.min(maxDate, Kepler.trueAnomalyToOrbitDate(Kepler.trueAnomalyAtDistance(maxDist, orbit.eccentricity, orbit.semiLatusRectum), orbit, startDate));
+            escapeDate = Kepler.trueAnomalyToOrbitDate(Kepler.trueAnomalyAtDistance(maxDist, orbit.eccentricity, orbit.semiLatusRectum), orbit, startDate);
+            maxDate = Math.min(maxDate, escapeDate);
         } else {
-            maxDate = Math.min(maxDate, DepartArrive.ejectionDate(orbit, attractor as IOrbitingBody));
+            escapeDate = DepartArrive.ejectionDate(orbit, attractor as IOrbitingBody);
         }
+        maxDate = Math.min(maxDate, escapeDate);
     } else {
-        maxDate = Math.min(maxDate, startDate + orbit.siderealPeriod);
+        maxDate = Math.min(maxDate, startDate + orbit.siderealPeriod * (nRevs + 1));
     }
 
     // perform search
     const maxIters = escapes ? 1 : nRevs + 1;
     let start = startDate;
-    let end = maxDate;
+    let end = escapes ? escapeDate : start + orbit.siderealPeriod;
     let interceptTime: number = Infinity;
     let interceptBody: IOrbitingBody | undefined = undefined;
     for(let i=0; i<maxIters; i++) {
         for(let j=0; j<satelliteBodies.length; j++) {
             const distObj = (d: number) => orbitDistanceFromBody(d, orbit, satelliteBodies[j]);
-            const minDistTime = brentMinimize(distObj, start, end);
+            const minDistTime = brentMinimize(distObj, Math.min(start, Math.max(start, end)), end);
             const minDist = distObj(minDistTime);
-            if(minDist <= satelliteBodies[j].soi && minDistTime < interceptTime) {
+            if(minDist < -10 && minDistTime < interceptTime) {
                 interceptTime = minDistTime;
                 interceptBody = satelliteBodies[j];
             }
@@ -65,7 +68,7 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
     // if no intercepts were found
     if(interceptBody === undefined) {
         // if the orbit escapes from the attractor's SoI...
-        if(escapes) {
+        if(escapes && escapeDate <= maxDate) {
             // if the attractor body is the sun (has infinite SoI), return null (there is no next orbit)
             if(soi === Infinity) {
                 return null;
@@ -73,10 +76,10 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
             // otherwise, patch the orbit into the attractor body's attractor
             const grandparentId = (attractor as IOrbitingBody).orbiting;
             const grandparent = grandparentId === 0 ? system.sun : system.orbiterIds.get(grandparentId) as ICelestialBody;
-            const orbitState = Kepler.orbitToStateAtDate(orbit, attractor, maxDate);
-            const bodyState  = Kepler.orbitToStateAtDate((attractor as IOrbitingBody).orbit, grandparent, maxDate);
+            const orbitState = Kepler.orbitToStateAtDate(orbit, attractor, escapeDate);
+            const bodyState  = Kepler.orbitToStateAtDate((attractor as IOrbitingBody).orbit, grandparent, escapeDate);
             const postPatchState: OrbitalState = {
-                date: maxDate,
+                date: escapeDate,
                 pos:  add3(orbitState.pos, bodyState.pos),
                 vel:  add3(orbitState.vel, bodyState.vel)
             }
@@ -89,11 +92,21 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
     } else {
         // for the soonest intercept, get the date where the SoI patch occurs
         const distObj = (d: number) => orbitDistanceFromBody(d, orbit, interceptBody as IOrbitingBody);
-        const soiPatchTime = brentRootFind(distObj, start, interceptTime);
+        const rootFind = (s: number, e: number, iter=0): number => {try { return brentRootFind(distObj, s, e) } catch { if(iter>10) { return rootFind(s + 10, e, iter+1) } else { return NaN } }}
+        let soiPatchTime = rootFind(start, interceptTime);
+        // if(isNaN(soiPatchTime)) { return null; }
+        if(isNaN(soiPatchTime)) {
+            if(distObj(start) < 0) {
+                soiPatchTime = start;
+            } else {
+                return null;
+            }
+        }
+
         const orbitState = Kepler.orbitToStateAtDate(orbit, attractor, soiPatchTime);
-        const bodyState  = Kepler.orbitToStateAtDate((interceptBody as IOrbitingBody).orbit, attractor, maxDate);
+        const bodyState  = Kepler.orbitToStateAtDate((interceptBody as IOrbitingBody).orbit, attractor, soiPatchTime);
         const postPatchState: OrbitalState = {
-            date: maxDate,
+            date: soiPatchTime,
             pos:  sub3(orbitState.pos, bodyState.pos),
             vel:  sub3(orbitState.vel, bodyState.vel),
         }
@@ -105,8 +118,9 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
 //     return man1.preState.date - man2.preState.date;
 // }
 
-export function propagateFlightPlan(startOrbit: IOrbit, system: ISolarSystem, startDate: number, maneuverComponents: ManeuverComponents[], maneuverDates: number[], nRevs: number = 0): Trajectory[] {
-    // maneuvers are assumed to be in chronological order
+export function propagateFlightPlan(startOrbit: IOrbit, system: ISolarSystem, startDate: number, maneuverComponents: ManeuverComponents[], nRevs: number = 0): Trajectory[] {
+    // maneuvers should be in chronological order
+    const sortedManeuverComponents = [...maneuverComponents].sort((a,b) => a.date - b.date);
     
     // store the single-system trajectories in an array
     const trajectories: Trajectory[] = [];
@@ -119,8 +133,8 @@ export function propagateFlightPlan(startOrbit: IOrbit, system: ISolarSystem, st
     let sDate: number = startDate;
     let eDate: number = Infinity;
     // before each maneuver, check for intercepts up to the maximum specified nRevs
-    for(let i=0; i<=maneuverComponents.length; i++) {
-        eDate = i !== maneuverComponents.length ? maneuverDates[i] : Infinity;
+    for(let i=0; i<=sortedManeuverComponents.length; i++) {
+        eDate = i !== sortedManeuverComponents.length ? sortedManeuverComponents[i].date : Infinity;
         let nextOrbit: IOrbit | null = null;
         let noPatchFound = false;
         while(!noPatchFound) {
@@ -144,10 +158,10 @@ export function propagateFlightPlan(startOrbit: IOrbit, system: ISolarSystem, st
                 maneuvers = [];
             }
         }
-        if(i !== maneuverComponents.length) {
+        if(i !== sortedManeuverComponents.length) {
             const currentAttractor = currentOrbit.orbiting === 0 ? system.sun : system.orbiterIds.get(currentOrbit.orbiting) as IOrbitingBody;
-            const preState = Kepler.orbitToStateAtDate(currentOrbit, currentAttractor, maneuverDates[i])
-            const maneuver = Kepler.maneuverComponentsToManeuver(maneuverComponents[i], preState);
+            const preState = Kepler.orbitToStateAtDate(currentOrbit, currentAttractor, sortedManeuverComponents[i].date)
+            const maneuver = Kepler.maneuverComponentsToManeuver(sortedManeuverComponents[i], preState);
             nextOrbit = Kepler.stateToOrbit(maneuver.postState, currentAttractor)
             sDate = nextOrbit.epoch;
             intersectTimes.push(sDate);
@@ -156,7 +170,7 @@ export function propagateFlightPlan(startOrbit: IOrbit, system: ISolarSystem, st
             currentOrbit = nextOrbit;
         } else {
             // finish off last trajectory
-            intersectTimes.push(currentOrbit.epoch + currentOrbit.siderealPeriod);
+            intersectTimes.push(Infinity);
             const traj: Trajectory = {
                 orbits,        
                 intersectTimes,
@@ -168,4 +182,26 @@ export function propagateFlightPlan(startOrbit: IOrbit, system: ISolarSystem, st
     return trajectories;
 }
 
-export default propagateFlightPlan;
+export function propagateVessel(vessel: IVessel, system: ISolarSystem, startDate: number = vessel.orbit.epoch, nRevs: number = 0) {
+    return propagateFlightPlan(vessel.orbit, system, startDate, vessel.maneuvers, nRevs);
+}
+
+export function vesselToFlightPlan(vessel: IVessel, system: ISolarSystem, color: IColor = {r: 255, g: 255, b: 255}, startDate: number = vessel.orbit.epoch, nRevs: number = 0): FlightPlan {
+    const fp = {
+        name:           vessel.name,
+        color,
+        trajectories:   propagateVessel(vessel, system, startDate, nRevs),
+    }
+    return fp;
+}
+
+export function flightPlanToVessel(flightPlan: FlightPlan): IVessel {
+    const maneuvers: ManeuverComponents[] = flightPlan.trajectories.map(t => t.maneuvers.map(m => Kepler.maneuverToComponents(m))).flat();
+    return {
+        name:       flightPlan.name,
+        orbit:      flightPlan.trajectories[0].orbits[0],
+        maneuvers,         
+    }
+}
+
+export default vesselToFlightPlan;

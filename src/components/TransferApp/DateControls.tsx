@@ -36,10 +36,13 @@ function DateControls({earlyStartDate, lateStartDate, shortFlightTime, longFligh
       }, [earlyStartDate, lateStartDate, timeSettings]);
 
       useEffect(() => {
-        if(!dateFieldIsEmpty(shortFlightTime) && !dateFieldIsEmpty(longFlightTime)) {
+        const sfEmpty = dateFieldIsEmpty(shortFlightTime);
+        const lfEmpty = dateFieldIsEmpty(longFlightTime);
+        if(!sfEmpty || !lfEmpty) {
             const sfTime = timeFromDateFieldState(shortFlightTime, timeSettings, 0, 0);
             const lfTime = timeFromDateFieldState(longFlightTime,  timeSettings, 0, 0);
-            if(sfTime > lfTime) {
+            console.log(sfTime > lfTime, !sfEmpty && sfTime < 0, !lfEmpty && lfTime < 0)
+            if((!sfEmpty && !lfEmpty && sfTime > lfTime) || (!sfEmpty && sfTime < 0) || (!lfEmpty && lfTime < 0)) {
                 setFlightErr(true);
             } else {
                 setFlightErr(false);
@@ -56,23 +59,27 @@ function DateControls({earlyStartDate, lateStartDate, shortFlightTime, longFligh
                 label='Earliest Departure Date'
                 state={earlyStartDate}
                 error={startErr}
-                required={true} />
+                required={true} 
+                timeSettings={timeSettings} />
             <Collapse in={optsVisible} timeout="auto">
                 <DateField
                     id='late-start-date'
                     label='Latest Departure Date'
                     state={lateStartDate} 
-                    error={startErr} />
+                    error={startErr} 
+                    timeSettings={timeSettings} />
                 <DateField
                     id='short-flight-time'
                     label='Shortest Flight Duration'
                     state={shortFlightTime}
-                    error={flightErr} />
+                    error={flightErr}  
+                    timeSettings={timeSettings}/>
                 <DateField
                     id='long-flight-time'
                     label='Longest Flight Duration'
                     state={longFlightTime}
-                    error={flightErr} />
+                    error={flightErr}  
+                    timeSettings={timeSettings}/>
             </Collapse>
             <Box textAlign='center'>
                 <Button 

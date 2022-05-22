@@ -225,7 +225,7 @@ export function timeToCalendarDate(time: number, timeSettings: TimeSettings, yea
     secondsRemaining = secondsRemaining - h * hour;
     const minute = Math.floor(secondsRemaining / m);
     secondsRemaining = secondsRemaining - m * minute;
-    const second = Math.round(secondsRemaining);
+    const second = secondsRemaining;
     return {
         year,
         day, 
@@ -239,11 +239,14 @@ export function calendarDateToTime(calendarDate: CalendarDate, timeSettings: Tim
     const years   = calendarDate.year - yearOffset;
     const days    = calendarDate.day  - dayOffset;
     const hours   = calendarDate.hour;
-    return ( (timeSettings.daysPerYear * years + days) * timeSettings.hoursPerDay + hours ) * 3600;
+    const minutes = calendarDate.minute;
+    const seconds = calendarDate.second;
+
+    return ( ((timeSettings.daysPerYear * years + days) * timeSettings.hoursPerDay + hours ) * 60 + minutes) * 60 + seconds;
 }
 
 export function calendarDateToString(cd: CalendarDate): String {
-    return "Year ".concat(String(cd.year), ", Day ", String(cd.day), ", ", ('0'+String(cd.hour)).slice(-2), ":", ('0'+String(cd.minute)).slice(-2), ":", ('0'+String(cd.second)).slice(-2));
+    return "Year ".concat(String(cd.year), ", Day ", String(cd.day), ", ", ('0'+String(cd.hour)).slice(-2), ":", ('0'+String(cd.minute)).slice(-2), ":", ('0'+String(Math.round(cd.second))).slice(-2));
 }
 
 export function calendarDateToDurationString(cd: CalendarDate): String {
@@ -251,5 +254,5 @@ export function calendarDateToDurationString(cd: CalendarDate): String {
            String(cd.day), cd.day === 1 ? " Day, " : " Days, ", 
            String(cd.hour), cd.hour === 1 ? " hour, " : " hours, ", 
            String(cd.minute), cd.minute === 1 ? " minute, and " : " minutes, and ", 
-           String(cd.second), cd.second === 1 ? " second" : " seconds");
+           String(Math.round(cd.second)), cd.second === 1 ? " second" : " seconds");
 }

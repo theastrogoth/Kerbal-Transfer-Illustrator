@@ -16,7 +16,7 @@ import Navbar from '../components/Navbar';
 import { isInvalidOrbitInput, porkchopInputsFromUI } from '../utils';
 
 import React, { useState } from "react";
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider, Theme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
 import Stack from '@mui/material/Stack';
@@ -32,6 +32,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Fade from '@mui/material/Fade';
 
 type TransferAppState = {
+  theme:                   Theme,
   system:                  SolarSystem,
   setSystem:               React.Dispatch<React.SetStateAction<SolarSystem>>,
   timeSettings:            TimeSettings,
@@ -40,10 +41,10 @@ type TransferAppState = {
   setVessels:              React.Dispatch<React.SetStateAction<Vessel[]>>,
   copiedOrbit:             IOrbit,
   setCopiedOrbit:          React.Dispatch<React.SetStateAction<IOrbit>>,
-  copiedManeuver:          Maneuver,
-  setCopiedManeuver:       React.Dispatch<React.SetStateAction<Maneuver>>,
-  copiedFlightPlan:        FlightPlan,
-  setCopiedFlightPlan:     React.Dispatch<React.SetStateAction<FlightPlan>>,
+  copiedManeuver:          ManeuverComponents,
+  setCopiedManeuver:       React.Dispatch<React.SetStateAction<ManeuverComponents>>,
+  copiedFlightPlan:        IVessel,
+  setCopiedFlightPlan:     React.Dispatch<React.SetStateAction<IVessel>>,
   startOrbitControlsState: OrbitControlsState,
   endOrbitControlsState:   OrbitControlsState,
   dateControlsState:       DateControlsState,
@@ -54,31 +55,18 @@ type TransferAppState = {
   setPorkchopInputs:       React.Dispatch<React.SetStateAction<PorkchopInputs>>,
   porkchopPlotData:        PorkchopPlotData,
   setPorkchopPlotData:     React.Dispatch<React.SetStateAction<PorkchopPlotData>>,
-  plotCount:               number,
-  setPlotCount:            React.Dispatch<React.SetStateAction<number>>,
 }
 
-// MUI theme
-const mdTheme = createTheme({
-  breakpoints: {
-    values: {
-      xs: 0,
-      sm: 600,
-      md: 900,
-      lg: 1200,
-      xl: 2280,
-    },
-  },
-});
 
 ////////// App Content //////////
 
-function TransferAppContent({system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver,
+function TransferAppContent({theme, system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver,
                              copiedFlightPlan, setCopiedFlightPlan, startOrbitControlsState, endOrbitControlsState, dateControlsState, controlsOptionsState, transfer, setTransfer, 
-                             porkchopInputs, setPorkchopInputs, porkchopPlotData, setPorkchopPlotData, plotCount, setPlotCount}: TransferAppState) { 
-
+                             porkchopInputs, setPorkchopInputs, porkchopPlotData, setPorkchopPlotData}: TransferAppState) { 
+  
   const [invalidInput, setInvalidInput] = useState(false);
   const [porkCalculating, setPorkCalculating] = useState(false);
+  const [plotCount, setPlotCount] = useState(0);
   const [showHelp, setShowHelp] = useState(false);
 
   function handlePlotButtonPress() {
@@ -97,12 +85,13 @@ function TransferAppContent({system, setSystem, timeSettings, setTimeSettings, v
     const porkInputs = porkchopInputsFromUI(system, startOrbitControlsState, endOrbitControlsState, dateControlsState, controlsOptionsState, timeSettings);
 
     setPorkchopInputs(porkInputs);
+    setPlotCount(plotCount + 1)
     console.log('"Plot!" button pressed.');
   }
 
   ///// App Body /////
   return (
-    <ThemeProvider theme={mdTheme}>
+    <ThemeProvider theme={theme}>
       <Navbar system={system} setVessels={setVessels} showHelp={showHelp} setShowHelp={setShowHelp} />
       <Stack sx={{mx: 4, my: 1, minWidth: "1200px"}}>
         <CssBaseline />
@@ -120,7 +109,7 @@ function TransferAppContent({system, setSystem, timeSettings, setTimeSettings, v
         <Grid container component='main' justifyContent="center">
           <Grid item xs={3} xl={2}>
             <Paper 
-              elevation={8}
+              elevation={1}
               sx={{
                 my: 1, 
                 mx: 1, 
@@ -145,7 +134,7 @@ function TransferAppContent({system, setSystem, timeSettings, setTimeSettings, v
           </Grid>
           <Grid item xs={5} xl={6}>
             <Paper 
-              elevation={8}
+              elevation={1}
               sx={{
                 my: 1, 
                 mx: 1,
@@ -177,16 +166,14 @@ function TransferAppContent({system, setSystem, timeSettings, setTimeSettings, v
                 inputs={porkchopInputs}
                 plotData={porkchopPlotData}
                 timeSettings={timeSettings}
-                transfer={transfer}
                 plotCount={plotCount}
                 setPlotData={setPorkchopPlotData}
                 setTransfer={setTransfer}
                 setCalculating={setPorkCalculating}
-                setPlotCount={setPlotCount}
               />
             </Paper>
             <Paper 
-                elevation={8}
+                elevation={1}
                 sx={{
                   my: 3, 
                   mx: 1,
@@ -198,9 +185,9 @@ function TransferAppContent({system, setSystem, timeSettings, setTimeSettings, v
             </Paper>
           </Grid>
           <Grid item xs={4} xl={4}>
-            <Fade in={plotCount > 0} timeout={400}>
+            <Fade in={transfer.deltaV > 0} timeout={400}>
               <Paper
-                elevation={8}
+                elevation={1}
                 sx={{
                   my: 1, 
                   mx: 1,

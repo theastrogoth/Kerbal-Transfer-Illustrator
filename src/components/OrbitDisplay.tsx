@@ -79,11 +79,10 @@ function updateDate(date: number, centralBody: CelestialBody, orbits: IOrbit[], 
     return newTraces
 }
 
-export function updateYDHwithDate(dateField: DateFieldState, date: number, timeSettings: TimeSettings) {
+function updateDateField(dateField: DateFieldState, date: number, timeSettings: TimeSettings) {
     const calendarDate = timeToCalendarDate(date, timeSettings, 1, 1);
-    dateField.setYear(String(calendarDate.year));
-    dateField.setDay(String(calendarDate.day));
-    dateField.setHour(String(calendarDate.hour + (calendarDate.minute * 60 + calendarDate.second) / 3600));    
+    dateField.setCalendarDate(calendarDate);
+    dateField.setUpdateInputs(true);
 }
 
 function OrbitDisplay({index, label, marks, centralBody, orbits, trajectories, startDate, endDate, defaultTraces, plotSize, timeSettings, slider=true}: OrbitDisplayProps) {
@@ -93,12 +92,12 @@ function OrbitDisplay({index, label, marks, centralBody, orbits, trajectories, s
     const [traces, setTraces] = useState(defaultTraces);
 
     const defaultCalendarDate = timeToCalendarDate(startDate, timeSettings, 1, 1)
-    const dateField = useDateField(String(defaultCalendarDate.year), String(defaultCalendarDate.day), String(defaultCalendarDate.hour));
+    const dateField = useDateField(...Object.values(defaultCalendarDate));
 
     useEffect(() => {
         const d = Math.ceil(startDate)
         setDate(d);
-        updateYDHwithDate(dateField, d, timeSettings)
+        updateDateField(dateField, d, timeSettings)
         setFieldsDate(d)
         const newTraces = updateDate(d, centralBody, orbits, trajectories, defaultTraces);
         setTraces(newTraces)
@@ -109,7 +108,7 @@ function OrbitDisplay({index, label, marks, centralBody, orbits, trajectories, s
         const newTraces = updateDate(date, centralBody, orbits, trajectories, traces);
         setTraces(newTraces);  
         if(updateFields) {
-            updateYDHwithDate(dateField, date, timeSettings)
+            updateDateField(dateField, date, timeSettings)
             setFieldsDate(date)
             setUpdateFields(false);
         }
@@ -129,9 +128,6 @@ function OrbitDisplay({index, label, marks, centralBody, orbits, trajectories, s
         <>
             <OrbitPlot uirevision={label} plotSize={plotSize} traces={traces}/>
             <Stack sx={{my: 1}} display="flex" alignItems="center" justifyContent="center">
-                <Box display="flex" alignItems="center" justifyContent="center" minWidth="250px" maxWidth="350px">
-                    <DateField id={'plot-date'} label={'Date'} state={dateField} correctFormat={true} timeSettings={timeSettings} />
-                </Box>
                 {/* @ts-ignore */}
                 { slider ? <Slider
                     sx={{ width: "60%" }}
@@ -145,6 +141,9 @@ function OrbitDisplay({index, label, marks, centralBody, orbits, trajectories, s
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => setDate(Number(event.target.value)) }
                     onChangeCommitted={(event: React.SyntheticEvent<Element, Event>, value: number) => { setUpdateFields(true) }}
                 /> : <></> }
+                <Box display="flex" alignItems="center" justifyContent="center" minWidth="250px" maxWidth="450px">
+                    <DateField id={'plot-date'} label={'Date'} state={dateField} correctFormat={true} timeSettings={timeSettings} variant="all"/>
+                </Box>
             </Stack>
         </>
     )

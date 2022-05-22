@@ -340,7 +340,7 @@ function OrbitDisplayTabs({multiFlyby, timeSettings, setMultiFlyby, searchCount}
                                     </TableRow>
                                     <TableRow>
                                         <TableCell width="50%" align="right">SoI Patch Time Error:</TableCell>
-                                        <TableCell>{String(Math.round(multiFlyby.patchTimeError * 1000) / 1000).concat(" s")}</TableCell>
+                                        <TableCell>{String(Math.round(multiFlyby.patchTimeError * 1000000) / 1000000).concat(" s")}</TableCell>
                                     </TableRow>
                                 </TableBody>
                             </Table>

@@ -8,7 +8,7 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
-import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 
 import { FlybyDateControlsState } from './FlybyDateControls';
 
@@ -25,7 +25,6 @@ function createBodyItems(system: SolarSystem, startBodyId: number, endBodyId: nu
     const transferBody = system.bodyFromId(transferBodyId);
     const options: JSX.Element[] = [];
     const bds = transferBody.orbiters;
-    console.log(startBodyId, endBodyId, transferBodyId)
     for (let i = 0; i < bds.length; i++) {
         options.push(<MenuItem key={bds[i].id} value={bds[i].id}>{bds[i].name}</MenuItem>)
     }
@@ -54,7 +53,6 @@ function handleRemoveFlyby(flybyIdSequence: number[], setFlybyIdSequence: React.
         dateControlsState.flightTimes.setYears(dateControlsState.flightTimes.years.slice(0,-2));
         dateControlsState.flightTimes.setDays(dateControlsState.flightTimes.days.slice(0,-2));
         dateControlsState.flightTimes.setHours(dateControlsState.flightTimes.hours.slice(0,-2));
-
     };
 }
 
@@ -100,12 +98,12 @@ function FlybySequenceControls({system, startBodyId, endBodyId, flybyIdSequence,
         <Stack spacing={1.5}>
             {flybyIdSequence.map((id, index) => createBodyDropdown(bodyOptions, index, id, flybyIdSequence, setFlybyIdSequence))}
             <Stack direction="row" spacing={2} textAlign="center" justifyContent="center">
-                <Button variant="outlined" onClick={handleAddFlyby(flybyIdSequence, setFlybyIdSequence, dateControlsState, system, startBodyId, endBodyId)}>
+                <IconButton sx={{border: "1px solid"}} size="small" onClick={handleAddFlyby(flybyIdSequence, setFlybyIdSequence, dateControlsState, system, startBodyId, endBodyId)}>
                     <AddIcon />
-                </Button>
-                <Button variant="outlined" onClick={handleRemoveFlyby(flybyIdSequence, setFlybyIdSequence, dateControlsState)}>
+                </IconButton>
+                <IconButton sx={{border: "1px solid"}} size="small" onClick={handleRemoveFlyby(flybyIdSequence, setFlybyIdSequence, dateControlsState)}>
                     <RemoveIcon />
-                </Button>
+                </IconButton>
             </Stack>
         </Stack>
     )

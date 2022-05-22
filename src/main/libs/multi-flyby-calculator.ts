@@ -601,7 +601,7 @@ class MultiFlybyCalculator {
             this.computeFlybyOrbits();
             this.setFlybyDurations();
             this.computeFullTrajectory();
-            return this.soiPatchPositionError() + 10 * this.soiPatchTimeError() + 1000 * this._deltaV;
+            return this.soiPatchPositionError() + 10 * this.soiPatchTimeError() + 5000 * this._deltaV;
         }
         const initialPoints: number[][] = [[...this.patchPositionsToAngles(), this._startDate, ...this._flightTimes]];
         const numPatches = this._soiPatchBodies.length;

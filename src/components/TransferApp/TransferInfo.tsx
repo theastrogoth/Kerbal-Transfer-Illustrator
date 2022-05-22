@@ -12,15 +12,16 @@ import Divider from '@mui/material/Divider';
 
 import TrajectoryInfoRow from "../TrajectoryInfoRow";
 import ManeuverInfoRow from "../ManeuverInfoRow";
+import CopyButton from "../CopyButton";
 
+import Kepler from "../../main/libs/kepler";
 import Transfer from "../../main/objects/transfer";
 import { radToDeg, timeToCalendarDate, calendarDateToString, calendarDateToDurationString} from "../../main/libs/math";
-import CopyButton from "../CopyButton";
 
 
 function TransferInfo({transfer, timeSettings, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, copiedFlightPlan, setCopiedFlightPlan}: 
     {transfer: Transfer, timeSettings: TimeSettings, copiedOrbit: IOrbit, setCopiedOrbit: React.Dispatch<React.SetStateAction<IOrbit>>, 
-     copiedManeuver: Maneuver, setCopiedManeuver: React.Dispatch<React.SetStateAction<Maneuver>>, copiedFlightPlan: FlightPlan, setCopiedFlightPlan: React.Dispatch<React.SetStateAction<FlightPlan>>}) {
+     copiedManeuver: ManeuverComponents, setCopiedManeuver: React.Dispatch<React.SetStateAction<ManeuverComponents>>, copiedFlightPlan: IVessel, setCopiedFlightPlan: React.Dispatch<React.SetStateAction<IVessel>>}) {
 
     const departureTime = transfer.ejections.length === 0 ? transfer.startDate : transfer.ejections[0].orbits[0].epoch;
     let lastInsertionLen = 0;
@@ -30,10 +31,10 @@ function TransferInfo({transfer, timeSettings, copiedOrbit, setCopiedOrbit, copi
     const arrivalTime = transfer.insertions.length === 0 ? transfer.endDate : transfer.insertions[transfer.insertions.length - 1].orbits[lastInsertionLen - 1].epoch;
     const duration = arrivalTime - departureTime;
 
-    const flightPlan: FlightPlan = {
-        trajectories:   [...transfer.ejections, transfer.transferTrajectory, ...transfer.insertions],
-        name:           'Copied Transfer Trajectory',
-        color:          {r: 255, g: 255, b: 255},
+    const flightPlan: IVessel = {
+        name:       'Copied Transfer',
+        orbit:      transfer.startOrbit,
+        maneuvers:  transfer.maneuvers.map(m => Kepler.maneuverToComponents(m))
     }
 
     return (

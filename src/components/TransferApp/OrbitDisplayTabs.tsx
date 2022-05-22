@@ -221,7 +221,7 @@ function OrbitDisplayTabs({transfer, timeSettings, setTransfer}: OrbitDisplayTab
     const [value, setValue] = useState(0);
     const [refined, setRefined] = useState(false);
     const [orbitDisplayProps, setOrbitDisplayProps] = useState(emptyProps);
-    const [transferNumber, setTransferNumber] = useState(0);
+    const [canRefine, setCanRefine] = useState(transfer.deltaV > 0);
 
     const [calculating, setCalculating] = useState(false);
 
@@ -250,7 +250,7 @@ function OrbitDisplayTabs({transfer, timeSettings, setTransfer}: OrbitDisplayTab
             setValue(0);
         }
         setOrbitDisplayProps(prepareAllDisplayProps(transfer, timeSettings));
-        setTransferNumber(transferNumber + 1);
+        setCanRefine(transfer.deltaV > 0);
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [transfer]);
 
@@ -265,7 +265,7 @@ function OrbitDisplayTabs({transfer, timeSettings, setTransfer}: OrbitDisplayTab
                 {orbitDisplayProps.map(props => <Tab key={props.label} value={props.index} label={props.label} ></Tab>)}
             </Tabs>
             {orbitDisplayProps.map(props => <OrbitTabPanel key={props.index} value={value} index={props.index} props={props}/>)}
-            {transferNumber > 1 &&
+            {canRefine &&
                 <Box textAlign='center'>
                     <Button 
                         variant="contained" 
@@ -296,7 +296,7 @@ function OrbitDisplayTabs({transfer, timeSettings, setTransfer}: OrbitDisplayTab
                                             </TableRow>
                                             <TableRow>
                                                 <TableCell width="50%" align="right">SoI Patch Time Error:</TableCell>
-                                                <TableCell>{String(Math.round(transfer.patchTimeError * 1000) / 1000).concat(" s")}</TableCell>
+                                                <TableCell>{String(Math.round(transfer.patchTimeError * 1000000) / 1000000).concat(" s")}</TableCell>
                                             </TableRow>
                                         </TableBody>
                                     </Table>

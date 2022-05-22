@@ -14,7 +14,7 @@ import Kepler from "../main/libs/kepler";
 import { timeToCalendarDate, calendarDateToString } from "../main/libs/math";
 
 
-function ManeuverInfoRow({name, maneuver, timeSettings, copiedManeuver, setCopiedManeuver}: {name: String, maneuver: Maneuver, timeSettings: TimeSettings, copiedManeuver: Maneuver, setCopiedManeuver: React.Dispatch<React.SetStateAction<Maneuver>>}) {
+function ManeuverInfoRow({name, maneuver, timeSettings, copiedManeuver, setCopiedManeuver}: {name: String, maneuver: Maneuver, timeSettings: TimeSettings, copiedManeuver: ManeuverComponents, setCopiedManeuver: React.Dispatch<React.SetStateAction<ManeuverComponents>>}) {
     const [open, setOpen] = useState(false);
 
     const handleToggle = () => {
@@ -45,7 +45,7 @@ function ManeuverInfoRow({name, maneuver, timeSettings, copiedManeuver, setCopie
                 {calendarDateToString(timeToCalendarDate(maneuver.preState.date, timeSettings, 1, 1))}
             </TableCell>
             <TableCell sx={{ borderBottom: 0 }}>
-                <CopyButton obj={maneuver} copiedObj={copiedManeuver} setCopiedObj={setCopiedManeuver}/>
+                <CopyButton obj={Kepler.maneuverToComponents(maneuver)} copiedObj={copiedManeuver} setCopiedObj={setCopiedManeuver}/>
             </TableCell>
         </TableRow>
         <TableRow>
