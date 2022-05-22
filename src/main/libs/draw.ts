@@ -19,7 +19,7 @@ export namespace Draw {
     }
 
     ///// Orbit drawing /////
-    export function drawOrbitPathFromAngles(orbit: IOrbit, minTrueAnomaly: number, maxTrueAnomaly: number, startTime: number, timeSettings: TimeSettings,color: IColor, name: string | undefined, 
+    export function drawOrbitPathFromAngles(orbit: IOrbit, minTrueAnomaly: number, maxTrueAnomaly: number, startTime: number, timeSettings: TimeSettings, color: IColor, name: string | undefined, 
                                             colorfade: boolean = true, dash: "dash" | "dot" | "longdash" | "solid" | undefined = "solid", nPoints: number = 201): Line3DTrace {
         // true anomalies, positions, and times
         const safeMaxTrueAnomaly = wrapAngle(maxTrueAnomaly, minTrueAnomaly + 0.001);
@@ -79,6 +79,8 @@ export namespace Draw {
                                 "   UT:  %{customdata[6]:.3f} s<br>" ,
                                 "   θ:   %{customdata[7]:.5f} rad<br>" ,
                                 "<b>Orbit Parameters</b><br>",
+                                "   periapsis = ", (Math.round(orbit.periapsis || orbit.semiMajorAxis*(1-orbit.eccentricity))).toString(), " m<br>" ,
+                                "   apoapsis  = ", orbit.eccentricity > 1 ? "Inf<br>" : (Math.round(orbit.apoapsis || orbit.semiMajorAxis*(1+orbit.eccentricity))).toString() + " m<br>",
                                 "   a  = ", (Math.round(orbit.semiMajorAxis)).toString(), " m<br>" ,
                                 "   e  = ", (Math.round(orbit.eccentricity * 1000) / 1000.0).toString(), "<br>" ,
                                 "   i  = ", (Math.round(radToDeg(orbit.inclination) * 1000) / 1000.0).toString(), "°<br>" ,
@@ -185,7 +187,7 @@ export namespace Draw {
 
     ///// Body/Object drawing /////
     // wireframe
-    export function drawWireframeSphere(center: Vector3, radius: number, line: LineOptions | undefined, name: string | undefined = '', nPoints: number = 11): Line3DTrace {
+    export function drawWireframeSphere(center: Vector3, radius: number, line: LineOptions | undefined, name: string | undefined = '', color: IColor = {r: 255, g: 255, b: 255}, hovertemplate: string | undefined = name, nPoints: number = 11): Line3DTrace {
         const phis = linspace(0, TWO_PI, nPoints);              // this is the angle of a vector projected to the x-y plane from the +x-axis
         const thetas = linspace(-HALF_PI, HALF_PI, nPoints);    // this is the angle of a vector with the positive z-axis
         // vertical circles (longitude lines)
@@ -201,8 +203,9 @@ export namespace Draw {
         const y = vys.flat().concat(hys.flat());
         const z = vzs.flat().concat(hzs.flat());
 
-        const hovertemplate = name;
-        const hoverinfo = (name === '' || name === undefined) ? 'skip' : undefined;
+        const hoverinfo = (hovertemplate === '' || hovertemplate === undefined) ? 'skip' : undefined;
+
+        const hoverlabel = orbitHoverLabel(color);
 
         return {x,
                 y,
@@ -213,6 +216,7 @@ export namespace Draw {
                 name,
                 hovertemplate,
                 hoverinfo,
+                hoverlabel,
                 showlegend: false,
         }
     }
@@ -225,7 +229,13 @@ export namespace Draw {
         const radius = body.radius;
         const name = body.name;
         const line: LineOptions = {color: (new Color(body.color)).toString()};
-        return drawWireframeSphere(center, radius, line, name, nPoints);
+        const hovertemplate = ("<b>"+name+"</b><br>").concat(
+            "   radius = ", (Math.round(body.radius)).toString(), " m<br>" ,
+            "   SoI    = ", (Math.round(body.soi)).toString(), " m<br>",
+            "   atmosphere height = ", (Math.round(body.atmosphereHeight)).toString(), " m<br>",
+            body.maxTerrainHeight ? "   highest terrain   = " + (Math.round(body.maxTerrainHeight)).toString() + " m<br>" : "",
+        )
+        return drawWireframeSphere(center, radius, line, name, body.color, hovertemplate, nPoints);
     }
 
     export function drawOrbitingBodySphereAtAngle(body: IOrbitingBody, nu: number, nPoints: number = 11): Line3DTrace {
@@ -233,7 +243,13 @@ export namespace Draw {
         const radius = body.radius;
         const name = body.name;
         const line: LineOptions = {color: (new Color(body.color)).toString()};
-        return drawWireframeSphere(center, radius, line, name, nPoints);
+        const hovertemplate = ("<b>"+name+"</b><br>").concat(
+            "   radius = ", (Math.round(body.radius)).toString(), " m<br>" ,
+            "   SoI    = ", (Math.round(body.soi)).toString(), " m<br>",
+            "   atmosphere height = ", (Math.round(body.atmosphereHeight)).toString(), " m<br>",
+            body.maxTerrainHeight ? "   highest terrain   = " + (Math.round(body.maxTerrainHeight)).toString() + " m<br>" : "",
+        )
+        return drawWireframeSphere(center, radius, line, name, body.color, hovertemplate, nPoints);
     }
 
     export function drawOrbitingBodySphereAtTime(body: IOrbitingBody, time: number, nPoints: number = 11): Line3DTrace {
@@ -245,8 +261,12 @@ export namespace Draw {
         const center = Kepler.positionAtTrueAnomaly(body.orbit, nu);
         const radius = body.soi;
         const name = body.name;
-        const line: LineOptions = {color: (new Color(body.color).rescale(1/2)).toString()};
-        return drawWireframeSphere(center, radius, line, name, nPoints);
+        const fadedColor = new Color(body.color).rescale(1/2);
+        const line: LineOptions = {color: fadedColor.toString()};
+        const hovertemplate = ("<b>"+name+"</b><br>").concat(
+            "   SoI    = ", (Math.round(body.soi)).toString(), " m<br>",
+        )
+        return drawWireframeSphere(center, radius, line, name, fadedColor, hovertemplate, nPoints);
     }
 
     export function drawSoiSphereAtTime(body: IOrbitingBody, time: number, nPoints: number = 11): Line3DTrace {
