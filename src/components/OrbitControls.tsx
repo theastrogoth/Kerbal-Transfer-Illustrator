@@ -18,6 +18,7 @@ import IconButton from "@mui/material/IconButton";
 import ClearIcon from '@mui/icons-material/Clear';
 
 import { defaultOrbit } from "../utils";
+import { radToDeg } from "../main/libs/math";
 
 
 export type OrbitControlsState = {
@@ -82,9 +83,9 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
         state.setOrbit(orbit)
         setSma(String(orbit.semiMajorAxis));
         setEcc(String(orbit.eccentricity));
-        setInc(String(orbit.inclination));
-        setArg(String(orbit.argOfPeriapsis));
-        setLan(String(orbit.ascNodeLongitude));
+        setInc(String(radToDeg(orbit.inclination)));
+        setArg(String(radToDeg(orbit.argOfPeriapsis)));
+        setLan(String(radToDeg(orbit.ascNodeLongitude)));
         setMoe(String(orbit.meanAnomalyEpoch));
         setEpoch(String(orbit.epoch));
         setBodyId(orbit.orbiting);
@@ -105,7 +106,7 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
     };
 
     useEffect(() => {
-        if(state.vesselId > 0) {
+        if(state.vesselId >= 0) {
             setOrbitState(state, vessels[state.vesselId].orbit);
         }
         setVesselIdChange(true);

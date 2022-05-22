@@ -1,8 +1,4 @@
-// import { SolarSystem } from "../../main/objects/system";
-// import Vessel from "../../main/objects/vessel";
-
 import React, { useEffect, useState } from "react";
-import Box from '@mui/system/Box';
 import Typography from '@mui/material/Typography';
 import Stack from "@mui/material/Stack"
 import TextField from "@mui/material/TextField";
@@ -12,13 +8,13 @@ import RemoveIcon from '@mui/icons-material/Remove';
 
 import OrbitControls, { OrbitControlsState } from "../OrbitControls";
 import ManeuverControls from "./ManeuverControls";
+import VesselSelect from "../VesselSelect";
+import { defaultManeuverComponents, orbitFromControlsState } from "../../utils";
 
 import SolarSystem from "../../main/objects/system";
-import Orbit from "../../main/objects/orbit";
 import Vessel from "../../main/objects/vessel";
-import { defaultManeuverComponents, defaultOrbit, orbitFromControlsState, useOrbitControls } from "../../utils";
-import VesselSelect from "../VesselSelect";
-import Kepler from "../../main/libs/kepler";
+import { radToDeg } from "../../main/libs/math";
+
 
 export type VesselControlsState = {
     system:             SolarSystem, 
@@ -34,7 +30,17 @@ export type VesselControlsState = {
 
 function VesselControls({system, vessels, idx, vesselPlans, setVesselPlans, copiedOrbit, copiedManeuver, copiedFlightPlan, timeSettings}: VesselControlsState) {
     const [vesselId, setVesselId] = useState(-1);
-    const [orbit, setOrbit] = useState(vesselPlans[idx].orbit as OrbitalElements);
+    const [vesselIdUpdate, setVesselIdUpdate] = useState(false);
+    const [orbit, setOrbit] = useState({
+        semiMajorAxis:      vesselPlans[idx].orbit.semiMajorAxis,
+        eccentricity:       vesselPlans[idx].orbit.eccentricity,
+        inclination:        radToDeg(vesselPlans[idx].orbit.inclination),
+        argOfPeriapsis:     radToDeg(vesselPlans[idx].orbit.argOfPeriapsis),
+        ascNodeLongitude:   radToDeg(vesselPlans[idx].orbit.ascNodeLongitude),
+        meanAnomalyEpoch:   vesselPlans[idx].orbit.meanAnomalyEpoch,
+        epoch:              vesselPlans[idx].orbit.epoch,
+        orbiting:           vesselPlans[idx].orbit.orbiting,
+    } as OrbitalElements);
     const [plan, setPlan] = useState({name: vesselPlans[idx].name, orbit: vesselPlans[idx].orbit, maneuvers: vesselPlans[idx].maneuvers} as IVessel);
 
     const orbitControls: OrbitControlsState = {
@@ -48,9 +54,8 @@ function VesselControls({system, vessels, idx, vesselPlans, setVesselPlans, copi
         const newId = Number(event.target.value)
         if(newId >= 0 && newId < vessels.length) {
             setVesselId(newId);
-            const vessel = vessels[newId];
-            setPlan(vessel);
-            setOrbit(vessel.orbit);
+            setPlan(vessels[newId]);
+            setVesselIdUpdate(true);
         }
     }
 
@@ -95,28 +100,32 @@ function VesselControls({system, vessels, idx, vesselPlans, setVesselPlans, copi
     };
 
     useEffect(() => {
-        const orb = Kepler.orbitFromElements(orbit, system.bodyFromId(orbit.orbiting));
-        let equal = true;
-        const keys = Object.keys(orb)
-        for(let i=0; i<keys.length; i++) {
-            //@ts-ignore
-            if(plan.orbit[keys[i]] !== orb[keys[i]]){
-                equal = false;
-                break;
+        if(!vesselIdUpdate) {
+            const orb = orbitFromControlsState(system, orbitControls).data;
+            let equal = true;
+            const keys = Object.keys(orb)
+            for(let i=0; i<keys.length; i++) {
+                //@ts-ignore
+                if(plan.orbit[keys[i]] !== orb[keys[i]]){
+                    equal = false;
+                    break;
+                }
             }
+            if(!equal) {
+                const newPlan: IVessel = {
+                    name:       plan.name,
+                    orbit:      orb,
+                    maneuvers:  plan.maneuvers,
+                };
+                setPlan(newPlan);
+            }
+        } else {
+            setVesselIdUpdate(false);
         }
-        if(!equal) {
-            const newPlan: IVessel = {
-                name:       plan.name,
-                orbit:      orb,
-                maneuvers:  plan.maneuvers,
-            };
-            setPlan(newPlan);
-        }
+        
     }, [orbit])
 
     useEffect(() => {
-        // console.log(plan)
         const newVesselPlans = [...vesselPlans];
         newVesselPlans[idx] = plan;
         setVesselPlans(newVesselPlans);

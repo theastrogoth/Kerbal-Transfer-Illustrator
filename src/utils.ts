@@ -39,7 +39,8 @@ export function timesFromDynamicDateFieldState(state: DynamicDateFieldState, tim
 
 function orbitFromElementsAndSystem(system: SolarSystem, orbit: OrbitalElements | IOrbit): Orbit {
     const body = system.bodyFromId(orbit.orbiting);
-    return new Orbit(Kepler.orbitFromElements(orbit, body), body, true);
+    const orb = new Orbit(Kepler.orbitFromElements(orbit, body), body, true);
+    return orb;
 }
 
 export function orbitFromControlsState(system: SolarSystem, state: OrbitControlsState): Orbit {

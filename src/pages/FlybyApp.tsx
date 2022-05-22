@@ -17,7 +17,7 @@ import Navbar from '../components/Navbar';
 import HelpCollapse from '../components/FlybyApp/HelpCollapse';
 
 import React, { useState } from "react";
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider, Theme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
 import Stack from '@mui/material/Stack';
@@ -31,20 +31,9 @@ import AlertTitle from '@mui/material/AlertTitle';
 import Collapse from '@mui/material/Collapse';
 import Fade from '@mui/material/Fade';
 
-// MUI theme
-const mdTheme = createTheme({
-breakpoints: {
-    values: {
-        xs: 0,
-        sm: 600,
-        md: 900,
-        lg: 1200,
-        xl: 2280,
-    },
-},
-});
 
 type FlybyAppState = {
+  theme:                      Theme,
   system:                     SolarSystem,
   setSystem:                  React.Dispatch<React.SetStateAction<SolarSystem>>,
   timeSettings:               TimeSettings,
@@ -71,7 +60,7 @@ type FlybyAppState = {
 
 
 ///// App Content /////
-function FlybyAppContent({system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, 
+function FlybyAppContent({theme, system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, 
                           copiedFlightPlan, setCopiedFlightPlan, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState,  dateControlsState, 
                           controlsOptionsState, multiFlyby, setMultiFlyby, evolutionPlotData, searchCount, setSearchCount}: FlybyAppState) {
 
@@ -118,7 +107,7 @@ function FlybyAppContent({system, setSystem, timeSettings, setTimeSettings, vess
   const [showHelp, setShowHelp] = useState(false);
 
   return (
-      <ThemeProvider theme={mdTheme}>
+      <ThemeProvider theme={theme}>
       <Navbar system={system} setVessels={setVessels} showHelp={showHelp} setShowHelp={setShowHelp} />
       <Stack sx={{mx: 4, my: 1, minWidth: "1200px"}}>
         <CssBaseline />
@@ -136,7 +125,7 @@ function FlybyAppContent({system, setSystem, timeSettings, setTimeSettings, vess
         <Grid container component='main' justifyContent="center">
           <Grid item xs={3} xl={2}>
             <Paper 
-              elevation={8}
+              elevation={1}
               sx={{
                 my: 1, 
                 mx: 1, 
@@ -162,7 +151,7 @@ function FlybyAppContent({system, setSystem, timeSettings, setTimeSettings, vess
           </Grid>
           <Grid item xs={5} xl={6}>
             <Paper 
-              elevation={8}
+              elevation={1}
               sx={{
                 my: 1, 
                 mx: 1,
@@ -191,7 +180,7 @@ function FlybyAppContent({system, setSystem, timeSettings, setTimeSettings, vess
               />
             </Paper>
             <Paper 
-                elevation={8}
+                elevation={1}
                 sx={{
                   my: 3, 
                   mx: 1,
@@ -205,7 +194,7 @@ function FlybyAppContent({system, setSystem, timeSettings, setTimeSettings, vess
           <Grid item xs={4} xl={4}>
             <Fade in={searchCount > 0} timeout={400}>
               <Paper
-                elevation={8}
+                elevation={1}
                 sx={{
                   my: 1, 
                   mx: 1,

@@ -108,6 +108,8 @@ function EvolutionPlot({inputs, plotData, buttonPresses, searchCount, setMultiFl
             layout={{
                 uirevision:     "Evolution",
                 autosize:       true,
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
                 legend: {
                     xanchor:        "right",
                     // font:           {color: "white"},

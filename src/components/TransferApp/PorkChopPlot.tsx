@@ -97,6 +97,8 @@ function PorkchopPlot({inputs, plotData, timeSettings, plotCount, setPlotData, s
                         uirevision:     "Porkchop",
                         autosize:       true,
                         margin:         {l: 50, r: 40, b: 40, t: 28},
+                        paper_bgcolor:  'rgba(0,0,0,0)',
+                        plot_bgcolor:   'rgba(0,0,0,0)',
                         xaxis: {
                             showspikes:     true,
                             spikemode:      'across',

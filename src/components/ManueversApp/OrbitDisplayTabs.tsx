@@ -136,10 +136,10 @@ function OrbitDisplayTabs({flightPlans, system, timeSettings}: OrbitDisplayTabsP
         if(value < 0) {
             setValue(0);
         }
-        if(value >= orbitDisplayProps.length) {
-            setValue(0);
+        if(orbitDisplayProps.length > 0 && value >= orbitDisplayProps.length) {
+            setValue(orbitDisplayProps.length - 1);
         }
-    }, [orbitDisplayProps])
+    }, [orbitDisplayProps.length])
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);

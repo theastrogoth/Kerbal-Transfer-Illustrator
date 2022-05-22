@@ -4,37 +4,24 @@ import Vessel from '../main/objects/vessel';
 import Navbar from '../components/Navbar';
 import VesselTabs, { VesselTabsState } from '../components/ManueversApp/VesselTabs';
 import OrbitDisplayTabs from '../components/ManueversApp/OrbitDisplayTabs';
+import FlightPlanInfoTabs from '../components/ManueversApp/FlightPlanInfoTabs';
 
 import {useEffect, useState } from "react";
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider, Theme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
 import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Collapse from '@mui/material/Collapse';
-import Fade from '@mui/material/Fade';
-import { vesselToFlightPlan } from '../main/libs/propagate';
 
-// MUI theme
-const mdTheme = createTheme({
-  breakpoints: {
-    values: {
-      xs: 0,
-      sm: 600,
-      md: 900,
-      lg: 1200,
-      xl: 2280,
-    },
-  },
-});
 
 type ManeuversAppState = {
+  theme:                   Theme,
   system:                  SolarSystem,
   setSystem:               React.Dispatch<React.SetStateAction<SolarSystem>>,
   timeSettings:            TimeSettings,
@@ -57,7 +44,7 @@ type ManeuversAppState = {
 const propagateWorker = new Worker(new URL("../workers/propagate.worker.ts", import.meta.url));
 
 ////////// App Content //////////
-function ManeuversAppContent({system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver,
+function ManeuversAppContent({theme, system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver,
                               copiedFlightPlan, setCopiedFlightPlan, vesselPlans, setVesselPlans, flightPlans, setFlightPlans}: ManeuversAppState) { 
 
   const [invalidInput, setInvalidInput] = useState(false);
@@ -73,24 +60,6 @@ function ManeuversAppContent({system, setSystem, timeSettings, setTimeSettings, 
     copiedFlightPlan,
     timeSettings,
   }
-
-
-  // function handlePlotButtonPress() {
-  //   // TO DO: ensure there are no invalid orbit inputs
-  //   let invalidFlag = false;
-  //   if(invalidFlag) {
-  //     return
-  //   }
-
-  //   // create Flight Plans by propagating orbits and applying maneuvers
-  //   const newFlightPlans = vesselPlans.map(v => vesselToFlightPlan(v, system));
-  //   setFlightPlans(newFlightPlans);
-  // }
-
-  // useEffect(() => {
-  //   const newFlightPlans = vesselPlans.map(v => vesselToFlightPlan(v, system));
-  //   setFlightPlans(newFlightPlans);
-  // }, [vesselPlans])
 
 useEffect(() => {
   propagateWorker.onmessage = (event: MessageEvent<FlightPlan[]>) => {
@@ -110,7 +79,7 @@ useEffect(() => {
 
   ///// App Body /////
   return (
-    <ThemeProvider theme={mdTheme}>
+    <ThemeProvider theme={theme}>
       <Navbar system={system} setVessels={setVessels} showHelp={showHelp} setShowHelp={setShowHelp} />
       <Stack sx={{mx: 4, my: 1, minWidth: "1200px"}}>
         <CssBaseline />
@@ -127,7 +96,7 @@ useEffect(() => {
         <Grid container component='main' justifyContent="center">
           <Grid item xs={3} xl={2}>
             <Paper 
-              elevation={8}
+              elevation={1}
               sx={{
                 my: 1, 
                 mx: 1, 
@@ -142,7 +111,7 @@ useEffect(() => {
           </Grid>
           <Grid item xs={5} xl={6}>
             {/* <Paper 
-              elevation={8}
+              elevation={1}
               sx={{
                 my: 1, 
                 mx: 1,
@@ -161,7 +130,7 @@ useEffect(() => {
                 </Box>
             </Paper> */}
             <Paper 
-                elevation={8}
+                elevation={1}
                 sx={{
                   my: 1, 
                   mx: 1,
@@ -174,7 +143,7 @@ useEffect(() => {
           </Grid>
           <Grid item xs={4} xl={4}>
             <Paper
-              elevation={8}
+              elevation={1}
               sx={{
                 my: 1, 
                 mx: 1,
@@ -182,6 +151,16 @@ useEffect(() => {
                 flexDirection: 'column',
             }}
             >
+              <FlightPlanInfoTabs
+                flightPlans={flightPlans}
+                timeSettings={timeSettings}
+                system={system}
+                copiedOrbit={copiedOrbit}
+                setCopiedOrbit={setCopiedOrbit}
+                copiedManeuver={copiedManeuver}
+                setCopiedManeuver={setCopiedManeuver}
+                copiedFlightPlan={copiedFlightPlan}
+                setCopiedFlightPlan={setCopiedFlightPlan} />
             </Paper>
           </Grid>
         </Grid>

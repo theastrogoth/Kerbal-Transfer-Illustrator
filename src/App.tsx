@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import {Routes, Route } from 'react-router-dom';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { createTheme } from '@mui/material/styles';
 import './App.css';
 
 import TransferApp from './pages/TransferApp';
@@ -16,8 +18,6 @@ import Vessel from './main/objects/vessel';
 
 import { DateControlsState } from './components/TransferApp/DateControls';
 import { FlybyDateControlsState } from './components/FlybyApp/FlybyDateControls';
-
-// import { createTheme } from '@mui/material/styles';
 import { defaultManeuverComponents, defaultOrbit, useControlOptions, useDateField, useOrbitControls } from './utils';
 import { EvolutionPlotData } from './components/FlybyApp/EvolutionPlot';
 import { DynamicDateFieldState } from './components/DynamicDateFields';
@@ -121,6 +121,23 @@ function AppBody() {
   const [copiedOrbit, setCopiedOrbit] = useState(defaultOrbit(kspSystem) as IOrbit);
   const [copiedManeuver, setCopiedManeuver] = useState(defaultManeuverComponents());
   const [copiedFlightPlan, setCopiedFlightPlan] = useState(blankFlightPlan);
+
+  // MUI theme
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const theme = createTheme({
+  breakpoints: {
+        values: {
+            xs: 0,
+            sm: 600,
+            md: 900,
+            lg: 1200,
+            xl: 2280,
+        },
+    },
+    palette: {
+      mode: prefersDarkMode ? 'dark' : 'light',
+    },
+  });
 
   // state for transfer calculator
   const transferStartOrbit = useOrbitControls(kspSystem, 1);
@@ -257,6 +274,7 @@ function AppBody() {
   return (
     <Routes>
       <Route path='/' element={<TransferApp
+        theme={theme}
         system={system}
         setSystem={setSystem}
         timeSettings={timeSettings}
@@ -281,6 +299,7 @@ function AppBody() {
         setPorkchopPlotData={setPorkchopPlotData}
        />} />
       <Route path='/Flyby/' element={<FlybyApp 
+        theme={theme}
         system={system}
         setSystem={setSystem}
         timeSettings={timeSettings}
@@ -305,6 +324,7 @@ function AppBody() {
         setSearchCount={setFlybySearchCount}
       />} />
       <Route path='/FlightPlan/' element={<ManeuversApp 
+        theme={theme}
         system={system}
         setSystem={setSystem}
         timeSettings={timeSettings}
