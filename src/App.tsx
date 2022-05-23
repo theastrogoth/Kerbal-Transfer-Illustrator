@@ -9,25 +9,30 @@ import FlybyApp from './pages/FlybyApp';
 import ManeuversApp from './pages/ManeuversApp';
 
 import kspbodies from './data/kspbodies.json';
+import opmbodies from './data/opmbodies.json';
 
+import Kepler from './main/libs/kepler';
 import { OrbitingBody } from './main/objects/body';
 import SolarSystem from './main/objects/system';
 import Transfer from './main/objects/transfer';
 import MultiFlyby from './main/objects/multiflyby';
 import Vessel from './main/objects/vessel';
+import loadSystemData from './main/utilities/loadsystem';
 
 import { DateControlsState } from './components/TransferApp/DateControls';
 import { FlybyDateControlsState } from './components/FlybyApp/FlybyDateControls';
 import { defaultManeuverComponents, defaultOrbit, useControlOptions, useDateField, useOrbitControls } from './utils';
 import { EvolutionPlotData } from './components/FlybyApp/EvolutionPlot';
 import { DynamicDateFieldState } from './components/DynamicDateFields';
-import Kepler from './main/libs/kepler';
 
-const bodiesData = {
-  sun:      kspbodies[0]       as ICelestialBody,
-  orbiters: kspbodies.slice(1) as IOrbitingBody[]
-};
-const kspSystem = new SolarSystem(bodiesData.sun, bodiesData.orbiters, true);
+import { blankTransfer } from './pages/TransferApp';
+
+const kspSystem = loadSystemData(kspbodies);
+const opmSystem = loadSystemData(opmbodies);
+
+const systemOptions = new Map<string, SolarSystem>()
+systemOptions.set('Kerbol System', kspSystem);
+systemOptions.set('Kerbol System (OPM)', opmSystem);
 
 const kspTimeSettings: TimeSettings = {hoursPerDay: 6, daysPerYear: 426};
 
@@ -36,32 +41,12 @@ const emptyNumberArray: number[] = [];
 const blankFlightPlan: IVessel = {name: 'Blank Flight Plan', maneuvers: [], orbit: defaultOrbit(kspSystem, 1)};
 
 // initial values
-const initialTransfer: Transfer = new Transfer({
-  system:                 kspSystem,
-  startOrbit:             (kspSystem.bodyFromId(1) as OrbitingBody).orbit,
-  endOrbit:               (kspSystem.bodyFromId(1) as OrbitingBody).orbit,
-  startDate:              0.0,
-  flightTime:             (kspSystem.bodyFromId(1) as OrbitingBody).orbit.siderealPeriod,
-  endDate:                (kspSystem.bodyFromId(1) as OrbitingBody).orbit.siderealPeriod,
-  transferTrajectory:     {orbits: [], intersectTimes: [], maneuvers: []},
-  ejections:              [],
-  insertions:             [],
-  maneuvers:              [],
-  maneuverContexts:       [],
-  deltaV:                 0.0,
-  ejectionInsertionType:  "fastoberth",
-  planeChange:            false,
-  matchStartMo:           true,
-  matchEndMo:             false,
-  noInsertionBurn:        false,
-  soiPatchPositions:      [],
-  patchPositionError:     0,
-  patchTimeError:         0,
-})
+const blankInitialTransfer = blankTransfer(kspSystem);
+
 const initialPorkchopInputs: PorkchopInputs = {
   system: kspSystem, 
-  startOrbit: initialTransfer.startOrbit,
-  endOrbit: initialTransfer.endOrbit,
+  startOrbit: blankInitialTransfer.startOrbit,
+  endOrbit: blankInitialTransfer.endOrbit,
   startDateMin: 0.0, 
   startDateMax: 0.0, 
   flightTimeMin: 0.0, 
@@ -78,7 +63,7 @@ const initialPorkchopPlotData: PorkchopPlotData = {
   levels:             [0],
   logLevels:          [0],
   tickLabels:         [""],
-  bestTransfer:       initialTransfer.data,
+  bestTransfer:       blankInitialTransfer.data,
   transferStartDay:   0,
   transferFlightDay:  0,
 }
@@ -115,6 +100,7 @@ const blankMultiFlyby: MultiFlyby = new MultiFlyby({
 function AppBody() {
   // common parts of the state
   const [system, setSystem] = useState(kspSystem);
+  const [systemName, setSystemName] = useState([...systemOptions.keys()][0]);
   const [vessels, setVessels] = useState(emptyVessels);
   const [timeSettings, setTimeSettings] = useState(kspTimeSettings);
 
@@ -156,7 +142,7 @@ function AppBody() {
   }
 
   const transferControlsState = useControlOptions();
-  const [transfer, setTransfer] = useState(initialTransfer);
+  const [transfer, setTransfer] = useState(blankInitialTransfer);
 
   const [porkchopInputs, setPorkchopInputs] = useState(initialPorkchopInputs);
   const [porkchopPlotData, setPorkchopPlotData] = useState(initialPorkchopPlotData);
@@ -187,7 +173,7 @@ function AppBody() {
 
   const [flybyIdSequence, setFlybyIdSequence] = useState([5, 8]);
   const flybySequenceControlsState = {
-    system:             kspSystem,            
+    system:             system,            
     startBodyId:        flybyStartOrbit.orbit.orbiting,        
     endBodyId:          flybyEndOrbit.orbit.orbiting,         
     flybyIdSequence,    
@@ -275,8 +261,11 @@ function AppBody() {
     <Routes>
       <Route path='/' element={<TransferApp
         theme={theme}
+        systemOptions={systemOptions}
         system={system}
         setSystem={setSystem}
+        systemName={systemName}
+        setSystemName={setSystemName}
         timeSettings={timeSettings}
         setTimeSettings={setTimeSettings}
         vessels={vessels}
@@ -300,8 +289,11 @@ function AppBody() {
        />} />
       <Route path='/Flyby/' element={<FlybyApp 
         theme={theme}
+        systemOptions={systemOptions}
         system={system}
         setSystem={setSystem}
+        systemName={systemName}
+        setSystemName={setSystemName}
         timeSettings={timeSettings}
         setTimeSettings={setTimeSettings}
         vessels={vessels}

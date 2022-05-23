@@ -404,6 +404,28 @@
       }
     },
     {
+        "id": 17,
+        "name": "Sarnus",
+        "radius": 5300000,
+        "atmosphereHeight": 580000,
+        "geeASL": 0.298,
+        "orbit": {
+          "semiMajorAxis": 125798522368,
+          "eccentricity": 0.0534,
+          "inclination": 2.02,
+          "argOfPeriapsis": 0,
+          "ascNodeLongitude": 184,
+          "meanAnomalyEpoch": 2.88114666938782,
+          "epoch": 359.27999999996,
+          "orbiting": 0
+        },
+        "color": {
+          "r": 222, 
+          "g": 184,
+          "b": 135
+        }
+    },
+    {
       "id": 16,
       "name": "Eeloo",
       "radius": 210000,

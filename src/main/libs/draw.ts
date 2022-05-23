@@ -232,7 +232,7 @@ export namespace Draw {
         const hovertemplate = ("<b>"+name+"</b><br>").concat(
             "   radius = ", (Math.round(body.radius)).toString(), " m<br>" ,
             "   SoI    = ", (Math.round(body.soi)).toString(), " m<br>",
-            "   atmosphere height = ", (Math.round(body.atmosphereHeight)).toString(), " m<br>",
+            body.atmosphereHeight ? "   atmosphere height = " + (Math.round(body.atmosphereHeight)).toString() + " m<br>" : "",
             body.maxTerrainHeight ? "   highest terrain   = " + (Math.round(body.maxTerrainHeight)).toString() + " m<br>" : "",
         )
         return drawWireframeSphere(center, radius, line, name, body.color, hovertemplate, nPoints);
@@ -246,7 +246,7 @@ export namespace Draw {
         const hovertemplate = ("<b>"+name+"</b><br>").concat(
             "   radius = ", (Math.round(body.radius)).toString(), " m<br>" ,
             "   SoI    = ", (Math.round(body.soi)).toString(), " m<br>",
-            "   atmosphere height = ", (Math.round(body.atmosphereHeight)).toString(), " m<br>",
+            body.atmosphereHeight ? "   atmosphere height = " + (Math.round(body.atmosphereHeight)).toString() + " m<br>" : "",
             body.maxTerrainHeight ? "   highest terrain   = " + (Math.round(body.maxTerrainHeight)).toString() + " m<br>" : "",
         )
         return drawWireframeSphere(center, radius, line, name, body.color, hovertemplate, nPoints);

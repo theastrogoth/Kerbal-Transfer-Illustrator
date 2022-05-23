@@ -2,20 +2,8 @@ import { TWO_PI, HALF_PI, X_DIR, Z_DIR, copysign, acosClamped, wrapAngle, vec3, 
 import { newtonRootSolve } from "./optim"
 
 namespace Kepler {
-    // export function orbitElementsFromOrbitData(orbit: IOrbit): OrbitalElements {  
-    //     const p = (orbit.semiLatusRectum) ? orbit.semiLatusRectum : orbit.semiMajorAxis * (1 - orbit.eccentricity * orbit.eccentricity)
-    //     return {
-    //         orbiting:           orbit.orbiting,
-    //         semiMajorAxis:      orbit.semiMajorAxis,
-    //         eccentricity:       orbit.eccentricity,
-    //         inclination:        orbit.inclination,
-    //         argOfPeriapsis:     orbit.argOfPeriapsis,
-    //         ascNodeLongitude:   orbit.ascNodeLongitude,
-    //         meanAnomalyEpoch:   orbit.meanAnomalyEpoch,
-    //         epoch:              orbit.epoch,
-    //         semiLatusRectum:    p,
-    //     };
-    // }
+    const gravitySeaLevelConstant = 9.80665;
+    const newtonGravityConstant = 6.7430e-11;
 
     export function orbitFromElements(elements: OrbitalElements, attractor: ICelestialBody): IOrbit {
         const p = (elements.semiLatusRectum) ? elements.semiLatusRectum : elements.semiMajorAxis * (1 - elements.eccentricity * elements.eccentricity)
@@ -332,6 +320,44 @@ namespace Kepler {
             semiLatusRectum:        p,
             siderealPeriod:         T,
         }
+    }
+
+    export function inputsToOrbitingBody(inputs: OrbitingBodyInputs, attractor: ICelestialBody): IOrbitingBody {
+        if(!inputs.mass && !inputs.stdGravParam && !inputs.geeASL) {
+            throw(Error("A mass, 'sea level' gravity, or standard gravitational parameter is needed."))
+        }
+        const orbit = orbitFromElements(inputs.orbit, attractor);
+        const maxTerrainHeight = inputs.maxTerrainHeight ? inputs.maxTerrainHeight : 0;
+        const atmosphereHeight = inputs.atmosphereHeight ? inputs.atmosphereHeight : 0;
+
+        let stdGravParam = inputs.stdGravParam;
+        let mass = inputs.mass;
+        if(!stdGravParam && !mass) {
+            const geeASL = inputs.geeASL as number;
+            stdGravParam = geeASL * inputs.radius * inputs.radius * gravitySeaLevelConstant;
+            mass = stdGravParam / newtonGravityConstant
+        } else {
+            stdGravParam = stdGravParam ? stdGravParam as number : mass as number * newtonGravityConstant;
+            mass = mass ? mass as number : stdGravParam as number / newtonGravityConstant;  
+        }
+
+        const soi = inputs.soi ? inputs.soi : inputs.orbit.semiMajorAxis * (stdGravParam / attractor.stdGravParam)**(2/5);
+        const color = inputs.color ? inputs.color : {r: 255, g: 255, b: 255};
+
+        return {
+            id:     inputs.id,
+            name:   inputs.name,
+            radius: inputs.radius,
+            maxTerrainHeight,
+            atmosphereHeight,
+            mass,
+            stdGravParam,
+            soi,
+            color,
+            orbit,
+            orbiting: orbit.orbiting,
+        }
+
     }
 }
 

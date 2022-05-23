@@ -6,6 +6,7 @@ import FlybySequenceControls, { FlybySequenceControlsState } from "./FlybySequen
 import FlybyDateControls, { FlybyDateControlsState } from "./FlybyDateControls";
 import TimeSettingsControls from "../TimeSettingsControls";
 import ControlsOptions, { ControlsOptionsState } from "../ControlsOptions";
+import SystemSelect from "../SystemSelect";
 
 import React, { SetStateAction } from "react";
 import Stack from "@mui/material/Stack";
@@ -16,7 +17,11 @@ import Divider from '@mui/material/Divider';
 
 
 type MissionControlsProps = {
+    systemOptions:              Map<string, SolarSystem>,
     system:                     SolarSystem,
+    setSystem:                  React.Dispatch<React.SetStateAction<SolarSystem>>,
+    systemName:                 string,
+    setSystemName:              React.Dispatch<React.SetStateAction<string>>,
     vessels:                    Vessel[],
     startOrbitControlsState:    OrbitControlsState,
     endOrbitControlsState:      OrbitControlsState,
@@ -28,13 +33,14 @@ type MissionControlsProps = {
     controlsOptionsState:       ControlsOptionsState,
 }
 
-function MissionControls({system, vessels, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState, copiedOrbit, dateControlsState, timeSettings, setTimeSettings, controlsOptionsState}: MissionControlsProps) {
+function MissionControls({systemOptions, system, setSystem, systemName, setSystemName, vessels, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState, copiedOrbit, dateControlsState, timeSettings, setTimeSettings, controlsOptionsState}: MissionControlsProps) {
     return (
         <Stack spacing={1} sx={{ my: 2, mx: 2 }}>
             <Box textAlign="center">
                 <Typography variant="h5">Mission Controls</Typography>
             </Box>
             <Divider />
+            <SystemSelect systemOptions={systemOptions} systemName={systemName} setSystemName={setSystemName} setSystem={setSystem} />
             <Typography variant="h6">Orbit Settings</Typography>
             <OrbitControls label='Starting Orbit' system={system} vessels={vessels} state={startOrbitControlsState} copiedOrbit={copiedOrbit} />
             <OrbitControls label='Target Orbit'   system={system} vessels={vessels} state={endOrbitControlsState} copiedOrbit={copiedOrbit} />

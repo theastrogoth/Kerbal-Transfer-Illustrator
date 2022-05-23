@@ -64,7 +64,11 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
     const [epoch, setEpoch] = useState(String(state.orbit.epoch));
     const [bodyId, setBodyId] = useState(state.orbit.orbiting);
 
-    const [body, setBody] = useState(system.bodyFromId(state.orbit.orbiting))
+    const [body, setBody] = useState(
+        system.orbiterIds.has(state.orbit.orbiting) ? 
+            system.bodyFromId(state.orbit.orbiting) :
+            system.bodyFromId(Math.max(...[...system.orbiterIds.keys()]))
+    );
 
     const [alt, setAlt] = useState(String(state.orbit.semiMajorAxis - body.radius));
 
@@ -123,7 +127,10 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
     }, [sma])
 
     useEffect(() => {
-        setBodyOptions(createBodyItems(system));
+        setBodyOptions(createBodyItems(system))
+        if(!system.orbiterIds.has(bodyId)) {
+            setBodyId(Math.max(...[...system.orbiterIds.keys()]));
+        }
       }, [system]);
 
     useEffect(() => {
