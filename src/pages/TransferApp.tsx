@@ -118,7 +118,10 @@ function TransferAppContent({theme, systemOptions, system, setSystem, systemName
   }
 
   useEffect(() => {
-    setTransfer(blankTransfer(system));
+    if(plotCount > 0 || transfer.deltaV === 0) {
+      setTransfer(blankTransfer(system));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [system])
 
   ///// App Body /////

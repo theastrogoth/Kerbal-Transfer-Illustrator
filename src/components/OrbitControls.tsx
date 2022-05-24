@@ -114,6 +114,7 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
             setOrbitState(state, vessels[state.vesselId].orbit);
         }
         setVesselIdChange(true);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state.vesselId])
 
     useEffect(() => {
@@ -124,6 +125,7 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
                 setAlt(newAlt);
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sma])
 
     useEffect(() => {
@@ -131,7 +133,8 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
         if(!system.orbiterIds.has(bodyId)) {
             setBodyId(Math.max(...[...system.orbiterIds.keys()]));
         }
-      }, [system]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [system]);
 
     useEffect(() => {
         state.setOrbit({
@@ -149,7 +152,7 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
         } else {
             state.setVesselId(-1);
         }
-
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sma, ecc, inc, arg, lan, moe, epoch, bodyId])
 
     return (

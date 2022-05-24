@@ -10,7 +10,7 @@ interface ICelestialBody {
     readonly radius:            number;
     readonly maxTerrainHeight?: number;
     readonly atmosphereHeight?: number;
-    readonly mass:              number;
+    readonly mass?:             number;
     readonly stdGravParam:      number;
     readonly soi:               number;
     readonly color:             IColor;

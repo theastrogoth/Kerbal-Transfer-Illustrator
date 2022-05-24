@@ -4,18 +4,16 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme } from '@mui/material/styles';
 import './App.css';
 
-import TransferApp from './pages/TransferApp';
-import FlybyApp from './pages/FlybyApp';
+import TransferApp, { blankTransfer } from './pages/TransferApp';
+import FlybyApp, { blankMultiFlyby } from './pages/FlybyApp';
 import ManeuversApp from './pages/ManeuversApp';
 
 import kspbodies from './data/kspbodies.json';
 import opmbodies from './data/opmbodies.json';
+import rssbodies from './data/rssbodies.json';
 
 import Kepler from './main/libs/kepler';
-import { OrbitingBody } from './main/objects/body';
 import SolarSystem from './main/objects/system';
-import Transfer from './main/objects/transfer';
-import MultiFlyby from './main/objects/multiflyby';
 import Vessel from './main/objects/vessel';
 import loadSystemData from './main/utilities/loadsystem';
 
@@ -25,15 +23,17 @@ import { defaultManeuverComponents, defaultOrbit, useControlOptions, useDateFiel
 import { EvolutionPlotData } from './components/FlybyApp/EvolutionPlot';
 import { DynamicDateFieldState } from './components/DynamicDateFields';
 
-import { blankTransfer } from './pages/TransferApp';
-
+// prepare popular systems
 const kspSystem = loadSystemData(kspbodies);
 const opmSystem = loadSystemData(opmbodies);
+const rssSystem = loadSystemData(rssbodies);
 
 const systemOptions = new Map<string, SolarSystem>()
 systemOptions.set('Kerbol System', kspSystem);
 systemOptions.set('Kerbol System (OPM)', opmSystem);
+systemOptions.set('Sol System (RSS)', rssSystem);
 
+// other default settings
 const kspTimeSettings: TimeSettings = {hoursPerDay: 6, daysPerYear: 426};
 
 const emptyVessels: Vessel[] = [];
@@ -67,35 +67,6 @@ const initialPorkchopPlotData: PorkchopPlotData = {
   transferStartDay:   0,
   transferFlightDay:  0,
 }
-
-const blankMultiFlyby: MultiFlyby = new MultiFlyby({
-  system:                 kspSystem,
-  startOrbit:             (kspSystem.bodyFromId(2) as OrbitingBody).orbit,
-  endOrbit:               (kspSystem.bodyFromId(2) as OrbitingBody).orbit,
-  flybyIdSequence:        [],
-  transferBody:           kspSystem.sun,
-  startDate:              0,
-  flightTimes:            [],
-  endDate:                426 * 6 * 3600,
-  transfers:              [],
-  ejections:              [],
-  insertions:             [],
-  flybys:                 [],
-  maneuvers:              [],
-  maneuverContexts:       [],
-  deltaV:                 0,
-  soiPatchPositions:      [],
-  flybyDurations:         [],
-  ejectionInsertionType:  'fastdirect',
-  planeChange:            false,
-  matchStartMo:           false,
-  matchEndMo:             false,
-  noInsertionBurn:        false,
-  patchPositionError:     0.0,
-  patchTimeError:         0.0,
-});
-
-
 
 function AppBody() {
   // common parts of the state
@@ -182,7 +153,7 @@ function AppBody() {
   };
 
   const flybyControlsState = useControlOptions();
-  const [multiFlyby, setMultiFlyby] = useState(blankMultiFlyby);
+  const [multiFlyby, setMultiFlyby] = useState(blankMultiFlyby(kspSystem));
 
   const [x, setX] = useState(emptyNumberArray)
   const [meanY, setMeanY] = useState(emptyNumberArray)
@@ -317,8 +288,11 @@ function AppBody() {
       />} />
       <Route path='/FlightPlan/' element={<ManeuversApp 
         theme={theme}
+        systemOptions={systemOptions}
         system={system}
         setSystem={setSystem}
+        systemName={systemName}
+        setSystemName={setSystemName}
         timeSettings={timeSettings}
         setTimeSettings={setTimeSettings}
         vessels={vessels}

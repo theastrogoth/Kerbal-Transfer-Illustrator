@@ -62,7 +62,7 @@ type FlybyAppState = {
   setSearchCount:             React.Dispatch<React.SetStateAction<number>>,
 }
 
-function blankMultiFlyby(system: SolarSystem): MultiFlyby {
+export function blankMultiFlyby(system: SolarSystem): MultiFlyby {
   return new MultiFlyby({
     system:                 system,
     startOrbit:             (system.bodyFromId(1) as OrbitingBody).orbit,
@@ -96,17 +96,10 @@ function FlybyAppContent({theme, systemOptions, system, setSystem, systemName, s
                           copiedFlightPlan, setCopiedFlightPlan, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState,  dateControlsState, 
                           controlsOptionsState, multiFlyby, setMultiFlyby, evolutionPlotData, searchCount, setSearchCount}: FlybyAppState) {
 
-  ///// Multi-flyby search inputs /////
-  const [mfSearchInputs, setMfSearchInputs] = useState(searchInputsFromUI(system, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState.flybyIdSequence, dateControlsState, controlsOptionsState, timeSettings))
-
-  ///// invalid input alert /////
+  const [mfSearchInputs, setMfSearchInputs] = useState(searchInputsFromUI(system, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState.flybyIdSequence, dateControlsState, controlsOptionsState, timeSettings));
   const [invalidInput, setInvalidInput] = useState(false);
-
-  ///// Search Button /////
   const [buttonPresses, setButtonPresses] = useState(0);
   const [calculating, setCalculating] = useState(false);
-
-  ///// Help Collapse /////
   const [showHelp, setShowHelp] = useState(false);
 
   function handleButtonPress() {
@@ -139,7 +132,10 @@ function FlybyAppContent({theme, systemOptions, system, setSystem, systemName, s
   }
 
   useEffect(() => {
-    setMultiFlyby(blankMultiFlyby(system));
+    if(buttonPresses > 0 || multiFlyby.deltaV === 0) {
+      setMultiFlyby(blankMultiFlyby(system));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [system])
 
   return (

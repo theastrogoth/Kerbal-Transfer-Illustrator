@@ -22,8 +22,11 @@ import Collapse from '@mui/material/Collapse';
 
 type ManeuversAppState = {
   theme:                   Theme,
+  systemOptions:           Map<string, SolarSystem>,
   system:                  SolarSystem,
   setSystem:               React.Dispatch<React.SetStateAction<SolarSystem>>,
+  systemName:              string,
+  setSystemName:           React.Dispatch<React.SetStateAction<string>>,
   timeSettings:            TimeSettings,
   setTimeSettings:         React.Dispatch<React.SetStateAction<TimeSettings>>,
   vessels:                 Vessel[],
@@ -44,14 +47,18 @@ type ManeuversAppState = {
 const propagateWorker = new Worker(new URL("../workers/propagate.worker.ts", import.meta.url));
 
 ////////// App Content //////////
-function ManeuversAppContent({theme, system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver,
+function ManeuversAppContent({theme, systemOptions, system, setSystem, systemName, setSystemName, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver,
                               copiedFlightPlan, setCopiedFlightPlan, vesselPlans, setVesselPlans, flightPlans, setFlightPlans}: ManeuversAppState) { 
 
-  const [invalidInput, setInvalidInput] = useState(false);
+  // const [invalidInput, setInvalidInput] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
   const vesselTabsState: VesselTabsState = {
+    systemOptions,
     system,
+    setSystem,
+    systemName,
+    setSystemName,
     vessels,
     vesselPlans,
     setVesselPlans,
@@ -59,6 +66,7 @@ function ManeuversAppContent({theme, system, setSystem, timeSettings, setTimeSet
     copiedManeuver,
     copiedFlightPlan,
     timeSettings,
+    setTimeSettings,
   }
 
 useEffect(() => {
@@ -74,7 +82,7 @@ useEffect(() => {
     propagateWorker
       .postMessage({vesselPlans, system});
   // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [vesselPlans]);
+}, [vesselPlans, system]);
 
 
   ///// App Body /////

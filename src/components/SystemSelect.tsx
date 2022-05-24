@@ -16,8 +16,13 @@ function SystemSelect({systemOptions, systemName, setSystem, setSystemName}:
     const [systemOpts, setSystemOpts] = useState(createSystemItems(systemOptions));
 
     useEffect(() => {
+        setSystemOpts(createSystemItems(systemOptions))
+    }, [systemOptions]);
+
+    useEffect(() => {
         setSystem(systemOptions.get(systemName) as SolarSystem);
-      }, [systemName]);   
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [systemName]);   
 
     return (
         <FormControl sx={{ minWidth: 120 }}>
