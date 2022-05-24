@@ -109,4 +109,4 @@ function FlybySequenceControls({system, startBodyId, endBodyId, flybyIdSequence,
     )
 }
 
-export default FlybySequenceControls;
+export default React.memo(FlybySequenceControls);

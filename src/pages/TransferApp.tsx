@@ -1,4 +1,5 @@
 import SolarSystem from '../main/objects/system';
+import { OrbitingBody } from '../main/objects/body';
 import Vessel from '../main/objects/vessel';
 import Transfer from '../main/objects/transfer';
 
@@ -15,7 +16,7 @@ import Navbar from '../components/Navbar';
 
 import { isInvalidOrbitInput, porkchopInputsFromUI } from '../utils';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ThemeProvider, Theme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
@@ -33,8 +34,11 @@ import Fade from '@mui/material/Fade';
 
 type TransferAppState = {
   theme:                   Theme,
+  systemOptions:           Map<string, SolarSystem>,
   system:                  SolarSystem,
   setSystem:               React.Dispatch<React.SetStateAction<SolarSystem>>,
+  systemName:              string,
+  setSystemName:           React.Dispatch<React.SetStateAction<string>>,
   timeSettings:            TimeSettings,
   setTimeSettings:         React.Dispatch<React.SetStateAction<TimeSettings>>,
   vessels:                 Vessel[],
@@ -57,10 +61,34 @@ type TransferAppState = {
   setPorkchopPlotData:     React.Dispatch<React.SetStateAction<PorkchopPlotData>>,
 }
 
+export function blankTransfer(system: SolarSystem): Transfer {
+  return new Transfer({
+    system:                 system,
+    startOrbit:             (system.bodyFromId(1) as OrbitingBody).orbit,
+    endOrbit:               (system.bodyFromId(1) as OrbitingBody).orbit,
+    startDate:              0.0,
+    flightTime:             (system.bodyFromId(1) as OrbitingBody).orbit.siderealPeriod,
+    endDate:                (system.bodyFromId(1) as OrbitingBody).orbit.siderealPeriod,
+    transferTrajectory:     {orbits: [], intersectTimes: [], maneuvers: []},
+    ejections:              [],
+    insertions:             [],
+    maneuvers:              [],
+    maneuverContexts:       [],
+    deltaV:                 0.0,
+    ejectionInsertionType:  "fastoberth",
+    planeChange:            false,
+    matchStartMo:           true,
+    matchEndMo:             false,
+    noInsertionBurn:        false,
+    soiPatchPositions:      [],
+    patchPositionError:     0,
+    patchTimeError:         0,
+  })
+}
 
 ////////// App Content //////////
 
-function TransferAppContent({theme, system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver,
+function TransferAppContent({theme, systemOptions, system, setSystem, systemName, setSystemName, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver,
                              copiedFlightPlan, setCopiedFlightPlan, startOrbitControlsState, endOrbitControlsState, dateControlsState, controlsOptionsState, transfer, setTransfer, 
                              porkchopInputs, setPorkchopInputs, porkchopPlotData, setPorkchopPlotData}: TransferAppState) { 
   
@@ -88,6 +116,13 @@ function TransferAppContent({theme, system, setSystem, timeSettings, setTimeSett
     setPlotCount(plotCount + 1)
     console.log('"Plot!" button pressed.');
   }
+
+  useEffect(() => {
+    if(plotCount > 0 || transfer.deltaV === 0) {
+      setTransfer(blankTransfer(system));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [system])
 
   ///// App Body /////
   return (
@@ -120,7 +155,11 @@ function TransferAppContent({theme, system, setSystem, timeSettings, setTimeSett
               }}
             >
               <MissionControls 
+                systemOptions={systemOptions}
                 system={system} 
+                setSystem={setSystem}
+                systemName={systemName}
+                setSystemName={setSystemName}
                 vessels={vessels}
                 startOrbitControlsState={startOrbitControlsState}
                 endOrbitControlsState= {endOrbitControlsState} 

@@ -16,7 +16,6 @@ import { DynamicDateFieldState } from './components/DynamicDateFields';
 import { calendarDateToTime } from './main/libs/math';
 
 // for re-used components
-
 export function dateFieldIsEmpty(field: DateFieldState): boolean {
     return ((isNaN(field.calendarDate.year)) && (isNaN(field.calendarDate.day)) && (isNaN(field.calendarDate.hour)))
 }

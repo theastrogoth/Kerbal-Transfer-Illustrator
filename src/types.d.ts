@@ -9,8 +9,8 @@ interface ICelestialBody {
     readonly name:              string;
     readonly radius:            number;
     readonly maxTerrainHeight?: number;
-    readonly atmosphereHeight:  number;
-    readonly mass:              number;
+    readonly atmosphereHeight?: number;
+    readonly mass?:             number;
     readonly stdGravParam:      number;
     readonly soi:               number;
     readonly color:             IColor;
@@ -155,6 +155,20 @@ type ManeuverComponents = {
     readonly normal:    number,
     readonly radial:    number,
     readonly date:      number,
+}
+
+type OrbitingBodyInputs = {
+    readonly id:                number;
+    readonly name:              string;
+    readonly radius:            number;
+    readonly maxTerrainHeight?: number;
+    readonly atmosphereHeight?: number;
+    readonly geeASL?:           number;
+    readonly mass?:             number;
+    readonly stdGravParam?:     number;
+    readonly soi?:              number;
+    readonly color?:            IColor;
+    readonly orbit:             OrbitalElements;
 }
 
 type FlybyInputs = {

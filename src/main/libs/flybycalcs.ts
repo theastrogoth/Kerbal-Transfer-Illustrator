@@ -6,11 +6,12 @@ import { brentMinimize } from "./optim";
 namespace FlybyCalcs {
     export function minFlybyRadius(body: IOrbitingBody): number {
         const margin = 1000; // leave a 1km buffer
-        if(body.atmosphereHeight !== 0) {
-            return body.radius + body.atmosphereHeight + margin;
+        const atmoHeight = body.atmosphereHeight || 0;
+        const terrainHeight = body.maxTerrainHeight || 0;
+        if(atmoHeight > terrainHeight) {
+            return body.radius + atmoHeight + margin;
         } else {
-            const terrain = body.maxTerrainHeight ? body.maxTerrainHeight : 0.0;
-            return body.radius + terrain + margin;
+            return body.radius + terrainHeight + margin;
         }
     }
 

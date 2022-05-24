@@ -402,6 +402,74 @@
     }
   },
   {
+      "id": 17,
+      "name": "Sarnus",
+      "radius": 5300000,
+      "atmosphereHeight": 580000,
+      "geeASL": 0.298,
+      "orbit": {
+        "semiMajorAxis": 125798522368,
+        "eccentricity": 0.0534,
+        "inclination": 2.02,
+        "argOfPeriapsis": 0,
+        "ascNodeLongitude": 184,
+        "meanAnomalyEpoch": 2.88114666938782,
+        "epoch": 359.27999999996,
+        "orbiting": 0
+      },
+      "color": {
+        "r": 222, 
+        "g": 184,
+        "b": 135
+      }
+  },
+  {
+    "id": 18,
+    "name": "Hale",
+    "radius": 6000,
+    "maxTerrainHeight": 5918,
+    "geeASL": 0.0023,
+    "soi": 41000,
+    "orbit": {
+      "semiMajorAxis": 10488231,
+      "eccentricity": 0,
+      "inclination": 1,
+      "argOfPeriapsis": 0,
+      "ascNodeLongitude": 55,
+      "meanAnomalyEpoch": 0,
+      "epoch": 0,
+      "orbiting": 17
+    },
+    "color": {
+      "r": 234, 
+      "g": 230,
+      "b": 140
+    }
+  },
+  {
+    "id": 19,
+    "name": "Ovok",
+    "radius": 26000,
+    "maxTerrainHeight": 14000,
+    "geeASL": 0.002,
+    "soi": 94000,
+    "orbit": {
+      "semiMajorAxis": 12169413,
+      "eccentricity": 0.01,
+      "inclination": 1.5,
+      "argOfPeriapsis": 0,
+      "ascNodeLongitude": 55,
+      "meanAnomalyEpoch": 1.72,
+      "epoch": 751.7,
+      "orbiting": 17
+    },
+    "color": {
+      "r": 176, 
+      "g": 196,
+      "b": 222
+    }
+  },
+  {
     "id": 16,
     "name": "Eeloo",
     "radius": 210000,
@@ -409,22 +477,286 @@
     "atmosphereHeight": 0,
     "mass": 1.1149224e+21,
     "stdGravParam": 74410815000,
-    "soi": 119082940,
     "orbit": {
-      "semiMajorAxis": 90118820000,
-      "eccentricity": 0.26,
-      "inclination": 6.15,
+      "semiMajorAxis": 19105978,
+      "eccentricity": 0.0034,
+      "inclination": 2.3,
       "argOfPeriapsis": 260,
-      "ascNodeLongitude": 50,
-      "siderealPeriod": 156992048,
+      "ascNodeLongitude": 55,
       "meanAnomalyEpoch": 3.14,
       "epoch": 0,
-      "orbiting": 0
+      "orbiting": 17
     },
     "color": {
       "r": 244, 
       "g": 244,
       "b": 218
+    }
+  },
+  {
+    "id": 20,
+    "name": "Slate",
+    "radius": 540000,
+    "maxTerrainHeight": 16559,
+    "geeASL": 0.692,
+    "orbit": {
+      "semiMajorAxis": 42592946,
+      "eccentricity": 0.04,
+      "inclination": 2.3,
+      "argOfPeriapsis": 0,
+      "ascNodeLongitude": 55,
+      "meanAnomalyEpoch": 1.1,
+      "epoch": 1343.91,
+      "orbiting": 17
+    },
+    "color": {
+      "r": 210, 
+      "g": 180,
+      "b": 140
+    }
+  },
+  {
+    "id": 21,
+    "name": "Tekto",
+    "radius": 280000,
+    "maxTerrainHeight": 5954,
+    "atmosphereHeight": 95000,
+    "geeASL": 0.2503,
+    "orbit": {
+      "semiMajorAxis": 97355304,
+      "eccentricity": 0.028,
+      "inclination": 9.4,
+      "argOfPeriapsis": 0,
+      "ascNodeLongitude": 55,
+      "meanAnomalyEpoch": 2.1,
+      "epoch": 1275.12,
+      "orbiting": 17
+    },
+    "color": {
+      "r": 77, 
+      "g": 230,
+      "b": 166
+    }
+  },
+  {
+    "id": 22,
+    "name": "Urlum",
+    "radius": 2177000,
+    "atmosphereHeight": 325000,
+    "geeASL": 0.257,
+    "orbit": {
+      "semiMajorAxis": 254317012787,
+      "eccentricity": 0.045214674,
+      "inclination": 0.64,
+      "argOfPeriapsis": 0,
+      "ascNodeLongitude": 61,
+      "meanAnomalyEpoch": 5.59607362747192,
+      "epoch": 422.539999999906,
+      "orbiting": 0
+    },
+    "color": {
+      "r": 72, 
+      "g": 209,
+      "b": 204
+    }
+  },
+  {
+    "id": 23,
+    "name": "Polta",
+    "radius": 220000,
+    "maxTerrainHeight": 8835,
+    "geeASL": 0.19,
+    "orbit": {
+      "semiMajorAxis": 11727895,
+      "eccentricity": 0.0015,
+      "inclination": 2.45,
+      "argOfPeriapsis": 60,
+      "ascNodeLongitude": 40,
+      "meanAnomalyEpoch": 1.5209,
+      "epoch": 878.1399,
+      "orbiting": 22
+    },
+    "color": {
+      "r": 123, 
+      "g": 159,
+      "b": 148
+    }
+  },
+  {
+    "id": 24,
+    "name": "Priax",
+    "radius": 74000,
+    "maxTerrainHeight": 30485,
+    "geeASL": 0.063,
+    "orbit": {
+      "semiMajorAxis": 11727895,
+      "eccentricity": 0.0015,
+      "inclination": 2.5,
+      "argOfPeriapsis": 0,
+      "ascNodeLongitude": 40,
+      "meanAnomalyEpoch": 1.5209,
+      "epoch": 878.1399,
+      "orbiting": 22
+    },
+    "color": {
+      "r": 107, 
+      "g": 106,
+      "b": 102
+    }
+  },
+  {
+    "id": 25,
+    "name": "Wal",
+    "radius": 370000,
+    "maxTerrainHeight": 20650,
+    "geeASL": 0.37,
+    "orbit": {
+      "semiMajorAxis": 67553668,
+      "eccentricity": 0.023,
+      "inclination": 1.9,
+      "argOfPeriapsis": 0,
+      "ascNodeLongitude": 40,
+      "meanAnomalyEpoch": 2.9615,
+      "epoch": 1078.179,
+      "orbiting": 22
+    },
+    "color": {
+      "r": 184, 
+      "g": 154,
+      "b": 99
+    }
+  },
+  {
+    "id": 26,
+    "name": "Tal",
+    "radius": 22000,
+    "maxTerrainHeight": 11904,
+    "geeASL": 0.045,
+    "orbit": {
+      "semiMajorAxis": 3109163,
+      "eccentricity": 0,
+      "inclination": 1.9,
+      "argOfPeriapsis": 0,
+      "ascNodeLongitude": 40,
+      "meanAnomalyEpoch": 0,
+      "epoch": 1179.579,
+      "orbiting": 25
+    },
+    "color": {
+      "r": 102, 
+      "g": 92,
+      "b": 74
+    }
+  },
+  {
+    "id": 27,
+    "name": "Neidon",
+    "radius": 2145000,
+    "atmosphereHeight": 260000,
+    "geeASL": 0.314,
+    "orbit": {
+      "semiMajorAxis": 409355191706,
+      "eccentricity": 0.0127567,
+      "inclination": 1.27,
+      "argOfPeriapsis": 0,
+      "ascNodeLongitude": 259,
+      "meanAnomalyEpoch": 2.27167344093323,
+      "epoch": 99.6799999999973,
+      "orbiting": 0
+    },
+    "color": {
+      "r": 106, 
+      "g": 90,
+      "b": 205
+    }
+  },
+  {
+    "id": 28,
+    "name": "Thatmo",
+    "radius": 286000,
+    "maxTerrainHeight": 4981,
+    "atmosphereHeight": 35000,
+    "geeASL": 0.232,
+    "orbit": {
+      "semiMajorAxis": 32300895,
+      "eccentricity": 0.00043,
+      "inclination": 161.1,
+      "argOfPeriapsis": 0,
+      "ascNodeLongitude": 66,
+      "meanAnomalyEpoch": 2.04731106758118,
+      "epoch": 1953406.32967385,
+      "orbiting": 27
+    },
+    "color": {
+      "r": 230, 
+      "g": 230,
+      "b": 250
+    }
+  },
+  {
+    "id": 29,
+    "name": "Nissee",
+    "radius": 30000,
+    "maxTerrainHeight": 9113,
+    "geeASL": 0.045,
+    "orbit": {
+      "semiMajorAxis": 487743514,
+      "eccentricity": 0.72,
+      "inclination": 29.56,
+      "argOfPeriapsis": 0,
+      "ascNodeLongitude": 66,
+      "meanAnomalyEpoch": 2.04731106758118,
+      "epoch": 1953406.32967385,
+      "orbiting": 27
+    },
+    "color": {
+      "r": 210, 
+      "g": 180,
+      "b": 140
+    }
+  },
+  {
+    "id": 30,
+    "name": "Plock",
+    "radius": 189000,
+    "maxTerrainHeight": 3383,
+    "geeASL": 0.148,
+    "orbit": {
+      "semiMajorAxis": 535833706086,
+      "eccentricity": 0.26,
+      "inclination": 6.15,
+      "argOfPeriapsis": 50,
+      "ascNodeLongitude": 260,
+      "meanAnomalyEpoch": 0,
+      "epoch": 213,
+      "orbiting": 0
+    },
+    "color": {
+      "r": 130, 
+      "g": 123,
+      "b": 83
+    }
+  },
+  {
+    "id": 31,
+    "name": "Karen",
+    "radius": 85050,
+    "maxTerrainHeight": 4655,
+    "geeASL": 0.066,
+    "orbit": {
+      "semiMajorAxis": 2457800,
+      "eccentricity": 0,
+      "inclination": 0,
+      "argOfPeriapsis": 50,
+      "ascNodeLongitude": 260,
+      "meanAnomalyEpoch": 0,
+      "epoch": 213,
+      "orbiting": 30
+    },
+    "color": {
+      "r": 101, 
+      "g": 56,
+      "b": 54
     }
   }
 ]

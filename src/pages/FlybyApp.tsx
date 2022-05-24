@@ -1,4 +1,5 @@
 import SolarSystem from '../main/objects/system';
+import { OrbitingBody } from '../main/objects/body';
 import Vessel from '../main/objects/vessel';
 import MultiFlyby from '../main/objects/multiflyby';
 
@@ -16,7 +17,7 @@ import MultiFlybyInfo from '../components/FlybyApp/MultiFlybyInfo';
 import Navbar from '../components/Navbar';
 import HelpCollapse from '../components/FlybyApp/HelpCollapse';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ThemeProvider, Theme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
@@ -34,8 +35,11 @@ import Fade from '@mui/material/Fade';
 
 type FlybyAppState = {
   theme:                      Theme,
+  systemOptions:              Map<string, SolarSystem>,
   system:                     SolarSystem,
   setSystem:                  React.Dispatch<React.SetStateAction<SolarSystem>>,
+  systemName:                 string,
+  setSystemName:              React.Dispatch<React.SetStateAction<string>>,
   timeSettings:               TimeSettings,
   setTimeSettings:            React.Dispatch<React.SetStateAction<TimeSettings>>,
   vessels:                    Vessel[],
@@ -58,22 +62,45 @@ type FlybyAppState = {
   setSearchCount:             React.Dispatch<React.SetStateAction<number>>,
 }
 
+export function blankMultiFlyby(system: SolarSystem): MultiFlyby {
+  return new MultiFlyby({
+    system:                 system,
+    startOrbit:             (system.bodyFromId(1) as OrbitingBody).orbit,
+    endOrbit:               (system.bodyFromId(1) as OrbitingBody).orbit,
+    flybyIdSequence:        [],
+    transferBody:           system.sun,
+    startDate:              0,
+    flightTimes:            [],
+    endDate:                426 * 6 * 3600,
+    transfers:              [],
+    ejections:              [],
+    insertions:             [],
+    flybys:                 [],
+    maneuvers:              [],
+    maneuverContexts:       [],
+    deltaV:                 0,
+    soiPatchPositions:      [],
+    flybyDurations:         [],
+    ejectionInsertionType:  'fastdirect',
+    planeChange:            false,
+    matchStartMo:           false,
+    matchEndMo:             false,
+    noInsertionBurn:        false,
+    patchPositionError:     0.0,
+    patchTimeError:         0.0,
+  });
+}
 
 ///// App Content /////
-function FlybyAppContent({theme, system, setSystem, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, 
+function FlybyAppContent({theme, systemOptions, system, setSystem, systemName, setSystemName, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, 
                           copiedFlightPlan, setCopiedFlightPlan, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState,  dateControlsState, 
                           controlsOptionsState, multiFlyby, setMultiFlyby, evolutionPlotData, searchCount, setSearchCount}: FlybyAppState) {
 
-  ///// Multi-flyby search inputs /////
-  const [mfSearchInputs, setMfSearchInputs] = useState(searchInputsFromUI(system, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState.flybyIdSequence, dateControlsState, controlsOptionsState, timeSettings))
-
-  ///// invalid input alert /////
+  const [mfSearchInputs, setMfSearchInputs] = useState(searchInputsFromUI(system, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState.flybyIdSequence, dateControlsState, controlsOptionsState, timeSettings));
   const [invalidInput, setInvalidInput] = useState(false);
-
-
-  ///// Search Button /////
   const [buttonPresses, setButtonPresses] = useState(0);
   const [calculating, setCalculating] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   function handleButtonPress() {
     // update orbits
@@ -104,7 +131,12 @@ function FlybyAppContent({theme, system, setSystem, timeSettings, setTimeSetting
     console.log('"Search Trajectories" button pressed.');
   }
 
-  const [showHelp, setShowHelp] = useState(false);
+  useEffect(() => {
+    if(buttonPresses > 0 || multiFlyby.deltaV === 0) {
+      setMultiFlyby(blankMultiFlyby(system));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [system])
 
   return (
       <ThemeProvider theme={theme}>
@@ -136,7 +168,11 @@ function FlybyAppContent({theme, system, setSystem, timeSettings, setTimeSetting
               }}
             >
               <MissionControls 
+                systemOptions={systemOptions}
                 system={system} 
+                setSystem={setSystem}
+                systemName={systemName}
+                setSystemName={setSystemName} 
                 vessels={vessels}
                 startOrbitControlsState={startOrbitControlsState}
                 endOrbitControlsState={endOrbitControlsState} 

@@ -18,8 +18,8 @@ export class CelestialBody implements ICelestialBody {
         this.name               = data.name;
         this.radius             = data.radius;
         this.maxTerrainHeight   = data.maxTerrainHeight ? data.maxTerrainHeight : 0.0;
-        this.atmosphereHeight   = data.atmosphereHeight;
-        this.mass               = data.mass;
+        this.atmosphereHeight   = data.atmosphereHeight ? data.atmosphereHeight : 0.0;
+        this.mass               = data.mass ? data.mass : data.stdGravParam / 6.7430e-11;
         this.stdGravParam       = data.stdGravParam;
         this.soi                = data.soi;
         this.color              = new Color(data.color);

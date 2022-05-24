@@ -64,7 +64,11 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
     const [epoch, setEpoch] = useState(String(state.orbit.epoch));
     const [bodyId, setBodyId] = useState(state.orbit.orbiting);
 
-    const [body, setBody] = useState(system.bodyFromId(state.orbit.orbiting))
+    const [body, setBody] = useState(
+        system.orbiterIds.has(state.orbit.orbiting) ? 
+            system.bodyFromId(state.orbit.orbiting) :
+            system.bodyFromId(Math.max(...[...system.orbiterIds.keys()]))
+    );
 
     const [alt, setAlt] = useState(String(state.orbit.semiMajorAxis - body.radius));
 
@@ -110,6 +114,7 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
             setOrbitState(state, vessels[state.vesselId].orbit);
         }
         setVesselIdChange(true);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state.vesselId])
 
     useEffect(() => {
@@ -120,11 +125,16 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
                 setAlt(newAlt);
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sma])
 
     useEffect(() => {
-        setBodyOptions(createBodyItems(system));
-      }, [system]);
+        setBodyOptions(createBodyItems(system))
+        if(!system.orbiterIds.has(bodyId)) {
+            setBodyId(Math.max(...[...system.orbiterIds.keys()]));
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [system]);
 
     useEffect(() => {
         state.setOrbit({
@@ -142,7 +152,7 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
         } else {
             state.setVesselId(-1);
         }
-
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sma, ecc, inc, arg, lan, moe, epoch, bodyId])
 
     return (

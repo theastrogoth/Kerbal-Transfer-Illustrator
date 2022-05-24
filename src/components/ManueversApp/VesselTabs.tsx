@@ -9,14 +9,20 @@ import IconButton from "@mui/material/IconButton";
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 
-import VesselControls, { VesselControlsState } from "./VesselControls";
+import VesselControls from "./VesselControls";
+import SystemSelect from "../SystemSelect";
+// import TimeSettingsControls from "../TimeSettingsControls";
 import { defaultOrbit } from "../../utils";
 
 import SolarSystem from "../../main/objects/system";
 import Vessel from "../../main/objects/vessel";
 
 export type VesselTabsState = {
+    systemOptions:      Map<string, SolarSystem>,
     system:             SolarSystem, 
+    setSystem:          React.Dispatch<React.SetStateAction<SolarSystem>>,
+    systemName:         string, 
+    setSystemName:      React.Dispatch<React.SetStateAction<string>>,
     vessels:            Vessel[], 
     vesselPlans:        IVessel[], 
     setVesselPlans:     React.Dispatch<React.SetStateAction<IVessel[]>>,
@@ -24,6 +30,7 @@ export type VesselTabsState = {
     copiedManeuver:     ManeuverComponents,
     copiedFlightPlan:   IVessel,
     timeSettings:       TimeSettings,
+    setTimeSettings:    React.Dispatch<React.SetStateAction<TimeSettings>>,
 }
 
 function handleAddVessel(vesselPlans: IVessel[], setVesselPlans: React.Dispatch<React.SetStateAction<IVessel[]>>, system: SolarSystem, setValue: React.Dispatch<React.SetStateAction<number>>, tabValues: number[], setTabValues: React.Dispatch<React.SetStateAction<number[]>>) {
@@ -103,6 +110,7 @@ function VesselTabs({state}: {state: VesselTabsState}) {
         if(value >= state.vesselPlans.length) {
             setValue(state.vesselPlans.length - 1);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state.vesselPlans])
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -116,6 +124,9 @@ function VesselTabs({state}: {state: VesselTabsState}) {
                 <Typography variant="h5">Flight Plan Controls</Typography>
                 <Divider />
             </Box>
+            <SystemSelect systemOptions={state.systemOptions} setSystem={state.setSystem} systemName={state.systemName} setSystemName={state.setSystemName} />
+            {/* <TimeSettingsControls timeSettings={state.timeSettings} setTimeSettings={state.setTimeSettings}/> */}
+            <Divider />
             <Stack direction="row" spacing={2} textAlign="center" justifyContent="center">
                 <IconButton sx={{border: "1px solid"}} onClick={handleAddVessel(state.vesselPlans, state.setVesselPlans, state.system, setValue, tabValues, setTabValues)}>
                     <AddIcon />
