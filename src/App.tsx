@@ -8,6 +8,7 @@ import './App.css';
 import TransferApp, { blankTransfer } from './pages/Transfer';
 import FlybyApp, { blankMultiFlyby } from './pages/Flyby';
 import ManeuversApp from './pages/Maneuvers';
+import SolarSystemApp from './pages/System';
 
 import kspbodies from './data/kspbodies.json';
 import opmbodies from './data/opmbodies.json';
@@ -318,6 +319,20 @@ function AppBody() {
         setVesselPlans={setVesselPlans}
         flightPlans={flightPlans}
         setFlightPlans={setFlightPlans}
+      />} />
+      <Route path='/System/' element={<SolarSystemApp 
+        theme={theme}
+        mode={mode}
+        setMode={setMode}
+        systemOptions={systemOptions}
+        system={system}
+        setSystem={setSystem}
+        systemName={systemName}
+        setSystemName={setSystemName}
+        timeSettings={timeSettings}
+        setTimeSettings={setTimeSettings}
+        vessels={vessels}
+        setVessels={setVessels}
       />} />
     </Routes>
   );
