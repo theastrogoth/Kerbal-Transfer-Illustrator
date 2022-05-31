@@ -11,6 +11,7 @@ interface ICelestialBody {
     readonly maxTerrainHeight?: number;
     readonly atmosphereHeight?: number;
     readonly mass?:             number;
+    readonly geeASL?:           number;
     readonly stdGravParam:      number;
     readonly soi:               number;
     readonly color:             IColor;
@@ -124,6 +125,16 @@ type OrbitalState = {
     readonly vel:    Vector3,
 };
 
+type KeplerElements = {
+    readonly semiMajorAxis:      number,
+    readonly eccentricity:       number,
+    readonly inclination:        number,
+    readonly argOfPeriapsis:     number,
+    readonly ascNodeLongitude:   number,
+    readonly meanAnomalyEpoch:   number,
+    readonly epoch:              number,
+}
+
 type OrbitalElements = {
     readonly orbiting:           number,
     readonly semiMajorAxis:      number,
@@ -133,8 +144,6 @@ type OrbitalElements = {
     readonly ascNodeLongitude:   number,
     readonly meanAnomalyEpoch:   number,
     readonly epoch:              number,
-    readonly semiLatusRectum?:   number,
-    readonly siderealPeriod?:    number,
 };
 
 type Trajectory = {
@@ -169,6 +178,38 @@ type OrbitingBodyInputs = {
     readonly soi?:              number;
     readonly color?:            IColor;
     readonly orbit:             OrbitalElements;
+}
+
+type SunConfig = {
+    readonly flightGlobalsIndex?:   string;
+    readonly name?:                 string;
+    readonly radius?:               string;
+    readonly atmosphereHeight?:     string;
+    readonly geeASL?:               string;
+    readonly mass?:                 string;
+    readonly stdGravParam?:         string;
+    readonly templateName?:         string;
+}
+
+type OrbitingBodyConfig = {
+    readonly flightGlobalsIndex?:   string;
+    readonly name?:                 string;
+    readonly radius?:               string;
+    readonly atmosphereHeight?:     string;
+    readonly geeASL?:               string;
+    readonly mass?:                 string;
+    readonly stdGravParam?:         string;
+    readonly soi?:                  string;
+    readonly semiMajorAxis?:        string,
+    readonly eccentricity?:         string,
+    readonly inclination?:          string,
+    readonly argOfPeriapsis?:       string,
+    readonly ascNodeLongitude?:     string,
+    readonly meanAnomalyEpoch?:     string,
+    readonly epoch?:                string,
+    readonly color?:                string;
+    readonly referenceBody?:        string;
+    readonly templateName?:         string;
 }
 
 type FlybyInputs = {

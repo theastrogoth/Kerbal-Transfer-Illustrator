@@ -2,12 +2,14 @@ import SolarSystem from '../main/objects/system';
 import Vessel from '../main/objects/vessel';
 
 import Navbar from '../components/Navbar';
-import VesselTabs, { VesselTabsState } from '../components/ManueversApp/VesselTabs';
-import OrbitDisplayTabs from '../components/ManueversApp/OrbitDisplayTabs';
-import FlightPlanInfoTabs from '../components/ManueversApp/FlightPlanInfoTabs';
+import VesselTabs, { VesselTabsState } from '../components/Manuevers/VesselTabs';
+import OrbitDisplayTabs from '../components/Manuevers/OrbitDisplayTabs';
+import FlightPlanInfoTabs from '../components/Manuevers/FlightPlanInfoTabs';
+import HelpCollapse from '../components/Manuevers/HelpCollapse';
 
 import {useEffect, useState } from "react";
 import { ThemeProvider, Theme } from '@mui/material/styles';
+import { PaletteMode } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
 import Stack from '@mui/material/Stack';
@@ -22,6 +24,8 @@ import Collapse from '@mui/material/Collapse';
 
 type ManeuversAppState = {
   theme:                   Theme,
+  mode:                    PaletteMode,
+  setMode:                 React.Dispatch<React.SetStateAction<PaletteMode>>,
   systemOptions:           Map<string, SolarSystem>,
   system:                  SolarSystem,
   setSystem:               React.Dispatch<React.SetStateAction<SolarSystem>>,
@@ -47,7 +51,7 @@ type ManeuversAppState = {
 const propagateWorker = new Worker(new URL("../workers/propagate.worker.ts", import.meta.url));
 
 ////////// App Content //////////
-function ManeuversAppContent({theme, systemOptions, system, setSystem, systemName, setSystemName, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver,
+function ManeuversAppContent({theme, mode, setMode, systemOptions, system, setSystem, systemName, setSystemName, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver,
                               copiedFlightPlan, setCopiedFlightPlan, vesselPlans, setVesselPlans, flightPlans, setFlightPlans}: ManeuversAppState) { 
 
   // const [invalidInput, setInvalidInput] = useState(false);
@@ -88,13 +92,14 @@ useEffect(() => {
   ///// App Body /////
   return (
     <ThemeProvider theme={theme}>
-      <Navbar system={system} setVessels={setVessels} showHelp={showHelp} setShowHelp={setShowHelp} />
-      <Stack sx={{mx: 4, my: 1, minWidth: "1200px"}}>
+      <Navbar theme={theme} mode={mode} setMode={setMode} system={system} setVessels={setVessels} showHelp={showHelp} setShowHelp={setShowHelp} />
+      <Stack sx={{mx: 4, my: 1}}>
         <CssBaseline />
         <Box textAlign='left' sx={{mx: 2, my: 3}}>
-          <Typography variant="h4">Kerbal Flight Plan Illustrator</Typography>
+          <Typography variant="h4">Flight Planner</Typography>
           <Divider />
         </Box>
+        <HelpCollapse showHelp={showHelp} />
         <Collapse in={false}> { /* in={invalidInput} */}
           <Alert severity='error'>
             <AlertTitle>Error</AlertTitle>
@@ -102,14 +107,12 @@ useEffect(() => {
           </Alert>
         </Collapse>
         <Grid container component='main' justifyContent="center">
-          <Grid item xs={3} xl={2}>
+          <Grid item xs={10} sm={8} md={4} lg={3} xl={2}>
             <Paper 
               elevation={1}
               sx={{
                 my: 1, 
                 mx: 1, 
-                minWidth: 250,
-                maxWidth: 350,
                 display: 'flex',
                 flexDirection: 'column',
               }}
@@ -117,26 +120,7 @@ useEffect(() => {
               <VesselTabs state={vesselTabsState} />
             </Paper>
           </Grid>
-          <Grid item xs={5} xl={6}>
-            {/* <Paper 
-              elevation={1}
-              sx={{
-                my: 1, 
-                mx: 1,
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
-                <Box textAlign='center' sx={{ my: 0}}>
-                  <Button 
-                      variant="contained" 
-                      sx={{ mx: 'auto', my: 2 }}
-                      onClick={() => handlePlotButtonPress()}
-                  >
-                    ⇩ Plot It!
-                  </Button>
-                </Box>
-            </Paper> */}
+          <Grid item xs={12} sm={12} md={8} lg={5} xl={7}>
             <Paper 
                 elevation={1}
                 sx={{
@@ -149,7 +133,7 @@ useEffect(() => {
                 <OrbitDisplayTabs flightPlans={flightPlans} system={system} timeSettings={timeSettings}/>
             </Paper>
           </Grid>
-          <Grid item xs={4} xl={4}>
+          <Grid item xs={12} sm={10} md={8} lg={4} xl={3}>
             <Paper
               elevation={1}
               sx={{

@@ -3,21 +3,22 @@ import { OrbitingBody } from '../main/objects/body';
 import Vessel from '../main/objects/vessel';
 import Transfer from '../main/objects/transfer';
 
-import { DateControlsState } from '../components/TransferApp/DateControls';
+import { DateControlsState } from '../components/Transfer/DateControls';
 import { OrbitControlsState } from '../components/OrbitControls';
 import {ControlsOptionsState } from '../components/ControlsOptions';
 
-import MissionControls from '../components/TransferApp/MissionControls'
-import PorkchopPlot from '../components/TransferApp/PorkChopPlot';
-import OrbitDisplayTabs from '../components/TransferApp/OrbitDisplayTabs';
-import TransferInfo from '../components/TransferApp/TransferInfo';
-import HelpCollapse from '../components/TransferApp/HelpCollapse';
+import MissionControls from '../components/Transfer/MissionControls'
+import PorkchopPlot from '../components/Transfer/PorkChopPlot';
+import OrbitDisplayTabs from '../components/Transfer/OrbitDisplayTabs';
+import TransferInfo from '../components/Transfer/TransferInfo';
+import HelpCollapse from '../components/Transfer/HelpCollapse';
 import Navbar from '../components/Navbar';
 
 import { isInvalidOrbitInput, porkchopInputsFromUI } from '../utils';
 
 import React, { useState, useEffect } from "react";
 import { ThemeProvider, Theme } from '@mui/material/styles';
+import { PaletteMode } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
 import Stack from '@mui/material/Stack';
@@ -34,6 +35,8 @@ import Fade from '@mui/material/Fade';
 
 type TransferAppState = {
   theme:                   Theme,
+  mode:                    PaletteMode,
+  setMode:                 React.Dispatch<React.SetStateAction<PaletteMode>>,
   systemOptions:           Map<string, SolarSystem>,
   system:                  SolarSystem,
   setSystem:               React.Dispatch<React.SetStateAction<SolarSystem>>,
@@ -88,7 +91,7 @@ export function blankTransfer(system: SolarSystem): Transfer {
 
 ////////// App Content //////////
 
-function TransferAppContent({theme, systemOptions, system, setSystem, systemName, setSystemName, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver,
+function TransferAppContent({theme, mode, setMode, systemOptions, system, setSystem, systemName, setSystemName, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver,
                              copiedFlightPlan, setCopiedFlightPlan, startOrbitControlsState, endOrbitControlsState, dateControlsState, controlsOptionsState, transfer, setTransfer, 
                              porkchopInputs, setPorkchopInputs, porkchopPlotData, setPorkchopPlotData}: TransferAppState) { 
   
@@ -127,8 +130,8 @@ function TransferAppContent({theme, systemOptions, system, setSystem, systemName
   ///// App Body /////
   return (
     <ThemeProvider theme={theme}>
-      <Navbar system={system} setVessels={setVessels} showHelp={showHelp} setShowHelp={setShowHelp} />
-      <Stack sx={{mx: 4, my: 1, minWidth: "1200px"}}>
+      <Navbar theme={theme} mode={mode} setMode={setMode} system={system} setVessels={setVessels} showHelp={showHelp} setShowHelp={setShowHelp} />
+      <Stack sx={{mx: 4, my: 1}}>
         <CssBaseline />
         <Box textAlign='left' sx={{mx: 2, my: 3}}>
           <Typography variant="h4">Transfer Planner</Typography>
@@ -142,14 +145,12 @@ function TransferAppContent({theme, systemOptions, system, setSystem, systemName
           </Alert>
         </Collapse>
         <Grid container component='main' justifyContent="center">
-          <Grid item xs={3} xl={2}>
+          <Grid item xs={10} sm={8} md={4} lg={3} xl={2}>
             <Paper 
               elevation={1}
               sx={{
                 my: 1, 
                 mx: 1, 
-                minWidth: 250,
-                maxWidth: 350,
                 display: 'flex',
                 flexDirection: 'column',
               }}
@@ -171,7 +172,7 @@ function TransferAppContent({theme, systemOptions, system, setSystem, systemName
                 />
             </Paper>
           </Grid>
-          <Grid item xs={5} xl={6}>
+          <Grid item xs={12} sm={12} md={8} lg={5} xl={7}>
             <Paper 
               elevation={1}
               sx={{
@@ -223,7 +224,7 @@ function TransferAppContent({theme, systemOptions, system, setSystem, systemName
                 <OrbitDisplayTabs transfer={transfer} setTransfer={setTransfer} timeSettings={timeSettings}/>
             </Paper>
           </Grid>
-          <Grid item xs={4} xl={4}>
+          <Grid item xs={10} sm={8} md={7} lg={4} xl={3}>
             <Fade in={transfer.deltaV > 0} timeout={400}>
               <Paper
                 elevation={1}

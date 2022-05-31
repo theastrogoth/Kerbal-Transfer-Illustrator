@@ -18,7 +18,7 @@ export class Orbit implements IOrbit {
     readonly attractorStdGravParam!: number
 
 
-    constructor (data: OrbitalElements, attractor: ICelestialBody, anglesToRad: boolean = false) {
+    constructor (data: KeplerElements, attractor: ICelestialBody, anglesToRad: boolean = false) {
         this.semiMajorAxis = data.semiMajorAxis;
         this.eccentricity  = data.eccentricity;
         this.meanAnomalyEpoch = data.meanAnomalyEpoch;
@@ -37,23 +37,12 @@ export class Orbit implements IOrbit {
         this.periapsis = this.semiMajorAxis * (1 - this.eccentricity);
         this.apoapsis =  this.eccentricity > 1 ? Infinity : this.semiMajorAxis * (1 + this.eccentricity);
 
-        if(data.semiLatusRectum) {
-            this.semiLatusRectum = data.semiLatusRectum;
-        } else {
-            this.semiLatusRectum = this.semiMajorAxis * (1 - this.eccentricity * this.eccentricity);
-        }
+        this.semiLatusRectum = this.semiMajorAxis * (1 - this.eccentricity * this.eccentricity);
+        
 
-        if(data.siderealPeriod) {
-            this.siderealPeriod = data.siderealPeriod;
-        } else {
-            this.siderealPeriod = Kepler.siderealPeriod(data.semiMajorAxis, attractor.stdGravParam);
-        }
+        this.siderealPeriod = Kepler.siderealPeriod(data.semiMajorAxis, attractor.stdGravParam);
 
-        if(data.orbiting) {
-            this.orbiting = data.orbiting;
-        } else {
-            this.orbiting = attractor.id;
-        }
+        this.orbiting = attractor.id;
 
         this.attractorSoi = attractor.soi;
         this.attractorStdGravParam = attractor.stdGravParam;
@@ -76,7 +65,7 @@ export class Orbit implements IOrbit {
         };
     }
 
-    public static fromOrbitalElements(elements: OrbitalElements, attractor: ICelestialBody){
+    public static fromOrbitalElements(elements: KeplerElements, attractor: ICelestialBody){
         const data = Kepler.orbitFromElements(elements, attractor);
         return new Orbit(data, attractor);
     }

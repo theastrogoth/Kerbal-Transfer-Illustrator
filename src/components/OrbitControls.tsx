@@ -132,6 +132,10 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
         setBodyOptions(createBodyItems(system))
         if(!system.orbiterIds.has(bodyId)) {
             setBodyId(Math.max(...[...system.orbiterIds.keys()]));
+        } else {
+            const newBody = system.bodyFromId(bodyId);
+            setBody(newBody)
+            setSma(String(parseFloat(alt) + newBody.radius))
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [system]);

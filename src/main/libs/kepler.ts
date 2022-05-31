@@ -5,9 +5,9 @@ namespace Kepler {
     const gravitySeaLevelConstant = 9.80665;
     const newtonGravityConstant = 6.7430e-11;
 
-    export function orbitFromElements(elements: OrbitalElements, attractor: ICelestialBody): IOrbit {
-        const p = (elements.semiLatusRectum) ? elements.semiLatusRectum : elements.semiMajorAxis * (1 - elements.eccentricity * elements.eccentricity)
-        const T = (elements.siderealPeriod) ? elements.siderealPeriod : siderealPeriod(elements.semiMajorAxis, attractor.stdGravParam)
+    export function orbitFromElements(elements: KeplerElements, attractor: ICelestialBody): IOrbit {
+        const p = elements.semiMajorAxis * (1 - elements.eccentricity * elements.eccentricity);
+        const T = siderealPeriod(elements.semiMajorAxis, attractor.stdGravParam);
         return {
             orbiting:           attractor.id,
             semiMajorAxis:      elements.semiMajorAxis,
@@ -24,7 +24,7 @@ namespace Kepler {
 
     export function maneuverFromOrbitalStates(preState: OrbitalState, postState: OrbitalState): Maneuver {
         const deltaV = sub3(postState.vel, preState.vel);
-        const deltaVMag = mag3(deltaV)
+        const deltaVMag = mag3(deltaV);
         return {
             preState:   preState,
             postState:  postState,
@@ -69,14 +69,14 @@ namespace Kepler {
         return maneuver;
     }
 
-    export function rotateToInertialFromPerifocal(x: Vector3, orbit: OrbitalElements): Vector3 {
+    export function rotateToInertialFromPerifocal(x: Vector3, orbit: KeplerElements): Vector3 {
         const lan = orbit.ascNodeLongitude;
         const i = orbit.inclination;
         const arg = orbit.argOfPeriapsis;
         return zxz(x, lan, i, arg)
     }
 
-    export function rotateToPerifocalFromInertial(x: Vector3, orbit: OrbitalElements): Vector3 {
+    export function rotateToPerifocalFromInertial(x: Vector3, orbit: KeplerElements): Vector3 {
         const lan = orbit.ascNodeLongitude;
         const i = orbit.inclination;
         const arg = orbit.argOfPeriapsis;
@@ -181,7 +181,7 @@ namespace Kepler {
         return Math.atan2(perifocalPos.y, perifocalPos.x);
     }
 
-    export function angleInOrbitPlane(pos: Vector3, orbit: OrbitalElements) {
+    export function angleInOrbitPlane(pos: Vector3, orbit: KeplerElements) {
         return angleInPlane(pos, orbit.ascNodeLongitude, orbit.inclination, orbit.argOfPeriapsis)
     }
 
@@ -332,13 +332,14 @@ namespace Kepler {
 
         let stdGravParam = inputs.stdGravParam;
         let mass = inputs.mass;
+        let geeASL = inputs.geeASL;
         if(!stdGravParam && !mass) {
-            const geeASL = inputs.geeASL as number;
-            stdGravParam = geeASL * inputs.radius * inputs.radius * gravitySeaLevelConstant;
+            stdGravParam = geeASL as number * inputs.radius * inputs.radius * gravitySeaLevelConstant;
             mass = stdGravParam / newtonGravityConstant
         } else {
             stdGravParam = stdGravParam ? stdGravParam as number : mass as number * newtonGravityConstant;
             mass = mass ? mass as number : stdGravParam as number / newtonGravityConstant;  
+            geeASL = geeASL ? geeASL as number : stdGravParam / (inputs.radius * inputs.radius * gravitySeaLevelConstant);
         }
 
         const soi = inputs.soi ? inputs.soi : inputs.orbit.semiMajorAxis * (stdGravParam / attractor.stdGravParam)**(2/5);
@@ -351,6 +352,7 @@ namespace Kepler {
             maxTerrainHeight,
             atmosphereHeight,
             mass,
+            geeASL,
             stdGravParam,
             soi,
             color,

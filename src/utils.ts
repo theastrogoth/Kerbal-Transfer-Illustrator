@@ -9,8 +9,8 @@ import FlybyCalcs from './main/libs/flybycalcs';
 
 import { DateFieldState } from './components/DateField';
 import { OrbitControlsState } from './components/OrbitControls';
-import { DateControlsState } from './components/TransferApp/DateControls';
-import { FlybyDateControlsState } from './components/FlybyApp/FlybyDateControls';
+import { DateControlsState } from './components/Transfer/DateControls';
+import { FlybyDateControlsState } from './components/Flyby/FlybyDateControls';
 import { ControlsOptionsState } from './components/ControlsOptions';
 import { DynamicDateFieldState } from './components/DynamicDateFields';
 import { calendarDateToTime } from './main/libs/math';
