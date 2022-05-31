@@ -105,14 +105,12 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
     const handleAltChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
         setAlt(event.target.value);
         if(!isNaN(Number(event.target.value)) && event.target.value !== '') {
-            console.log("handleAltChange")
             setSma(String(+event.target.value + body.radius));
         }
     };
     const handleSmaChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
         setSma(event.target.value);
         if(!isNaN(Number(event.target.value)) && event.target.value !== '') {
-            console.log("handleSmaChange")
             setAlt(String(+event.target.value - body.radius));
         }
     };
@@ -130,7 +128,6 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
         if((!isNaN(newSma) && sma !== '') && !systemUpdate) {
             const newAlt = String(newSma - body.radius);
             if(newAlt !== alt) {
-                console.log(newAlt, "useEffect for sma")
                 setAlt(newAlt);
             }
         } else {
@@ -251,29 +248,26 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
                             value={epoch}
                             onChange={handleChange(setEpoch)}
                             sx={{ fullWidth: true }} />
-                        <Box display="flex" justifyContent="center" alignItems="center" >
-                            <PasteButton setObj={(o: IOrbit) => setOrbitState(state, o)} copiedObj={copiedOrbit}/>
-                            <IconButton 
-                                size="small"
-                                color="inherit"
-                                // @ts-ignore
-                                onClick={() => { setOrbitState(state, defaultOrbit(system, bodyId)); state.setVesselId(-1) }}
-                            >
-                                <ClearIcon />
-                            </IconButton>
-                        </Box>
                     </Stack>
                 </Collapse>
             </Stack>   
-            <Box textAlign='center'>
+            <Stack direction='row' spacing={1} display="flex" justifyContent="center" alignItems="center" >
                 <Button 
                     variant="text" 
                     onClick={() => setOptsVisible(!optsVisible)}
-                    sx={{ mx: 'auto' }}
                 >
                     {(optsVisible ? '\u25B4' : '\u25BE' ) + ' Advanced Options'}
                 </Button>
-            </Box>
+                <PasteButton setObj={(o: IOrbit) => setOrbitState(state, o)} copiedObj={copiedOrbit}/>
+                <IconButton 
+                    size="small"
+                    color="inherit"
+                    // @ts-ignore
+                    onClick={() => { setOrbitState(state, defaultOrbit(system, bodyId)); state.setVesselId(-1) }}
+                >
+                    <ClearIcon />
+                </IconButton>
+            </Stack>
         </label>
     )
 }
