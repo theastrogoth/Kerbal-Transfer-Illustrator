@@ -18,7 +18,7 @@ import IconButton from "@mui/material/IconButton";
 import ClearIcon from '@mui/icons-material/Clear';
 
 import { defaultOrbit } from "../utils";
-import { radToDeg } from "../main/libs/math";
+import { clamp, radToDeg } from "../main/libs/math";
 
 
 export type OrbitControlsState = {
@@ -76,6 +76,8 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
     const [bodyOptions, setBodyOptions] = useState(createBodyItems(system));
     const [vesselIdChange, setVesselIdChange] = useState(false);
 
+    const [systemUpdate, setSystemUpdate] = useState(false);
+
     const handleBodyIdChange = (event: any): void => {
         const newBody = system.bodyFromId(event.target.value);
         setBodyId(event.target.value);
@@ -83,7 +85,7 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
         setSma(String(parseFloat(alt) + newBody.radius))
     };
 
-    function setOrbitState(state: OrbitControlsState, orbit: IOrbit) {
+    function setOrbitState(state: OrbitControlsState, orbit: IOrbit, alt: number | undefined = undefined) {
         state.setOrbit(orbit)
         setSma(String(orbit.semiMajorAxis));
         setEcc(String(orbit.eccentricity));
@@ -94,17 +96,23 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
         setEpoch(String(orbit.epoch));
         setBodyId(orbit.orbiting);
         setBody(system.bodyFromId(orbit.orbiting));
+
+        if(alt) {
+            setAlt(String(alt));
+        }
     }
 
     const handleAltChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
         setAlt(event.target.value);
         if(!isNaN(Number(event.target.value)) && event.target.value !== '') {
+            console.log("handleAltChange")
             setSma(String(+event.target.value + body.radius));
         }
     };
     const handleSmaChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
         setSma(event.target.value);
         if(!isNaN(Number(event.target.value)) && event.target.value !== '') {
+            console.log("handleSmaChange")
             setAlt(String(+event.target.value - body.radius));
         }
     };
@@ -119,23 +127,28 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
 
     useEffect(() => {
         const newSma = Number(sma)
-        if(!isNaN(newSma) && sma !== '') {
+        if((!isNaN(newSma) && sma !== '') && !systemUpdate) {
             const newAlt = String(newSma - body.radius);
             if(newAlt !== alt) {
+                console.log(newAlt, "useEffect for sma")
                 setAlt(newAlt);
             }
+        } else {
+            setSystemUpdate(false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sma])
 
     useEffect(() => {
         setBodyOptions(createBodyItems(system))
+        setSystemUpdate(true)
         if(!system.orbiterIds.has(bodyId)) {
             setBodyId(Math.max(...[...system.orbiterIds.keys()]));
         } else {
             const newBody = system.bodyFromId(bodyId);
-            setBody(newBody)
-            setSma(String(parseFloat(alt) + newBody.radius))
+            setBody(newBody);
+            const orb = defaultOrbit(system, bodyId);
+            setOrbitState(state, orb, orb.semiMajorAxis - newBody.radius);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [system]);
@@ -244,7 +257,7 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
                                 size="small"
                                 color="inherit"
                                 // @ts-ignore
-                                onClick={() => { setOrbitState(state, defaultOrbit(system, bodyId)); setVesselId(-1) }}
+                                onClick={() => { setOrbitState(state, defaultOrbit(system, bodyId)); state.setVesselId(-1) }}
                             >
                                 <ClearIcon />
                             </IconButton>
