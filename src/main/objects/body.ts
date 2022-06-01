@@ -8,6 +8,7 @@ export class CelestialBody implements ICelestialBody {
     readonly maxTerrainHeight:  number;
     readonly atmosphereHeight!: number;
     readonly mass!:             number;
+    readonly geeASL:            number;
     readonly stdGravParam!:     number;
     readonly soi!:              number;
     readonly color!:            Color;
@@ -20,6 +21,7 @@ export class CelestialBody implements ICelestialBody {
         this.maxTerrainHeight   = data.maxTerrainHeight ? data.maxTerrainHeight : 0.0;
         this.atmosphereHeight   = data.atmosphereHeight ? data.atmosphereHeight : 0.0;
         this.mass               = data.mass ? data.mass : data.stdGravParam / 6.7430e-11;
+        this.geeASL             = data.geeASL ? data.geeASL : data.stdGravParam / (data.radius * data.radius * 9.80665);
         this.stdGravParam       = data.stdGravParam;
         this.soi                = data.soi;
         this.color              = new Color(data.color);
@@ -32,6 +34,7 @@ export class CelestialBody implements ICelestialBody {
             radius:             this.radius,
             atmosphereHeight:   this.atmosphereHeight,
             mass:               this.mass,
+            geeASL:             this.geeASL,
             stdGravParam:       this.stdGravParam,
             soi:                this.soi,
             color:              this.color

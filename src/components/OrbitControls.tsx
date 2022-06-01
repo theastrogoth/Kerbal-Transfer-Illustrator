@@ -76,6 +76,8 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
     const [bodyOptions, setBodyOptions] = useState(createBodyItems(system));
     const [vesselIdChange, setVesselIdChange] = useState(false);
 
+    const [componentLoaded, setComponentLoaded] = useState(true);
+
     const handleBodyIdChange = (event: any): void => {
         const newBody = system.bodyFromId(event.target.value);
         setBodyId(event.target.value);
@@ -83,7 +85,7 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
         setSma(String(parseFloat(alt) + newBody.radius))
     };
 
-    function setOrbitState(state: OrbitControlsState, orbit: IOrbit) {
+    function setOrbitState(state: OrbitControlsState, orbit: IOrbit, alt: number | undefined = undefined) {
         state.setOrbit(orbit)
         setSma(String(orbit.semiMajorAxis));
         setEcc(String(orbit.eccentricity));
@@ -94,6 +96,10 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
         setEpoch(String(orbit.epoch));
         setBodyId(orbit.orbiting);
         setBody(system.bodyFromId(orbit.orbiting));
+
+        if(alt) {
+            setAlt(String(alt));
+        }
     }
 
     const handleAltChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -129,9 +135,18 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
     }, [sma])
 
     useEffect(() => {
-        setBodyOptions(createBodyItems(system))
-        if(!system.orbiterIds.has(bodyId)) {
-            setBodyId(Math.max(...[...system.orbiterIds.keys()]));
+        if(!componentLoaded) {
+            setBodyOptions(createBodyItems(system))
+            if(!system.orbiterIds.has(bodyId)) {
+                setBodyId(Math.max(...[...system.orbiterIds.keys()]));
+            } else {
+                const newBody = system.bodyFromId(bodyId);
+                setBody(newBody);
+                const orb = defaultOrbit(system, bodyId);
+                setOrbitState(state, orb, orb.semiMajorAxis - newBody.radius);
+            }
+        } else {
+            setComponentLoaded(true)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [system]);
@@ -234,29 +249,26 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
                             value={epoch}
                             onChange={handleChange(setEpoch)}
                             sx={{ fullWidth: true }} />
-                        <Box display="flex" justifyContent="center" alignItems="center" >
-                            <PasteButton setObj={(o: IOrbit) => setOrbitState(state, o)} copiedObj={copiedOrbit}/>
-                            <IconButton 
-                                size="small"
-                                color="inherit"
-                                // @ts-ignore
-                                onClick={() => { setOrbitState(state, defaultOrbit(system, bodyId)); setVesselId(-1) }}
-                            >
-                                <ClearIcon />
-                            </IconButton>
-                        </Box>
                     </Stack>
                 </Collapse>
             </Stack>   
-            <Box textAlign='center'>
+            <Stack direction='row' spacing={1} display="flex" justifyContent="center" alignItems="center" >
                 <Button 
                     variant="text" 
                     onClick={() => setOptsVisible(!optsVisible)}
-                    sx={{ mx: 'auto' }}
                 >
                     {(optsVisible ? '\u25B4' : '\u25BE' ) + ' Advanced Options'}
                 </Button>
-            </Box>
+                <PasteButton setObj={(o: IOrbit) => setOrbitState(state, o)} copiedObj={copiedOrbit}/>
+                <IconButton 
+                    size="small"
+                    color="inherit"
+                    // @ts-ignore
+                    onClick={() => { setOrbitState(state, defaultOrbit(system, bodyId)); state.setVesselId(-1) }}
+                >
+                    <ClearIcon />
+                </IconButton>
+            </Stack>
         </label>
     )
 }

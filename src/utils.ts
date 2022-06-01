@@ -9,11 +9,11 @@ import FlybyCalcs from './main/libs/flybycalcs';
 
 import { DateFieldState } from './components/DateField';
 import { OrbitControlsState } from './components/OrbitControls';
-import { DateControlsState } from './components/TransferApp/DateControls';
-import { FlybyDateControlsState } from './components/FlybyApp/FlybyDateControls';
+import { DateControlsState } from './components/Transfer/DateControls';
+import { FlybyDateControlsState } from './components/Flyby/FlybyDateControls';
 import { ControlsOptionsState } from './components/ControlsOptions';
 import { DynamicDateFieldState } from './components/DynamicDateFields';
-import { calendarDateToTime } from './main/libs/math';
+import { clamp, calendarDateToTime } from './main/libs/math';
 
 // for re-used components
 export function dateFieldIsEmpty(field: DateFieldState): boolean {
@@ -69,9 +69,16 @@ export function isInvalidOrbitInput(ocState: OrbitControlsState): boolean {
     return invalid;
 }
 
-export function defaultOrbit(system: SolarSystem, id: number = 1, altitude: number = 100000): Orbit {
+export function defaultOrbit(system: SolarSystem, id: number = 1, altitude: number | undefined = undefined): Orbit {
     const body = system.bodyFromId(id);
-    const a = altitude + body.radius;
+
+    let alt = altitude;
+    if(!alt) {
+        alt = 10 ** Math.floor(Math.log10(body.radius + (body.atmosphereHeight || 0))); 
+        alt = clamp(alt, (body.atmosphereHeight || 0) + 1, (body.soi || Infinity) - 1)
+    }
+
+    const a = alt + body.radius;
     const elements: OrbitalElements = {
         semiMajorAxis:      a,
         eccentricity:       0.0,

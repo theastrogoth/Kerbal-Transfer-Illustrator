@@ -113,7 +113,7 @@ function OrbitDisplay({index, label, marks, centralBody, orbits, trajectories, s
             setUpdateFields(false);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [date, updateFields, timeSettings]);
+    }, [date, updateFields]);
 
     useEffect(() => {
         const newDate = timeFromDateFieldState(dateField, timeSettings, 1, 1);
@@ -122,7 +122,13 @@ function OrbitDisplay({index, label, marks, centralBody, orbits, trajectories, s
             setFieldsDate(newDate)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [dateField, timeSettings]);
+    }, [dateField]);
+
+    // useEffect(() => {
+    //     console.log(timeSettings)
+    //     updateDateField(dateField, date, timeSettings);
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [timeSettings])
 
     return (
         <>
@@ -149,5 +155,4 @@ function OrbitDisplay({index, label, marks, centralBody, orbits, trajectories, s
     )
 }
 
-// export default React.memo(OrbitDisplay)
 export default React.memo(OrbitDisplay);

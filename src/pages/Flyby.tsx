@@ -5,20 +5,21 @@ import MultiFlyby from '../main/objects/multiflyby';
 
 import { isInvalidOrbitInput, searchInputsFromUI } from '../utils';
 
-import { FlybyDateControlsState } from '../components/FlybyApp/FlybyDateControls';
+import { FlybyDateControlsState } from '../components/Flyby/FlybyDateControls';
 import { OrbitControlsState } from '../components/OrbitControls';
 import { ControlsOptionsState } from '../components/ControlsOptions';
-import { FlybySequenceControlsState } from '../components/FlybyApp/FlybySequenceControls';
+import { FlybySequenceControlsState } from '../components/Flyby/FlybySequenceControls';
 
-import MissionControls from '../components/FlybyApp/MissionControls'
-import EvolutionPlot, { EvolutionPlotData } from '../components/FlybyApp/EvolutionPlot';
-import OrbitDisplayTabs from '../components/FlybyApp/OrbitDisplayTabs';
-import MultiFlybyInfo from '../components/FlybyApp/MultiFlybyInfo';
+import MissionControls from '../components/Flyby/MissionControls'
+import EvolutionPlot, { EvolutionPlotData } from '../components/Flyby/EvolutionPlot';
+import OrbitDisplayTabs from '../components/Flyby/OrbitDisplayTabs';
+import MultiFlybyInfo from '../components/Flyby/MultiFlybyInfo';
 import Navbar from '../components/Navbar';
-import HelpCollapse from '../components/FlybyApp/HelpCollapse';
+import HelpCollapse from '../components/Flyby/HelpCollapse';
 
 import React, { useState, useEffect } from "react";
 import { ThemeProvider, Theme } from '@mui/material/styles';
+import { PaletteMode } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
 import Stack from '@mui/material/Stack';
@@ -35,6 +36,8 @@ import Fade from '@mui/material/Fade';
 
 type FlybyAppState = {
   theme:                      Theme,
+  mode:                       PaletteMode,
+  setMode:                    React.Dispatch<React.SetStateAction<PaletteMode>>,
   systemOptions:              Map<string, SolarSystem>,
   system:                     SolarSystem,
   setSystem:                  React.Dispatch<React.SetStateAction<SolarSystem>>,
@@ -92,7 +95,7 @@ export function blankMultiFlyby(system: SolarSystem): MultiFlyby {
 }
 
 ///// App Content /////
-function FlybyAppContent({theme, systemOptions, system, setSystem, systemName, setSystemName, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, 
+function FlybyAppContent({theme, mode, setMode, systemOptions, system, setSystem, systemName, setSystemName, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, 
                           copiedFlightPlan, setCopiedFlightPlan, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState,  dateControlsState, 
                           controlsOptionsState, multiFlyby, setMultiFlyby, evolutionPlotData, searchCount, setSearchCount}: FlybyAppState) {
 
@@ -140,8 +143,8 @@ function FlybyAppContent({theme, systemOptions, system, setSystem, systemName, s
 
   return (
       <ThemeProvider theme={theme}>
-      <Navbar system={system} setVessels={setVessels} showHelp={showHelp} setShowHelp={setShowHelp} />
-      <Stack sx={{mx: 4, my: 1, minWidth: "1200px"}}>
+      <Navbar theme={theme} mode={mode} setMode={setMode} system={system} setVessels={setVessels} showHelp={showHelp} setShowHelp={setShowHelp} />
+      <Stack sx={{mx: 4, my: 1}}>
         <CssBaseline />
         <Box textAlign='left' sx={{mx: 2, my: 3}}>
           <Typography variant="h4">Multi-Flyby Planner</Typography>
@@ -155,14 +158,12 @@ function FlybyAppContent({theme, systemOptions, system, setSystem, systemName, s
           </Alert>
         </Collapse>
         <Grid container component='main' justifyContent="center">
-          <Grid item xs={3} xl={2}>
+          <Grid item xs={10} sm={8} md={4} lg={3} xl={2} >
             <Paper 
               elevation={1}
               sx={{
                 my: 1, 
                 mx: 1, 
-                minWidth: 250,
-                maxWidth: 350,
                 display: 'flex',
                 flexDirection: 'column',
               }}
@@ -185,7 +186,7 @@ function FlybyAppContent({theme, systemOptions, system, setSystem, systemName, s
                 />
             </Paper>
           </Grid>
-          <Grid item xs={5} xl={6}>
+          <Grid item xs={12} sm={12} md={8} lg={5} xl={7}>
             <Paper 
               elevation={1}
               sx={{
@@ -227,7 +228,7 @@ function FlybyAppContent({theme, systemOptions, system, setSystem, systemName, s
                 <OrbitDisplayTabs multiFlyby={multiFlyby} timeSettings={timeSettings} setMultiFlyby={setMultiFlyby} searchCount={searchCount}/>
             </Paper>
           </Grid>
-          <Grid item xs={4} xl={4}>
+          <Grid item xs={10} sm={8} md={7} lg={4} xl={3}>
             <Fade in={searchCount > 0} timeout={400}>
               <Paper
                 elevation={1}

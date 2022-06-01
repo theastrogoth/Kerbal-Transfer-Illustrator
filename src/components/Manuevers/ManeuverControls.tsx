@@ -52,19 +52,36 @@ function ManeuverControls({idx, maneuvers, setManeuvers, copiedManeuver, timeSet
     const [open, setOpen] = useState(idx === 0);
     const [loaded, setLoaded] = useState(false);
 
+    const [timeSettingsChange, setTimeSettingsChange] = useState(false);
+
     const handleToggle = () => {
         setOpen(!open);
     }
 
     useEffect(() => {
-        const newDate = timeFromDateFieldState(dateField, timeSettings, 1, 1);
-        if(Number(UT) !== newDate) {
-            setUT(String(newDate));
+        // console.log(timeSettingsChange)
+        if(!timeSettingsChange) {
+            const newDate = timeFromDateFieldState(dateField, timeSettings, 1, 1);
+            if(Number(UT) !== newDate) {
+                setUT(String(newDate));
+            }
+        } else {
+            setTimeSettingsChange(false);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dateField])
 
     useEffect(() => {
-        if(loaded) {
+        // console.log("timeSettings change", timeSettings, maneuvers[idx].date, timeToCalendarDate(maneuvers[idx].date, timeSettings, 1, 1))
+        dateField.setCalendarDate(timeToCalendarDate(maneuvers[idx].date, timeSettings, 1, 1));
+        dateField.setUpdateInputs(true);
+        setTimeSettingsChange(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [timeSettings])
+
+    useEffect(() => {
+        console.log(timeSettingsChange)
+        if(loaded && !timeSettingsChange) {
             let equal = true;
             equal = equal && Number(prograde) === maneuvers[idx].prograde;
             equal = equal && Number(normal)   === maneuvers[idx].normal;
@@ -78,7 +95,9 @@ function ManeuverControls({idx, maneuvers, setManeuvers, copiedManeuver, timeSet
             }
         } else {
             setLoaded(true)
+            setTimeSettingsChange(false)
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [prograde, normal, radial, UT, loaded])
 
     useEffect(() => {
@@ -89,6 +108,7 @@ function ManeuverControls({idx, maneuvers, setManeuvers, copiedManeuver, timeSet
         setUT(String(maneuvers[idx].date));
         dateField.setCalendarDate(timeToCalendarDate(maneuvers[idx].date, timeSettings, 1, 1));
         dateField.setUpdateInputs(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [maneuvers])
 
     return (

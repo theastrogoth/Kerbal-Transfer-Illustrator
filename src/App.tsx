@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {Routes, Route } from 'react-router-dom';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme } from '@mui/material/styles';
+import { PaletteMode } from '@mui/material';
 import './App.css';
 
-import TransferApp, { blankTransfer } from './pages/TransferApp';
-import FlybyApp, { blankMultiFlyby } from './pages/FlybyApp';
-import ManeuversApp from './pages/ManeuversApp';
+import TransferApp, { blankTransfer } from './pages/Transfer';
+import FlybyApp, { blankMultiFlyby } from './pages/Flyby';
+import ManeuversApp from './pages/Maneuvers';
+import SolarSystemApp from './pages/System';
 
 import kspbodies from './data/kspbodies.json';
 import opmbodies from './data/opmbodies.json';
@@ -15,12 +17,12 @@ import rssbodies from './data/rssbodies.json';
 import Kepler from './main/libs/kepler';
 import SolarSystem from './main/objects/system';
 import Vessel from './main/objects/vessel';
-import loadSystemData from './main/utilities/loadsystem';
+import loadSystemData from './main/utilities/loadSystem';
 
-import { DateControlsState } from './components/TransferApp/DateControls';
-import { FlybyDateControlsState } from './components/FlybyApp/FlybyDateControls';
+import { DateControlsState } from './components/Transfer/DateControls';
+import { FlybyDateControlsState } from './components/Flyby/FlybyDateControls';
 import { defaultManeuverComponents, defaultOrbit, useControlOptions, useDateField, useOrbitControls } from './utils';
-import { EvolutionPlotData } from './components/FlybyApp/EvolutionPlot';
+import { EvolutionPlotData } from './components/Flyby/EvolutionPlot';
 import { DynamicDateFieldState } from './components/DynamicDateFields';
 
 // prepare popular systems
@@ -81,20 +83,25 @@ function AppBody() {
 
   // MUI theme
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const [mode, setMode] = useState((prefersDarkMode ? 'dark' : 'light') as PaletteMode);
   const theme = createTheme({
-  breakpoints: {
-        values: {
-            xs: 0,
-            sm: 600,
-            md: 900,
-            lg: 1200,
-            xl: 2280,
-        },
-    },
-    palette: {
-      mode: prefersDarkMode ? 'dark' : 'light',
-    },
-  });
+    breakpoints: {
+      values: {
+          xs: 0,
+          sm: 750,
+          md: 1030,
+          lg: 1500,
+          xl: 1800,
+      },
+  },
+  palette: {
+    mode: mode,
+  },
+});
+
+  useEffect(() => {
+    setMode((prefersDarkMode ? 'dark' : 'light') as PaletteMode)
+  }, [prefersDarkMode])
 
   // state for transfer calculator
   const transferStartOrbit = useOrbitControls(kspSystem, 1);
@@ -200,7 +207,7 @@ function AppBody() {
         prograde:   -448.7532077944218,
         normal:     21.6158998538224,
         radial:     0,
-        date:       10861479.5706846,
+        date:       10861527.5706846,
       }
     ] as ManeuverComponents[], 
     orbit: Kepler.orbitFromElements(
@@ -210,8 +217,7 @@ function AppBody() {
        argOfPeriapsis:    0,
        ascNodeLongitude:  0,
        meanAnomalyEpoch:  0.1480249964499558,
-       epoch:             4917299.01384942 - 2769.211791103803,
-       orbiting:          3},
+       epoch:             4917299.01384942 - 2769.211791103803},
        kspSystem.bodyFromId(3)
     )
     // name: 'Testing', 
@@ -232,6 +238,8 @@ function AppBody() {
     <Routes>
       <Route path='/' element={<TransferApp
         theme={theme}
+        mode={mode}
+        setMode={setMode}
         systemOptions={systemOptions}
         system={system}
         setSystem={setSystem}
@@ -260,6 +268,8 @@ function AppBody() {
        />} />
       <Route path='/Flyby/' element={<FlybyApp 
         theme={theme}
+        mode={mode}
+        setMode={setMode}
         systemOptions={systemOptions}
         system={system}
         setSystem={setSystem}
@@ -288,6 +298,8 @@ function AppBody() {
       />} />
       <Route path='/FlightPlan/' element={<ManeuversApp 
         theme={theme}
+        mode={mode}
+        setMode={setMode}
         systemOptions={systemOptions}
         system={system}
         setSystem={setSystem}
@@ -307,6 +319,20 @@ function AppBody() {
         setVesselPlans={setVesselPlans}
         flightPlans={flightPlans}
         setFlightPlans={setFlightPlans}
+      />} />
+      <Route path='/System/' element={<SolarSystemApp 
+        theme={theme}
+        mode={mode}
+        setMode={setMode}
+        systemOptions={systemOptions}
+        system={system}
+        setSystem={setSystem}
+        systemName={systemName}
+        setSystemName={setSystemName}
+        timeSettings={timeSettings}
+        setTimeSettings={setTimeSettings}
+        vessels={vessels}
+        setVessels={setVessels}
       />} />
     </Routes>
   );
