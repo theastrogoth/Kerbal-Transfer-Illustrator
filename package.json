@@ -1,7 +1,7 @@
 {
   "homepage": "https://theastrogoth.github.io/Kerbal-Transfer-Illustrator",
   "name": "kerbal-transfer-illustrator",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.7.1",
