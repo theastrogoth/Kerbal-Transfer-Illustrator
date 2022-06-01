@@ -11,7 +11,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 
 import VesselControls from "./VesselControls";
 import SystemSelect from "../SystemSelect";
-// import TimeSettingsControls from "../TimeSettingsControls";
+import TimeSettingsControls from "../TimeSettingsControls";
 import { defaultOrbit } from "../../utils";
 
 import SolarSystem from "../../main/objects/system";
@@ -125,7 +125,7 @@ function VesselTabs({state}: {state: VesselTabsState}) {
                 <Divider />
             </Box>
             <SystemSelect systemOptions={state.systemOptions} setSystem={state.setSystem} systemName={state.systemName} setSystemName={state.setSystemName} />
-            {/* <TimeSettingsControls timeSettings={state.timeSettings} setTimeSettings={state.setTimeSettings}/> */}
+            <TimeSettingsControls timeSettings={state.timeSettings} setTimeSettings={state.setTimeSettings}/>
             <Divider />
             <Stack direction="row" spacing={2} textAlign="center" justifyContent="center">
                 <IconButton sx={{border: "1px solid"}} onClick={handleAddVessel(state.vesselPlans, state.setVesselPlans, state.system, setValue, tabValues, setTabValues)}>

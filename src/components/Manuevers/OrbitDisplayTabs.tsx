@@ -130,7 +130,7 @@ function OrbitDisplayTabs({flightPlans, system, timeSettings}: OrbitDisplayTabsP
             setOrbitDisplayProps(prepareAllDisplayProps(flightPlans, system, timeSettings));
         }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [flightPlans]);
+      }, [flightPlans, timeSettings]);
     
     useEffect(() => {
         if(value < 0) {
@@ -139,6 +139,7 @@ function OrbitDisplayTabs({flightPlans, system, timeSettings}: OrbitDisplayTabsP
         if(orbitDisplayProps.length > 0 && value >= orbitDisplayProps.length) {
             setValue(orbitDisplayProps.length - 1);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [orbitDisplayProps.length])
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {

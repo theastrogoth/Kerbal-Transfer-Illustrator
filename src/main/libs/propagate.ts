@@ -92,7 +92,7 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
     } else {
         // for the soonest intercept, get the date where the SoI patch occurs
         const distObj = (d: number) => orbitDistanceFromBody(d, orbit, interceptBody as IOrbitingBody);
-        const rootFind = (s: number, e: number, iter=0): number => {try { return brentRootFind(distObj, s, e) } catch { if(iter>10) { return rootFind(s + 10, e, iter+1) } else { return NaN } }}
+        const rootFind = (s: number, e: number, iter=0): number => {try { return brentRootFind(distObj, s, e, 1e-15) } catch { if(iter>10) { return rootFind(s + 10, e, iter+1) } else { return NaN } }}
         let soiPatchTime = rootFind(start, interceptTime);
         // if(isNaN(soiPatchTime)) { return null; }
         if(isNaN(soiPatchTime)) {

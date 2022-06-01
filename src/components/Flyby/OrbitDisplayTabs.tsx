@@ -296,7 +296,7 @@ function OrbitDisplayTabs({multiFlyby, timeSettings, setMultiFlyby, searchCount}
         }
         setOrbitDisplayProps(prepareAllDisplayProps(multiFlyby, timeSettings));
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [multiFlyby]);
+      }, [multiFlyby, timeSettings]);
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);

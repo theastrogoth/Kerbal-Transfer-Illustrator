@@ -18,7 +18,7 @@ import IconButton from "@mui/material/IconButton";
 import ClearIcon from '@mui/icons-material/Clear';
 
 import { defaultOrbit } from "../utils";
-import { clamp, radToDeg } from "../main/libs/math";
+import { radToDeg } from "../main/libs/math";
 
 
 export type OrbitControlsState = {
@@ -76,7 +76,7 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
     const [bodyOptions, setBodyOptions] = useState(createBodyItems(system));
     const [vesselIdChange, setVesselIdChange] = useState(false);
 
-    const [systemUpdate, setSystemUpdate] = useState(false);
+    const [componentLoaded, setComponentLoaded] = useState(true);
 
     const handleBodyIdChange = (event: any): void => {
         const newBody = system.bodyFromId(event.target.value);
@@ -125,27 +125,28 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
 
     useEffect(() => {
         const newSma = Number(sma)
-        if((!isNaN(newSma) && sma !== '') && !systemUpdate) {
+        if(!isNaN(newSma) && sma !== '') {
             const newAlt = String(newSma - body.radius);
             if(newAlt !== alt) {
                 setAlt(newAlt);
             }
-        } else {
-            setSystemUpdate(false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sma])
 
     useEffect(() => {
-        setBodyOptions(createBodyItems(system))
-        setSystemUpdate(true)
-        if(!system.orbiterIds.has(bodyId)) {
-            setBodyId(Math.max(...[...system.orbiterIds.keys()]));
+        if(!componentLoaded) {
+            setBodyOptions(createBodyItems(system))
+            if(!system.orbiterIds.has(bodyId)) {
+                setBodyId(Math.max(...[...system.orbiterIds.keys()]));
+            } else {
+                const newBody = system.bodyFromId(bodyId);
+                setBody(newBody);
+                const orb = defaultOrbit(system, bodyId);
+                setOrbitState(state, orb, orb.semiMajorAxis - newBody.radius);
+            }
         } else {
-            const newBody = system.bodyFromId(bodyId);
-            setBody(newBody);
-            const orb = defaultOrbit(system, bodyId);
-            setOrbitState(state, orb, orb.semiMajorAxis - newBody.radius);
+            setComponentLoaded(true)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [system]);

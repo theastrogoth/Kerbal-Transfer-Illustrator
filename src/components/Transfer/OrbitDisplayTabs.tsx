@@ -252,7 +252,7 @@ function OrbitDisplayTabs({transfer, timeSettings, setTransfer}: OrbitDisplayTab
         setOrbitDisplayProps(prepareAllDisplayProps(transfer, timeSettings));
         setCanRefine(transfer.deltaV > 0);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [transfer]);
+      }, [transfer, timeSettings]);
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);

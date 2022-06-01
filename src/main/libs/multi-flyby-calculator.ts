@@ -4,6 +4,7 @@ import FlybyCalcs from "./flybycalcs";
 import Kepler from "./kepler";
 import { sub3, mag3, vec3, randomSign, cartesianToSpherical, sphericalToCartesian, mult3 } from "./math";
 import { nelderMeadMinimize } from "./optim";
+// import DepartArrive from "./departarrive";
 
 class MultiFlybyCalculator {
     private readonly _system!:          ISolarSystem;
@@ -475,6 +476,8 @@ class MultiFlybyCalculator {
             const ejOrbit  = this._ejections[i].orbits[ejLen - 1];
             const ejDate   = this._ejections[i].intersectTimes[ejLen];
             soiPatchPositions.push(Kepler.orbitToPositionAtDate(ejOrbit, ejDate));
+            // const ejectionBody = this.bodyFromId(ejOrbit.orbiting) as IOrbitingBody;
+            // soiPatchPositions.push(DepartArrive.ejectionPosition(ejOrbit, ejectionBody));
         }
         for(let i=0; i<this._flybys.length; i++) {
             const inOrbit  = this._flybys[i].orbits[0];
@@ -483,12 +486,16 @@ class MultiFlybyCalculator {
             const outDate  = this._flybys[i].intersectTimes[2];
             soiPatchPositions.push(Kepler.orbitToPositionAtDate(inOrbit,  inDate));
             soiPatchPositions.push(Kepler.orbitToPositionAtDate(outOrbit, outDate));
-
+            // const flybyBody = this._flybyBodySequence[i];
+            // soiPatchPositions.push(DepartArrive.insertionPosition(inOrbit, flybyBody));
+            // soiPatchPositions.push(DepartArrive.insertionPosition(outOrbit, flybyBody));
         }
         for(let j=0; j<this._insertions.length; j++) {
             const inOrbit  = this._insertions[j].orbits[0];
             const inDate   = this._insertions[j].intersectTimes[0];
             soiPatchPositions.push(Kepler.orbitToPositionAtDate(inOrbit, inDate));
+            // const insertionBody = this.bodyFromId(inOrbit.orbiting) as IOrbitingBody;
+            // soiPatchPositions.push(DepartArrive.insertionPosition(inOrbit, insertionBody));
         }
         return soiPatchPositions
     }

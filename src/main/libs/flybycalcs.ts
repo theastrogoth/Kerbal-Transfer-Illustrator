@@ -89,7 +89,6 @@ namespace FlybyCalcs {
         const inSMA  = params.inSemiMajorAxis;
         const outSMA = params.outSemiMajorAxis;
         const inEcc  = params.inEccentricity;
-        // const outEcc = params.outEccentricity;
 
         const periapsis = inSMA * (1 - inEcc);
 
@@ -97,15 +96,21 @@ namespace FlybyCalcs {
         const inNu = -Kepler.trueAnomalyAtDistance(soi, inEcc,  inSLR);
         const inPerifocalDirection  = Kepler.motionDirectionAtTrueAnomaly(inNu,  inEcc);
 
-        const {axis, angle} = alignVectorsAngleAxis(inPerifocalDirection, params.inDirection);
+        // rotate so that the incoming direction is correct
+        const axisAngle1 = alignVectorsAngleAxis(inPerifocalDirection, params.inDirection);
+        const tempPeriapsisPos = roderigues(vec3(periapsis, 0, 0), axisAngle1.axis, axisAngle1.angle);
 
-        const periapsisPos = roderigues(vec3(periapsis, 0, 0), axis, angle);
+        // rotate around the incoming direction so that the normal direction is correct (this should also ensure the proper outgoing direction)
+        const axisAngle2 = alignVectorsAngleAxis(cross3(tempPeriapsisPos, params.inDirection), params.normalDirection);
+        const periapsisPos = roderigues(tempPeriapsisPos, axisAngle2.axis, axisAngle2.angle);
 
+        // calculate the speed before and after the burn
         const inPeriapsisSpeed  = Math.sqrt(mu * (2 / periapsis - 1 / inSMA));
         const outPeriapsisSpeed = Math.sqrt(mu * (2 / periapsis - 1 / outSMA));
 
-        const inPeriapsisVel  = roderigues(vec3(0, inPeriapsisSpeed,  0), axis, angle);
-        const outPeriapsisVel = roderigues(vec3(0, outPeriapsisSpeed, 0), axis, angle);
+        // calculate velocity based on the rotations to align the incoming and outgoing directions
+        const inPeriapsisVel  = roderigues(roderigues(vec3(0, inPeriapsisSpeed,  0), axisAngle1.axis, axisAngle1.angle), axisAngle2.axis, axisAngle2.angle);
+        const outPeriapsisVel = roderigues(roderigues(vec3(0, outPeriapsisSpeed, 0), axisAngle1.axis, axisAngle1.angle), axisAngle2.axis, axisAngle2.angle);
 
         const inPeriapsisState  = {date: params.time, pos: periapsisPos, vel: inPeriapsisVel};
         const outPeriapsisState = {date: params.time, pos: periapsisPos, vel: outPeriapsisVel};
@@ -116,6 +121,12 @@ namespace FlybyCalcs {
         
         const inDate  = DepartArrive.insertionDate(inOrbit, body);
         const outDate = DepartArrive.ejectionDate(outOrbit, body);
+
+        // // testing: make sure directions and deltaV are correct
+        // console.log(params.error)
+        // console.log(params.inDirection, normalize3(Kepler.orbitToVelocityAtDate(inOrbit, body, inDate)));
+        // console.log(params.outDirection, normalize3(Kepler.orbitToVelocityAtDate(outOrbit, body, outDate)));
+        // console.log(params.deltaV, outPeriapsisSpeed - inPeriapsisSpeed)
 
         const trajectory: Trajectory = {
             orbits:         [inOrbit, outOrbit],

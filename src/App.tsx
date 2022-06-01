@@ -207,7 +207,7 @@ function AppBody() {
         prograde:   -448.7532077944218,
         normal:     21.6158998538224,
         radial:     0,
-        date:       10861479.5706846,
+        date:       10861527.5706846,
       }
     ] as ManeuverComponents[], 
     orbit: Kepler.orbitFromElements(

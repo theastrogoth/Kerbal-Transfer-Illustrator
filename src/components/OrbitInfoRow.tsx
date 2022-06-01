@@ -72,7 +72,7 @@ function OrbitInfoRow({name, orbit, system, copiedOrbit, setCopiedOrbit}: {name:
                                 </TableRow>
                                 <TableRow>
                                     <TableCell sx={{ borderBottom: 0 }}>Epoch:</TableCell>
-                                    <TableCell sx={{ borderBottom: 0 }}>{String(orbit.epoch).concat(" rad")}</TableCell>
+                                    <TableCell sx={{ borderBottom: 0 }}>{String(orbit.epoch).concat(" s")}</TableCell>
                                 </TableRow>
                             </TableBody>
                         </Table>
