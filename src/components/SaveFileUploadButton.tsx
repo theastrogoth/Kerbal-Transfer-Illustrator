@@ -1,11 +1,15 @@
 import React from "react";
 import Button from "@mui/material/Button";
-import Vessel from "../main/objects/vessel";
 import saveFileToVessels from "../main/utilities/loadSaveData";
 import UploadFileOutlined from "@mui/icons-material/UploadFileOutlined";
 
-function SaveFileUploadButton({system, setVessels}: {system: ISolarSystem, setVessels: React.Dispatch<React.SetStateAction<Vessel[]>>}) {
-  
+import { useAtom } from "jotai";
+import { systemAtom, vesselsAtom } from "../App";
+
+function SaveFileUploadButton() {
+  const [, setVessels] = useAtom(vesselsAtom);
+  const [system] = useAtom(systemAtom);
+
   const handleFile = (e: any) => {
     const content = e.target.result;
     setVessels(saveFileToVessels(content, system));

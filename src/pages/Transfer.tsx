@@ -1,6 +1,5 @@
 import SolarSystem from '../main/objects/system';
 import { OrbitingBody } from '../main/objects/body';
-import Vessel from '../main/objects/vessel';
 import Transfer from '../main/objects/transfer';
 
 import { DateControlsState } from '../components/Transfer/DateControls';
@@ -17,8 +16,6 @@ import Navbar from '../components/Navbar';
 import { isInvalidOrbitInput, porkchopInputsFromUI } from '../utils';
 
 import React, { useState, useEffect } from "react";
-import { ThemeProvider, Theme } from '@mui/material/styles';
-import { PaletteMode } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
 import Stack from '@mui/material/Stack';
@@ -33,35 +30,14 @@ import Collapse from '@mui/material/Collapse';
 import CircularProgress from "@mui/material/CircularProgress";
 import Fade from '@mui/material/Fade';
 
+import { useAtom } from 'jotai';
+import { porkchopInputsAtom, systemAtom, timeSettingsAtom, transferAtom } from '../App';
+
 type TransferAppState = {
-  theme:                   Theme,
-  mode:                    PaletteMode,
-  setMode:                 React.Dispatch<React.SetStateAction<PaletteMode>>,
-  systemOptions:           Map<string, SolarSystem>,
-  system:                  SolarSystem,
-  setSystem:               React.Dispatch<React.SetStateAction<SolarSystem>>,
-  systemName:              string,
-  setSystemName:           React.Dispatch<React.SetStateAction<string>>,
-  timeSettings:            TimeSettings,
-  setTimeSettings:         React.Dispatch<React.SetStateAction<TimeSettings>>,
-  vessels:                 Vessel[],
-  setVessels:              React.Dispatch<React.SetStateAction<Vessel[]>>,
-  copiedOrbit:             IOrbit,
-  setCopiedOrbit:          React.Dispatch<React.SetStateAction<IOrbit>>,
-  copiedManeuver:          ManeuverComponents,
-  setCopiedManeuver:       React.Dispatch<React.SetStateAction<ManeuverComponents>>,
-  copiedFlightPlan:        IVessel,
-  setCopiedFlightPlan:     React.Dispatch<React.SetStateAction<IVessel>>,
   startOrbitControlsState: OrbitControlsState,
   endOrbitControlsState:   OrbitControlsState,
   dateControlsState:       DateControlsState,
   controlsOptionsState:    ControlsOptionsState,
-  transfer:                Transfer,
-  setTransfer:             React.Dispatch<React.SetStateAction<Transfer>>,
-  porkchopInputs:          PorkchopInputs,
-  setPorkchopInputs:       React.Dispatch<React.SetStateAction<PorkchopInputs>>,
-  porkchopPlotData:        PorkchopPlotData,
-  setPorkchopPlotData:     React.Dispatch<React.SetStateAction<PorkchopPlotData>>,
 }
 
 export function blankTransfer(system: SolarSystem): Transfer {
@@ -91,10 +67,12 @@ export function blankTransfer(system: SolarSystem): Transfer {
 
 ////////// App Content //////////
 
-function TransferAppContent({theme, mode, setMode, systemOptions, system, setSystem, systemName, setSystemName, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver,
-                             copiedFlightPlan, setCopiedFlightPlan, startOrbitControlsState, endOrbitControlsState, dateControlsState, controlsOptionsState, transfer, setTransfer, 
-                             porkchopInputs, setPorkchopInputs, porkchopPlotData, setPorkchopPlotData}: TransferAppState) { 
-  
+function TransferAppContent({startOrbitControlsState, endOrbitControlsState, dateControlsState, controlsOptionsState}: TransferAppState) { 
+  const [system] = useAtom(systemAtom);
+  const [timeSettings] = useAtom(timeSettingsAtom);
+  const [transfer, setTransfer] = useAtom(transferAtom);
+  const [, setPorkchopInputs] = useAtom(porkchopInputsAtom);
+
   const [invalidInput, setInvalidInput] = useState(false);
   const [porkCalculating, setPorkCalculating] = useState(false);
   const [plotCount, setPlotCount] = useState(0);
@@ -114,7 +92,6 @@ function TransferAppContent({theme, mode, setMode, systemOptions, system, setSys
 
     // prepare porkchop inputs
     const porkInputs = porkchopInputsFromUI(system, startOrbitControlsState, endOrbitControlsState, dateControlsState, controlsOptionsState, timeSettings);
-
     setPorkchopInputs(porkInputs);
     setPlotCount(plotCount + 1)
     console.log('"Plot!" button pressed.');
@@ -129,8 +106,8 @@ function TransferAppContent({theme, mode, setMode, systemOptions, system, setSys
 
   ///// App Body /////
   return (
-    <ThemeProvider theme={theme}>
-      <Navbar theme={theme} mode={mode} setMode={setMode} system={system} setVessels={setVessels} showHelp={showHelp} setShowHelp={setShowHelp} />
+    <>
+      <Navbar showHelp={showHelp} setShowHelp={setShowHelp} />
       <Stack sx={{mx: 4, my: 1}}>
         <CssBaseline />
         <Box textAlign='left' sx={{mx: 2, my: 3}}>
@@ -145,7 +122,7 @@ function TransferAppContent({theme, mode, setMode, systemOptions, system, setSys
           </Alert>
         </Collapse>
         <Grid container component='main' justifyContent="center">
-          <Grid item xs={10} sm={8} md={4} lg={3} xl={2}>
+          <Grid item xs={12} sm={11} md={4} lg={3} xl={2}>
             <Paper 
               elevation={1}
               sx={{
@@ -156,19 +133,10 @@ function TransferAppContent({theme, mode, setMode, systemOptions, system, setSys
               }}
             >
               <MissionControls 
-                systemOptions={systemOptions}
-                system={system} 
-                setSystem={setSystem}
-                systemName={systemName}
-                setSystemName={setSystemName}
-                vessels={vessels}
                 startOrbitControlsState={startOrbitControlsState}
                 endOrbitControlsState= {endOrbitControlsState} 
                 dateControlsState={dateControlsState}
                 controlsOptionsState={controlsOptionsState}
-                copiedOrbit={copiedOrbit}
-                timeSettings={timeSettings}
-                setTimeSettings={setTimeSettings}
                 />
             </Paper>
           </Grid>
@@ -201,14 +169,8 @@ function TransferAppContent({theme, mode, setMode, systemOptions, system, setSys
                   }
                   </Button>
                 </Box>
-              {/* @ts-ignore */}
               <PorkchopPlot 
-                inputs={porkchopInputs}
-                plotData={porkchopPlotData}
-                timeSettings={timeSettings}
                 plotCount={plotCount}
-                setPlotData={setPorkchopPlotData}
-                setTransfer={setTransfer}
                 setCalculating={setPorkCalculating}
               />
             </Paper>
@@ -235,8 +197,7 @@ function TransferAppContent({theme, mode, setMode, systemOptions, system, setSys
                   flexDirection: 'column',
               }}
               >
-                <TransferInfo transfer={transfer} timeSettings={timeSettings} copiedOrbit={copiedOrbit} setCopiedOrbit={setCopiedOrbit} copiedManeuver={copiedManeuver}
-                  setCopiedManeuver={setCopiedManeuver} copiedFlightPlan={copiedFlightPlan} setCopiedFlightPlan={setCopiedFlightPlan}/>
+                <TransferInfo />
               </Paper>
             </Fade>
           </Grid>
@@ -261,7 +222,7 @@ function TransferAppContent({theme, mode, setMode, systemOptions, system, setSys
           </Box>
         </Box>
       </Stack>
-    </ThemeProvider>
+    </>
   )
 }
 

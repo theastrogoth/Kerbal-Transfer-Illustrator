@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from 'react';
+import { useAtom } from 'jotai';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
+
 import SolarSystem from '../main/objects/system';
+
+import { systemOptionsAtom, systemAtom, systemNameAtom } from '../App';
+
 
 function createSystemItems(systemOptions: Map<string, SolarSystem>) {
     const options = [...systemOptions.keys()].map((k,i) => <MenuItem key={i} value={k}>{k}</MenuItem> )
     return options;
 }
 
-function SystemSelect({systemOptions, systemName, setSystem, setSystemName}: 
-    {systemOptions: Map<string, SolarSystem>, systemName: string, setSystem: React.Dispatch<React.SetStateAction<SolarSystem>>, setSystemName: React.Dispatch<React.SetStateAction<string>>}) {
-
+function SystemSelect() {
+    const [systemOptions] = useAtom(systemOptionsAtom);
+    const [, setSystem] = useAtom(systemAtom);
+    const [systemName, setSystemName] = useAtom(systemNameAtom);
     const [systemOpts, setSystemOpts] = useState(createSystemItems(systemOptions));
 
     useEffect(() => {

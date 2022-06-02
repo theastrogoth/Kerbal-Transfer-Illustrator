@@ -1,6 +1,5 @@
 import SolarSystem from '../main/objects/system';
 import { OrbitingBody } from '../main/objects/body';
-import Vessel from '../main/objects/vessel';
 import MultiFlyby from '../main/objects/multiflyby';
 
 import { isInvalidOrbitInput, searchInputsFromUI } from '../utils';
@@ -18,8 +17,6 @@ import Navbar from '../components/Navbar';
 import HelpCollapse from '../components/Flyby/HelpCollapse';
 
 import React, { useState, useEffect } from "react";
-import { ThemeProvider, Theme } from '@mui/material/styles';
-import { PaletteMode } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
 import Stack from '@mui/material/Stack';
@@ -33,33 +30,16 @@ import AlertTitle from '@mui/material/AlertTitle';
 import Collapse from '@mui/material/Collapse';
 import Fade from '@mui/material/Fade';
 
+import { useAtom } from 'jotai';
+import { multiFlybyAtom, systemAtom, timeSettingsAtom } from '../App';
+
 
 type FlybyAppState = {
-  theme:                      Theme,
-  mode:                       PaletteMode,
-  setMode:                    React.Dispatch<React.SetStateAction<PaletteMode>>,
-  systemOptions:              Map<string, SolarSystem>,
-  system:                     SolarSystem,
-  setSystem:                  React.Dispatch<React.SetStateAction<SolarSystem>>,
-  systemName:                 string,
-  setSystemName:              React.Dispatch<React.SetStateAction<string>>,
-  timeSettings:               TimeSettings,
-  setTimeSettings:            React.Dispatch<React.SetStateAction<TimeSettings>>,
-  vessels:                    Vessel[],
-  setVessels:                 React.Dispatch<React.SetStateAction<Vessel[]>>,
-  copiedOrbit:                IOrbit,
-  setCopiedOrbit:             React.Dispatch<React.SetStateAction<IOrbit>>,
-  copiedManeuver:             ManeuverComponents,
-  setCopiedManeuver:          React.Dispatch<React.SetStateAction<ManeuverComponents>>,
-  copiedFlightPlan:           IVessel,
-  setCopiedFlightPlan:        React.Dispatch<React.SetStateAction<IVessel>>,
   startOrbitControlsState:    OrbitControlsState,
   endOrbitControlsState:      OrbitControlsState,
   flybySequenceControlsState: FlybySequenceControlsState,
   dateControlsState:          FlybyDateControlsState,
   controlsOptionsState:       ControlsOptionsState,
-  multiFlyby:                 MultiFlyby,
-  setMultiFlyby:              React.Dispatch<React.SetStateAction<MultiFlyby>>,
   evolutionPlotData:          EvolutionPlotData,
   searchCount:                number,
   setSearchCount:             React.Dispatch<React.SetStateAction<number>>,
@@ -95,9 +75,13 @@ export function blankMultiFlyby(system: SolarSystem): MultiFlyby {
 }
 
 ///// App Content /////
-function FlybyAppContent({theme, mode, setMode, systemOptions, system, setSystem, systemName, setSystemName, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, 
-                          copiedFlightPlan, setCopiedFlightPlan, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState,  dateControlsState, 
-                          controlsOptionsState, multiFlyby, setMultiFlyby, evolutionPlotData, searchCount, setSearchCount}: FlybyAppState) {
+function FlybyAppContent({startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState,  dateControlsState, 
+                          controlsOptionsState, evolutionPlotData, searchCount, setSearchCount}: FlybyAppState) {
+  
+  const [system] = useAtom(systemAtom);
+  const [timeSettings] = useAtom(timeSettingsAtom);
+  const [multiFlyby, setMultiFlyby] = useAtom(multiFlybyAtom);
+
 
   const [mfSearchInputs, setMfSearchInputs] = useState(searchInputsFromUI(system, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState.flybyIdSequence, dateControlsState, controlsOptionsState, timeSettings));
   const [invalidInput, setInvalidInput] = useState(false);
@@ -142,8 +126,8 @@ function FlybyAppContent({theme, mode, setMode, systemOptions, system, setSystem
   }, [system])
 
   return (
-      <ThemeProvider theme={theme}>
-      <Navbar theme={theme} mode={mode} setMode={setMode} system={system} setVessels={setVessels} showHelp={showHelp} setShowHelp={setShowHelp} />
+      <>
+      <Navbar showHelp={showHelp} setShowHelp={setShowHelp} />
       <Stack sx={{mx: 4, my: 1}}>
         <CssBaseline />
         <Box textAlign='left' sx={{mx: 2, my: 3}}>
@@ -158,7 +142,7 @@ function FlybyAppContent({theme, mode, setMode, systemOptions, system, setSystem
           </Alert>
         </Collapse>
         <Grid container component='main' justifyContent="center">
-          <Grid item xs={10} sm={8} md={4} lg={3} xl={2} >
+          <Grid item xs={12} sm={11} md={4} lg={3} xl={2} >
             <Paper 
               elevation={1}
               sx={{
@@ -169,19 +153,10 @@ function FlybyAppContent({theme, mode, setMode, systemOptions, system, setSystem
               }}
             >
               <MissionControls 
-                systemOptions={systemOptions}
-                system={system} 
-                setSystem={setSystem}
-                systemName={systemName}
-                setSystemName={setSystemName} 
-                vessels={vessels}
                 startOrbitControlsState={startOrbitControlsState}
                 endOrbitControlsState={endOrbitControlsState} 
                 flybySequenceControlsState={flybySequenceControlsState}
-                copiedOrbit={copiedOrbit}
                 dateControlsState={dateControlsState}
-                timeSettings={timeSettings}
-                setTimeSettings={setTimeSettings}
                 controlsOptionsState={controlsOptionsState}
                 />
             </Paper>
@@ -211,7 +186,6 @@ function FlybyAppContent({theme, mode, setMode, systemOptions, system, setSystem
                 plotData={evolutionPlotData}
                 buttonPresses={buttonPresses} 
                 searchCount={searchCount} 
-                setMultiFlyby={setMultiFlyby}
                 setCalculating={setCalculating}
                 setSearchCount={setSearchCount}
               />
@@ -239,8 +213,7 @@ function FlybyAppContent({theme, mode, setMode, systemOptions, system, setSystem
                   flexDirection: 'column',
               }}
               >
-                <MultiFlybyInfo multiFlyby={multiFlyby} timeSettings={timeSettings} copiedOrbit={copiedOrbit} setCopiedOrbit={setCopiedOrbit} 
-                  copiedManeuver={copiedManeuver} setCopiedManeuver={setCopiedManeuver} copiedFlightPlan={copiedFlightPlan} setCopiedFlightPlan={setCopiedFlightPlan}/>
+                <MultiFlybyInfo />
               </Paper>
             </Fade>
           </Grid>
@@ -264,7 +237,7 @@ function FlybyAppContent({theme, mode, setMode, systemOptions, system, setSystem
           </Box>
         </Box>
       </Stack>
-    </ThemeProvider>
+    </>
   )
 }
 

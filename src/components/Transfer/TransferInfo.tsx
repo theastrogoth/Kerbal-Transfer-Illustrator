@@ -15,13 +15,15 @@ import ManeuverInfoRow from "../ManeuverInfoRow";
 import CopyButton from "../CopyButton";
 
 import Kepler from "../../main/libs/kepler";
-import Transfer from "../../main/objects/transfer";
 import { radToDeg, timeToCalendarDate, calendarDateToString, calendarDateToDurationString} from "../../main/libs/math";
 
+import { useAtom } from "jotai";
+import { copiedFlightPlanAtom, timeSettingsAtom, transferAtom, } from "../../App"
 
-function TransferInfo({transfer, timeSettings, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, copiedFlightPlan, setCopiedFlightPlan}: 
-    {transfer: Transfer, timeSettings: TimeSettings, copiedOrbit: IOrbit, setCopiedOrbit: React.Dispatch<React.SetStateAction<IOrbit>>, 
-     copiedManeuver: ManeuverComponents, setCopiedManeuver: React.Dispatch<React.SetStateAction<ManeuverComponents>>, copiedFlightPlan: IVessel, setCopiedFlightPlan: React.Dispatch<React.SetStateAction<IVessel>>}) {
+function TransferInfo() {
+    const [transfer] = useAtom(transferAtom);
+    const [timeSettings] = useAtom(timeSettingsAtom);
+    const [copiedFlightPlan, setCopiedFlightPlan] = useAtom(copiedFlightPlanAtom);
 
     const departureTime = transfer.ejections.length === 0 ? transfer.startDate : transfer.ejections[0].orbits[0].epoch;
     let lastInsertionLen = 0;
@@ -84,7 +86,7 @@ function TransferInfo({transfer, timeSettings, copiedOrbit, setCopiedOrbit, copi
                     </TableHead>
                     <TableBody>
                         {[
-                        ...transfer.maneuvers.map((maneuver, index) => <ManeuverInfoRow key={"maneuver".concat(String(index+1))}  name={transfer.maneuverContexts[index]}  maneuver={maneuver} timeSettings={timeSettings} copiedManeuver={copiedManeuver} setCopiedManeuver={setCopiedManeuver} />),
+                        ...transfer.maneuvers.map((maneuver, index) => <ManeuverInfoRow key={"maneuver".concat(String(index+1))}  name={transfer.maneuverContexts[index]}  maneuver={maneuver} />),
                         ]}
                     </TableBody>
                 </Table>
@@ -94,11 +96,11 @@ function TransferInfo({transfer, timeSettings, copiedOrbit, setCopiedOrbit, copi
                 <Table size="small">
                     <TableBody>
                         {[
-                        <TrajectoryInfoRow key="start"    name="Start"    orbitnames={["Starting Orbit"]} trajectory={[transfer.startOrbit]} system={transfer.system} copiedOrbit={copiedOrbit} setCopiedOrbit={setCopiedOrbit} />,
-                        ...transfer.ejections.map( (traj, idx) => <TrajectoryInfoRow key={"ejection"+ String(idx)} name={"Escape from " + transfer.system.bodyFromId(traj.orbits[0].orbiting).name} orbitnames={traj.orbits.length > 1 ? ["Oberth Maneuver Orbit", "Outgoing Orbit"]  : ["Outgoing Orbit"]}  trajectory={traj.orbits} system={transfer.system} copiedOrbit={copiedOrbit} setCopiedOrbit={setCopiedOrbit} />),
-                        <TrajectoryInfoRow key="transfer" name="Transfer" orbitnames={transfer.transferTrajectory.orbits.length > 1 ? ["Orbit before plane change", "Orbit after plane change"] : ["Transfer Orbit"]} trajectory={transfer.transferTrajectory.orbits} system={transfer.system} copiedOrbit={copiedOrbit} setCopiedOrbit={setCopiedOrbit} />,
-                        ...transfer.insertions.map((traj, idx) => <TrajectoryInfoRow key={"insertion"+String(idx)} name={"Encounter at "  + transfer.system.bodyFromId(traj.orbits[0].orbiting).name} orbitnames={traj.orbits.length > 1 ? ["Incoming Orbit", "Oberth Maneuver Orbit"] : ["Incoming Orbit"]} trajectory={traj.orbits} system={transfer.system} copiedOrbit={copiedOrbit} setCopiedOrbit={setCopiedOrbit} />),
-                        <TrajectoryInfoRow key="end"      name="End"      orbitnames={["Target Orbit"]}   trajectory={[transfer.endOrbit]}   system={transfer.system} copiedOrbit={copiedOrbit} setCopiedOrbit={setCopiedOrbit} />,
+                        <TrajectoryInfoRow key="start"    name="Start"    orbitnames={["Starting Orbit"]} trajectory={[transfer.startOrbit]} />,
+                        ...transfer.ejections.map( (traj, idx) => <TrajectoryInfoRow key={"ejection"+ String(idx)} name={"Escape from " + transfer.system.bodyFromId(traj.orbits[0].orbiting).name} orbitnames={traj.orbits.length > 1 ? ["Oberth Maneuver Orbit", "Outgoing Orbit"]  : ["Outgoing Orbit"]}  trajectory={traj.orbits} />),
+                        <TrajectoryInfoRow key="transfer" name="Transfer" orbitnames={transfer.transferTrajectory.orbits.length > 1 ? ["Orbit before plane change", "Orbit after plane change"] : ["Transfer Orbit"]} trajectory={transfer.transferTrajectory.orbits} />,
+                        ...transfer.insertions.map((traj, idx) => <TrajectoryInfoRow key={"insertion"+String(idx)} name={"Encounter at "  + transfer.system.bodyFromId(traj.orbits[0].orbiting).name} orbitnames={traj.orbits.length > 1 ? ["Incoming Orbit", "Oberth Maneuver Orbit"] : ["Incoming Orbit"]} trajectory={traj.orbits} />),
+                        <TrajectoryInfoRow key="end"      name="End"      orbitnames={["Target Orbit"]}   trajectory={[transfer.endOrbit]} />,
                         ]}
                     </TableBody>
                 </Table>

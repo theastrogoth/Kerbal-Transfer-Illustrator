@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAtom } from "jotai";
 import Table from "@mui/material/Table";
 import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
@@ -13,9 +14,13 @@ import Box from "@mui/system/Box";
 import Kepler from "../main/libs/kepler";
 import { timeToCalendarDate, calendarDateToString } from "../main/libs/math";
 
+import { copiedManeuverAtom, timeSettingsAtom } from "../App";
 
-function ManeuverInfoRow({name, maneuver, timeSettings, copiedManeuver, setCopiedManeuver}: {name: String, maneuver: Maneuver, timeSettings: TimeSettings, copiedManeuver: ManeuverComponents, setCopiedManeuver: React.Dispatch<React.SetStateAction<ManeuverComponents>>}) {
+
+function ManeuverInfoRow({name, maneuver}: {name: String, maneuver: Maneuver}) {
     const [open, setOpen] = useState(false);
+    const [copiedManeuver, setCopiedManeuver] = useAtom(copiedManeuverAtom);
+    const [timeSettings] = useAtom(timeSettingsAtom);
 
     const handleToggle = () => {
         setOpen(!open);

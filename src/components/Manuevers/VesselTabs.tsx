@@ -15,23 +15,9 @@ import TimeSettingsControls from "../TimeSettingsControls";
 import { defaultOrbit } from "../../utils";
 
 import SolarSystem from "../../main/objects/system";
-import Vessel from "../../main/objects/vessel";
+import { useAtom } from "jotai";
+import { systemAtom, vesselPlansAtom } from "../../App";
 
-export type VesselTabsState = {
-    systemOptions:      Map<string, SolarSystem>,
-    system:             SolarSystem, 
-    setSystem:          React.Dispatch<React.SetStateAction<SolarSystem>>,
-    systemName:         string, 
-    setSystemName:      React.Dispatch<React.SetStateAction<string>>,
-    vessels:            Vessel[], 
-    vesselPlans:        IVessel[], 
-    setVesselPlans:     React.Dispatch<React.SetStateAction<IVessel[]>>,
-    copiedOrbit:        IOrbit,
-    copiedManeuver:     ManeuverComponents,
-    copiedFlightPlan:   IVessel,
-    timeSettings:       TimeSettings,
-    setTimeSettings:    React.Dispatch<React.SetStateAction<TimeSettings>>,
-}
 
 function handleAddVessel(vesselPlans: IVessel[], setVesselPlans: React.Dispatch<React.SetStateAction<IVessel[]>>, system: SolarSystem, setValue: React.Dispatch<React.SetStateAction<number>>, tabValues: number[], setTabValues: React.Dispatch<React.SetStateAction<number[]>>) {
     return (event: any): void => {
@@ -83,7 +69,7 @@ function handleRemoveVessel(vesselPlans: IVessel[], setVesselPlans: React.Dispat
     };
 }
 
-const VesselTabPanel = React.memo(function WrappedVesselTabPanel({value, index, state}: {value: number, index: number, state: VesselTabsState}) {
+const VesselTabPanel = React.memo(function WrappedVesselTabPanel({value, index}: {value: number, index: number}) {
 
     useEffect(() => {
         if(value === index) {
@@ -94,24 +80,27 @@ const VesselTabPanel = React.memo(function WrappedVesselTabPanel({value, index, 
 
     return (
         <div style={{ display: (value === index ? 'block' : 'none'), width: "100%", height: "100%" }}>
-            <VesselControls idx={index} {...state}/>
+            <VesselControls idx={index} />
         </div>
     )
 });
 
-function VesselTabs({state}: {state: VesselTabsState}) {
+function VesselTabs() {
+    const [system] = useAtom(systemAtom);
+    const [vesselPlans, setVesselPlans] = useAtom(vesselPlansAtom);
+
     const [value, setValue] = useState(0);
-    const [tabValues, setTabValues] = useState([0]);
+    const [tabValues, setTabValues] = useState([] as number[]);
     
     useEffect(() => {
         if(value < 0) {
             setValue(0);
         }
-        if(value >= state.vesselPlans.length) {
-            setValue(state.vesselPlans.length - 1);
+        if(value >= vesselPlans.length) {
+            setValue(vesselPlans.length - 1);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [state.vesselPlans])
+    }, [vesselPlans])
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
@@ -124,21 +113,21 @@ function VesselTabs({state}: {state: VesselTabsState}) {
                 <Typography variant="h5">Flight Plan Controls</Typography>
                 <Divider />
             </Box>
-            <SystemSelect systemOptions={state.systemOptions} setSystem={state.setSystem} systemName={state.systemName} setSystemName={state.setSystemName} />
-            <TimeSettingsControls timeSettings={state.timeSettings} setTimeSettings={state.setTimeSettings}/>
+            <SystemSelect />
+            <TimeSettingsControls />
             <Divider />
             <Stack direction="row" spacing={2} textAlign="center" justifyContent="center">
-                <IconButton sx={{border: "1px solid"}} onClick={handleAddVessel(state.vesselPlans, state.setVesselPlans, state.system, setValue, tabValues, setTabValues)}>
+                <IconButton sx={{border: "1px solid"}} onClick={handleAddVessel(vesselPlans, setVesselPlans, system, setValue, tabValues, setTabValues)}>
                     <AddIcon />
                 </IconButton>
-                <IconButton sx={{border: "1px solid"}} onClick={handleRemoveVessel(state.vesselPlans, state.setVesselPlans, value, setValue, tabValues, setTabValues)}>
+                <IconButton sx={{border: "1px solid"}} onClick={handleRemoveVessel(vesselPlans, setVesselPlans, value, setValue, tabValues, setTabValues)}>
                     <RemoveIcon />
                 </IconButton>
             </Stack>
             <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons={true}>
-                {state.vesselPlans.map((f, index) => <Tab key={index} value={index} label={f.name} ></Tab>)}
+                {vesselPlans.map((f, index) => <Tab key={index} value={index} label={f.name} ></Tab>)}
             </Tabs>
-            {state.vesselPlans.map((f, index) => <VesselTabPanel key={index} value={value} index={index} state={state} />)}
+            {vesselPlans.map((f, index) => <VesselTabPanel key={index} value={value} index={index} />)}
         </Stack>
     )
 }

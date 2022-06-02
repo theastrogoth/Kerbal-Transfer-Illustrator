@@ -1,6 +1,3 @@
-import { SolarSystem } from "../../main/objects/system";
-import Vessel from "../../main/objects/vessel";
-
 import OrbitControls, { OrbitControlsState } from "../OrbitControls";
 import FlybySequenceControls, { FlybySequenceControlsState } from "./FlybySequenceControls";
 import FlybyDateControls, { FlybyDateControlsState } from "./FlybyDateControls";
@@ -8,7 +5,6 @@ import TimeSettingsControls from "../TimeSettingsControls";
 import ControlsOptions, { ControlsOptionsState } from "../ControlsOptions";
 import SystemSelect from "../SystemSelect";
 
-import React, { SetStateAction } from "react";
 import Stack from "@mui/material/Stack";
 import Box from '@mui/system/Box';
 import Typography from '@mui/material/Typography';
@@ -17,39 +13,30 @@ import Divider from '@mui/material/Divider';
 
 
 type MissionControlsProps = {
-    systemOptions:              Map<string, SolarSystem>,
-    system:                     SolarSystem,
-    setSystem:                  React.Dispatch<React.SetStateAction<SolarSystem>>,
-    systemName:                 string,
-    setSystemName:              React.Dispatch<React.SetStateAction<string>>,
-    vessels:                    Vessel[],
     startOrbitControlsState:    OrbitControlsState,
     endOrbitControlsState:      OrbitControlsState,
     flybySequenceControlsState: FlybySequenceControlsState,
-    copiedOrbit:                IOrbit,
-    timeSettings:               TimeSettings
-    setTimeSettings:            React.Dispatch<SetStateAction<TimeSettings>>,
     dateControlsState:          FlybyDateControlsState,
     controlsOptionsState:       ControlsOptionsState,
 }
 
-function MissionControls({systemOptions, system, setSystem, systemName, setSystemName, vessels, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState, copiedOrbit, dateControlsState, timeSettings, setTimeSettings, controlsOptionsState}: MissionControlsProps) {
+function MissionControls({startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState, dateControlsState, controlsOptionsState}: MissionControlsProps) {
     return (
         <Stack spacing={1} sx={{ my: 2, mx: 2 }}>
             <Box textAlign="center">
                 <Typography variant="h5">Mission Controls</Typography>
             </Box>
             <Divider />
-            <SystemSelect systemOptions={systemOptions} systemName={systemName} setSystemName={setSystemName} setSystem={setSystem} />
+            <SystemSelect />
             <Typography variant="h6">Orbit Settings</Typography>
-            <OrbitControls label='Starting Orbit' system={system} vessels={vessels} state={startOrbitControlsState} copiedOrbit={copiedOrbit} />
-            <OrbitControls label='Target Orbit'   system={system} vessels={vessels} state={endOrbitControlsState} copiedOrbit={copiedOrbit} />
+            <OrbitControls label='Starting Orbit' state={startOrbitControlsState} />
+            <OrbitControls label='Target Orbit'   state={endOrbitControlsState} />
             <Divider />
             <Typography variant="h6">Flyby Sequence</Typography>
             <FlybySequenceControls {...flybySequenceControlsState} dateControlsState={dateControlsState} />
             <Divider />
             <Typography variant="h6">Time Settings</Typography>
-            <TimeSettingsControls timeSettings={timeSettings} setTimeSettings={setTimeSettings}/>
+            <TimeSettingsControls />
             <FlybyDateControls {...dateControlsState} />
             <Divider />
             <Typography variant="h6">Mission Settings</Typography>

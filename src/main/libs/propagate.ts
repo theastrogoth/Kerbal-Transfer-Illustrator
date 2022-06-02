@@ -71,6 +71,7 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
         if(escapes && escapeDate <= maxDate) {
             // if the attractor body is the sun (has infinite SoI), return null (there is no next orbit)
             if(soi === Infinity) {
+                console.log("No next orbit found")
                 return null;
             }
             // otherwise, patch the orbit into the attractor body's attractor
@@ -83,9 +84,11 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
                 pos:  add3(orbitState.pos, bodyState.pos),
                 vel:  add3(orbitState.vel, bodyState.vel)
             }
+            console.log("Escape from " + attractor.name + ": " + String(escapeDate) + " s")
             return Kepler.stateToOrbit(postPatchState, grandparent);
         // if the orbit does not escape, return null (there is no next orbit)
         } else {
+            console.log("No next orbit found")
             return null;
         }
     // If an intercept was found, patch the orbit into the SoI of the satellite body
@@ -110,6 +113,7 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
             pos:  sub3(orbitState.pos, bodyState.pos),
             vel:  sub3(orbitState.vel, bodyState.vel),
         }
+        console.log("Encounter at " + interceptBody.name + ": " + String(soiPatchTime) + ' s')
         return Kepler.stateToOrbit(postPatchState, interceptBody as IOrbitingBody);
     }
 }

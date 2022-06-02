@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Table from "@mui/material/Table";
 import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
@@ -9,11 +9,10 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import Box from "@mui/system/Box";
 
-import SolarSystem from "../main/objects/system";
 import OrbitInfoRow from "./OrbitInfoRow";
 
 
-function TrajectoryInfoRow({name, orbitnames, trajectory, system, copiedOrbit, setCopiedOrbit}: {name: string, orbitnames: string[], trajectory: IOrbit[], system: SolarSystem, copiedOrbit: IOrbit, setCopiedOrbit: React.Dispatch<React.SetStateAction<IOrbit>>}) {
+function TrajectoryInfoRow({name, orbitnames, trajectory}: {name: string, orbitnames: string[], trajectory: IOrbit[]}) {
     const [open, setOpen] = useState(false);
 
     const handleToggle = () => {
@@ -39,7 +38,7 @@ function TrajectoryInfoRow({name, orbitnames, trajectory, system, copiedOrbit, s
                     <Box sx={{ margin: 1 }}>
                         <Table size="small">
                             <TableBody>
-                                {trajectory.map((orbit, index) => <OrbitInfoRow key={index} name={orbitnames[index]} orbit={orbit} system={system} copiedOrbit={copiedOrbit} setCopiedOrbit={setCopiedOrbit} />)}
+                                {trajectory.map((orbit, index) => <OrbitInfoRow key={index} name={orbitnames[index]} orbit={orbit} />)}
                             </TableBody>
                         </Table>
                     </Box>

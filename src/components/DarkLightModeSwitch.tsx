@@ -1,7 +1,10 @@
 import React, { useEffect } from 'react';
-import { styled, Theme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import Switch from '@mui/material/Switch';
-import { PaletteMode } from '@mui/material';
+
+import { useAtom } from 'jotai';
+import { useTheme } from '@emotion/react';
+import { lightModeAtom } from '../App';
 
 const MaterialUISwitch = styled(Switch)(({ theme }) => ({
     width: 62,
@@ -50,13 +53,17 @@ const MaterialUISwitch = styled(Switch)(({ theme }) => ({
     },
 }));
 
-function DarkLightModeSwitch({theme, mode, setMode}: {theme: Theme, mode: PaletteMode, setMode: React.Dispatch<React.SetStateAction<PaletteMode>>}){
+function DarkLightModeSwitch() {
+    const theme = useTheme();
+    const [mode, setMode] = useAtom(lightModeAtom);
     const [checked, setChecked] = React.useState(mode === 'dark');
+
     useEffect(() => {
         const newChecked = mode === 'dark';
         if(newChecked !== checked) {
             setChecked(newChecked)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mode])
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setChecked(event.target.checked)
@@ -67,10 +74,11 @@ function DarkLightModeSwitch({theme, mode, setMode}: {theme: Theme, mode: Palett
         }
     };
     return (
-        <MaterialUISwitch 
-            theme={theme}
-            checked={checked}
-            onChange={handleChange} />
+      <MaterialUISwitch 
+        // @ts-ignore
+        theme={theme}
+        checked={checked}
+        onChange={handleChange} />
     )
 }
 

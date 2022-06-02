@@ -1,8 +1,11 @@
-import RequiredNumberField, { NumberField } from "./NumberField";
 
 import React, { useState, useEffect } from "react";
+import { useAtom } from "jotai";
 import Stack from "@mui/material/Stack";
+import RequiredNumberField, { NumberField } from "./NumberField";
 import HourMinSecField from "./HourMinSecField";
+
+import { timeSettingsAtom } from "../App";
 
 export type DateFieldState = {
     calendarDate:       CalendarDate,
@@ -19,7 +22,6 @@ type DateFieldProps = {
     error?:         boolean,
     correctFormat?: boolean,
     variant?:       "hour" | "hhmmss" | "all",
-    timeSettings:   TimeSettings,
 }
 
 function handleChange(setFunction: Function) {
@@ -30,12 +32,14 @@ function handleChange(setFunction: Function) {
     )
 }
 
-function DateField({id, label, state, required = false, error = false, correctFormat = false, variant = "hour", timeSettings}: DateFieldProps) {
+function DateField({id, label, state, required = false, error = false, correctFormat = false, variant = "hour"}: DateFieldProps) {
     const [year, setYear]       = useState(isNaN(state.calendarDate.year)   ? '' : String(state.calendarDate.year));
     const [day, setDay]         = useState(isNaN(state.calendarDate.day)    ? '' : String(state.calendarDate.day));
     const [hour, setHour]       = useState(isNaN(state.calendarDate.hour)   ? '' : String(state.calendarDate.hour));
     const [minute, setMinute]   = useState(isNaN(state.calendarDate.minute) ? '' : String(state.calendarDate.minute));
     const [second, setSecond]   = useState(isNaN(state.calendarDate.second) ? '' : String(state.calendarDate.second));
+
+    const [timeSettings] = useAtom(timeSettingsAtom);
     
     const NumField = required ? RequiredNumberField : NumberField;
     const HourField =   variant === "hhmmss" ? <HourMinSecField
@@ -200,6 +204,7 @@ function DateField({id, label, state, required = false, error = false, correctFo
             setSecond(isNaN(state.calendarDate.second) ? '' : String(state.calendarDate.second));
             state.setUpdateInputs(false);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state.calendarDate, state.updateInputs])
 
     return (

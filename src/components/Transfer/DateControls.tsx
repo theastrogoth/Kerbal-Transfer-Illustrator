@@ -1,3 +1,4 @@
+import { useAtom } from "jotai";
 import DateField from "../DateField"
 import { DateFieldState } from "../DateField";
 import { dateFieldIsEmpty, timeFromDateFieldState } from "../../utils";
@@ -7,19 +8,21 @@ import Box from "@mui/material/Box";
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 
+import { timeSettingsAtom } from "../../App";
+
 
 export type DateControlsState = {
     earlyStartDate:   DateFieldState,
     lateStartDate:    DateFieldState,
     shortFlightTime:  DateFieldState,
     longFlightTime:   DateFieldState,
-    timeSettings:     TimeSettings,
   }
 
-function DateControls({earlyStartDate, lateStartDate, shortFlightTime, longFlightTime, timeSettings}: DateControlsState) {
+function DateControls({earlyStartDate, lateStartDate, shortFlightTime, longFlightTime}: DateControlsState) {
     const [optsVisible, setOptsVisible] = useState(false);
     const [startErr, setStartErr] = useState(false);
     const [flightErr, setFlightErr] = useState(false);
+    const [timeSettings] = useAtom(timeSettingsAtom)
 
     useEffect(() => {
         if(!dateFieldIsEmpty(earlyStartDate) && !dateFieldIsEmpty(lateStartDate)) {
@@ -60,26 +63,26 @@ function DateControls({earlyStartDate, lateStartDate, shortFlightTime, longFligh
                 state={earlyStartDate}
                 error={startErr}
                 required={true} 
-                timeSettings={timeSettings} />
+            />
             <Collapse in={optsVisible} timeout="auto">
                 <DateField
                     id='late-start-date'
                     label='Latest Departure Date'
                     state={lateStartDate} 
                     error={startErr} 
-                    timeSettings={timeSettings} />
+                />
                 <DateField
                     id='short-flight-time'
                     label='Shortest Flight Duration'
                     state={shortFlightTime}
                     error={flightErr}  
-                    timeSettings={timeSettings}/>
+                />
                 <DateField
                     id='long-flight-time'
                     label='Longest Flight Duration'
                     state={longFlightTime}
                     error={flightErr}  
-                    timeSettings={timeSettings}/>
+                />
             </Collapse>
             <Box textAlign='center'>
                 <Button 

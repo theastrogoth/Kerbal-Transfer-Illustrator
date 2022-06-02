@@ -9,16 +9,11 @@ import OrbitDisplay, { OrbitDisplayProps, updateTrajectoryMarker } from "../Orbi
 
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
+import { useAtom } from "jotai";
+import { flightPlansAtom, systemAtom, timeSettingsAtom } from "../../App";
 
-
-type OrbitDisplayTabsProps  = {
-    flightPlans:            FlightPlan[],
-    system:                 SolarSystem,
-    timeSettings:           TimeSettings,
-}
 
 const emptyProps: OrbitDisplayProps[] = [];
-
 
 function trajectoryTraces(trajectory: Trajectory, vesselName: string, timeSettings: TimeSettings): Line3DTrace[] {
     const trajLen = trajectory.orbits.length;
@@ -56,7 +51,6 @@ function bodyPlotProps(trajectories: Trajectory[], names: string[], system: Sola
         endDate:        date,
         defaultTraces:  {systemTraces, orbitTraces, markerTraces},
         plotSize,
-        timeSettings,
         slider:         false,
     };
 }
@@ -106,7 +100,11 @@ const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, pr
     )
 });
 
-function OrbitDisplayTabs({flightPlans, system, timeSettings}: OrbitDisplayTabsProps) {
+function OrbitDisplayTabs() {
+    const [flightPlans] = useAtom(flightPlansAtom);
+    const [system] = useAtom(systemAtom);
+    const [timeSettings] = useAtom(timeSettingsAtom);
+
     const [value, setValue] = useState(0);
 
     const [orbitDisplayProps, setOrbitDisplayProps] = useState(emptyProps);
@@ -157,6 +155,6 @@ function OrbitDisplayTabs({flightPlans, system, timeSettings}: OrbitDisplayTabsP
     )
 }
 
-export default OrbitDisplayTabs;
+export default React.memo(OrbitDisplayTabs);
 
 

@@ -131,7 +131,8 @@ namespace Kepler {
             const E = 2 * Math.atan2(Math.sin(nu/2)*Math.sqrt(1-e), Math.cos(nu/2)*Math.sqrt(1+e));
             return E - e * Math.sin(E);
         } else {
-            const H = 2 * Math.atanh(Math.tan(nu/2)*Math.sqrt((e-1)/(e+1)));
+            // const H = Math.acosh( (e + Math.cos(nu)) / (1 + e * Math.cos(nu)));
+            const H = 2 * Math.atanh(Math.tan(nu / 2) * Math.sqrt((e - 1) / (e + 1)));
             return e * Math.sinh(H) - H;
         }
     }

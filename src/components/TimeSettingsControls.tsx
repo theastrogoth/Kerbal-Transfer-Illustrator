@@ -1,8 +1,11 @@
 import React from "react";
+import { useAtom } from "jotai";
 import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import RadioGroup from "@mui/material/RadioGroup";
 import Radio from "@mui/material/Radio";
+
+import { timeSettingsAtom } from "../App";
 
 const kspTimeSettings:   TimeSettings = {hoursPerDay: 6,   daysPerYear: 426};
 const earthTimeSettings: TimeSettings = {hoursPerDay: 24,  daysPerYear: 365};
@@ -18,7 +21,8 @@ function handleChange(setFunction: Function) {
     )
 }
 
-function TimeSettingsControls({timeSettings, setTimeSettings}: {timeSettings: TimeSettings, setTimeSettings: React.Dispatch<React.SetStateAction<TimeSettings>>}) {
+function TimeSettingsControls() {
+    const [timeSettings, setTimeSettings] = useAtom(timeSettingsAtom);
     return (
         <FormControl>
             <RadioGroup

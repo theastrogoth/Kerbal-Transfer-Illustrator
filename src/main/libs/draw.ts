@@ -22,15 +22,28 @@ export namespace Draw {
     export function drawOrbitPathFromAngles(orbit: IOrbit, minTrueAnomaly: number, maxTrueAnomaly: number, startTime: number, timeSettings: TimeSettings, color: IColor, name: string | undefined, 
                                             colorfade: boolean = true, dash: "dash" | "dot" | "longdash" | "solid" | undefined = "solid", nPoints: number = 201): Line3DTrace {
         // true anomalies, positions, and times
-        const safeMaxTrueAnomaly = wrapAngle(maxTrueAnomaly, minTrueAnomaly + 0.001);
+        const safeMaxTrueAnomaly = wrapAngle(maxTrueAnomaly, minTrueAnomaly + 1e-6);
         const nus = linspace(minTrueAnomaly, safeMaxTrueAnomaly, nPoints);
+        const nus2: number[] = [];
         let positions: Vector3[] = [];
         let times: number[] = [];
-        let tMin = startTime - orbit.siderealPeriod / 2;
+        let tMin = startTime - 1e-6;
+
         for(let i=0; i<nus.length; i++) {
             positions.push(Kepler.positionAtTrueAnomaly(orbit, nus[i]));
-            tMin = (Kepler.trueAnomalyToOrbitDate(nus[i], orbit, tMin));
+            tMin = (Kepler.trueAnomalyToOrbitDate(nus[i], orbit, orbit.eccentricity < 1 ? tMin : undefined));
             times.push(tMin);
+            nus2.push(Kepler.dateToOrbitTrueAnomaly(tMin, orbit));
+        }
+
+        if(orbit.eccentricity > 1) {
+            // console.log(times[0], times[times.length -1])
+            // console.log(times)
+            // console.log(positions[positions.length - 1], Kepler.orbitToPositionAtDate(orbit, times[times.length - 1]))
+            console.log(orbit)
+            // console.log(nus[nus.length -1], Kepler.dateToOrbitTrueAnomaly(times[times.length-1], orbit))
+            console.log(nus)
+            console.log(nus2)
         }
  
         // separate out coordinates for plotting
@@ -108,6 +121,9 @@ export namespace Draw {
 
     export function drawOrbitPathFromTimes(orbit: IOrbit, startTime: number, endTime: number, timeSettings: TimeSettings, color: Color = new Color({r: 255, g: 255, b: 255}), name: string | undefined = undefined, 
                                            colorfade: boolean = true, dash: "dash" | "dot" | "longdash" | "solid" | undefined = "solid", nPoints: number = 201): Line3DTrace {
+        if(orbit.eccentricity > 1) {
+            console.log("draw hyperbolic orbit from " + String(startTime) + " s to " + String(endTime) + " s")
+        }
         const minTrueAnomaly = Kepler.dateToOrbitTrueAnomaly(startTime, orbit);
         const maxTrueAnomaly = Kepler.dateToOrbitTrueAnomaly(endTime, orbit);
         return drawOrbitPathFromAngles(orbit, minTrueAnomaly, maxTrueAnomaly, startTime, timeSettings, color, name, colorfade, dash, nPoints)

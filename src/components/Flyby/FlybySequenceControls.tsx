@@ -12,6 +12,9 @@ import IconButton from '@mui/material/IconButton';
 
 import { FlybyDateControlsState } from './FlybyDateControls';
 
+import { useAtom } from 'jotai';
+import { systemAtom } from '../../App';
+
 function handleBodyIdChange(index: number, flybyIdSequence: number[], setFlybyIdSequence: React.Dispatch<React.SetStateAction<number[]>>) {
     return (event: any): void => {
         const newFlybyIdSequence = flybyIdSequence.slice();
@@ -77,7 +80,6 @@ function createBodyDropdown(bodyOptions: JSX.Element[], index: number, value: nu
 }
 
 export type FlybySequenceControlsState = {
-    system:             SolarSystem,
     startBodyId:        number,
     endBodyId:          number,
     flybyIdSequence:    number[],
@@ -85,8 +87,8 @@ export type FlybySequenceControlsState = {
     dateControlsState:  FlybyDateControlsState,
 }
 
-function FlybySequenceControls({system, startBodyId, endBodyId, flybyIdSequence, setFlybyIdSequence, dateControlsState}: FlybySequenceControlsState) {
-    
+function FlybySequenceControls({startBodyId, endBodyId, flybyIdSequence, setFlybyIdSequence, dateControlsState}: FlybySequenceControlsState) {
+    const [system] = useAtom(systemAtom);
     const [bodyOptions, setBodyOptions] = useState(createBodyItems(system, startBodyId, endBodyId));
 
     useEffect(() => {
