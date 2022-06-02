@@ -1,3 +1,4 @@
+import React from 'react';
 import Box from '@mui/system/Box';
 import Stack from '@mui/material/Stack';
 import Collapse from "@mui/material/Collapse";
@@ -75,4 +76,4 @@ function HelpCollapse({showHelp}: {showHelp: boolean}) {
     )
 }
 
-export default HelpCollapse;
+export default React.memo(HelpCollapse);

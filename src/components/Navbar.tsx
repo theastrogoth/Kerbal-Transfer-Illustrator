@@ -9,15 +9,13 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import MenuIcon from '@mui/icons-material/Menu';
 import MoreIcon from '@mui/icons-material/MoreVert';
-import { PaletteMode, Theme } from "@mui/material";
 import { Link } from "react-router-dom";
 
-import Vessel from "../main/objects/vessel";
 import HelpOutline from "@mui/icons-material/HelpOutline";
 import SaveFileUploadButton from "./SaveFileUploadButton";
 import DarkLightModeSwitch from "./DarkLightModeSwitch";
 
-function Navbar({theme, mode, setMode, system, setVessels, showHelp, setShowHelp}: {theme: Theme, mode: PaletteMode, setMode: React.Dispatch<React.SetStateAction<PaletteMode>>, system: ISolarSystem, setVessels: React.Dispatch<React.SetStateAction<Vessel[]>>, showHelp: boolean, setShowHelp: React.Dispatch<React.SetStateAction<boolean>>}) {  
+function Navbar({showHelp, setShowHelp}: {showHelp: boolean, setShowHelp: React.Dispatch<React.SetStateAction<boolean>>}) {  
     
     const pages = ['Transfer', 'Flyby', 'Flight Plan', 'System'];
     const links = ["/", "/Flyby", "/FlightPlan", "/System",];    
@@ -114,7 +112,7 @@ function Navbar({theme, mode, setMode, system, setVessels, showHelp, setShowHelp
                 </Box>
                 <Box sx={{ flexGrow: 1 }} />
                 <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
-                      <SaveFileUploadButton system={system} setVessels={setVessels} />
+                      <SaveFileUploadButton />
                 </Box>
                 <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
                     <Button 
@@ -125,7 +123,7 @@ function Navbar({theme, mode, setMode, system, setVessels, showHelp, setShowHelp
                     </Button>
                 </Box>
                 <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
-                    <DarkLightModeSwitch theme={theme} mode={mode} setMode={setMode} />
+                    <DarkLightModeSwitch />
                 </Box>
                 <Box sx={{ flexGrow: 0,  display: { xs: 'flex', sm: 'none' } }}>
                     <IconButton onClick={handleOpenButtonMenu} >
@@ -147,7 +145,7 @@ function Navbar({theme, mode, setMode, system, setVessels, showHelp, setShowHelp
                         onClose={handleCloseButtonMenu}
                     >
                         <MenuItem >
-                            <SaveFileUploadButton system={system} setVessels={setVessels} />
+                            <SaveFileUploadButton />
                         </MenuItem>
                         <MenuItem >
                             <Button 
@@ -163,7 +161,7 @@ function Navbar({theme, mode, setMode, system, setVessels, showHelp, setShowHelp
                         <MenuItem >
                             <Button
                                 color="inherit"
-                                startIcon={<DarkLightModeSwitch theme={theme} mode={mode} setMode={setMode} />}
+                                startIcon={<DarkLightModeSwitch />}
                             >
                                 Dark/Light Mode
                             </Button>
@@ -174,4 +172,4 @@ function Navbar({theme, mode, setMode, system, setVessels, showHelp, setShowHelp
         </AppBar>
     );
 }
-export default Navbar;
+export default React.memo(Navbar);

@@ -13,12 +13,13 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { Box } from "@mui/system";
 import PasteButton from "../PasteButton";
 
+import { useAtom } from "jotai";
+import { copiedManeuverAtom, timeSettingsAtom } from "../../App";
+
 type ManeuverControlsState = {
     idx:                number,
     maneuvers:          ManeuverComponents[],
     setManeuvers:       (maneuvers: ManeuverComponents[]) => void,
-    copiedManeuver:     ManeuverComponents,
-    timeSettings:       TimeSettings,
 }
 
 function handleChange(setFunction: Function) {
@@ -40,8 +41,11 @@ function setUTandUpdate(setUT: React.Dispatch<React.SetStateAction<string>>, dat
     )
 }
 
-function ManeuverControls({idx, maneuvers, setManeuvers, copiedManeuver, timeSettings}: ManeuverControlsState) {
-    const maneuverComponents =maneuvers[idx];
+function ManeuverControls({idx, maneuvers, setManeuvers}: ManeuverControlsState) {
+    const [timeSettings] = useAtom(timeSettingsAtom);
+    const [copiedManeuver] = useAtom(copiedManeuverAtom);
+
+    const maneuverComponents = maneuvers[idx];
     const [prograde, setPrograde] = useState(String(maneuverComponents.prograde));
     const [normal,   setNormal]   = useState(String(maneuverComponents.normal));
     const [radial,   setRadial]   = useState(String(maneuverComponents.radial));
@@ -49,7 +53,7 @@ function ManeuverControls({idx, maneuvers, setManeuvers, copiedManeuver, timeSet
     
     const dateField = useDateField(...Object.values(timeToCalendarDate(maneuvers[idx].date, timeSettings, 1, 1)));
 
-    const [open, setOpen] = useState(idx === 0);
+    const [open, setOpen] = useState(false);
     const [loaded, setLoaded] = useState(false);
 
     const [timeSettingsChange, setTimeSettingsChange] = useState(false);
@@ -59,7 +63,6 @@ function ManeuverControls({idx, maneuvers, setManeuvers, copiedManeuver, timeSet
     }
 
     useEffect(() => {
-        // console.log(timeSettingsChange)
         if(!timeSettingsChange) {
             const newDate = timeFromDateFieldState(dateField, timeSettings, 1, 1);
             if(Number(UT) !== newDate) {
@@ -72,7 +75,6 @@ function ManeuverControls({idx, maneuvers, setManeuvers, copiedManeuver, timeSet
     }, [dateField])
 
     useEffect(() => {
-        // console.log("timeSettings change", timeSettings, maneuvers[idx].date, timeToCalendarDate(maneuvers[idx].date, timeSettings, 1, 1))
         dateField.setCalendarDate(timeToCalendarDate(maneuvers[idx].date, timeSettings, 1, 1));
         dateField.setUpdateInputs(true);
         setTimeSettingsChange(true);
@@ -80,8 +82,7 @@ function ManeuverControls({idx, maneuvers, setManeuvers, copiedManeuver, timeSet
     }, [timeSettings])
 
     useEffect(() => {
-        console.log(timeSettingsChange)
-        if(loaded && !timeSettingsChange) {
+        if(!loaded && !timeSettingsChange) {
             let equal = true;
             equal = equal && Number(prograde) === maneuvers[idx].prograde;
             equal = equal && Number(normal)   === maneuvers[idx].normal;
@@ -94,7 +95,7 @@ function ManeuverControls({idx, maneuvers, setManeuvers, copiedManeuver, timeSet
                 setManeuvers(newManeuvers);
             }
         } else {
-            setLoaded(true)
+            setLoaded(false)
             setTimeSettingsChange(false)
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -114,7 +115,7 @@ function ManeuverControls({idx, maneuvers, setManeuvers, copiedManeuver, timeSet
     return (
         <>
             <Box display="flex" alignItems="center" >
-            <Typography variant="body2" >
+                <Typography variant="body2" >
                     {"Maneuver #" + String(idx + 1)}
                 </Typography>
                 <IconButton
@@ -123,6 +124,10 @@ function ManeuverControls({idx, maneuvers, setManeuvers, copiedManeuver, timeSet
                 >
                     {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
                 </IconButton>
+                <Box sx={{ flexGrow: 1 }} />
+                <Typography variant="body2" >
+                    {String(Math.round(Math.sqrt(maneuvers[idx].prograde ** 2 + maneuvers[idx].normal ** 2 + maneuvers[idx].radial ** 2) * 100) / 100) + " m/s"}
+                </Typography>
             </Box>
             <Collapse in={open}>
                 <Stack spacing={1.5}>
@@ -155,8 +160,8 @@ function ManeuverControls({idx, maneuvers, setManeuvers, copiedManeuver, timeSet
                         label={''}
                         state={dateField}
                         correctFormat={true}
-                        variant="hour"  
-                        timeSettings={timeSettings}/>
+                        variant="all"  
+                    />
                     <Box display="flex" justifyContent="center" alignItems="center" >
                         <PasteButton setObj={(m: ManeuverComponents) => { const newManeuvers = [...maneuvers]; newManeuvers[idx] = m; setManeuvers(newManeuvers)} } copiedObj={copiedManeuver}/>
                         <IconButton 

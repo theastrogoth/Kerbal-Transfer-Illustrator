@@ -1,12 +1,10 @@
 import SolarSystem from "../main/objects/system";
-import Vessel from "../main/objects/vessel";
 
 import RequiredNumberField from "./NumberField";
 import VesselSelect from "./VesselSelect";
 import PasteButton from "./PasteButton";
 
 import React, {useEffect, useState } from "react";
-import Box from "@mui/material/Box";
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import MenuItem from "@mui/material/MenuItem";
@@ -20,6 +18,9 @@ import ClearIcon from '@mui/icons-material/Clear';
 import { defaultOrbit } from "../utils";
 import { radToDeg } from "../main/libs/math";
 
+import { useAtom } from "jotai";
+import { systemAtom, vesselsAtom, copiedOrbitAtom } from "../App";
+
 
 export type OrbitControlsState = {
     orbit:      OrbitalElements,
@@ -30,10 +31,7 @@ export type OrbitControlsState = {
 
 type OrbitControlsProps = {
     label:          string,
-    system:         SolarSystem,
-    vessels:        Vessel[],
     state:          OrbitControlsState,
-    copiedOrbit:    IOrbit,
     vesselSelect?:  boolean,
 };
 
@@ -54,7 +52,11 @@ function handleChange(setFunction: Function) {
     )
 }
 
-function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect = true}: OrbitControlsProps) {
+function OrbitControls({label, state, vesselSelect = true}: OrbitControlsProps) {
+    const [vessels] = useAtom(vesselsAtom);
+    const [system] = useAtom(systemAtom);
+    const [copiedOrbit] = useAtom(copiedOrbitAtom);
+
     const [sma, setSma] = useState(String(state.orbit.semiMajorAxis));
     const [ecc, setEcc] = useState(String(state.orbit.eccentricity));
     const [inc, setInc] = useState(String(state.orbit.inclination));
@@ -75,8 +77,6 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
     const [optsVisible, setOptsVisible] = useState(false);
     const [bodyOptions, setBodyOptions] = useState(createBodyItems(system));
     const [vesselIdChange, setVesselIdChange] = useState(false);
-
-    const [componentLoaded, setComponentLoaded] = useState(true);
 
     const handleBodyIdChange = (event: any): void => {
         const newBody = system.bodyFromId(event.target.value);
@@ -135,18 +135,14 @@ function OrbitControls({label, system, vessels, state, copiedOrbit, vesselSelect
     }, [sma])
 
     useEffect(() => {
-        if(!componentLoaded) {
-            setBodyOptions(createBodyItems(system))
-            if(!system.orbiterIds.has(bodyId)) {
-                setBodyId(Math.max(...[...system.orbiterIds.keys()]));
-            } else {
-                const newBody = system.bodyFromId(bodyId);
-                setBody(newBody);
-                const orb = defaultOrbit(system, bodyId);
-                setOrbitState(state, orb, orb.semiMajorAxis - newBody.radius);
-            }
+        setBodyOptions(createBodyItems(system))
+        if(!system.orbiterIds.has(bodyId)) {
+            setBodyId(Math.max(...[...system.orbiterIds.keys()]));
         } else {
-            setComponentLoaded(true)
+            const newBody = system.bodyFromId(bodyId);
+            setBody(newBody);
+            const orb = defaultOrbit(system, bodyId);
+            setOrbitState(state, orb, orb.semiMajorAxis - newBody.radius);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [system]);

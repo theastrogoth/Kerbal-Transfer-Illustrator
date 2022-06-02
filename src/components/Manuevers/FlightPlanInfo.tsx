@@ -14,22 +14,15 @@ import TrajectoryInfoRow from "../TrajectoryInfoRow";
 import ManeuverInfoRow from "../ManeuverInfoRow";
 import CopyButton from "../CopyButton";
 
-import SolarSystem from "../../main/objects/system";
 import { flightPlanToVessel } from "../../main/libs/propagate";
 
-export type FlightPlanInfoProps = {
-    flightPlan: FlightPlan, 
-    timeSettings: TimeSettings, 
-    system: SolarSystem, 
-    copiedOrbit: IOrbit, 
-    setCopiedOrbit: React.Dispatch<React.SetStateAction<IOrbit>>, 
-    copiedManeuver: ManeuverComponents, 
-    setCopiedManeuver: React.Dispatch<React.SetStateAction<ManeuverComponents>>, 
-    copiedFlightPlan: IVessel, 
-    setCopiedFlightPlan: React.Dispatch<React.SetStateAction<IVessel>>
-}
+import { useAtom } from "jotai";
+import { copiedFlightPlanAtom, systemAtom } from "../../App";
 
-function FlightPlanInfo({flightPlan, timeSettings, system, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver, copiedFlightPlan, setCopiedFlightPlan}: FlightPlanInfoProps) {
+
+function FlightPlanInfo({flightPlan}: {flightPlan: FlightPlan}) {
+    const [system] = useAtom(systemAtom);
+    const [copiedFlightPlan, setCopiedFlightPlan] = useAtom(copiedFlightPlanAtom);
 
     const deltaV: number = flightPlan.trajectories.reduce<number>((acc, curr) => acc + curr.maneuvers.reduce<number>((a,c) => a + c.deltaVMag, 0), 0);
     const maneuvers: Maneuver[] = flightPlan.trajectories.map(t => t.maneuvers).flat();
@@ -66,7 +59,7 @@ function FlightPlanInfo({flightPlan, timeSettings, system, copiedOrbit, setCopie
                     </TableHead>
                     <TableBody>
                         {[
-                        ...maneuvers.map((maneuver, index) => <ManeuverInfoRow key={"maneuver".concat(String(index+1))}  name={"Maneuver #" + String(index + 1)}  maneuver={maneuver} timeSettings={timeSettings} copiedManeuver={copiedManeuver} setCopiedManeuver={setCopiedManeuver} />),
+                        ...maneuvers.map((maneuver, index) => <ManeuverInfoRow key={"maneuver".concat(String(index+1))}  name={"Maneuver #" + String(index + 1)}  maneuver={maneuver} />),
                         ]}
                     </TableBody>
                 </Table>
@@ -75,7 +68,7 @@ function FlightPlanInfo({flightPlan, timeSettings, system, copiedOrbit, setCopie
             <TableContainer>
                 <Table size="small">
                     <TableBody>
-                        { flightPlan.trajectories.map((traj, idx) => <TrajectoryInfoRow key={idx} name={system.bodyFromId(traj.orbits[0].orbiting).name + " System"} orbitnames={traj.orbits.map((o,idx) => "Orbit #" + String(idx+1))} trajectory={traj.orbits} system={system} copiedOrbit={copiedOrbit} setCopiedOrbit={setCopiedOrbit} />) }
+                        { flightPlan.trajectories.map((traj, idx) => <TrajectoryInfoRow key={idx} name={system.bodyFromId(traj.orbits[0].orbiting).name + " System"} orbitnames={traj.orbits.map((o,idx) => "Orbit #" + String(idx+1))} trajectory={traj.orbits} />) }
                     </TableBody>
                 </Table>
             </TableContainer>

@@ -14,7 +14,6 @@ import kspbodies from './data/kspbodies.json';
 import opmbodies from './data/opmbodies.json';
 import rssbodies from './data/rssbodies.json';
 
-import Kepler from './main/libs/kepler';
 import SolarSystem from './main/objects/system';
 import Vessel from './main/objects/vessel';
 import loadSystemData from './main/utilities/loadSystem';
@@ -24,6 +23,10 @@ import { FlybyDateControlsState } from './components/Flyby/FlybyDateControls';
 import { defaultManeuverComponents, defaultOrbit, useControlOptions, useDateField, useOrbitControls } from './utils';
 import { EvolutionPlotData } from './components/Flyby/EvolutionPlot';
 import { DynamicDateFieldState } from './components/DynamicDateFields';
+import { ThemeProvider } from '@emotion/react';
+
+import { atom, useAtom } from 'jotai';
+// import { atomWithHash } from 'jotai/utils';
 
 // prepare popular systems
 const kspSystem = loadSystemData(kspbodies);
@@ -70,20 +73,40 @@ const initialPorkchopPlotData: PorkchopPlotData = {
   transferFlightDay:  0,
 }
 
-function AppBody() {
-  // common parts of the state
-  const [system, setSystem] = useState(kspSystem);
-  const [systemName, setSystemName] = useState([...systemOptions.keys()][0]);
-  const [vessels, setVessels] = useState(emptyVessels);
-  const [timeSettings, setTimeSettings] = useState(kspTimeSettings);
+// common parts of the state (atoms)
+export const lightModeAtom = atom('light' as PaletteMode);
 
-  const [copiedOrbit, setCopiedOrbit] = useState(defaultOrbit(kspSystem) as IOrbit);
-  const [copiedManeuver, setCopiedManeuver] = useState(defaultManeuverComponents());
-  const [copiedFlightPlan, setCopiedFlightPlan] = useState(blankFlightPlan);
+export const systemOptionsAtom = atom(systemOptions);
+export const systemAtom = atom(kspSystem);
+export const systemNameAtom = atom([...systemOptions.keys()][0]);
+export const vesselsAtom = atom(emptyVessels);
+export const timeSettingsAtom = atom(kspTimeSettings);
+
+export const copiedOrbitAtom = atom(defaultOrbit(kspSystem) as IOrbit);
+export const copiedManeuverAtom = atom(defaultManeuverComponents());
+export const copiedFlightPlanAtom = atom(blankFlightPlan);
+
+// transfer planner state (atoms)
+export const transferAtom = atom(blankInitialTransfer);
+export const porkchopInputsAtom = atom(initialPorkchopInputs);
+export const porkchopPlotDataAtom = atom(initialPorkchopPlotData);
+
+// flyby planner state (atoms)
+export const multiFlybyAtom = atom(blankMultiFlyby(kspSystem));
+
+// flight planner state (atoms)
+
+// SWAP THE FOLLOWING TWO LINES TO SAVE FLIGHT PLAN STATE IN URL
+// export const vesselPlansAtom = atomWithHash("vesselPlans", [] as IVessel[]);
+export const vesselPlansAtom = atom([] as IVessel[]);
+
+export const flightPlansAtom = atom([] as FlightPlan[]);
+
+function AppBody() {
+  const [mode, setMode] = useAtom(lightModeAtom);
 
   // MUI theme
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-  const [mode, setMode] = useState((prefersDarkMode ? 'dark' : 'light') as PaletteMode);
   const theme = createTheme({
     breakpoints: {
       values: {
@@ -93,14 +116,15 @@ function AppBody() {
           lg: 1500,
           xl: 1800,
       },
-  },
-  palette: {
-    mode: mode,
-  },
-});
+    },
+    palette: {
+      mode: mode,
+    },
+  });
 
   useEffect(() => {
     setMode((prefersDarkMode ? 'dark' : 'light') as PaletteMode)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prefersDarkMode])
 
   // state for transfer calculator
@@ -116,14 +140,9 @@ function AppBody() {
     lateStartDate:      transferLateStartDate,
     shortFlightTime:    transferShortFlightTime,
     longFlightTime:     transferLongFlightTime,
-    timeSettings:       timeSettings,
   }
 
   const transferControlsState = useControlOptions();
-  const [transfer, setTransfer] = useState(blankInitialTransfer);
-
-  const [porkchopInputs, setPorkchopInputs] = useState(initialPorkchopInputs);
-  const [porkchopPlotData, setPorkchopPlotData] = useState(initialPorkchopPlotData);
 
   // state for flyby calculator
   const flybyStartOrbit= useOrbitControls(kspSystem, 1);
@@ -146,12 +165,10 @@ function AppBody() {
     earlyStartDate:     flybyEarlyStartDate,
     lateStartDate:      flybyLateStartDate,
     flightTimes:        flybyFlightTimes,
-    timeSettings:       timeSettings,
   }
 
   const [flybyIdSequence, setFlybyIdSequence] = useState([5, 8]);
   const flybySequenceControlsState = {
-    system:             system,            
     startBodyId:        flybyStartOrbit.orbit.orbiting,        
     endBodyId:          flybyEndOrbit.orbit.orbiting,         
     flybyIdSequence,    
@@ -160,7 +177,6 @@ function AppBody() {
   };
 
   const flybyControlsState = useControlOptions();
-  const [multiFlyby, setMultiFlyby] = useState(blankMultiFlyby(kspSystem));
 
   const [x, setX] = useState(emptyNumberArray)
   const [meanY, setMeanY] = useState(emptyNumberArray)
@@ -178,163 +194,31 @@ function AppBody() {
   const [flybySearchCount, setFlybySearchCount] = useState(0);
 
   // state for flight plan illustrator
-  const [vesselPlans, setVesselPlans] = useState([{
-    // name: 'Kerbin To Duna Example', 
-    // maneuvers: [
-    //   {
-    //     prograde:   1034.6537492357884,
-    //     normal:     189.57709325770122,
-    //     radial:     0,
-    //     date:       5249443.549858202,
-    //   },
-    //   {
-    //     prograde:   -643.4676863825554,
-    //     normal:     22.839528196905174,
-    //     radial:     0,
-    //     date:       10856519.37835302,
-    //   }
-    // ] as ManeuverComponents[], 
-    // orbit: defaultOrbit(kspSystem, 1)
-    name: 'Minmus To Ike Example', 
-    maneuvers: [
-      {
-        prograde:   474.8533119242105,
-        normal:     25.89508681510052,
-        radial:     0,
-        date:       4917299.01384942,
-      },
-      {
-        prograde:   -448.7532077944218,
-        normal:     21.6158998538224,
-        radial:     0,
-        date:       10861527.5706846,
-      }
-    ] as ManeuverComponents[], 
-    orbit: Kepler.orbitFromElements(
-      {semiMajorAxis:     70000,
-       eccentricity:      0,
-       inclination:       0,
-       argOfPeriapsis:    0,
-       ascNodeLongitude:  0,
-       meanAnomalyEpoch:  0.1480249964499558,
-       epoch:             4917299.01384942 - 2769.211791103803},
-       kspSystem.bodyFromId(3)
-    )
-    // name: 'Testing', 
-    // maneuvers: [
-    //   {
-    //     prograde:   842.25,
-    //     normal:     0,
-    //     radial:     0,
-    //     date:       0,
-    //   }
-    // ] as ManeuverComponents[], 
-    // orbit: defaultOrbit(kspSystem, 1)
-  }] as IVessel[]);
-
-  const [flightPlans, setFlightPlans] = useState([] as FlightPlan[]);
+  // nothing here
 
   return (
-    <Routes>
-      <Route path='/' element={<TransferApp
-        theme={theme}
-        mode={mode}
-        setMode={setMode}
-        systemOptions={systemOptions}
-        system={system}
-        setSystem={setSystem}
-        systemName={systemName}
-        setSystemName={setSystemName}
-        timeSettings={timeSettings}
-        setTimeSettings={setTimeSettings}
-        vessels={vessels}
-        setVessels={setVessels}
-        copiedOrbit={copiedOrbit}
-        setCopiedOrbit={setCopiedOrbit}
-        copiedManeuver={copiedManeuver}
-        setCopiedManeuver={setCopiedManeuver}
-        copiedFlightPlan={copiedFlightPlan}
-        setCopiedFlightPlan={setCopiedFlightPlan}
-        startOrbitControlsState={transferStartOrbit}
-        endOrbitControlsState={transferEndOrbit}
-        dateControlsState={transferDateControlsState}
-        controlsOptionsState={transferControlsState}
-        transfer={transfer}
-        setTransfer={setTransfer}
-        porkchopInputs={porkchopInputs}
-        setPorkchopInputs={setPorkchopInputs}
-        porkchopPlotData={porkchopPlotData}
-        setPorkchopPlotData={setPorkchopPlotData}
-       />} />
-      <Route path='/Flyby/' element={<FlybyApp 
-        theme={theme}
-        mode={mode}
-        setMode={setMode}
-        systemOptions={systemOptions}
-        system={system}
-        setSystem={setSystem}
-        systemName={systemName}
-        setSystemName={setSystemName}
-        timeSettings={timeSettings}
-        setTimeSettings={setTimeSettings}
-        vessels={vessels}
-        setVessels={setVessels}
-        copiedOrbit={copiedOrbit}
-        setCopiedOrbit={setCopiedOrbit}
-        copiedManeuver={copiedManeuver}
-        setCopiedManeuver={setCopiedManeuver}
-        copiedFlightPlan={copiedFlightPlan}
-        setCopiedFlightPlan={setCopiedFlightPlan}
-        startOrbitControlsState={flybyStartOrbit}
-        endOrbitControlsState={flybyEndOrbit}
-        flybySequenceControlsState={flybySequenceControlsState}
-        dateControlsState={flybyDateControlsState}
-        controlsOptionsState={flybyControlsState}
-        multiFlyby={multiFlyby}
-        setMultiFlyby={setMultiFlyby}
-        evolutionPlotData={evolutionPlotData}
-        searchCount={flybySearchCount}
-        setSearchCount={setFlybySearchCount}
-      />} />
-      <Route path='/FlightPlan/' element={<ManeuversApp 
-        theme={theme}
-        mode={mode}
-        setMode={setMode}
-        systemOptions={systemOptions}
-        system={system}
-        setSystem={setSystem}
-        systemName={systemName}
-        setSystemName={setSystemName}
-        timeSettings={timeSettings}
-        setTimeSettings={setTimeSettings}
-        vessels={vessels}
-        setVessels={setVessels}
-        copiedOrbit={copiedOrbit}
-        setCopiedOrbit={setCopiedOrbit}
-        copiedManeuver={copiedManeuver}
-        setCopiedManeuver={setCopiedManeuver}
-        copiedFlightPlan={copiedFlightPlan}
-        setCopiedFlightPlan={setCopiedFlightPlan}
-        vesselPlans={vesselPlans}
-        setVesselPlans={setVesselPlans}
-        flightPlans={flightPlans}
-        setFlightPlans={setFlightPlans}
-      />} />
-      <Route path='/System/' element={<SolarSystemApp 
-        theme={theme}
-        mode={mode}
-        setMode={setMode}
-        systemOptions={systemOptions}
-        system={system}
-        setSystem={setSystem}
-        systemName={systemName}
-        setSystemName={setSystemName}
-        timeSettings={timeSettings}
-        setTimeSettings={setTimeSettings}
-        vessels={vessels}
-        setVessels={setVessels}
-      />} />
-    </Routes>
+    <ThemeProvider theme={theme}>
+      <Routes>
+        <Route path='/' element={<TransferApp
+          startOrbitControlsState={transferStartOrbit}
+          endOrbitControlsState={transferEndOrbit}
+          dateControlsState={transferDateControlsState}
+          controlsOptionsState={transferControlsState}
+        />} />
+        <Route path='/Flyby/' element={<FlybyApp 
+          startOrbitControlsState={flybyStartOrbit}
+          endOrbitControlsState={flybyEndOrbit}
+          flybySequenceControlsState={flybySequenceControlsState}
+          dateControlsState={flybyDateControlsState}
+          controlsOptionsState={flybyControlsState}
+          evolutionPlotData={evolutionPlotData}
+          searchCount={flybySearchCount}
+          setSearchCount={setFlybySearchCount}
+        />} />
+        <Route path='/FlightPlan/' element={<ManeuversApp />} />
+        <Route path='/System/' element={<SolarSystemApp />} />
+      </Routes>
+    </ThemeProvider>
   );
 }
 

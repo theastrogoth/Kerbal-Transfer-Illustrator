@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Table from "@mui/material/Table";
 import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
@@ -9,11 +9,16 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import Box from "@mui/system/Box";
 
-import SolarSystem from "../main/objects/system";
 import { radToDeg } from "../main/libs/math";
 import CopyButton from "./CopyButton";
 
-function OrbitInfoRow({name, orbit, system, copiedOrbit, setCopiedOrbit}: {name: string, orbit: IOrbit, system: SolarSystem, copiedOrbit: IOrbit, setCopiedOrbit: React.Dispatch<React.SetStateAction<IOrbit>>}) {
+import { useAtom } from "jotai";
+import { copiedOrbitAtom, systemAtom } from "../App";
+
+function OrbitInfoRow({name, orbit}: {name: string, orbit: IOrbit}) {
+    const [system] = useAtom(systemAtom);
+    const [copiedOrbit, setCopiedOrbit] = useAtom(copiedOrbitAtom);
+
     const [open, setOpen] = useState(false);
 
     const handleToggle = () => {

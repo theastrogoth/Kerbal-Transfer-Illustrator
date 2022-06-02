@@ -1,15 +1,10 @@
-import SolarSystem from '../main/objects/system';
-import Vessel from '../main/objects/vessel';
-
 import Navbar from '../components/Navbar';
-import VesselTabs, { VesselTabsState } from '../components/Manuevers/VesselTabs';
+import VesselTabs from '../components/Manuevers/VesselTabs';
 import OrbitDisplayTabs from '../components/Manuevers/OrbitDisplayTabs';
 import FlightPlanInfoTabs from '../components/Manuevers/FlightPlanInfoTabs';
 import HelpCollapse from '../components/Manuevers/HelpCollapse';
 
-import {useEffect, useState } from "react";
-import { ThemeProvider, Theme } from '@mui/material/styles';
-import { PaletteMode } from '@mui/material';
+import React, {useEffect, useState } from "react";
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
 import Stack from '@mui/material/Stack';
@@ -21,57 +16,21 @@ import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Collapse from '@mui/material/Collapse';
 
+import { useAtom } from 'jotai';
+import { systemAtom, flightPlansAtom, vesselPlansAtom } from '../App';
 
-type ManeuversAppState = {
-  theme:                   Theme,
-  mode:                    PaletteMode,
-  setMode:                 React.Dispatch<React.SetStateAction<PaletteMode>>,
-  systemOptions:           Map<string, SolarSystem>,
-  system:                  SolarSystem,
-  setSystem:               React.Dispatch<React.SetStateAction<SolarSystem>>,
-  systemName:              string,
-  setSystemName:           React.Dispatch<React.SetStateAction<string>>,
-  timeSettings:            TimeSettings,
-  setTimeSettings:         React.Dispatch<React.SetStateAction<TimeSettings>>,
-  vessels:                 Vessel[],
-  setVessels:              React.Dispatch<React.SetStateAction<Vessel[]>>,
-  copiedOrbit:             IOrbit,
-  setCopiedOrbit:          React.Dispatch<React.SetStateAction<IOrbit>>,
-  copiedManeuver:          ManeuverComponents,
-  setCopiedManeuver:       React.Dispatch<React.SetStateAction<ManeuverComponents>>,
-  copiedFlightPlan:        IVessel,
-  setCopiedFlightPlan:     React.Dispatch<React.SetStateAction<IVessel>>,
-  vesselPlans:             IVessel[],
-  setVesselPlans:          React.Dispatch<React.SetStateAction<IVessel[]>>,
-  flightPlans:             FlightPlan[],
-  setFlightPlans:          React.Dispatch<React.SetStateAction<FlightPlan[]>>,
-}
 
 // worker
 const propagateWorker = new Worker(new URL("../workers/propagate.worker.ts", import.meta.url));
 
 ////////// App Content //////////
-function ManeuversAppContent({theme, mode, setMode, systemOptions, system, setSystem, systemName, setSystemName, timeSettings, setTimeSettings, vessels, setVessels, copiedOrbit, setCopiedOrbit, copiedManeuver, setCopiedManeuver,
-                              copiedFlightPlan, setCopiedFlightPlan, vesselPlans, setVesselPlans, flightPlans, setFlightPlans}: ManeuversAppState) { 
+function ManeuversAppContent() { 
+  const [system] = useAtom(systemAtom);
+  const [vesselPlans] = useAtom(vesselPlansAtom);
+  const [, setFlightPlans] = useAtom(flightPlansAtom);
 
   // const [invalidInput, setInvalidInput] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
-
-  const vesselTabsState: VesselTabsState = {
-    systemOptions,
-    system,
-    setSystem,
-    systemName,
-    setSystemName,
-    vessels,
-    vesselPlans,
-    setVesselPlans,
-    copiedOrbit,
-    copiedManeuver,
-    copiedFlightPlan,
-    timeSettings,
-    setTimeSettings,
-  }
 
 useEffect(() => {
   propagateWorker.onmessage = (event: MessageEvent<FlightPlan[]>) => {
@@ -91,8 +50,8 @@ useEffect(() => {
 
   ///// App Body /////
   return (
-    <ThemeProvider theme={theme}>
-      <Navbar theme={theme} mode={mode} setMode={setMode} system={system} setVessels={setVessels} showHelp={showHelp} setShowHelp={setShowHelp} />
+    <>
+      <Navbar showHelp={showHelp} setShowHelp={setShowHelp} />
       <Stack sx={{mx: 4, my: 1}}>
         <CssBaseline />
         <Box textAlign='left' sx={{mx: 2, my: 3}}>
@@ -107,7 +66,7 @@ useEffect(() => {
           </Alert>
         </Collapse>
         <Grid container component='main' justifyContent="center">
-          <Grid item xs={10} sm={8} md={4} lg={3} xl={2}>
+          <Grid item xs={12} sm={11} md={5} lg={4} xl={3}>
             <Paper 
               elevation={1}
               sx={{
@@ -117,10 +76,10 @@ useEffect(() => {
                 flexDirection: 'column',
               }}
             >
-              <VesselTabs state={vesselTabsState} />
+              <VesselTabs />
             </Paper>
           </Grid>
-          <Grid item xs={12} sm={12} md={8} lg={5} xl={7}>
+          <Grid item xs={12} sm={12} md={7} lg={4} xl={6}>
             <Paper 
                 elevation={1}
                 sx={{
@@ -130,7 +89,7 @@ useEffect(() => {
                   flexDirection: 'column',
                 }}
               >
-                <OrbitDisplayTabs flightPlans={flightPlans} system={system} timeSettings={timeSettings}/>
+                <OrbitDisplayTabs />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={10} md={8} lg={4} xl={3}>
@@ -143,16 +102,7 @@ useEffect(() => {
                 flexDirection: 'column',
             }}
             >
-              <FlightPlanInfoTabs
-                flightPlans={flightPlans}
-                timeSettings={timeSettings}
-                system={system}
-                copiedOrbit={copiedOrbit}
-                setCopiedOrbit={setCopiedOrbit}
-                copiedManeuver={copiedManeuver}
-                setCopiedManeuver={setCopiedManeuver}
-                copiedFlightPlan={copiedFlightPlan}
-                setCopiedFlightPlan={setCopiedFlightPlan} />
+              <FlightPlanInfoTabs />
             </Paper>
           </Grid>
         </Grid>
@@ -176,12 +126,12 @@ useEffect(() => {
           </Box>
         </Box>
       </Stack>
-    </ThemeProvider>
+    </>
   )
 }
 
-function ManeuversApp(state: ManeuversAppState) {
-  return <>{ManeuversAppContent(state)}</>
+function ManeuversApp() {
+  return <>{ManeuversAppContent()}</>
 }
 
-export default ManeuversApp;
+export default React.memo(ManeuversApp);

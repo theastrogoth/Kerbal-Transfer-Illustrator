@@ -6,21 +6,21 @@ import Fade from "@mui/material/Fade";
 import TransferCalculator from "../../main/libs/transfer-calculator";
 import Transfer from "../../main/objects/transfer"
 
+import { useAtom } from "jotai";
+import { timeSettingsAtom, porkchopInputsAtom, porkchopPlotDataAtom, transferAtom } from '../../App';
+
 type PorkchopPlotProps = {
-    inputs:         PorkchopInputs,
-    plotData:       PorkchopPlotData,
-    timeSettings:   TimeSettings, 
-    startDate:      number, 
-    flightTime:     number, 
     plotCount:      number, 
-    setPlotData:    React.Dispatch<React.SetStateAction<PorkchopPlotData>>,
-    setTransfer:    React.Dispatch<React.SetStateAction<Transfer>>, 
     setCalculating: React.Dispatch<React.SetStateAction<boolean>>, 
 }
 
 const porkchopWorker = new Worker(new URL("../../workers/porkchop.worker.ts", import.meta.url));
 
-function PorkchopPlot({inputs, plotData, timeSettings, plotCount, setPlotData, setTransfer, setCalculating}: PorkchopPlotProps) {
+function PorkchopPlot({plotCount, setCalculating}: PorkchopPlotProps) {
+    const [timeSettings] = useAtom(timeSettingsAtom);
+    const [inputs] = useAtom(porkchopInputsAtom);
+    const [plotData, setPlotData] = useAtom(porkchopPlotDataAtom);
+    const [, setTransfer] = useAtom(transferAtom);
 
     useEffect(() => {
         porkchopWorker.onmessage = (event: MessageEvent<PorkchopPlotData>) => {

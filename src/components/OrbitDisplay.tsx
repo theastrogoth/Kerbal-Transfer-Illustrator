@@ -1,4 +1,5 @@
 import React, {useEffect, useState } from "react";
+import { useAtom } from "jotai";
 import Slider from "@mui/material/Slider";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
@@ -12,6 +13,8 @@ import { calendarDateToString, timeToCalendarDate, vec3, wrapAngle } from "../ma
 import { CelestialBody, isOrbitingBody } from "../main/objects/body";
 import { timeFromDateFieldState, useDateField } from "../utils";
 
+import { timeSettingsAtom } from "../App";
+
 export type OrbitDisplayProps = {
     index:              number,
     label:              string,
@@ -24,7 +27,6 @@ export type OrbitDisplayProps = {
     defaultTraces:      OrbitPlotTraces,
     plotSize:           number,
     slider?:            boolean,
-    timeSettings:       TimeSettings,   
 }
 
 function updateOrbitColorFade(newStartAngle: number, trace: Line3DTrace) {
@@ -85,7 +87,9 @@ function updateDateField(dateField: DateFieldState, date: number, timeSettings: 
     dateField.setUpdateInputs(true);
 }
 
-function OrbitDisplay({index, label, marks, centralBody, orbits, trajectories, startDate, endDate, defaultTraces, plotSize, timeSettings, slider=true}: OrbitDisplayProps) {
+function OrbitDisplay({label, marks, centralBody, orbits, trajectories, startDate, endDate, defaultTraces, plotSize, slider=true}: OrbitDisplayProps) {
+    const [timeSettings] = useAtom(timeSettingsAtom);
+
     const [date, setDate] = useState(startDate);
     const [fieldsDate, setFieldsDate] = useState(startDate);
     const [updateFields, setUpdateFields] = useState(false);
@@ -124,12 +128,6 @@ function OrbitDisplay({index, label, marks, centralBody, orbits, trajectories, s
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dateField]);
 
-    // useEffect(() => {
-    //     console.log(timeSettings)
-    //     updateDateField(dateField, date, timeSettings);
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, [timeSettings])
-
     return (
         <>
             <OrbitPlot uirevision={label} plotSize={plotSize} traces={traces}/>
@@ -148,7 +146,7 @@ function OrbitDisplay({index, label, marks, centralBody, orbits, trajectories, s
                     onChangeCommitted={(event: React.SyntheticEvent<Element, Event>, value: number) => { setUpdateFields(true) }}
                 /> : <></> }
                 <Box display="flex" alignItems="center" justifyContent="center" minWidth="250px" maxWidth="450px">
-                    <DateField id={'plot-date'} label={'Date'} state={dateField} correctFormat={true} timeSettings={timeSettings} variant="all"/>
+                    <DateField id={'plot-date'} label={'Date'} state={dateField} correctFormat={true} variant="all"/>
                 </Box>
             </Stack>
         </>

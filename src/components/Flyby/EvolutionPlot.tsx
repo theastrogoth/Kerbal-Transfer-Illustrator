@@ -1,9 +1,11 @@
-import MultiFlyby from "../../main/objects/multiflyby";
 import MultiFlybyCalculator from "../../main/libs/multi-flyby-calculator";
 import FlybyCalcs from "../../main/libs/flybycalcs";
 
 import React, { useEffect, useState } from "react";
 import Plot from "react-plotly.js";
+
+import { useAtom } from "jotai";
+import { multiFlybyAtom } from "../../App";
 
 export type EvolutionPlotData = {
     x:              number[],
@@ -18,14 +20,15 @@ type EvolutionPlotProps = {
     plotData:       EvolutionPlotData,
     buttonPresses:  number, 
     searchCount:    number,
-    setMultiFlyby:  React.Dispatch<React.SetStateAction<MultiFlyby>>,
     setCalculating: React.Dispatch<React.SetStateAction<boolean>>,
     setSearchCount: React.Dispatch<React.SetStateAction<number>>
 }
 
 const multiFlybyOptWorker = new Worker(new URL("../../workers/multi-flyby-search.worker.ts", import.meta.url));
 
-function EvolutionPlot({inputs, plotData, buttonPresses, searchCount, setMultiFlyby, setCalculating, setSearchCount}: EvolutionPlotProps) {
+function EvolutionPlot({inputs, plotData, buttonPresses, searchCount, setCalculating, setSearchCount}: EvolutionPlotProps) {
+    const [, setMultiFlyby] = useAtom(multiFlybyAtom);
+    
     const [x, setX] = useState(plotData.x);
     const [meanY, setMeanY] = useState(plotData.meanY);
     const [bestY, setBestY] = useState(plotData.bestY);

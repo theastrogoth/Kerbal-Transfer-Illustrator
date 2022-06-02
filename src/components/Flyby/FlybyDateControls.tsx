@@ -7,11 +7,13 @@ import Box from "@mui/material/Box";
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 
+import { useAtom } from "jotai";
+import { timeSettingsAtom } from "../../App";
+
 export type FlybyDateControlsState = {
     earlyStartDate:   DateFieldState,
     lateStartDate:    DateFieldState,
     flightTimes:      DynamicDateFieldState,
-    timeSettings:     TimeSettings,
 }
 
 function flybyTimesLabel(id: number): string {
@@ -23,10 +25,11 @@ function flybyTimesLabel(id: number): string {
 }
 
 
-function FlybyDateControls({earlyStartDate, lateStartDate, flightTimes, timeSettings}: FlybyDateControlsState) {
+function FlybyDateControls({earlyStartDate, lateStartDate, flightTimes}: FlybyDateControlsState) {
     const [optsVisible, setOptsVisible] = useState(false)
     const [startErr, setStartErr] = useState(false);
     const [flightErrs, setFlightErrs] = useState(flightTimes.years.map(y => false));
+    const [timeSettings] = useAtom(timeSettingsAtom);
 
     useEffect(() => {
         if(!dateFieldIsEmpty(earlyStartDate) && !dateFieldIsEmpty(lateStartDate)) {
@@ -40,7 +43,6 @@ function FlybyDateControls({earlyStartDate, lateStartDate, flightTimes, timeSett
         } else {
             setStartErr(false)
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [earlyStartDate, lateStartDate, timeSettings]);
 
     useEffect(() => {
@@ -74,7 +76,6 @@ function FlybyDateControls({earlyStartDate, lateStartDate, flightTimes, timeSett
                 state={earlyStartDate}
                 error={startErr}
                 required={true} 
-                timeSettings={timeSettings}
             />
             <Collapse in={optsVisible} timeout="auto">
                 <DateField
@@ -83,7 +84,6 @@ function FlybyDateControls({earlyStartDate, lateStartDate, flightTimes, timeSett
                     state={lateStartDate} 
                     error={startErr}
                     required={false} 
-                    timeSettings={timeSettings}
                 />
                 <DynamicDateFields
                     labelFun={flybyTimesLabel}

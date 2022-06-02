@@ -13,24 +13,22 @@ import VesselSelect from "../VesselSelect";
 import PasteButton from "../PasteButton"
 import { defaultManeuverComponents, orbitFromControlsState } from "../../utils";
 
-import SolarSystem from "../../main/objects/system";
-import Vessel from "../../main/objects/vessel";
 import { radToDeg } from "../../main/libs/math";
+
+import { useAtom } from "jotai";
+import { copiedFlightPlanAtom, systemAtom, vesselPlansAtom, vesselsAtom } from "../../App";
 
 
 export type VesselControlsState = {
-    system:             SolarSystem, 
-    vessels:            Vessel[], 
     idx:                number, 
-    vesselPlans:        IVessel[], 
-    setVesselPlans:     React.Dispatch<React.SetStateAction<IVessel[]>>,
-    copiedOrbit:        IOrbit,
-    copiedManeuver:     ManeuverComponents,
-    copiedFlightPlan:   IVessel,
-    timeSettings:       TimeSettings,
 }
 
-function VesselControls({system, vessels, idx, vesselPlans, setVesselPlans, copiedOrbit, copiedManeuver, copiedFlightPlan, timeSettings}: VesselControlsState) {
+function VesselControls({idx}: {idx: number}) {
+    const [system] = useAtom(systemAtom);
+    const [vesselPlans, setVesselPlans] = useAtom(vesselPlansAtom);
+    const [vessels] = useAtom(vesselsAtom);
+    const [copiedFlightPlan] = useAtom(copiedFlightPlanAtom);
+
     const [vesselId, setVesselId] = useState(-1);
     const [vesselIdUpdate, setVesselIdUpdate] = useState(false);
     const [orbit, setOrbit] = useState({
@@ -124,19 +122,21 @@ function VesselControls({system, vessels, idx, vesselPlans, setVesselPlans, copi
         } else {
             setVesselIdUpdate(false);
         }
-        
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [orbit])
 
     useEffect(() => {
         const newVesselPlans = [...vesselPlans];
         newVesselPlans[idx] = plan;
         setVesselPlans(newVesselPlans);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [plan]);
 
     useEffect(() => {
         const vesselPlan = vesselPlans[idx];
         setPlan(vesselPlan);
         setVesselId(-1);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [vesselPlans.length]);
 
     return (
@@ -155,10 +155,10 @@ function VesselControls({system, vessels, idx, vesselPlans, setVesselPlans, copi
                 value={plan.name}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => setName(event.target.value)}
                 sx={{ fullWidth: "true" }} />      
-            <OrbitControls label={"Starting Orbit"} system={system} vessels={vessels} copiedOrbit={copiedOrbit} state={orbitControls} vesselSelect={false} />
+            <OrbitControls label={"Starting Orbit"} state={orbitControls} vesselSelect={false} />
             <Typography variant="body1">{"Maneuvers"} </Typography>
             <Stack spacing={2} >
-                { plan.maneuvers.map( (m, idx) => <ManeuverControls key={idx} idx={idx} maneuvers={plan.maneuvers} setManeuvers={setManeuvers} copiedManeuver={copiedManeuver} timeSettings={timeSettings} /> ) }
+                { plan.maneuvers.map( (m, idx) => <ManeuverControls key={idx} idx={idx} maneuvers={plan.maneuvers} setManeuvers={setManeuvers} /> ) }
             </Stack>
             <Stack direction="row" spacing={2} textAlign="center" justifyContent="center">
                 <IconButton sx={{border: "1px solid"}} size="small" onClick={handleAddManeuver}>
