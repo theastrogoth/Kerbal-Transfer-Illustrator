@@ -26,7 +26,7 @@ import { DynamicDateFieldState } from './components/DynamicDateFields';
 import { ThemeProvider } from '@emotion/react';
 
 import { atom, useAtom } from 'jotai';
-// import { atomWithHash } from 'jotai/utils';
+import { atomWithHash } from 'jotai/utils';
 
 // prepare popular systems
 const kspSystem = loadSystemData(kspbodies);
@@ -97,8 +97,8 @@ export const multiFlybyAtom = atom(blankMultiFlyby(kspSystem));
 // flight planner state (atoms)
 
 // SWAP THE FOLLOWING TWO LINES TO SAVE FLIGHT PLAN STATE IN URL
-// export const vesselPlansAtom = atomWithHash("vesselPlans", [] as IVessel[]);
-export const vesselPlansAtom = atom([] as IVessel[]);
+export const vesselPlansAtom = atomWithHash("vesselPlans", [] as IVessel[]);
+// export const vesselPlansAtom = atom([] as IVessel[]);
 
 export const flightPlansAtom = atom([] as FlightPlan[]);
 
