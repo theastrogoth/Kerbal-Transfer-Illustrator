@@ -191,7 +191,6 @@ function DateField({id, label, state, required = false, error = false, correctFo
         }
         
         state.setCalendarDate({year: newYear, day: newDay, hour: newHour, minute: newMinute, second: newSecond});
-
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [year, day, hour, minute, second])
 
