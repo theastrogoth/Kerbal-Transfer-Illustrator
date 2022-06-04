@@ -1,6 +1,5 @@
-import DateField, { DateFieldState } from "../DateField"
-import DynamicDateFields,  { DynamicDateFieldState } from "../DynamicDateFields";
-import { dateFieldIsEmpty, timeFromDateFieldState, timesFromDynamicDateFieldState } from "../../utils";
+import DateField from "../DateField"
+import { dateFieldIsEmpty, timeFromDateFieldState } from "../../utils";
 
 import React, { useState, useEffect } from "react"
 import Box from "@mui/material/Box";
@@ -8,13 +7,7 @@ import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 
 import { useAtom } from "jotai";
-import { timeSettingsAtom } from "../../App";
-
-export type FlybyDateControlsState = {
-    earlyStartDate:   DateFieldState,
-    lateStartDate:    DateFieldState,
-    flightTimes:      DynamicDateFieldState,
-}
+import { timeSettingsAtom, multiFlybyEarlyStartDateAtom, multiFlybyLateStartDateAtom, multiFlybyFlightTimesAtom, multiFlybyFlightTimesAtomsAtom } from "../../App";
 
 function flybyTimesLabel(id: number): string {
     if(id % 2 === 0) {
@@ -24,12 +17,16 @@ function flybyTimesLabel(id: number): string {
     }
 }
 
+function FlybyDateControls() {
+    const [timeSettings] = useAtom(timeSettingsAtom);
+    const [earlyStartDate] = useAtom(multiFlybyEarlyStartDateAtom);
+    const [lateStartDate] = useAtom(multiFlybyLateStartDateAtom);
+    const [flightTimesAtoms] = useAtom(multiFlybyFlightTimesAtomsAtom);
+    const [flightTimes] = useAtom(multiFlybyFlightTimesAtom);
 
-function FlybyDateControls({earlyStartDate, lateStartDate, flightTimes}: FlybyDateControlsState) {
     const [optsVisible, setOptsVisible] = useState(false)
     const [startErr, setStartErr] = useState(false);
-    const [flightErrs, setFlightErrs] = useState(flightTimes.years.map(y => false));
-    const [timeSettings] = useAtom(timeSettingsAtom);
+    const [flightErrs, setFlightErrs] = useState(flightTimes.map(ft => false));
 
     useEffect(() => {
         if(!dateFieldIsEmpty(earlyStartDate) && !dateFieldIsEmpty(lateStartDate)) {
@@ -46,9 +43,9 @@ function FlybyDateControls({earlyStartDate, lateStartDate, flightTimes}: FlybyDa
     }, [earlyStartDate, lateStartDate, timeSettings]);
 
     useEffect(() => {
-        const times = timesFromDynamicDateFieldState(flightTimes, timeSettings, 0, 0);
+        const times = flightTimes.map(ft => timeFromDateFieldState(ft, timeSettings, 0, 0));
         const newFlightErrs = flightErrs.slice();
-        for(let i=0; i<(flightTimes.years.length); i += 2) {
+        for(let i=0; i<(flightTimes.length); i += 2) {
             const sfTime = times[i];
             const lfTime = times[i + 1];
             if (sfTime > 0 && lfTime > 0) {
@@ -65,7 +62,6 @@ function FlybyDateControls({earlyStartDate, lateStartDate, flightTimes}: FlybyDa
             }
         }
         setFlightErrs(newFlightErrs)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [flightTimes, timeSettings])
 
     return (
@@ -73,7 +69,7 @@ function FlybyDateControls({earlyStartDate, lateStartDate, flightTimes}: FlybyDa
             <DateField 
                 id='early-start-date' 
                 label='Earliest Departure Date'
-                state={earlyStartDate}
+                calendarDateAtom={multiFlybyEarlyStartDateAtom}
                 error={startErr}
                 required={true} 
             />
@@ -81,16 +77,22 @@ function FlybyDateControls({earlyStartDate, lateStartDate, flightTimes}: FlybyDa
                 <DateField
                     id='late-start-date'
                     label='Latest Departure Date'
-                    state={lateStartDate} 
+                    calendarDateAtom={multiFlybyLateStartDateAtom}
                     error={startErr}
                     required={false} 
                 />
-                <DynamicDateFields
-                    labelFun={flybyTimesLabel}
-                    state={flightTimes}
-                    errors={flightErrs}
-                    required={false}
-                />
+                {
+                    flightTimesAtoms.map((fta, idx) => 
+                        <DateField 
+                            key={idx} 
+                            id={'flight-time-'+idx} 
+                            label={flybyTimesLabel(idx)}
+                            calendarDateAtom={fta}
+                            error={flightErrs[idx]}
+                            required={false}
+                        />
+                    )     
+                }
             </Collapse>
             <Box textAlign='center'>
                 <Button 

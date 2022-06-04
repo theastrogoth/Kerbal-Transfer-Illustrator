@@ -31,6 +31,7 @@ function PorkchopPlot({plotCount, setCalculating}: PorkchopPlotProps) {
                 setCalculating(false);
             }
         }
+        // Hide warning for missing setters
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [porkchopWorker]);
 
@@ -41,6 +42,7 @@ function PorkchopPlot({plotCount, setCalculating}: PorkchopPlotProps) {
             porkchopWorker
                 .postMessage({inputs, timeSettings});
         }
+        // Hide warning for missing setters
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inputs]);
 

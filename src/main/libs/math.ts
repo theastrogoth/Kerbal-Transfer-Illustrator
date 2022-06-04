@@ -250,9 +250,13 @@ export function calendarDateToString(cd: CalendarDate): String {
 }
 
 export function calendarDateToDurationString(cd: CalendarDate): String {
-    return String(cd.year).concat(cd.year === 1 ? " Year, " : " Years, ", 
-           String(cd.day), cd.day === 1 ? " Day, " : " Days, ", 
-           String(cd.hour), cd.hour === 1 ? " hour, " : " hours, ", 
-           String(cd.minute), cd.minute === 1 ? " minute, and " : " minutes, and ", 
-           String(Math.round(cd.second)), cd.second === 1 ? " second" : " seconds");
+    const parts = [cd.year === 0  ? '' : (String(cd.year) + (cd.year === 1 ? " Year" : " Years")),
+                   cd.day === 0 ? '' : (String(cd.day) + (cd.day === 1 ? " Day" : " Days")), 
+                   cd.hour === 0 ? '' : (String(cd.hour) + (cd.hour === 1 ? " hour" : " hours")), 
+                   cd.minute === 0 ? '' : (String(cd.minute) + (cd.minute === 1 ? " minute" : " minutes")),
+                   cd.second === 0 ? '' : (String(Math.round(cd.second)) + (cd.second === 1 ? "second" : " seconds"))].filter((e,i,a) => e !== '');
+    
+    const string = parts.length < 3 ? parts.join(' and ')  : parts.slice(0,-1).join(', ') + ", and " + parts[parts.length-1];
+    
+    return string;
 }

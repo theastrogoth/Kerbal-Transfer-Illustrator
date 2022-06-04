@@ -44,7 +44,7 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
     // perform search
     const maxIters = escapes ? 1 : nRevs + 1;
     let start = startDate;
-    let end = escapes ? escapeDate : start + orbit.siderealPeriod;
+    let end = Math.min(maxDate, (escapes ? escapeDate : start + orbit.siderealPeriod));
     let interceptTime: number = Infinity;
     let interceptBody: IOrbitingBody | undefined = undefined;
     for(let i=0; i<maxIters; i++) {
@@ -71,7 +71,7 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
         if(escapes && escapeDate <= maxDate) {
             // if the attractor body is the sun (has infinite SoI), return null (there is no next orbit)
             if(soi === Infinity) {
-                console.log("No next orbit found")
+                // console.log("No next orbit found")
                 return null;
             }
             // otherwise, patch the orbit into the attractor body's attractor
@@ -84,11 +84,11 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
                 pos:  add3(orbitState.pos, bodyState.pos),
                 vel:  add3(orbitState.vel, bodyState.vel)
             }
-            console.log("Escape from " + attractor.name + ": " + String(escapeDate) + " s")
+            // console.log("Escape from " + attractor.name + ": " + String(escapeDate) + " s")
             return Kepler.stateToOrbit(postPatchState, grandparent);
         // if the orbit does not escape, return null (there is no next orbit)
         } else {
-            console.log("No next orbit found")
+            // console.log("No next orbit found")
             return null;
         }
     // If an intercept was found, patch the orbit into the SoI of the satellite body
@@ -113,7 +113,7 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
             pos:  sub3(orbitState.pos, bodyState.pos),
             vel:  sub3(orbitState.vel, bodyState.vel),
         }
-        console.log("Encounter at " + interceptBody.name + ": " + String(soiPatchTime) + ' s')
+        // console.log("Encounter at " + interceptBody.name + ": " + String(soiPatchTime) + ' s')
         return Kepler.stateToOrbit(postPatchState, interceptBody as IOrbitingBody);
     }
 }
@@ -139,6 +139,7 @@ export function propagateFlightPlan(startOrbit: IOrbit, system: ISolarSystem, st
     // before each maneuver, check for intercepts up to the maximum specified nRevs
     for(let i=0; i<=sortedManeuverComponents.length; i++) {
         eDate = i !== sortedManeuverComponents.length ? sortedManeuverComponents[i].date : Infinity;
+        // console.log("next maneuver at " + String(eDate))
         let nextOrbit: IOrbit | null = null;
         let noPatchFound = false;
         while(!noPatchFound) {

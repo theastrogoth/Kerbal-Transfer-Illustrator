@@ -45,6 +45,7 @@ function handleAddVessel(vesselPlans: IVessel[], setVesselPlans: React.Dispatch<
 
         const newVesselPlans = [...vesselPlans];
         newVesselPlans.splice(index, 0, {name, orbit, maneuvers});
+        console.log(newVesselPlans, vesselPlans)
         setVesselPlans(newVesselPlans);
     };
 }
@@ -60,6 +61,7 @@ function handleRemoveVessel(vesselPlans: IVessel[], setVesselPlans: React.Dispat
 
             const newVesselPlans = [...vesselPlans];
             newVesselPlans.splice(index, 1);
+            console.log(newVesselPlans, vesselPlans)
             setVesselPlans(newVesselPlans);
 
             if(value === index && value !== 0) {

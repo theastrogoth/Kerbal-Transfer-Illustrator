@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Box from "@mui/system/Box"
 import Typography from '@mui/material/Typography';
 import Stack from "@mui/material/Stack"
@@ -7,15 +7,15 @@ import IconButton from "@mui/material/IconButton";
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 
-import OrbitControls, { OrbitControlsState } from "../OrbitControls";
+import OrbitControls from "../OrbitControls";
 import ManeuverControls from "./ManeuverControls";
 import VesselSelect from "../VesselSelect";
 import PasteButton from "../PasteButton"
-import { defaultManeuverComponents, orbitFromControlsState } from "../../utils";
+import { defaultManeuverComponents, orbitFromElementsAndSystem } from "../../utils";
 
 import { radToDeg } from "../../main/libs/math";
 
-import { useAtom } from "jotai";
+import { atom, useAtom } from "jotai";
 import { copiedFlightPlanAtom, systemAtom, vesselPlansAtom, vesselsAtom } from "../../App";
 
 
@@ -29,9 +29,8 @@ function VesselControls({idx}: {idx: number}) {
     const [vessels] = useAtom(vesselsAtom);
     const [copiedFlightPlan] = useAtom(copiedFlightPlanAtom);
 
-    const [vesselId, setVesselId] = useState(-1);
-    const [vesselIdUpdate, setVesselIdUpdate] = useState(false);
-    const [orbit, setOrbit] = useState({
+    const vesselIdAtom = useRef(atom(-1)).current;
+    const orbitAtom = useRef(atom({
         semiMajorAxis:      vesselPlans[idx].orbit.semiMajorAxis,
         eccentricity:       vesselPlans[idx].orbit.eccentricity,
         inclination:        radToDeg(vesselPlans[idx].orbit.inclination),
@@ -40,22 +39,22 @@ function VesselControls({idx}: {idx: number}) {
         meanAnomalyEpoch:   vesselPlans[idx].orbit.meanAnomalyEpoch,
         epoch:              vesselPlans[idx].orbit.epoch,
         orbiting:           vesselPlans[idx].orbit.orbiting,
-    } as OrbitalElements);
+    } as OrbitalElements)).current;
+
     const [plan, setPlan] = useState({name: vesselPlans[idx].name, orbit: vesselPlans[idx].orbit, maneuvers: vesselPlans[idx].maneuvers} as IVessel);
 
-    const orbitControls: OrbitControlsState = {
-        orbit,
-        setOrbit,
-        vesselId,
-        setVesselId,
-    }
+    const [orbit, setOrbit] = useAtom(orbitAtom);
+    const [vesselId, setVesselId] = useAtom(vesselIdAtom);
+
+    const orbitRef = useRef(orbit);
+    const planRef = useRef(plan);
+    const vesselPlansRef = useRef(vesselPlans);
 
     const handleVesselIdChange = (event: any): void => {
         const newId = Number(event.target.value)
         if(newId >= 0 && newId < vessels.length) {
             setVesselId(newId);
             setPlan(vessels[newId]);
-            setVesselIdUpdate(true);
         }
     }
 
@@ -100,50 +99,38 @@ function VesselControls({idx}: {idx: number}) {
     };
 
     useEffect(() => {
-        if(!vesselIdUpdate) {
-            const orb = orbitFromControlsState(system, orbitControls).data;
-            let equal = true;
-            const keys = Object.keys(orb)
-            for(let i=0; i<keys.length; i++) {
-                //@ts-ignore
-                if(plan.orbit[keys[i]] !== orb[keys[i]]){
-                    equal = false;
-                    break;
-                }
-            }
-            if(!equal) {
-                const newPlan: IVessel = {
-                    name:       plan.name,
-                    orbit:      orb,
-                    maneuvers:  plan.maneuvers,
-                };
-                setPlan(newPlan);
-            }
-        } else {
-            setVesselIdUpdate(false);
+        if(vesselPlans.length !== vesselPlansRef.current.length) {
+            // console.log("add/remove vessel")
+            vesselPlansRef.current = vesselPlans;
+            const vesselPlan = vesselPlans[idx];
+            setPlan(vesselPlan);
+            setVesselId(-1);
+        } else if(plan !== planRef.current) {
+            planRef.current = plan;
+            const newVesselPlans = [...vesselPlans];
+            newVesselPlans[idx] = plan;
+            // console.log("new plan", vesselPlans, newVesselPlans)
+            setVesselPlans(newVesselPlans);
+            setOrbit(plan.orbit);
+            orbitRef.current = orbit;
+        } else if(orbit !== orbitRef.current) {
+            // console.log("new orbit")
+            orbitRef.current = orbit;
+            const orb = orbitFromElementsAndSystem(system, orbit);
+            const newPlan: IVessel = {
+                name:       plan.name,
+                orbit:      orb,
+                maneuvers:  plan.maneuvers,
+            };
+            setPlan(newPlan);
+            planRef.current = newPlan;
+            setVesselId(-1);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [orbit])
-
-    useEffect(() => {
-        const newVesselPlans = [...vesselPlans];
-        newVesselPlans[idx] = plan;
-        setVesselPlans(newVesselPlans);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [plan]);
-
-    useEffect(() => {
-        const vesselPlan = vesselPlans[idx];
-        setPlan(vesselPlan);
-        setVesselId(-1);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [vesselPlans.length]);
+    }, [orbit, plan, vesselPlans, idx])
 
     return (
         <Stack spacing={1} sx={{ my: 2 }} >
-            {/* <Box textAlign="center">
-               <Typography variant="h6">{"Flight Plan"} </Typography>
-             </Box> */}
              <VesselSelect 
                 vessels={vessels}
                 label={''}
@@ -155,7 +142,7 @@ function VesselControls({idx}: {idx: number}) {
                 value={plan.name}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => setName(event.target.value)}
                 sx={{ fullWidth: "true" }} />      
-            <OrbitControls label={"Starting Orbit"} state={orbitControls} vesselSelect={false} />
+            <OrbitControls label={"Starting Orbit"} orbitAtom={orbitAtom} vesselSelect={false} />
             <Typography variant="body1">{"Maneuvers"} </Typography>
             <Stack spacing={2} >
                 { plan.maneuvers.map( (m, idx) => <ManeuverControls key={idx} idx={idx} maneuvers={plan.maneuvers} setManeuvers={setManeuvers} /> ) }

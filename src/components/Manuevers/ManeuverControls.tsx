@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Stack from "@mui/material/Stack";
 import RequiredNumberField from "../NumberField"
-import { timeFromDateFieldState, useDateField } from "../../utils";
-import DateField, { DateFieldState } from "../DateField";
+import { timeFromDateFieldState, makeDateFields } from "../../utils";
+import DateField from "../DateField";
 import { timeToCalendarDate } from "../../main/libs/math";
 import Typography from "@mui/material/Typography";
 import Collapse from "@mui/material/Collapse";
@@ -13,7 +13,7 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { Box } from "@mui/system";
 import PasteButton from "../PasteButton";
 
-import { useAtom } from "jotai";
+import { atom, useAtom } from "jotai";
 import { copiedManeuverAtom, timeSettingsAtom } from "../../App";
 
 type ManeuverControlsState = {
@@ -30,19 +30,10 @@ function handleChange(setFunction: Function) {
     )
 }
 
-function setUTandUpdate(setUT: React.Dispatch<React.SetStateAction<string>>, dateField: DateFieldState, timeSettings: TimeSettings) {
-    return (
-        (value: string): void => {
-            setUT(value);
-            const calendarDate = timeToCalendarDate(Number(value), timeSettings, 1, 1);
-            dateField.setCalendarDate(calendarDate);
-            dateField.setUpdateInputs(true);
-        }
-    )
-}
-
 function ManeuverControls({idx, maneuvers, setManeuvers}: ManeuverControlsState) {
     const [timeSettings] = useAtom(timeSettingsAtom);
+    const timeSettingsRef = useRef(timeSettings);
+
     const [copiedManeuver] = useAtom(copiedManeuverAtom);
 
     const maneuverComponents = maneuvers[idx];
@@ -51,66 +42,62 @@ function ManeuverControls({idx, maneuvers, setManeuvers}: ManeuverControlsState)
     const [radial,   setRadial]   = useState(String(maneuverComponents.radial));
     const [UT,       setUT]       = useState('0');
     
-    const dateField = useDateField(...Object.values(timeToCalendarDate(maneuvers[idx].date, timeSettings, 1, 1)));
+    const dateFieldAtom = useRef(atom(makeDateFields(...Object.values(timeToCalendarDate(maneuvers[idx].date, timeSettings, 1, 1))))).current;
+    const [dateField, setDateField] = useAtom(dateFieldAtom);
+    const dateFieldRef = useRef(dateField);
+
+    const maneuverRef = useRef(maneuvers[idx]);
+    const progradeRef = useRef(prograde);
+    const normalRef = useRef(normal);
+    const radialRef = useRef(radial);
+    const UTRef = useRef(UT);
 
     const [open, setOpen] = useState(false);
-    const [loaded, setLoaded] = useState(false);
-
-    const [timeSettingsChange, setTimeSettingsChange] = useState(false);
 
     const handleToggle = () => {
         setOpen(!open);
     }
 
+    const setUTandUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setUT(event.target.value);
+        const calendarDate = timeToCalendarDate(Number(event.target.value), timeSettings, 1, 1);
+        setDateField(calendarDate);
+        dateFieldRef.current = calendarDate;
+    }
+
     useEffect(() => {
-        if(!timeSettingsChange) {
+        if(timeSettings !== timeSettingsRef.current) {
+            timeSettingsRef.current = timeSettings;
+            setDateField(timeToCalendarDate(maneuvers[idx].date, timeSettings, 1, 1));
+        } else if(maneuvers[idx] !== maneuverRef.current) {
+            maneuverRef.current = maneuvers[idx]
+            setPrograde(String(maneuvers[idx].prograde));
+            setNormal(String(maneuvers[idx].normal));
+            setRadial(String(maneuvers[idx].radial));
+            setUT(String(maneuvers[idx].date));
+            const newDateFields = timeToCalendarDate(maneuvers[idx].date, timeSettings, 1, 1)
+            setDateField(newDateFields);
+            dateFieldRef.current = newDateFields;
+        } else if((prograde !== progradeRef.current) || (normal !== normalRef.current) || (radial !== radialRef.current) || (UT !== UTRef.current)) {
+            progradeRef.current = prograde;
+            normalRef.current = normal;
+            radialRef.current = radial;
+            const newManeuvers = [...maneuvers];
+            newManeuvers[idx] = {prograde: Number(prograde), normal: Number(normal), radial: Number(radial), date: Number(UT)}
+            setManeuvers(newManeuvers);
+            if(UT !== UTRef.current) {
+                const calendarDate = timeToCalendarDate(Number(UT), timeSettings, 1, 1);
+                setDateField(calendarDate);
+            }
+            UTRef.current = UT;
+        } else if(dateField !== dateFieldRef.current) {
+            dateFieldRef.current = dateField;
             const newDate = timeFromDateFieldState(dateField, timeSettings, 1, 1);
             if(Number(UT) !== newDate) {
                 setUT(String(newDate));
             }
-        } else {
-            setTimeSettingsChange(false);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [dateField])
-
-    useEffect(() => {
-        dateField.setCalendarDate(timeToCalendarDate(maneuvers[idx].date, timeSettings, 1, 1));
-        dateField.setUpdateInputs(true);
-        setTimeSettingsChange(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [timeSettings])
-
-    useEffect(() => {
-        if(!loaded && !timeSettingsChange) {
-            let equal = true;
-            equal = equal && Number(prograde) === maneuvers[idx].prograde;
-            equal = equal && Number(normal)   === maneuvers[idx].normal;
-            equal = equal && Number(radial)   === maneuvers[idx].radial;
-            equal = equal && Number(UT)       === maneuvers[idx].date;
-
-            if(!equal) {
-                const newManeuvers = [...maneuvers];
-                newManeuvers[idx] = {prograde: Number(prograde), normal: Number(normal), radial: Number(radial), date: Number(UT)}
-                setManeuvers(newManeuvers);
-            }
-        } else {
-            setLoaded(false)
-            setTimeSettingsChange(false)
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [prograde, normal, radial, UT, loaded])
-
-    useEffect(() => {
-        setLoaded(false);
-        setPrograde(String(maneuvers[idx].prograde));
-        setNormal(String(maneuvers[idx].normal));
-        setRadial(String(maneuvers[idx].radial));
-        setUT(String(maneuvers[idx].date));
-        dateField.setCalendarDate(timeToCalendarDate(maneuvers[idx].date, timeSettings, 1, 1));
-        dateField.setUpdateInputs(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [maneuvers])
+    }, [dateField, timeSettings, prograde, normal, radial, UT, maneuvers, idx])
 
     return (
         <>
@@ -153,12 +140,12 @@ function ManeuverControls({idx, maneuvers, setManeuvers}: ManeuverControlsState)
                         id={'UT'}
                         label={'UT (s)'} 
                         value={UT}
-                        onChange={handleChange(setUTandUpdate(setUT, dateField, timeSettings))}
+                        onChange={setUTandUpdate}
                         sx={{ fullWidth: true }} />
                     <DateField 
                         id={String(idx)}
                         label={''}
-                        state={dateField}
+                        calendarDateAtom={dateFieldAtom}
                         correctFormat={true}
                         variant="all"  
                     />

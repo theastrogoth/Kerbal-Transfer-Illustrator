@@ -89,6 +89,12 @@ function MultiFlybyInfo() {
                             <TableCell sx={{ fontWeight: 700}}>Total Δv:</TableCell>
                             <TableCell>{String(Math.round(multiFlyby.deltaV * 100) / 100).concat(" m/s")}</TableCell>
                         </TableRow>
+                        {multiFlyby.flightTimes.map((ft, idx) => 
+                            <TableRow key={idx}>
+                                <TableCell sx={{ fontWeight: 700}}>{"Leg #" + String(idx+1) + " Duration"}</TableCell>
+                                <TableCell>{calendarDateToDurationString(timeToCalendarDate(ft, timeSettings, 0, 0))}</TableCell>
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
             </TableContainer>

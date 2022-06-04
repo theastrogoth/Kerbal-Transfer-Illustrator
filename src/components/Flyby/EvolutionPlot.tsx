@@ -1,45 +1,33 @@
 import MultiFlybyCalculator from "../../main/libs/multi-flyby-calculator";
 import FlybyCalcs from "../../main/libs/flybycalcs";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Plot from "react-plotly.js";
 
 import { useAtom } from "jotai";
-import { multiFlybyAtom } from "../../App";
+import { multiFlybyAtom, evolutionPlotDataAtom } from "../../App";
 
 export type EvolutionPlotData = {
     x:              number[],
-    setX:           React.Dispatch<React.SetStateAction<number[]>>,
     meanY:          number[],
-    setMeanY:       React.Dispatch<React.SetStateAction<number[]>>,
     bestY:          number[],
-    setBestY:       React.Dispatch<React.SetStateAction<number[]>>,
 }
 type EvolutionPlotProps = {
     inputs:         MultiFlybySearchInputs, 
-    plotData:       EvolutionPlotData,
     buttonPresses:  number, 
-    searchCount:    number,
     setCalculating: React.Dispatch<React.SetStateAction<boolean>>,
-    setSearchCount: React.Dispatch<React.SetStateAction<number>>
 }
 
 const multiFlybyOptWorker = new Worker(new URL("../../workers/multi-flyby-search.worker.ts", import.meta.url));
 
-function EvolutionPlot({inputs, plotData, buttonPresses, searchCount, setCalculating, setSearchCount}: EvolutionPlotProps) {
+function EvolutionPlot({inputs, buttonPresses, setCalculating}: EvolutionPlotProps) {
     const [, setMultiFlyby] = useAtom(multiFlybyAtom);
-    
-    const [x, setX] = useState(plotData.x);
-    const [meanY, setMeanY] = useState(plotData.meanY);
-    const [bestY, setBestY] = useState(plotData.bestY);
+    const [plotData, setPlotData] = useAtom(evolutionPlotDataAtom);
 
     useEffect(() => {
         multiFlybyOptWorker.onmessage = (event: MessageEvent<{inputs: MultiFlybySearchInputs, population: Agent[], fitnesses: number[], generation: number, x: number[], bestY: number[], meanY: number[]}>) => {
             if (event && event.data) {
-                setX(event.data.x);
-                setBestY(event.data.bestY);
-                setMeanY(event.data.meanY);
-
+                setPlotData({x: event.data.x, bestY: event.data.bestY, meanY: event.data.meanY})
                 const lastBestY = event.data.bestY[event.data.bestY.length - 1];
                 const lastMeanY = event.data.meanY[event.data.meanY.length - 1];
                 const percentDiff = (lastMeanY - lastBestY) / lastBestY;
@@ -61,10 +49,7 @@ function EvolutionPlot({inputs, plotData, buttonPresses, searchCount, setCalcula
                     calculator.computeFullTrajectory();
                     setMultiFlyby(calculator.multiFlyby)
                     setCalculating(false);
-                    setSearchCount(searchCount + 1);
-                    plotData.setX(event.data.x);
-                    plotData.setMeanY(event.data.meanY);
-                    plotData.setBestY(event.data.bestY);
+                    setPlotData({x: event.data.x, bestY: event.data.bestY, meanY: event.data.meanY})
                 }
             }
         }
@@ -85,8 +70,8 @@ function EvolutionPlot({inputs, plotData, buttonPresses, searchCount, setCalcula
         <Plot
             data={[
                 { 
-                    x: x,
-                    y: bestY,
+                    x: plotData.x,
+                    y: plotData.bestY,
                     type: 'scatter',
                     mode: 'lines',
                     line: {
@@ -95,8 +80,8 @@ function EvolutionPlot({inputs, plotData, buttonPresses, searchCount, setCalcula
                     name: 'best Δv',
                 },
                 {
-                    x: x,
-                    y: meanY,
+                    x: plotData.x,
+                    y: plotData.meanY,
                     type: 'scatter',
                     mode: 'lines',
                     line: {

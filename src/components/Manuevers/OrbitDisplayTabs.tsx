@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
 
 import SolarSystem from "../../main/objects/system";
 import { OrbitingBody } from "../../main/objects/body";
@@ -103,15 +103,42 @@ const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, pr
 function OrbitDisplayTabs() {
     const [flightPlans] = useAtom(flightPlansAtom);
     const [system] = useAtom(systemAtom);
+
     const [timeSettings] = useAtom(timeSettingsAtom);
+    const timeSettingsRef = useRef(timeSettings);
 
     const [value, setValue] = useState(0);
+    const valueRef = useRef(value);
 
     const [orbitDisplayProps, setOrbitDisplayProps] = useState(emptyProps);
 
-    useEffect(() => {
-        // console.log('Updating Orbit plots with new flight plans...')
-        if(flightPlans.length === 0) {
+    // useEffect(() => {
+    //     // console.log('Updating Orbit plots with new flight plans...')
+    //     if(flightPlans.length === 0) {
+    //         const orb = (system.bodyFromId(1) as OrbitingBody).orbit;
+    //         const fp: FlightPlan = {
+    //             trajectories: [{
+    //                 orbits:         [orb] as IOrbit[],
+    //                 intersectTimes: [0, Infinity],
+    //                 maneuvers:      [],
+    //             }],
+    //             name:       '',
+    //             color:      {r: 255, g: 255, b: 255},
+    //         }
+    //         setOrbitDisplayProps(prepareAllDisplayProps([fp], system, timeSettings));
+    //     } else {
+    //         // console.log(flightPlans)
+    //         setOrbitDisplayProps(prepareAllDisplayProps(flightPlans, system, timeSettings));
+    //     }
+    //   // eslint-disable-next-line react-hooks/exhaustive-deps
+    //   }, [flightPlans, timeSettings]);
+
+      useEffect(() => {
+        if(value !== valueRef.current) {
+            valueRef.current = value;
+        } else if(timeSettings !== timeSettingsRef.current) {
+            timeSettingsRef.current = timeSettings;
+        } else if(flightPlans.length === 0) {
             const orb = (system.bodyFromId(1) as OrbitingBody).orbit;
             const fp: FlightPlan = {
                 trajectories: [{
@@ -124,11 +151,11 @@ function OrbitDisplayTabs() {
             }
             setOrbitDisplayProps(prepareAllDisplayProps([fp], system, timeSettings));
         } else {
-            // console.log(flightPlans)
             setOrbitDisplayProps(prepareAllDisplayProps(flightPlans, system, timeSettings));
         }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [flightPlans, timeSettings]);
+        // hide warning for missing setters
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [flightPlans, timeSettings, system, value]);
     
     useEffect(() => {
         if(value < 0) {

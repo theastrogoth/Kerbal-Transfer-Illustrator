@@ -1,6 +1,4 @@
-import { useAtom } from "jotai";
 import DateField from "../DateField"
-import { DateFieldState } from "../DateField";
 import { dateFieldIsEmpty, timeFromDateFieldState } from "../../utils";
 
 import React, { useEffect, useState } from "react"
@@ -10,19 +8,20 @@ import Collapse from '@mui/material/Collapse';
 
 import { timeSettingsAtom } from "../../App";
 
+import { useAtom } from "jotai";
+import { transferEarlyStartDateAtom, transferLateStartDateAtom, transferShortFlightTimeAtom, transferLongFlightTimeAtom } from "../../App";
 
-export type DateControlsState = {
-    earlyStartDate:   DateFieldState,
-    lateStartDate:    DateFieldState,
-    shortFlightTime:  DateFieldState,
-    longFlightTime:   DateFieldState,
-  }
 
-function DateControls({earlyStartDate, lateStartDate, shortFlightTime, longFlightTime}: DateControlsState) {
+function DateControls() {
     const [optsVisible, setOptsVisible] = useState(false);
     const [startErr, setStartErr] = useState(false);
     const [flightErr, setFlightErr] = useState(false);
     const [timeSettings] = useAtom(timeSettingsAtom)
+
+    const [earlyStartDate] = useAtom(transferEarlyStartDateAtom);
+    const [lateStartDate] = useAtom(transferLateStartDateAtom);
+    const [shortFlightTime] = useAtom(transferShortFlightTimeAtom);
+    const [longFlightTime] = useAtom(transferLongFlightTimeAtom);
 
     useEffect(() => {
         if(!dateFieldIsEmpty(earlyStartDate) && !dateFieldIsEmpty(lateStartDate)) {
@@ -60,7 +59,7 @@ function DateControls({earlyStartDate, lateStartDate, shortFlightTime, longFligh
             <DateField 
                 id='early-start-date' 
                 label='Earliest Departure Date'
-                state={earlyStartDate}
+                calendarDateAtom={transferEarlyStartDateAtom}
                 error={startErr}
                 required={true} 
             />
@@ -68,19 +67,19 @@ function DateControls({earlyStartDate, lateStartDate, shortFlightTime, longFligh
                 <DateField
                     id='late-start-date'
                     label='Latest Departure Date'
-                    state={lateStartDate} 
+                    calendarDateAtom={transferLateStartDateAtom} 
                     error={startErr} 
                 />
                 <DateField
                     id='short-flight-time'
                     label='Shortest Flight Duration'
-                    state={shortFlightTime}
+                    calendarDateAtom={transferShortFlightTimeAtom}
                     error={flightErr}  
                 />
                 <DateField
                     id='long-flight-time'
                     label='Longest Flight Duration'
-                    state={longFlightTime}
+                    calendarDateAtom={transferLongFlightTimeAtom}
                     error={flightErr}  
                 />
             </Collapse>
