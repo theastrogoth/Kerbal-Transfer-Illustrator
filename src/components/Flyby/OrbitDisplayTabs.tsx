@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
 
 import MultiFlyby from "../../main/objects/multiflyby";
 import { OrbitingBody } from "../../main/objects/body";
@@ -18,16 +18,10 @@ import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
-
-type OrbitDisplayTabsProps  = {
-    multiFlyby:             MultiFlyby,
-    timeSettings:           TimeSettings,
-    setMultiFlyby:          React.Dispatch<React.SetStateAction<MultiFlyby>>,   
-    searchCount:            number,
-}
+import { useAtom } from "jotai";
+import { multiFlybyAtom, timeSettingsAtom } from "../../App";
 
 const emptyProps: OrbitDisplayProps[] = [];
-
 
 function trajectoryTraces(trajectory: Trajectory, trajectoryIdx: number, timeSettings: TimeSettings, orbitName: string = ''): Line3DTrace[] {
     const trajLen = trajectory.orbits.length;
@@ -230,7 +224,7 @@ export function prepareAllDisplayProps(multiFlyby: MultiFlyby, timeSettings: Tim
         orbDisplayProps.push(insertionPlotProps(multiFlyby, i, timeSettings));
     }
 
-    console.log('...Orbit plot traces computed from trajectory.')
+    // console.log('...Orbit plot traces computed from trajectory.')
     return orbDisplayProps;
 } 
 
@@ -259,8 +253,15 @@ const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, pr
 
 const multiFlybyOptWorker = new Worker(new URL("../../workers/multi-flyby-optimizer.worker.ts", import.meta.url));
 
-function OrbitDisplayTabs({multiFlyby, timeSettings, setMultiFlyby, searchCount}: OrbitDisplayTabsProps) {
+function OrbitDisplayTabs() {
+    const [multiFlyby, setMultiFlyby] = useAtom(multiFlybyAtom);
+
+    const [timeSettings] = useAtom(timeSettingsAtom);
+    const timeSettingsRef = useRef(timeSettings);
+
     const [value, setValue] = useState(0);
+    const valueRef = useRef(value);
+
     const [refined, setRefined] = useState(false);
     const [calculating, setCalculating] = useState(false);
 
@@ -269,7 +270,7 @@ function OrbitDisplayTabs({multiFlyby, timeSettings, setMultiFlyby, searchCount}
     useEffect(() => {
         multiFlybyOptWorker.onmessage = (event: MessageEvent<IMultiFlyby>) => {
             if (event && event.data) {
-                console.log('...Patch optimization worker returned a new multiFlyby')
+                // console.log('...Patch optimization worker returned a new multiFlyby')
                 setRefined(true);
                 setCalculating(false);
                 setMultiFlyby(new MultiFlyby(event.data));
@@ -279,24 +280,31 @@ function OrbitDisplayTabs({multiFlyby, timeSettings, setMultiFlyby, searchCount}
     }, [multiFlybyOptWorker]);
 
     function handleRefineButtonPress() {
-        console.log('Starting SoI patch optimization worker...')
+        console.log('Optimizing SoI patches')
         setCalculating(true);
         multiFlybyOptWorker
             .postMessage(multiFlyby);   
     }
 
     useEffect(() => {
-        console.log('Updating Orbit plots with a new trajectory...')
-        if(value < -multiFlyby.ejections.length || value > multiFlyby.flybys.length + multiFlyby.insertions.length) {
-            setValue(0);
+        if(value !== valueRef.current) {
+            valueRef.current = value;
+        } else if(timeSettings !== timeSettingsRef.current) {
+            timeSettingsRef.current = timeSettings;
+        } else {
+            console.log('Updating Orbit plots with a new multi-flyby')
+            if(value < -multiFlyby.ejections.length || value > multiFlyby.flybys.length + multiFlyby.insertions.length) {
+                setValue(0);
+            }
+            setOrbitDisplayProps(prepareAllDisplayProps(multiFlyby, timeSettings));
         }
-        setOrbitDisplayProps(prepareAllDisplayProps(multiFlyby, timeSettings));
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [multiFlyby, timeSettings]);
+        // hide warning for missing setters
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [multiFlyby, timeSettings, value]);
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
-        console.log('Orbit plot tab '.concat(String(newValue)).concat(' selected.'));
+        // console.log('Orbit plot tab '.concat(String(newValue)).concat(' selected.'));
     }
 
     return (
@@ -305,7 +313,7 @@ function OrbitDisplayTabs({multiFlyby, timeSettings, setMultiFlyby, searchCount}
                 {orbitDisplayProps.map((props, index) => <Tab key={index} value={props.index} label={props.label} ></Tab>)}
             </Tabs>
             {orbitDisplayProps.map((props, index) => <OrbitTabPanel key={index} value={value} index={props.index} props={props}/>)}
-            {searchCount > 0 &&
+            {multiFlyby.deltaV > 0 &&
             <Box textAlign='center'>
                 <Button 
                     variant="contained" 

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import { OrbitingBody } from "../../main/objects/body";
 import Transfer from "../../main/objects/transfer";
@@ -19,12 +19,9 @@ import TableCell from '@mui/material/TableCell';
 import Grid from "@mui/material/Grid";
 import CircularProgress from "@mui/material/CircularProgress";
 
+import { useAtom } from "jotai";
+import { transferAtom, timeSettingsAtom } from "../../App";
 
-type OrbitDisplayTabsProps  = {
-    transfer:               Transfer,
-    timeSettings:           TimeSettings,
-    setTransfer:            React.Dispatch<React.SetStateAction<Transfer>>,   
-}
 
 const emptyProps: OrbitDisplayProps[] = [];
 
@@ -184,7 +181,7 @@ export function prepareAllDisplayProps(transfer: Transfer, timeSettings: TimeSet
     for(let i=0; i<transfer.insertions.length; i++) {
         orbDisplayProps.push(insertionPlotProps(transfer, i, timeSettings))
     }
-    console.log('...Orbit plot traces computed from transfer.')
+    // console.log('...Orbit plot traces computed from transfer.')
     return orbDisplayProps;
 } 
 
@@ -213,47 +210,58 @@ const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, pr
 
 const transferOptWorker = new Worker(new URL("../../workers/transfer-optimizer.worker.ts", import.meta.url));
 
-function OrbitDisplayTabs({transfer, timeSettings, setTransfer}: OrbitDisplayTabsProps) {
+function OrbitDisplayTabs() {
+    const [transfer, setTransfer] = useAtom(transferAtom);
+
+    const [timeSettings] = useAtom(timeSettingsAtom);
+    const timeSettingsRef = useRef(timeSettings);
 
     const [value, setValue] = useState(0);
+    const valueRef = useRef(value);
+
     const [refined, setRefined] = useState(false);
     const [orbitDisplayProps, setOrbitDisplayProps] = useState(emptyProps);
-    const [canRefine, setCanRefine] = useState(transfer.deltaV > 0);
 
     const [calculating, setCalculating] = useState(false);
 
     useEffect(() => {
         transferOptWorker.onmessage = (event: MessageEvent<ITransfer>) => {
             if (event && event.data) {
-                console.log('...Patch optimization worker returned a new transfer')
+                // console.log('...Patch optimization worker returned a new transfer')
                 setTransfer(new Transfer(event.data));
                 setRefined(true);
                 setCalculating(false);
             }
-        }        
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        } 
+        // eslint-disable-next-line react-hooks/exhaustive-deps       
     }, [transferOptWorker]);
 
     function handleRefineTransferButtonPress() {
-        console.log('Starting SoI patch optimization worker...')
+        console.log('Optimizing SoI patches')
         setCalculating(true);
         transferOptWorker
             .postMessage(transfer);   
     }
 
     useEffect(() => {
-        console.log('Updating Orbit plots with a new transfer...')
-        if(value < -transfer.ejections.length || value > transfer.insertions.length) {
-            setValue(0);
+        if(value !== valueRef.current) {
+            valueRef.current = value;
+        } else if(timeSettings !== timeSettingsRef.current) {
+            timeSettingsRef.current = timeSettings;
+        } else {
+            console.log('Updating Orbit plots with a new transfer')
+            if(value < -transfer.ejections.length || value > transfer.insertions.length) {
+                setValue(0);
+            }
+            setOrbitDisplayProps(prepareAllDisplayProps(transfer, timeSettings));
         }
-        setOrbitDisplayProps(prepareAllDisplayProps(transfer, timeSettings));
-        setCanRefine(transfer.deltaV > 0);
+        // hide warning for missing setters
         // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [transfer, timeSettings]);
+    }, [transfer, timeSettings, value]);
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
-        console.log('Orbit plot tab '.concat(String(newValue)).concat(' selected.'));
+        // console.log('Orbit plot tab '.concat(String(newValue)).concat(' selected.'));
     }
 
     return (
@@ -262,7 +270,7 @@ function OrbitDisplayTabs({transfer, timeSettings, setTransfer}: OrbitDisplayTab
                 {orbitDisplayProps.map(props => <Tab key={props.label} value={props.index} label={props.label} ></Tab>)}
             </Tabs>
             {orbitDisplayProps.map(props => <OrbitTabPanel key={props.index} value={value} index={props.index} props={props}/>)}
-            {canRefine &&
+            {transfer.deltaV > 0 &&
                 <Box textAlign='center'>
                     <Button 
                         variant="contained" 

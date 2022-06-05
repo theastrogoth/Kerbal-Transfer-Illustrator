@@ -1,8 +1,8 @@
 import SystemSelect from "../SystemSelect";
-import OrbitControls, { OrbitControlsState } from "../OrbitControls";
-import DateControls, { DateControlsState } from "./DateControls";
+import OrbitControls from "../OrbitControls";
+import DateControls from "./DateControls";
 import TimeSettingsControls from "../TimeSettingsControls";
-import ControlsOptions, { ControlsOptionsState } from "../ControlsOptions";
+import ControlsOptions from "../ControlsOptions";
 
 import React from "react";
 import Stack from "@mui/material/Stack";
@@ -10,14 +10,9 @@ import Box from '@mui/system/Box';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 
-type MissionControlsProps = {
-    startOrbitControlsState:    OrbitControlsState,
-    endOrbitControlsState:      OrbitControlsState,
-    dateControlsState:          DateControlsState,
-    controlsOptionsState:       ControlsOptionsState,
-}
+import { transferStartOrbitAtom, transferEndOrbitAtom, transferControlsOptionsAtom } from "../../App";
 
-function MissionControls({startOrbitControlsState, endOrbitControlsState, dateControlsState, controlsOptionsState}: MissionControlsProps) {
+function MissionControls() {
     return (
         <Stack spacing={1} sx={{ my: 2, mx: 2 }}>
             <Box textAlign="center">
@@ -26,15 +21,15 @@ function MissionControls({startOrbitControlsState, endOrbitControlsState, dateCo
             <Divider />
             <SystemSelect />
             <Typography variant="h6">Orbit Settings</Typography>
-            <OrbitControls label='Starting Orbit' state={startOrbitControlsState} />
-            <OrbitControls label='Target Orbit'  state={endOrbitControlsState} />
+            <OrbitControls label='Starting Orbit' orbitAtom={transferStartOrbitAtom} />
+            <OrbitControls label='Target Orbit'   orbitAtom={transferEndOrbitAtom} />
             <Divider />
             <Typography variant="h6">Time Settings</Typography>
             <TimeSettingsControls />
-            <DateControls {...dateControlsState} />
+            <DateControls />
             <Divider />
             <Typography variant="h6">Transfer Settings</Typography>
-            <ControlsOptions state={controlsOptionsState} />
+            <ControlsOptions optsAtom={transferControlsOptionsAtom} />
         </Stack>
     )
 }

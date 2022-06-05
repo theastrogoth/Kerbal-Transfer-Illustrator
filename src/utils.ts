@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import Orbit from './main/objects/orbit';
 import { OrbitingBody } from './main/objects/body';
 import SolarSystem from './main/objects/system';
@@ -7,48 +5,30 @@ import SolarSystem from './main/objects/system';
 import Kepler from './main/libs/kepler';
 import FlybyCalcs from './main/libs/flybycalcs';
 
-import { DateFieldState } from './components/DateField';
-import { OrbitControlsState } from './components/OrbitControls';
-import { DateControlsState } from './components/Transfer/DateControls';
-import { FlybyDateControlsState } from './components/Flyby/FlybyDateControls';
 import { ControlsOptionsState } from './components/ControlsOptions';
-import { DynamicDateFieldState } from './components/DynamicDateFields';
 import { clamp, calendarDateToTime } from './main/libs/math';
 
 // for re-used components
-export function dateFieldIsEmpty(field: DateFieldState): boolean {
-    return ((isNaN(field.calendarDate.year)) && (isNaN(field.calendarDate.day)) && (isNaN(field.calendarDate.hour)))
+export function dateFieldIsEmpty(calendarDate: CalendarDate): boolean {
+    return ((isNaN(calendarDate.year)) && (isNaN(calendarDate.day)) && (isNaN(calendarDate.hour)))
 }
 
-export function timeFromDateFieldState(state: DateFieldState, timeSettings: TimeSettings, yearOffset: number = 1, dayOffset: number = 1): number {
-    const year   = isNaN(state.calendarDate.year)   ? yearOffset : state.calendarDate.year;
-    const day    = isNaN(state.calendarDate.day)    ? dayOffset : state.calendarDate.day;
-    const hour   = isNaN(state.calendarDate.hour)   ? 0 : state.calendarDate.hour;
-    const minute = isNaN(state.calendarDate.minute) ? 0 : state.calendarDate.minute;
-    const second = isNaN(state.calendarDate.second) ? 0 : state.calendarDate.second;
+export function timeFromDateFieldState(calendarDate: CalendarDate, timeSettings: TimeSettings, yearOffset: number = 1, dayOffset: number = 1): number {
+    const year   = isNaN(calendarDate.year)   ? yearOffset : calendarDate.year;
+    const day    = isNaN(calendarDate.day)    ? dayOffset : calendarDate.day;
+    const hour   = isNaN(calendarDate.hour)   ? 0 : calendarDate.hour;
+    const minute = isNaN(calendarDate.minute) ? 0 : calendarDate.minute;
+    const second = isNaN(calendarDate.second) ? 0 : calendarDate.second;
     return (calendarDateToTime({year, day, hour, minute, second}, timeSettings, yearOffset, dayOffset));
 }
 
-export function timesFromDynamicDateFieldState(state: DynamicDateFieldState, timeSettings: TimeSettings, yearOffset: number = 0, dayOffset: number = 0) : number[] {
-    const years = state.years.map(y => y === "" ? 0 : parseFloat(y) - yearOffset);
-    const days  = state.days.map(d => d  === "" ? 0 : parseFloat(d) - dayOffset);
-    const hours = state.hours.map(h => h === "" ? 0 : parseFloat(h));
-    return years.map((y, idx) => ( (y * timeSettings.daysPerYear + days[idx]) * timeSettings.hoursPerDay + hours[idx] ) * 3600 );
-}
-
-function orbitFromElementsAndSystem(system: SolarSystem, orbit: OrbitalElements | IOrbit): Orbit {
+export function orbitFromElementsAndSystem(system: SolarSystem, orbit: OrbitalElements | IOrbit): Orbit {
     const body = system.bodyFromId(orbit.orbiting);
     const orb = new Orbit(Kepler.orbitFromElements(orbit, body), body, true);
     return orb;
 }
 
-export function orbitFromControlsState(system: SolarSystem, state: OrbitControlsState): Orbit {
-    return orbitFromElementsAndSystem(system, state.orbit);
-}
-
-export function isInvalidOrbitInput(ocState: OrbitControlsState): boolean {
-    const orbit = ocState.orbit;
-
+export function isInvalidOrbitInput(orbit: OrbitalElements): boolean {
     let invalid = false;
     const a = orbit.semiMajorAxis;
     const e = orbit.eccentricity;
@@ -104,61 +84,9 @@ export function defaultManeuverComponents(date: number = 0): ManeuverComponents 
     }
 }
 
-export function useOrbitControls(system: SolarSystem, id: number = 1, a: number = 100000 + system.bodyFromId(id).radius, e: number = 0, i: number = 0, o: number = 0, l: number = 0, m: number = 0, ep: number = 0) {
-    const [vesselId, setVesselId] = useState(-1);
-    const [orbit, setOrbit] = useState({
-        semiMajorAxis:      a,
-        eccentricity:       e,
-        inclination:        i,
-        argOfPeriapsis:     o,
-        ascNodeLongitude:   l,
-        meanAnomalyEpoch:   m,
-        epoch:              ep,
-        orbiting:           id,
-    });
-    const orbitControlsState: OrbitControlsState = {
-        orbit,
-        setOrbit,
-        vesselId,
-        setVesselId,
-    };
-    return orbitControlsState;
-}
-
-export function useDateField(year: number = NaN, day: number = NaN, hour: number = NaN, minute: number = NaN, second: number = NaN) {
-    const [calendarDate, setCalendarDate] = useState({year, day, hour, minute, second} as CalendarDate);
-    const [updateInputs, setUpdateInputs] = useState(false);
-    const dateFieldState: DateFieldState = {
-        calendarDate, 
-        setCalendarDate,
-        updateInputs,
-        setUpdateInputs,
-    };
-
-    return dateFieldState
-}
-
-export function useControlOptions() {
-    const [planeChange, setPlaneChange] = useState(false);
-    const [matchStartMo, setMatchStartMo] = useState(true);
-    const [matchEndMo, setMatchEndMo] = useState(false);
-    const [oberthManeuvers, setOberthManeuvers] = useState(false);
-    const [noInsertionBurn, setNoInsertionBurn] = useState(false);
-    
-    const controlsOptionsState: ControlsOptionsState = {
-        planeChange,
-        matchStartMo,
-        matchEndMo,
-        oberthManeuvers,
-        noInsertionBurn,
-        setPlaneChange,
-        setMatchStartMo,
-        setMatchEndMo,
-        setOberthManeuvers,
-        setNoInsertionBurn,
-    };
-
-    return controlsOptionsState
+export function makeDateFields(year: number = NaN, day: number = NaN, hour: number = NaN, minute: number = NaN, second: number = NaN): CalendarDate {
+    const calendarDate = {year, day, hour, minute, second};
+    return calendarDate;
 }
 
 // for transfer components
@@ -196,28 +124,28 @@ export function defaultPorkchopTimes(system: SolarSystem, startOrbit: IOrbit, en
     return [lateStartDate, shortFlightTime, longFlightTime]
 }
   
-  export function porkchopInputsFromUI(system: SolarSystem, startOrbitControlsState: OrbitControlsState, endOrbitControlsState: OrbitControlsState,
-                                       dateControlsState: DateControlsState, controlsOptionsState: ControlsOptionsState, timeSettings: TimeSettings): PorkchopInputs {
-    const startOrbit = orbitFromControlsState(system, startOrbitControlsState);
-    const endOrbit   = orbitFromControlsState(system, endOrbitControlsState);
+  export function porkchopInputsFromUI(system: SolarSystem, startOrbitElements: OrbitalElements, endOrbitElements: OrbitalElements, earlyStartDate: CalendarDate, lateStartDate: CalendarDate, 
+                                       shortFlightTime: CalendarDate, longFlightTime: CalendarDate, controlsOptionsState: ControlsOptionsState, timeSettings: TimeSettings): PorkchopInputs {
+    const startOrbit = orbitFromElementsAndSystem(system, startOrbitElements);
+    const endOrbit   = orbitFromElementsAndSystem(system, endOrbitElements);
   
     // set start dates and durations
-    const startDateMin = timeFromDateFieldState(dateControlsState.earlyStartDate, timeSettings, 1, 1)
+    const startDateMin = timeFromDateFieldState(earlyStartDate, timeSettings, 1, 1)
     const defaultTimes = defaultPorkchopTimes(system, startOrbit, endOrbit, startDateMin)
   
     let startDateMax = defaultTimes[0];
-    if(!dateFieldIsEmpty(dateControlsState.lateStartDate)) {
-        const fieldTime = timeFromDateFieldState(dateControlsState.lateStartDate, timeSettings, 1, 1);
+    if(!dateFieldIsEmpty(lateStartDate)) {
+        const fieldTime = timeFromDateFieldState(lateStartDate, timeSettings, 1, 1);
         startDateMax = fieldTime > startDateMin ? fieldTime : startDateMax;
     }
     let flightTimeMin = defaultTimes[1]
-    if(!dateFieldIsEmpty(dateControlsState.shortFlightTime)) {
-        const fieldTime = timeFromDateFieldState(dateControlsState.shortFlightTime, timeSettings, 0, 0);
+    if(!dateFieldIsEmpty(shortFlightTime)) {
+        const fieldTime = timeFromDateFieldState(shortFlightTime, timeSettings, 0, 0);
         flightTimeMin = fieldTime > 0 ? fieldTime : flightTimeMin;
     }
     let flightTimeMax = defaultTimes[2]
-    if(!dateFieldIsEmpty(dateControlsState.longFlightTime)) {
-        const fieldTime = timeFromDateFieldState(dateControlsState.longFlightTime, timeSettings, 0, 0);
+    if(!dateFieldIsEmpty(longFlightTime)) {
+        const fieldTime = timeFromDateFieldState(longFlightTime, timeSettings, 0, 0);
         flightTimeMax = fieldTime > flightTimeMin ? fieldTime : flightTimeMax;
     }
   
@@ -271,14 +199,14 @@ function flightTimesBounds(system: SolarSystem, startOrbit: Orbit, endOrbit: Orb
     return {flightTimesMin: ftBounds.map(b => b.lb), flightTimesMax: ftBounds.map(b => b.ub)}
 }
 
-export function searchInputsFromUI(system: SolarSystem, startOrbitControlsState: OrbitControlsState, endOrbitControlsState: OrbitControlsState, flybyIdSequence: number[],  
-                                   dateControlsState: FlybyDateControlsState, controlsOptionsState: ControlsOptionsState, timeSettings: TimeSettings): MultiFlybySearchInputs {
+export function searchInputsFromUI(system: SolarSystem, startOrbitElements: OrbitalElements, endOrbitElements: OrbitalElements, flybyIdSequence: number[],  
+                                   earlyStartDate: CalendarDate, lateStartDate: CalendarDate, flightTimes: CalendarDate[], controlsOptionsState: ControlsOptionsState, timeSettings: TimeSettings): MultiFlybySearchInputs {
                                        
-    const startOrbit        = orbitFromControlsState(system, startOrbitControlsState);
-    const endOrbit          = orbitFromControlsState(system, endOrbitControlsState);
+    const startOrbit        = orbitFromElementsAndSystem(system, startOrbitElements);
+    const endOrbit          = orbitFromElementsAndSystem(system, endOrbitElements);
 
     const defaultFtBounds   = flightTimesBounds(system, startOrbit, endOrbit, flybyIdSequence);
-    const inputFlightTimes  = timesFromDynamicDateFieldState(dateControlsState.flightTimes, timeSettings, 0, 0);
+    const inputFlightTimes  = flightTimes.map(ft => timeFromDateFieldState(ft, timeSettings, 0, 0));
 
     const flightTimesMin: number[] = [];
     const flightTimesMax: number[] = [];
@@ -290,9 +218,9 @@ export function searchInputsFromUI(system: SolarSystem, startOrbitControlsState:
             flightTimesMax.push(ft > 0 ? ft : defaultFtBounds.flightTimesMax[(i-1) / 2]);
         }
     }
-
-    const startDateMin   = dateFieldIsEmpty(dateControlsState.earlyStartDate)  ? 0.0 : timeFromDateFieldState(dateControlsState.earlyStartDate, timeSettings, 1, 1); 
-    let startDateMax     = dateFieldIsEmpty(dateControlsState.lateStartDate)   ? startDateMin + 5 * 365 * 24 * 3600 : timeFromDateFieldState(dateControlsState.lateStartDate, timeSettings, 1, 1);
+    
+    const startDateMin   = dateFieldIsEmpty(earlyStartDate)  ? 0.0 : timeFromDateFieldState(earlyStartDate, timeSettings, 1, 1); 
+    let startDateMax     = dateFieldIsEmpty(lateStartDate)   ? startDateMin + 5 * 365 * 24 * 3600 : timeFromDateFieldState(lateStartDate, timeSettings, 1, 1);
     startDateMax = startDateMax < startDateMin ? startDateMin + 5 * 365 * 24 * 3600 : startDateMax;
    
     return {

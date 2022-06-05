@@ -4,13 +4,8 @@ import MultiFlyby from '../main/objects/multiflyby';
 
 import { isInvalidOrbitInput, searchInputsFromUI } from '../utils';
 
-import { FlybyDateControlsState } from '../components/Flyby/FlybyDateControls';
-import { OrbitControlsState } from '../components/OrbitControls';
-import { ControlsOptionsState } from '../components/ControlsOptions';
-import { FlybySequenceControlsState } from '../components/Flyby/FlybySequenceControls';
-
 import MissionControls from '../components/Flyby/MissionControls'
-import EvolutionPlot, { EvolutionPlotData } from '../components/Flyby/EvolutionPlot';
+import EvolutionPlot from '../components/Flyby/EvolutionPlot';
 import OrbitDisplayTabs from '../components/Flyby/OrbitDisplayTabs';
 import MultiFlybyInfo from '../components/Flyby/MultiFlybyInfo';
 import Navbar from '../components/Navbar';
@@ -31,19 +26,7 @@ import Collapse from '@mui/material/Collapse';
 import Fade from '@mui/material/Fade';
 
 import { useAtom } from 'jotai';
-import { multiFlybyAtom, systemAtom, timeSettingsAtom } from '../App';
-
-
-type FlybyAppState = {
-  startOrbitControlsState:    OrbitControlsState,
-  endOrbitControlsState:      OrbitControlsState,
-  flybySequenceControlsState: FlybySequenceControlsState,
-  dateControlsState:          FlybyDateControlsState,
-  controlsOptionsState:       ControlsOptionsState,
-  evolutionPlotData:          EvolutionPlotData,
-  searchCount:                number,
-  setSearchCount:             React.Dispatch<React.SetStateAction<number>>,
-}
+import { multiFlybyAtom, multiFlybyEndOrbitAtom, multiFlybyStartOrbitAtom, flybyIdSequenceAtom, systemAtom, timeSettingsAtom, multiFlybyEarlyStartDateAtom, multiFlybyLateStartDateAtom, multiFlybyFlightTimesAtom, multiFlybyControlsOptionsAtom} from '../App';
 
 export function blankMultiFlyby(system: SolarSystem): MultiFlyby {
   return new MultiFlyby({
@@ -75,34 +58,58 @@ export function blankMultiFlyby(system: SolarSystem): MultiFlyby {
 }
 
 ///// App Content /////
-function FlybyAppContent({startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState,  dateControlsState, 
-                          controlsOptionsState, evolutionPlotData, searchCount, setSearchCount}: FlybyAppState) {
+function FlybyAppContent() {
   
   const [system] = useAtom(systemAtom);
   const [timeSettings] = useAtom(timeSettingsAtom);
   const [multiFlyby, setMultiFlyby] = useAtom(multiFlybyAtom);
+  const [startOrbit] = useAtom(multiFlybyStartOrbitAtom);
+  const [endOrbit] = useAtom(multiFlybyEndOrbitAtom);
+  const [flybyIdSequence] = useAtom(flybyIdSequenceAtom);
+  const [earlyStartDate] = useAtom(multiFlybyEarlyStartDateAtom);
+  const [lateStartDate] = useAtom(multiFlybyLateStartDateAtom);
+  const [flightTimes] = useAtom(multiFlybyFlightTimesAtom);
+  const [controlsOptionsState] = useAtom(multiFlybyControlsOptionsAtom);
 
-
-  const [mfSearchInputs, setMfSearchInputs] = useState(searchInputsFromUI(system, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState.flybyIdSequence, dateControlsState, controlsOptionsState, timeSettings));
+  const [mfSearchInputs, setMfSearchInputs] = useState(searchInputsFromUI(system, startOrbit, endOrbit, flybyIdSequence, earlyStartDate, lateStartDate, flightTimes, controlsOptionsState, timeSettings));
   const [invalidInput, setInvalidInput] = useState(false);
   const [buttonPresses, setButtonPresses] = useState(0);
   const [calculating, setCalculating] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
+  // TODO: Implement system editor with custom system, store custom system in URL hash
+  // const [customSystem, setCustomSystem] = useAtom(customSystemAtom);
+  // const customSystemRef = useRef(customSystem);
+  // const customSystemHashAtom = useRef(atomWithHash("customSystem", customSystem)).current;
+  // const [customSystemHash, setSystemHash] = useAtom(customSystemHashAtom)
+
+  // useEffect(() => {
+  //   if(customSystem !== customSystemRef.current){
+  //     customSystemRef.current = customSystemHash;
+  //     setSystemHash(customSystem);
+  //   }
+  // }, [customSystem])
+
+  // useEffect(() => {
+  //   if(customSystemHash !== customSystemRef.current) {
+  //     customSystemRef.current = customSystemHash;
+  //     setCustomSystem(customSystemHash);
+  //   }
+  // }, [customSystemHash])
+
   function handleButtonPress() {
     // update orbits
-    let invalid = isInvalidOrbitInput(startOrbitControlsState);
-    invalid = isInvalidOrbitInput(endOrbitControlsState) ? true : invalid;
+    let invalid = isInvalidOrbitInput(startOrbit);
+    invalid = isInvalidOrbitInput(endOrbit) ? true : invalid;
 
-    const transferBody = system.bodyFromId(system.commonAttractorId(flybySequenceControlsState.startBodyId, flybySequenceControlsState.endBodyId));
+    const transferBody = system.bodyFromId(system.commonAttractorId(startOrbit.orbiting, endOrbit.orbiting));
 
     // make sure that the flyby sequence contains appropriate bodies.
-    for(let i=0; i<flybySequenceControlsState.flybyIdSequence.length; i++) {
-      invalid = transferBody.orbiterIds.includes(flybySequenceControlsState.flybyIdSequence[i]) ? invalid : true;
+    for(let i=0; i<flybyIdSequence.length; i++) {
+      invalid = transferBody.orbiterIds.includes(flybyIdSequence[i]) ? invalid : true;
     }
 
-    // make sure that the time settings are valid
-    // TO DO
+    // TODO: make sure that the time settings (flight times, departure times) are valid
 
     // display a warning and do not calculate a Porkchop if the inputs are invalid
     setInvalidInput(invalid);
@@ -110,7 +117,7 @@ function FlybyAppContent({startOrbitControlsState, endOrbitControlsState, flybyS
       return
     }
 
-    const newMfSearchInputs = searchInputsFromUI(system, startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState.flybyIdSequence, dateControlsState, controlsOptionsState, timeSettings);
+    const newMfSearchInputs = searchInputsFromUI(system, startOrbit, endOrbit, flybyIdSequence, earlyStartDate, lateStartDate, flightTimes, controlsOptionsState, timeSettings);
 
     setMfSearchInputs(newMfSearchInputs);
     setButtonPresses(buttonPresses + 1);
@@ -119,7 +126,7 @@ function FlybyAppContent({startOrbitControlsState, endOrbitControlsState, flybyS
   }
 
   useEffect(() => {
-    if(buttonPresses > 0 || multiFlyby.deltaV === 0) {
+    if(multiFlyby.deltaV === 0) {
       setMultiFlyby(blankMultiFlyby(system));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -152,13 +159,7 @@ function FlybyAppContent({startOrbitControlsState, endOrbitControlsState, flybyS
                 flexDirection: 'column',
               }}
             >
-              <MissionControls 
-                startOrbitControlsState={startOrbitControlsState}
-                endOrbitControlsState={endOrbitControlsState} 
-                flybySequenceControlsState={flybySequenceControlsState}
-                dateControlsState={dateControlsState}
-                controlsOptionsState={controlsOptionsState}
-                />
+              <MissionControls />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={12} md={8} lg={5} xl={7}>
@@ -183,11 +184,8 @@ function FlybyAppContent({startOrbitControlsState, endOrbitControlsState, flybyS
               </Box>
               <EvolutionPlot 
                 inputs={mfSearchInputs}
-                plotData={evolutionPlotData}
                 buttonPresses={buttonPresses} 
-                searchCount={searchCount} 
                 setCalculating={setCalculating}
-                setSearchCount={setSearchCount}
               />
             </Paper>
             <Paper 
@@ -199,11 +197,11 @@ function FlybyAppContent({startOrbitControlsState, endOrbitControlsState, flybyS
                   flexDirection: 'column',
                 }}
               >
-                <OrbitDisplayTabs multiFlyby={multiFlyby} timeSettings={timeSettings} setMultiFlyby={setMultiFlyby} searchCount={searchCount}/>
+                <OrbitDisplayTabs />
             </Paper>
           </Grid>
           <Grid item xs={10} sm={8} md={7} lg={4} xl={3}>
-            <Fade in={searchCount > 0} timeout={400}>
+            <Fade in={multiFlyby.deltaV > 0} timeout={400}>
               <Paper
                 elevation={1}
                 sx={{
@@ -241,9 +239,9 @@ function FlybyAppContent({startOrbitControlsState, endOrbitControlsState, flybyS
   )
 }
 
-function FlybyApp(state: FlybyAppState) {
-    return <>{FlybyAppContent(state)}</>
+function FlybyApp() {
+    return <>{FlybyAppContent()}</>
 }
   
-export default FlybyApp;
+export default React.memo(FlybyApp);
   

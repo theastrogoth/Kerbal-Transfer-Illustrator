@@ -2,10 +2,6 @@ import SolarSystem from '../main/objects/system';
 import { OrbitingBody } from '../main/objects/body';
 import Transfer from '../main/objects/transfer';
 
-import { DateControlsState } from '../components/Transfer/DateControls';
-import { OrbitControlsState } from '../components/OrbitControls';
-import {ControlsOptionsState } from '../components/ControlsOptions';
-
 import MissionControls from '../components/Transfer/MissionControls'
 import PorkchopPlot from '../components/Transfer/PorkChopPlot';
 import OrbitDisplayTabs from '../components/Transfer/OrbitDisplayTabs';
@@ -31,14 +27,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Fade from '@mui/material/Fade';
 
 import { useAtom } from 'jotai';
-import { porkchopInputsAtom, systemAtom, timeSettingsAtom, transferAtom } from '../App';
+import { porkchopInputsAtom, systemAtom, timeSettingsAtom, transferAtom, transferEarlyStartDateAtom, transferEndOrbitAtom, transferLateStartDateAtom, transferLongFlightTimeAtom, transferShortFlightTimeAtom, transferStartOrbitAtom, transferControlsOptionsAtom } from '../App';
 
-type TransferAppState = {
-  startOrbitControlsState: OrbitControlsState,
-  endOrbitControlsState:   OrbitControlsState,
-  dateControlsState:       DateControlsState,
-  controlsOptionsState:    ControlsOptionsState,
-}
 
 export function blankTransfer(system: SolarSystem): Transfer {
   return new Transfer({
@@ -67,22 +57,50 @@ export function blankTransfer(system: SolarSystem): Transfer {
 
 ////////// App Content //////////
 
-function TransferAppContent({startOrbitControlsState, endOrbitControlsState, dateControlsState, controlsOptionsState}: TransferAppState) { 
+function TransferAppContent() { 
   const [system] = useAtom(systemAtom);
   const [timeSettings] = useAtom(timeSettingsAtom);
   const [transfer, setTransfer] = useAtom(transferAtom);
   const [, setPorkchopInputs] = useAtom(porkchopInputsAtom);
+
+  const [startOrbit] = useAtom(transferStartOrbitAtom);
+  const [endOrbit] = useAtom(transferEndOrbitAtom);
+
+  const [earlyStartDate] = useAtom(transferEarlyStartDateAtom);
+  const [lateStartDate] = useAtom(transferLateStartDateAtom);
+  const [shortFlightTime] = useAtom(transferShortFlightTimeAtom);
+  const [longFlightTime] = useAtom(transferLongFlightTimeAtom)
+  const [controlsOptionsState] = useAtom(transferControlsOptionsAtom);
 
   const [invalidInput, setInvalidInput] = useState(false);
   const [porkCalculating, setPorkCalculating] = useState(false);
   const [plotCount, setPlotCount] = useState(0);
   const [showHelp, setShowHelp] = useState(false);
 
+  // TODO: Implement system editor with custom system, store custom system in URL hash
+  // const [customSystem, setCustomSystem] = useAtom(customSystemAtom);
+  // const customSystemRef = useRef(customSystem);
+  // const customSystemHashAtom = useRef(atomWithHash("customSystem", customSystem)).current;
+  // const [customSystemHash, setSystemHash] = useAtom(customSystemHashAtom)
+
+  // useEffect(() => {
+  //   if(customSystem !== customSystemRef.current){
+  //     customSystemRef.current = customSystemHash;
+  //     setSystemHash(customSystem);
+  //   }
+  // }, [customSystem])
+
+  // useEffect(() => {
+  //   if(customSystemHash !== customSystemRef.current) {
+  //     customSystemRef.current = customSystemHash;
+  //     setCustomSystem(customSystemHash);
+  //   }
+  // }, [customSystemHash])
+
   function handlePlotButtonPress() {
-    
     // ensure there are no invalid orbit inputs
-    let invalidFlag = isInvalidOrbitInput(startOrbitControlsState);
-    invalidFlag = isInvalidOrbitInput(endOrbitControlsState) ? true : invalidFlag;
+    let invalidFlag = isInvalidOrbitInput(startOrbit);
+    invalidFlag = isInvalidOrbitInput(endOrbit) ? true : invalidFlag;
     
     // display a warning and do not calculate a Porkchop if the inputs are invalid
     setInvalidInput(invalidFlag);
@@ -91,7 +109,7 @@ function TransferAppContent({startOrbitControlsState, endOrbitControlsState, dat
     }
 
     // prepare porkchop inputs
-    const porkInputs = porkchopInputsFromUI(system, startOrbitControlsState, endOrbitControlsState, dateControlsState, controlsOptionsState, timeSettings);
+    const porkInputs = porkchopInputsFromUI(system, startOrbit, endOrbit, earlyStartDate, lateStartDate, shortFlightTime, longFlightTime, controlsOptionsState, timeSettings);
     setPorkchopInputs(porkInputs);
     setPlotCount(plotCount + 1)
     console.log('"Plot!" button pressed.');
@@ -132,12 +150,7 @@ function TransferAppContent({startOrbitControlsState, endOrbitControlsState, dat
                 flexDirection: 'column',
               }}
             >
-              <MissionControls 
-                startOrbitControlsState={startOrbitControlsState}
-                endOrbitControlsState= {endOrbitControlsState} 
-                dateControlsState={dateControlsState}
-                controlsOptionsState={controlsOptionsState}
-                />
+              <MissionControls />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={12} md={8} lg={5} xl={7}>
@@ -183,7 +196,7 @@ function TransferAppContent({startOrbitControlsState, endOrbitControlsState, dat
                   flexDirection: 'column',
                 }}
               >
-                <OrbitDisplayTabs transfer={transfer} setTransfer={setTransfer} timeSettings={timeSettings}/>
+                <OrbitDisplayTabs />
             </Paper>
           </Grid>
           <Grid item xs={10} sm={8} md={7} lg={4} xl={3}>
@@ -226,8 +239,8 @@ function TransferAppContent({startOrbitControlsState, endOrbitControlsState, dat
   )
 }
 
-function TransferApp(state: TransferAppState) {
-  return <>{TransferAppContent(state)}</>
+function TransferApp() {
+  return <>{TransferAppContent()}</>
 }
 
 export default React.memo(TransferApp);

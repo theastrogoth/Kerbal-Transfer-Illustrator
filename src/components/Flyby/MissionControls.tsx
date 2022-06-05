@@ -1,8 +1,8 @@
-import OrbitControls, { OrbitControlsState } from "../OrbitControls";
-import FlybySequenceControls, { FlybySequenceControlsState } from "./FlybySequenceControls";
-import FlybyDateControls, { FlybyDateControlsState } from "./FlybyDateControls";
+import OrbitControls from "../OrbitControls";
+import FlybySequenceControls  from "./FlybySequenceControls";
+import FlybyDateControls from "./FlybyDateControls";
 import TimeSettingsControls from "../TimeSettingsControls";
-import ControlsOptions, { ControlsOptionsState } from "../ControlsOptions";
+import ControlsOptions from "../ControlsOptions";
 import SystemSelect from "../SystemSelect";
 
 import Stack from "@mui/material/Stack";
@@ -10,17 +10,9 @@ import Box from '@mui/system/Box';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 
+import { multiFlybyStartOrbitAtom, multiFlybyEndOrbitAtom, multiFlybyControlsOptionsAtom } from "../../App";
 
-
-type MissionControlsProps = {
-    startOrbitControlsState:    OrbitControlsState,
-    endOrbitControlsState:      OrbitControlsState,
-    flybySequenceControlsState: FlybySequenceControlsState,
-    dateControlsState:          FlybyDateControlsState,
-    controlsOptionsState:       ControlsOptionsState,
-}
-
-function MissionControls({startOrbitControlsState, endOrbitControlsState, flybySequenceControlsState, dateControlsState, controlsOptionsState}: MissionControlsProps) {
+function MissionControls() {
     return (
         <Stack spacing={1} sx={{ my: 2, mx: 2 }}>
             <Box textAlign="center">
@@ -29,18 +21,18 @@ function MissionControls({startOrbitControlsState, endOrbitControlsState, flybyS
             <Divider />
             <SystemSelect />
             <Typography variant="h6">Orbit Settings</Typography>
-            <OrbitControls label='Starting Orbit' state={startOrbitControlsState} />
-            <OrbitControls label='Target Orbit'   state={endOrbitControlsState} />
+            <OrbitControls label='Starting Orbit' orbitAtom={multiFlybyStartOrbitAtom} />
+            <OrbitControls label='Target Orbit'   orbitAtom={multiFlybyEndOrbitAtom} />
             <Divider />
             <Typography variant="h6">Flyby Sequence</Typography>
-            <FlybySequenceControls {...flybySequenceControlsState} dateControlsState={dateControlsState} />
+            <FlybySequenceControls />
             <Divider />
             <Typography variant="h6">Time Settings</Typography>
             <TimeSettingsControls />
-            <FlybyDateControls {...dateControlsState} />
+            <FlybyDateControls />
             <Divider />
             <Typography variant="h6">Mission Settings</Typography>
-            <ControlsOptions state={controlsOptionsState}/>
+            <ControlsOptions optsAtom={multiFlybyControlsOptionsAtom}/>
         </Stack>
     )
 }
