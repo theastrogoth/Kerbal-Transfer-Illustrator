@@ -169,7 +169,7 @@ function OrbitDisplayTabs() {
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
-        console.log('Orbit plot tab '.concat(String(newValue)).concat(' selected.'));
+        // console.log('Orbit plot tab '.concat(String(newValue)).concat(' selected.'));
     }
 
     return (

@@ -181,7 +181,7 @@ export function prepareAllDisplayProps(transfer: Transfer, timeSettings: TimeSet
     for(let i=0; i<transfer.insertions.length; i++) {
         orbDisplayProps.push(insertionPlotProps(transfer, i, timeSettings))
     }
-    console.log('...Orbit plot traces computed from transfer.')
+    // console.log('...Orbit plot traces computed from transfer.')
     return orbDisplayProps;
 } 
 
@@ -227,16 +227,17 @@ function OrbitDisplayTabs() {
     useEffect(() => {
         transferOptWorker.onmessage = (event: MessageEvent<ITransfer>) => {
             if (event && event.data) {
-                console.log('...Patch optimization worker returned a new transfer')
+                // console.log('...Patch optimization worker returned a new transfer')
                 setTransfer(new Transfer(event.data));
                 setRefined(true);
                 setCalculating(false);
             }
-        }        
+        } 
+        // eslint-disable-next-line react-hooks/exhaustive-deps       
     }, [transferOptWorker]);
 
     function handleRefineTransferButtonPress() {
-        console.log('Starting SoI patch optimization worker...')
+        console.log('Optimizing SoI patches')
         setCalculating(true);
         transferOptWorker
             .postMessage(transfer);   
@@ -248,7 +249,7 @@ function OrbitDisplayTabs() {
         } else if(timeSettings !== timeSettingsRef.current) {
             timeSettingsRef.current = timeSettings;
         } else {
-            console.log('Updating Orbit plots with a new transfer...')
+            console.log('Updating Orbit plots with a new transfer')
             if(value < -transfer.ejections.length || value > transfer.insertions.length) {
                 setValue(0);
             }
@@ -260,7 +261,7 @@ function OrbitDisplayTabs() {
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
-        console.log('Orbit plot tab '.concat(String(newValue)).concat(' selected.'));
+        // console.log('Orbit plot tab '.concat(String(newValue)).concat(' selected.'));
     }
 
     return (

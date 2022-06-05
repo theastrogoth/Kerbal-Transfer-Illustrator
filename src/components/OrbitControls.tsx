@@ -78,7 +78,6 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
     const [bodyOptions, setBodyOptions] = useState(createBodyItems(system));
 
     function setOrbitAndFields(newOrbit: OrbitalElements, newAlt: number | undefined = undefined) {
-        console.log(newOrbit.orbiting)
         setOrbit(newOrbit)
         orbitRef.current = newOrbit;
 
@@ -130,7 +129,6 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
         // detect a change in the selection of a body, and change the orbit to the default one
         } else if(bodyId !== bodyIdRef.current) {
             bodyIdRef.current = bodyId;
-            console.log(bodyId)
             const newBody = system.bodyFromId(bodyId);
             setBody(newBody);
             const orb = defaultOrbit(system, bodyId);

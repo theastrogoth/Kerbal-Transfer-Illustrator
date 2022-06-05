@@ -21,15 +21,7 @@ import TableCell from "@mui/material/TableCell";
 import { useAtom } from "jotai";
 import { multiFlybyAtom, timeSettingsAtom } from "../../App";
 
-type OrbitDisplayTabsProps  = {
-    multiFlyby:             MultiFlyby,
-    timeSettings:           TimeSettings,
-    setMultiFlyby:          React.Dispatch<React.SetStateAction<MultiFlyby>>,   
-    searchCount:            number,
-}
-
 const emptyProps: OrbitDisplayProps[] = [];
-
 
 function trajectoryTraces(trajectory: Trajectory, trajectoryIdx: number, timeSettings: TimeSettings, orbitName: string = ''): Line3DTrace[] {
     const trajLen = trajectory.orbits.length;
@@ -232,7 +224,7 @@ export function prepareAllDisplayProps(multiFlyby: MultiFlyby, timeSettings: Tim
         orbDisplayProps.push(insertionPlotProps(multiFlyby, i, timeSettings));
     }
 
-    console.log('...Orbit plot traces computed from trajectory.')
+    // console.log('...Orbit plot traces computed from trajectory.')
     return orbDisplayProps;
 } 
 
@@ -278,7 +270,7 @@ function OrbitDisplayTabs() {
     useEffect(() => {
         multiFlybyOptWorker.onmessage = (event: MessageEvent<IMultiFlyby>) => {
             if (event && event.data) {
-                console.log('...Patch optimization worker returned a new multiFlyby')
+                // console.log('...Patch optimization worker returned a new multiFlyby')
                 setRefined(true);
                 setCalculating(false);
                 setMultiFlyby(new MultiFlyby(event.data));
@@ -288,7 +280,7 @@ function OrbitDisplayTabs() {
     }, [multiFlybyOptWorker]);
 
     function handleRefineButtonPress() {
-        console.log('Starting SoI patch optimization worker...')
+        console.log('Optimizing SoI patches')
         setCalculating(true);
         multiFlybyOptWorker
             .postMessage(multiFlyby);   
@@ -300,7 +292,7 @@ function OrbitDisplayTabs() {
         } else if(timeSettings !== timeSettingsRef.current) {
             timeSettingsRef.current = timeSettings;
         } else {
-            console.log('Updating Orbit plots with a new multi-flyby...')
+            console.log('Updating Orbit plots with a new multi-flyby')
             if(value < -multiFlyby.ejections.length || value > multiFlyby.flybys.length + multiFlyby.insertions.length) {
                 setValue(0);
             }
@@ -312,7 +304,7 @@ function OrbitDisplayTabs() {
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
-        console.log('Orbit plot tab '.concat(String(newValue)).concat(' selected.'));
+        // console.log('Orbit plot tab '.concat(String(newValue)).concat(' selected.'));
     }
 
     return (

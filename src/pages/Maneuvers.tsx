@@ -104,7 +104,6 @@ useEffect(() => {
 }, [propagateWorker]);
 
 useEffect(() => {
-  console.log("calculate trajectory")
   propagateWorker
     .postMessage({vesselPlans, system});
   // eslint-disable-next-line react-hooks/exhaustive-deps
