@@ -281,9 +281,9 @@ export function newtonRootSolve(
         }
         n++;
     }
-    if (n >= maxIters) {
-        console.log("Newton's method failed to find a root. Error of %f. ", err)
-    }
+    // if (n >= maxIters) {
+    //     console.log("Newton's method failed to find a root. Error of %f. ", err)
+    // }
     return x;
 }
 

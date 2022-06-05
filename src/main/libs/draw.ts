@@ -36,15 +36,16 @@ export namespace Draw {
             nus2.push(Kepler.dateToOrbitTrueAnomaly(tMin, orbit));
         }
 
-        if(orbit.eccentricity > 1) {
-            // console.log(times[0], times[times.length -1])
-            // console.log(times)
-            // console.log(positions[positions.length - 1], Kepler.orbitToPositionAtDate(orbit, times[times.length - 1]))
-            // console.log(orbit)
-            // console.log(nus[nus.length -1], Kepler.dateToOrbitTrueAnomaly(times[times.length-1], orbit))
-            // console.log(nus)
-            // console.log(nus2)
-        }
+        // attempt to debug hyperbolic orbit dates
+        // if(orbit.eccentricity > 1) {
+        //     // console.log(times[0], times[times.length -1])
+        //     // console.log(times)
+        //     // console.log(positions[positions.length - 1], Kepler.orbitToPositionAtDate(orbit, times[times.length - 1]))
+        //     // console.log(orbit)
+        //     // console.log(nus[nus.length -1], Kepler.dateToOrbitTrueAnomaly(times[times.length-1], orbit))
+        //     // console.log(nus)
+        //     // console.log(nus2)
+        // }
  
         // separate out coordinates for plotting
         const x = positions.map(i => i.x);
@@ -121,11 +122,8 @@ export namespace Draw {
 
     export function drawOrbitPathFromTimes(orbit: IOrbit, startTime: number, endTime: number, timeSettings: TimeSettings, color: Color = new Color({r: 255, g: 255, b: 255}), name: string | undefined = undefined, 
                                            colorfade: boolean = true, dash: "dash" | "dot" | "longdash" | "solid" | undefined = "solid", nPoints: number = 201): Line3DTrace {
-        // if(orbit.eccentricity > 1) {
-        //     console.log("draw hyperbolic orbit from " + String(startTime) + " s to " + String(endTime) + " s")
-        // }
         const minTrueAnomaly = Kepler.dateToOrbitTrueAnomaly(startTime, orbit);
-        const maxTrueAnomaly = Kepler.dateToOrbitTrueAnomaly(endTime, orbit);
+        const maxTrueAnomaly = (orbit.eccentricity < 1 && (endTime > startTime + orbit.siderealPeriod)) ? minTrueAnomaly : Kepler.dateToOrbitTrueAnomaly(endTime, orbit);
         return drawOrbitPathFromAngles(orbit, minTrueAnomaly, maxTrueAnomaly, startTime, timeSettings, color, name, colorfade, dash, nPoints)
     }
 

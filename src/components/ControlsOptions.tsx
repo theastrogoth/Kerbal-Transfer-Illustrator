@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Stack from "@mui/material/Stack";
 import FormGroup from "@mui/material/FormGroup";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -39,7 +39,8 @@ function handleCheckboxChange(setOpts: React.Dispatch<React.SetStateAction<Contr
 
 function ControlsOptions({optsAtom}: {optsAtom: PrimitiveAtom<ControlsOptionsState>}) {
     const [opts, setOpts] = useAtom(optsAtom)
-
+    console.log(opts)
+    useEffect(() => {}, [opts])
     return ( 
         <Stack spacing={1.5}>
             <FormControl>
@@ -64,15 +65,15 @@ function ControlsOptions({optsAtom}: {optsAtom: PrimitiveAtom<ControlsOptionsSta
             </FormControl>
             <FormGroup>
                 <FormLabel>Departure/Arrival Timing</FormLabel>
-                <FormControlLabel control={<Checkbox checked={opts.matchStartMo} onChange={handleCheckboxChange(setOpts, "matchStartMo", opts)}/>} label="Match Starting Orbit Mean Anomaly" />
-                <FormControlLabel control={<Checkbox checked={opts.matchEndMo}   onChange={handleCheckboxChange(setOpts, "matchEndMo", opts)}/>}   label="Match Target Orbit Mean Anomaly" />
+                <FormControlLabel control={<Checkbox defaultChecked={opts.matchStartMo} onChange={handleCheckboxChange(setOpts, "matchStartMo", opts)}/>} label="Match Starting Orbit Mean Anomaly" />
+                <FormControlLabel control={<Checkbox defaultChecked={opts.matchEndMo}   onChange={handleCheckboxChange(setOpts, "matchEndMo", opts)}/>}   label="Match Target Orbit Mean Anomaly" />
             </FormGroup>
             <FormGroup> 
                 <FormLabel>Δv calculation</FormLabel>
-                <FormControlLabel control={<Checkbox checked={opts.noInsertionBurn} onChange={handleCheckboxChange(setOpts, "noInsertionBurn", opts)}/>} label="No Insertion Burn" />
+                <FormControlLabel control={<Checkbox defaultChecked={opts.noInsertionBurn} onChange={handleCheckboxChange(setOpts, "noInsertionBurn", opts)}/>} label="No Insertion Burn" />
             </FormGroup>
         </Stack>
     )
 }
 
-export default React.memo(ControlsOptions);
+export default ControlsOptions;

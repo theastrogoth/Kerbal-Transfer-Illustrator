@@ -59,11 +59,11 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
             }
         }
         // stop the search once an intercept has been found, or if the specified endDate has been exceeded
-        if(interceptTime !== Infinity || end >= endDate) {
+        if(interceptTime !== Infinity || end > endDate) {
             break
         }
-        end = Math.min(maxDate + orbit.siderealPeriod, endDate);
         start = end;
+        end = Math.min(end + orbit.siderealPeriod, endDate);
     }
 
     // if no intercepts were found

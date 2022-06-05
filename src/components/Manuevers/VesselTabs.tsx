@@ -98,7 +98,7 @@ function VesselTabs() {
         if(value < 0) {
             setValue(0);
         }
-        if(value >= vesselPlans.length) {
+        if(value > vesselPlans.length) {
             setValue(vesselPlans.length - 1);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
