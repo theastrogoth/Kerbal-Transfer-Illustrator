@@ -118,6 +118,7 @@ function OrbitDisplay({label, marks, centralBody, orbits, trajectories, startDat
             const newTraces = updateDate(d, centralBody, orbits, trajectories, defaultTraces);
             setTraces(newTraces)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [startDate, centralBody, orbits, trajectories, defaultTraces, timeSettings]);
 
     useEffect(() => {
@@ -139,6 +140,7 @@ function OrbitDisplay({label, marks, centralBody, orbits, trajectories, startDat
                 dateFieldRef.current = calendarDate;
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [date, dateField, updateFields, centralBody, orbits, trajectories, traces, timeSettings]);
 
     return (

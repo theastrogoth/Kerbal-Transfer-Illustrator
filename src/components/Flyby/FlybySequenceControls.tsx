@@ -10,7 +10,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import IconButton from '@mui/material/IconButton';
 
-import { PrimitiveAtom, atom, useAtom } from 'jotai';
+import { atom, useAtom } from 'jotai';
 import { flybyIdSequenceAtom, multiFlybyEndOrbitAtom, multiFlybyFlightTimesAtomsAtom, multiFlybyStartOrbitAtom, systemAtom } from '../../App';
 import { makeDateFields } from '../../utils';
 

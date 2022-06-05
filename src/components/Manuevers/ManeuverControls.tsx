@@ -97,6 +97,7 @@ function ManeuverControls({idx, maneuvers, setManeuvers}: ManeuverControlsState)
                 setUT(String(newDate));
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dateField, timeSettings, prograde, normal, radial, UT, maneuvers, idx])
 
     return (

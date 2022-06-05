@@ -62,6 +62,7 @@ function FlybyDateControls() {
             }
         }
         setFlightErrs(newFlightErrs)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [flightTimes, timeSettings])
 
     return (
