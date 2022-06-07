@@ -128,7 +128,7 @@ useEffect(() => {
           </Alert>
         </Collapse>
         <Grid container component='main' justifyContent="center">
-          <Grid item xs={12} sm={11} md={5} lg={4} xl={3}>
+          <Grid item xs={12} sm={11} md={6} lg={4} xl={3}>
             <Paper 
               elevation={1}
               sx={{
@@ -141,7 +141,7 @@ useEffect(() => {
               <VesselTabs />
             </Paper>
           </Grid>
-          <Grid item xs={12} sm={12} md={7} lg={4} xl={6}>
+          <Grid item xs={12} sm={12} md={6} lg={4} xl={6}>
             <Paper 
                 elevation={1}
                 sx={{

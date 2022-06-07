@@ -14,22 +14,24 @@ import { transferStartOrbitAtom, transferEndOrbitAtom, transferControlsOptionsAt
 
 function MissionControls() {
     return (
-        <Stack spacing={1} sx={{ my: 2, mx: 2 }}>
-            <Box textAlign="center">
-                <Typography variant="h5">Mission Controls</Typography>
-            </Box>
-            <Divider />
-            <SystemSelect />
-            <Typography variant="h6">Orbit Settings</Typography>
-            <OrbitControls label='Starting Orbit' orbitAtom={transferStartOrbitAtom} />
-            <OrbitControls label='Target Orbit'   orbitAtom={transferEndOrbitAtom} />
-            <Divider />
-            <Typography variant="h6">Time Settings</Typography>
-            <TimeSettingsControls />
-            <DateControls />
-            <Divider />
-            <Typography variant="h6">Transfer Settings</Typography>
-            <ControlsOptions optsAtom={transferControlsOptionsAtom} />
+        <Stack alignItems='center' >
+            <Stack spacing={1} sx={{ width: '90%', maxWidth: 500, my: 2, mx: 2 }} >
+                <Box textAlign="center">
+                    <Typography variant="h5">Mission Controls</Typography>
+                </Box>
+                <Divider />
+                <SystemSelect />
+                <Typography variant="h6">Orbit Settings</Typography>
+                <OrbitControls label='Starting Orbit' orbitAtom={transferStartOrbitAtom} />
+                <OrbitControls label='Target Orbit'   orbitAtom={transferEndOrbitAtom} />
+                <Divider />
+                <Typography variant="h6">Time Settings</Typography>
+                <TimeSettingsControls />
+                <DateControls />
+                <Divider />
+                <Typography variant="h6">Transfer Settings</Typography>
+                <ControlsOptions optsAtom={transferControlsOptionsAtom} />
+            </Stack>
         </Stack>
     )
 }

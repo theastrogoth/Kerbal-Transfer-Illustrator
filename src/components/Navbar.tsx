@@ -44,7 +44,7 @@ function Navbar({showHelp, setShowHelp}: {showHelp: boolean, setShowHelp: React.
                     variant="h5"
                     sx={{
                         mr: 2,
-                        display: { xs: 'none', md: 'flex' },
+                        display: { xs: 'none', lg: 'flex' },
                         fontWeight: 700,
                         color: 'inherit',
                         textDecoration: 'none',
@@ -52,7 +52,7 @@ function Navbar({showHelp, setShowHelp}: {showHelp: boolean, setShowHelp: React.
                 >
                     Kerbal Transfer Illustrator 
                 </Typography>
-                <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+                <Box sx={{ flexGrow: 1, display: { xs: 'flex', lg: 'none' } }}>
                     <IconButton
                         size="large"
                         onClick={handleOpenNavMenu}
@@ -75,7 +75,7 @@ function Navbar({showHelp, setShowHelp}: {showHelp: boolean, setShowHelp: React.
                         open={Boolean(anchorElNav)}
                         onClose={handleCloseNavMenu}
                         sx={{
-                            display: { xs: 'block', md: 'none' },
+                            display: { xs: 'block', lg: 'none' },
                         }}
                     >
                         {pages.map((page, idx) => (
@@ -89,7 +89,7 @@ function Navbar({showHelp, setShowHelp}: {showHelp: boolean, setShowHelp: React.
                     variant="h5"
                     sx={{
                         mr: 2,
-                        display: { xs: 'flex', md: 'none' },
+                        display: { xs: 'flex', lg: 'none' },
                         fontWeight: 700,
                         color: 'inherit',
                         textDecoration: 'none',
@@ -97,7 +97,7 @@ function Navbar({showHelp, setShowHelp}: {showHelp: boolean, setShowHelp: React.
                 >
                     Kerbal Transfer Illustrator 
                 </Typography>
-                <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex'} }}>
+                <Box sx={{ flexGrow: 1, display: { xs: 'none', lg: 'flex'} }}>
                     {pages.map((page, idx) => (
                         <Button
                             key={page}
@@ -111,10 +111,10 @@ function Navbar({showHelp, setShowHelp}: {showHelp: boolean, setShowHelp: React.
                     ))}
                 </Box>
                 <Box sx={{ flexGrow: 1 }} />
-                <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
+                <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                       <SaveFileUploadButton />
                 </Box>
-                <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
+                <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                     <Button 
                         color="inherit"
                         onClick={() => setShowHelp(!showHelp)}
@@ -122,10 +122,10 @@ function Navbar({showHelp, setShowHelp}: {showHelp: boolean, setShowHelp: React.
                         <HelpOutline />
                     </Button>
                 </Box>
-                <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
+                <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                     <DarkLightModeSwitch />
                 </Box>
-                <Box sx={{ flexGrow: 0,  display: { xs: 'flex', sm: 'none' } }}>
+                <Box sx={{ flexGrow: 0,  display: { xs: 'flex', md: 'none' } }}>
                     <IconButton onClick={handleOpenButtonMenu} >
                         <MoreIcon />
                     </IconButton>

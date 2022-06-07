@@ -5,6 +5,7 @@ import HourMinSecField from "./HourMinSecField";
 
 import { PrimitiveAtom, useAtom } from "jotai";
 import { timeSettingsAtom } from "../App";
+import { Typography } from "@mui/material";
 
 type DateFieldProps = {
     id:                 string,
@@ -36,6 +37,8 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
 
     const [timeSettings] = useAtom(timeSettingsAtom);
     const timeSettingsRef = useRef(timeSettings);
+
+    const alreadyUpdatedFields = useRef(false);
     
     const NumField = required ? RequiredNumberField : NumberField;
     const HourField =   variant === "hhmmss" ? <HourMinSecField
@@ -45,49 +48,69 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                                     setMinute={setMinute}
                                     second={second}
                                     setSecond={setSecond}
-                                    error={error} /> :
+                                    error={error} 
+                                /> :
                          variant === "hour" ? <NumField
-                                    id={'hour-'+String(id)}
                                     label='Hour'
-                                    type='number'
-                                    step="1"
                                     value={hour} 
+                                    setValue={setHour}
                                     error={error}    
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHour(e.target.value)} /> :
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHour(e.target.value)} 
+                                    sx={{minWidth: "60px", maxWidth: "65px"}}
+                                /> :
                         [
                             <NumField
                                 key='hour'
-                                id={'hour-'+String(id)}
                                 label='Hour'
-                                type='number'
-                                step="1"
                                 value={hour} 
+                                setValue={setHour}
                                 error={error}    
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHour(e.target.value)} />,
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHour(e.target.value)}
+                                sx={{minWidth: "60px", maxWidth: "65px"}}
+                            />,
                             <NumField
                                 key='min'
-                                id={'minute-'+String(id)}
                                 label='Minute'
-                                type='number'
-                                step="1"
                                 value={minute} 
+                                setValue={setMinute}
                                 error={error}    
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMinute(e.target.value)} />,
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMinute(e.target.value)} 
+                                sx={{minWidth: "60px", maxWidth: "65px"}}
+                            />,
                             <NumField
                                 key='sec'
-                                id={'second-'+String(id)}
                                 label='Second'
-                                type='number'
-                                step="1"
                                 value={second} 
+                                setValue={setSecond}
                                 error={error}    
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSecond(e.target.value)} />,
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSecond(e.target.value)} 
+                                sx={{minWidth: "60px", maxWidth: "78px"}}
+                            />,
                         ];
 
     useEffect(() => {
         if(timeSettings !== timeSettingsRef.current) {
             timeSettingsRef.current = timeSettings;
-        } else {
+        } else if(calendarDateRef.current !== calendarDate) {
+            if(calendarDateRef.current !== calendarDate) {
+                calendarDateRef.current = calendarDate;
+                if(calendarDate.year !== Number(year)) {
+                    setYear(isNaN(calendarDate.year) ? '' : String(calendarDate.year));
+                }
+                if(calendarDate.day !== Number(day)) {
+                    setDay(isNaN(calendarDate.day) ? '' : String(calendarDate.day));
+                }
+                if(calendarDate.hour !== Number(hour)) {
+                    setHour(isNaN(calendarDate.hour) ? '' : String(calendarDate.hour));
+                }
+                if(calendarDate.minute !== Number(minute)) {
+                    setMinute(isNaN(calendarDate.minute) ? '' : String(calendarDate.minute));
+                }
+                if(calendarDate.second !== Number(second)) {
+                    setSecond(isNaN(calendarDate.second) ? '' : String(calendarDate.second));
+                }
+            }
+        } else if(!alreadyUpdatedFields.current) {
             let newYear     = parseFloat(year);
             let newDay      = parseFloat(day);
             let newHour     = parseFloat(hour);
@@ -187,47 +210,47 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                 if(changeHour)   { setHour(String(newHour)) };
                 if(changeMinute) { setMinute(String(newMinute)) };
                 if(changeSecond) { setSecond(String(newSecond)) };
+
+                if(!(changeYear || changeDay || changeHour || changeMinute || changeSecond)) {
+                    setCalendarDate({year: newYear, day: newDay, hour: newHour, minute: newMinute, second: newSecond});
+                } else {
+                    alreadyUpdatedFields.current = true;
+                }
+            } else {
+                setCalendarDate({year: newYear, day: newDay, hour: newHour, minute: newMinute, second: newSecond});
             }
-    
-            setCalendarDate({year: newYear, day: newDay, hour: newHour, minute: newMinute, second: newSecond});
+        } else {
+            setCalendarDate({year: Number(year), day: Number(day), hour: Number(hour), minute: Number(minute), second: Number(second)});
+            alreadyUpdatedFields.current = false;
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [year, day, hour, minute, second, timeSettings])
-
-    useEffect(() => {
-        if(calendarDateRef.current !== calendarDate) {
-            calendarDateRef.current = calendarDate;
-            setYear(isNaN(calendarDate.year) ? '' : String(calendarDate.year));
-            setDay(isNaN(calendarDate.day) ? '' : String(calendarDate.day));
-            setHour(isNaN(calendarDate.hour) ? '' : String(calendarDate.hour));
-            setMinute(isNaN(calendarDate.minute) ? '' : String(calendarDate.minute));
-            setSecond(isNaN(calendarDate.second) ? '' : String(calendarDate.second));
-        }
-    }, [calendarDate])
+    }, [year, day, hour, minute, second, timeSettings, calendarDate])
 
     return (
-        <label>
-            {label}
-            <Stack spacing={0.5} direction="row">
+        <Stack spacing={1} direction="column">
+            <Typography>
+                {label}
+            </Typography>
+            <Stack spacing={0} direction="row" flexWrap="wrap" sx={{justifyContent: 'left'}} >
                 <NumField
-                    id={'year-'+String(id)}
                     label='Year'
-                    type='number'
-                    step='any'
                     value={year}
+                    setValue={setYear}
                     error={error}    
-                    onChange={handleChange(setYear)} />      
+                    onChange={handleChange(setYear)} 
+                    sx={{minWidth: "60px", maxWidth: "65px"}}
+                />      
                 <NumField
-                    id={'day-'+String(id)}
                     label='Day'
-                    type='number'
-                    step='any'
                     value={day} 
+                    setValue={setDay}
                     error={error}    
-                    onChange={handleChange(setDay)} />            
+                    onChange={handleChange(setDay)} 
+                    sx={{minWidth: "60px", maxWidth: "65px"}}
+                />            
                 {HourField}
             </Stack>
-        </label>
+        </Stack>
     )
 }
 

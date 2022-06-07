@@ -133,8 +133,8 @@ function AppBody() {
       values: {
           xs: 0,
           sm: 750,
-          md: 1030,
-          lg: 1500,
+          md: 1250,
+          lg: 1630,
           xl: 1800,
       },
     },

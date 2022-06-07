@@ -160,7 +160,7 @@ function OrbitDisplay({label, marks, centralBody, orbits, trajectories, startDat
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => setDate(Number(event.target.value)) }
                     onChangeCommitted={(event: React.SyntheticEvent<Element, Event>, value: number) => { setUpdateFields(true) }}
                 /> : <></> }
-                <Box display="flex" alignItems="center" justifyContent="center" minWidth="250px" maxWidth="450px">
+                <Box display="flex" alignItems="center" justifyContent="center" maxWidth="700px">
                     <DateField id={'plot-date'} label={'Date'} calendarDateAtom={dateFieldAtom} correctFormat={true} variant="all"/>
                 </Box>
             </Stack>
