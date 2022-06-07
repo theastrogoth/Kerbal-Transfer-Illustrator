@@ -14,25 +14,27 @@ import { multiFlybyStartOrbitAtom, multiFlybyEndOrbitAtom, multiFlybyControlsOpt
 
 function MissionControls() {
     return (
-        <Stack spacing={1} sx={{ my: 2, mx: 2 }}>
-            <Box textAlign="center">
-                <Typography variant="h5">Mission Controls</Typography>
-            </Box>
-            <Divider />
-            <SystemSelect />
-            <Typography variant="h6">Orbit Settings</Typography>
-            <OrbitControls label='Starting Orbit' orbitAtom={multiFlybyStartOrbitAtom} />
-            <OrbitControls label='Target Orbit'   orbitAtom={multiFlybyEndOrbitAtom} />
-            <Divider />
-            <Typography variant="h6">Flyby Sequence</Typography>
-            <FlybySequenceControls />
-            <Divider />
-            <Typography variant="h6">Time Settings</Typography>
-            <TimeSettingsControls />
-            <FlybyDateControls />
-            <Divider />
-            <Typography variant="h6">Mission Settings</Typography>
-            <ControlsOptions optsAtom={multiFlybyControlsOptionsAtom}/>
+        <Stack alignItems='center' >
+            <Stack spacing={1} sx={{ width: '90%', maxWidth: 500, my: 2, mx: 2 }} >
+                <Box textAlign="center">
+                    <Typography variant="h5">Mission Controls</Typography>
+                </Box>
+                <Divider />
+                <SystemSelect />
+                <Typography variant="h6">Orbit Settings</Typography>
+                <OrbitControls label='Starting Orbit' orbitAtom={multiFlybyStartOrbitAtom} />
+                <OrbitControls label='Target Orbit'   orbitAtom={multiFlybyEndOrbitAtom} />
+                <Divider />
+                <Typography variant="h6">Flyby Sequence</Typography>
+                <FlybySequenceControls />
+                <Divider />
+                <Typography variant="h6">Time Settings</Typography>
+                <TimeSettingsControls />
+                <FlybyDateControls />
+                <Divider />
+                <Typography variant="h6">Mission Settings</Typography>
+                <ControlsOptions optsAtom={multiFlybyControlsOptionsAtom}/>
+            </Stack>
         </Stack>
     )
 }

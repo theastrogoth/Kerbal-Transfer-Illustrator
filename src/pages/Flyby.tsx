@@ -149,7 +149,7 @@ function FlybyAppContent() {
           </Alert>
         </Collapse>
         <Grid container component='main' justifyContent="center">
-          <Grid item xs={12} sm={11} md={4} lg={3} xl={2} >
+          <Grid item xs={12} sm={11} md={4} lg={3} xl={3} >
             <Paper 
               elevation={1}
               sx={{
@@ -162,7 +162,7 @@ function FlybyAppContent() {
               <MissionControls />
             </Paper>
           </Grid>
-          <Grid item xs={12} sm={12} md={8} lg={5} xl={7}>
+          <Grid item xs={12} sm={12} md={8} lg={5} xl={6}>
             <Paper 
               elevation={1}
               sx={{

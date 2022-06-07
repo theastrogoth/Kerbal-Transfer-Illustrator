@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Stack from "@mui/material/Stack";
 import FormGroup from "@mui/material/FormGroup";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -39,8 +39,6 @@ function handleCheckboxChange(setOpts: React.Dispatch<React.SetStateAction<Contr
 
 function ControlsOptions({optsAtom}: {optsAtom: PrimitiveAtom<ControlsOptionsState>}) {
     const [opts, setOpts] = useAtom(optsAtom)
-    console.log(opts)
-    useEffect(() => {}, [opts])
     return ( 
         <Stack spacing={1.5}>
             <FormControl>
@@ -76,4 +74,4 @@ function ControlsOptions({optsAtom}: {optsAtom: PrimitiveAtom<ControlsOptionsSta
     )
 }
 
-export default ControlsOptions;
+export default React.memo(ControlsOptions);

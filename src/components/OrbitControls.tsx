@@ -20,6 +20,7 @@ import { radToDeg } from "../main/libs/math";
 
 import { PrimitiveAtom, useAtom } from "jotai";
 import { systemAtom, vesselsAtom, copiedOrbitAtom } from "../App";
+import { Typography } from "@mui/material";
 
 
 type OrbitControlsProps = {
@@ -171,8 +172,10 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
     }, [alt, sma, ecc, inc, arg, lan, moe, epoch, bodyId, body, vesselId, vessels, system])
 
     return (
-        <label>
-            {label}
+        <>
+            <Typography sx={{marginBottom: 1}}>
+                {label}
+            </Typography>
             <Stack spacing={1.5}>
                 {vesselSelect &&
                     <VesselSelect 
@@ -183,7 +186,7 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
                                 setVesselId(Number(event.target.value))
                             }} />
                 }
-                <FormControl sx={{ minWidth: 120 }}>
+                <FormControl>
                     <InputLabel id={"body-select-label-"+label}>Body</InputLabel>
                     <Select
                         labelId={"body-select-label-"+label}
@@ -197,58 +200,60 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
                     </Select>
                 </FormControl>
                 <RequiredNumberField
-                    id={'altitude-'+label}
                     label='Altitude (m)'
                     value={alt}
-                    inputProps={{ min: 0 }}
+                    setValue={setAlt}
+                    min={0}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAlt(e.target.value)}
-                    sx={{ fullWidth: true }} />
+                 />
                 <Collapse in={optsVisible} timeout="auto">
                     <Stack spacing={1.5}>
                         <RequiredNumberField
-                            id={'sma-'+label}
                             label='Semi-major Axis (m)' 
                             value={sma}
+                            setValue={setSma}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSma(e.target.value)}
                             error = {parseFloat(sma) === 0 || parseFloat(ecc) === 1 || (parseFloat(ecc) < 1 && parseFloat(sma) < 0) || (parseFloat(ecc) > 1 && parseFloat(sma) > 0)}
-                            sx={{ fullWidth: true }}/>
+                        />
                         <RequiredNumberField
-                            id={'ecc-'+label}
                             label='Eccentricity' 
                             value={ecc}
+                            min={0}
+                            step={0.1}
+                            setValue={setEcc}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEcc(e.target.value)}
                             error={parseFloat(ecc) < 0 || parseFloat(ecc) === 1 || (parseFloat(ecc) < 1 && parseFloat(sma) < 0) || (parseFloat(ecc) > 1 && parseFloat(sma) > 0)}
-                            sx={{ fullWidth: true }} />
+                         />
                         <RequiredNumberField
-                            id={'inc-'+label}
                             label={'Inclination (\u00B0)'} 
                             value={inc}
+                            setValue={setInc}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInc(e.target.value)}
-                            sx={{ fullWidth: true }} />
+                         />
                         <RequiredNumberField
-                            id={'arg-'+label}
                             label={'Argument of the Periapsis (\u00B0)'} 
                             value={arg}
+                            setValue={setArg}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setArg(e.target.value)}
-                            sx={{ fullWidth: true }} />
+                         />
                         <RequiredNumberField
-                            id={'lan-'+label}
                             label={'Longitude of the Ascending Node (\u00B0)'} 
                             value={lan}
+                            setValue={setLan}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLan(e.target.value)}
-                            sx={{ fullWidth: true }} />
+                         />
                         <RequiredNumberField
-                            id={'moe-'+label}
                             label='Mean Anomaly at Epoch (rad)' 
                             value={moe}
+                            setValue={setMoe}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMoe(e.target.value)}
-                            sx={{ fullWidth: true }} />
+                         />
                         <RequiredNumberField
-                            id={'epoch-'+label}
                             label='Epoch (s)' 
                             value={epoch}
+                            setValue={setEpoch}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEpoch(e.target.value)}
-                            sx={{ fullWidth: true }} />
+                         />
                     </Stack>
                 </Collapse>
             </Stack>   
@@ -269,7 +274,7 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
                     <ClearIcon />
                 </IconButton>
             </Stack>
-        </label>
+        </>
     )
 }
 

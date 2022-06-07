@@ -110,26 +110,28 @@ function VesselTabs() {
     }
 
     return (
-        <Stack spacing={1} sx={{ my: 2, mx: 2 }}>
-            <Box textAlign="center" >
-                <Typography variant="h5">Flight Plan Controls</Typography>
+        <Stack alignItems='center' >
+            <Stack spacing={1} sx={{ width: '90%', maxWidth: 600, my: 2, mx: 2 }} >
+                <Box textAlign="center" >
+                    <Typography variant="h5">Flight Plan Controls</Typography>
+                    <Divider />
+                </Box>
+                <SystemSelect />
+                <TimeSettingsControls />
                 <Divider />
-            </Box>
-            <SystemSelect />
-            <TimeSettingsControls />
-            <Divider />
-            <Stack direction="row" spacing={2} textAlign="center" justifyContent="center">
-                <IconButton sx={{border: "1px solid"}} onClick={handleAddVessel(vesselPlans, setVesselPlans, system, setValue, tabValues, setTabValues)}>
-                    <AddIcon />
-                </IconButton>
-                <IconButton sx={{border: "1px solid"}} onClick={handleRemoveVessel(vesselPlans, setVesselPlans, value, setValue, tabValues, setTabValues)}>
-                    <RemoveIcon />
-                </IconButton>
+                <Stack direction="row" spacing={2} textAlign="center" justifyContent="center">
+                    <IconButton sx={{border: "1px solid"}} onClick={handleAddVessel(vesselPlans, setVesselPlans, system, setValue, tabValues, setTabValues)}>
+                        <AddIcon />
+                    </IconButton>
+                    <IconButton sx={{border: "1px solid"}} onClick={handleRemoveVessel(vesselPlans, setVesselPlans, value, setValue, tabValues, setTabValues)}>
+                        <RemoveIcon />
+                    </IconButton>
+                </Stack>
+                <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons={true}>
+                    {vesselPlans.map((f, index) => <Tab key={index} value={index} label={f.name} ></Tab>)}
+                </Tabs>
+                {vesselPlans.map((f, index) => <VesselTabPanel key={index} value={value} index={index} />)}
             </Stack>
-            <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons={true}>
-                {vesselPlans.map((f, index) => <Tab key={index} value={index} label={f.name} ></Tab>)}
-            </Tabs>
-            {vesselPlans.map((f, index) => <VesselTabPanel key={index} value={value} index={index} />)}
         </Stack>
     )
 }

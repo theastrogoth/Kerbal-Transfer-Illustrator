@@ -49,6 +49,8 @@ function VesselControls({idx}: {idx: number}) {
     const orbitRef = useRef(orbit);
     const planRef = useRef(plan);
     const vesselPlansRef = useRef(vesselPlans);
+    
+    const wasSetFromOrbit = useRef(false);
 
     const handleVesselIdChange = (event: any): void => {
         const newId = Number(event.target.value)
@@ -100,7 +102,6 @@ function VesselControls({idx}: {idx: number}) {
 
     useEffect(() => {
         if(vesselPlans.length !== vesselPlansRef.current.length) {
-            // console.log("add/remove vessel")
             vesselPlansRef.current = vesselPlans;
             const vesselPlan = vesselPlans[idx];
             setPlan(vesselPlan);
@@ -109,13 +110,16 @@ function VesselControls({idx}: {idx: number}) {
             planRef.current = plan;
             const newVesselPlans = [...vesselPlans];
             newVesselPlans[idx] = plan;
-            // console.log("new plan", vesselPlans, newVesselPlans)
             setVesselPlans(newVesselPlans);
-            setOrbit(plan.orbit);
-            orbitRef.current = orbit;
+            if(!wasSetFromOrbit.current) {
+                setOrbit(plan.orbit);
+                orbitRef.current = plan.orbit;
+            } else {
+                wasSetFromOrbit.current = false;
+            }
         } else if(orbit !== orbitRef.current) {
-            // console.log("new orbit")
             orbitRef.current = orbit;
+            wasSetFromOrbit.current = true;
             const orb = orbitFromElementsAndSystem(system, orbit);
             const newPlan: IVessel = {
                 name:       plan.name,
@@ -123,7 +127,6 @@ function VesselControls({idx}: {idx: number}) {
                 maneuvers:  plan.maneuvers,
             };
             setPlan(newPlan);
-            planRef.current = newPlan;
             setVesselId(-1);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps

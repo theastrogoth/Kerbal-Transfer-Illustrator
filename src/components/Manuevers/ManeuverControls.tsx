@@ -60,9 +60,11 @@ function ManeuverControls({idx, maneuvers, setManeuvers}: ManeuverControlsState)
 
     const setUTandUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
         setUT(event.target.value);
-        const calendarDate = timeToCalendarDate(Number(event.target.value), timeSettings, 1, 1);
-        setDateField(calendarDate);
-        dateFieldRef.current = calendarDate;
+        if(Number(event.target.value) !== Number(UT)) {
+            const calendarDate = timeToCalendarDate(Number(event.target.value), timeSettings, 1, 1);
+            setDateField(calendarDate);
+            dateFieldRef.current = calendarDate;
+        }
     }
 
     useEffect(() => {
@@ -71,13 +73,21 @@ function ManeuverControls({idx, maneuvers, setManeuvers}: ManeuverControlsState)
             setDateField(timeToCalendarDate(maneuvers[idx].date, timeSettings, 1, 1));
         } else if(maneuvers[idx] !== maneuverRef.current) {
             maneuverRef.current = maneuvers[idx]
-            setPrograde(String(maneuvers[idx].prograde));
-            setNormal(String(maneuvers[idx].normal));
-            setRadial(String(maneuvers[idx].radial));
-            setUT(String(maneuvers[idx].date));
-            const newDateFields = timeToCalendarDate(maneuvers[idx].date, timeSettings, 1, 1)
-            setDateField(newDateFields);
-            dateFieldRef.current = newDateFields;
+            if(maneuvers[idx].prograde !== Number(prograde)) {
+                setPrograde(String(maneuvers[idx].prograde));
+            }
+            if(maneuvers[idx].normal !== Number(normal)) {
+                setNormal(String(maneuvers[idx].normal));
+            }
+            if(maneuvers[idx].radial !== Number(radial)) {
+                setRadial(String(maneuvers[idx].radial));
+            }
+            if(maneuvers[idx].date !== Number(UT)) {
+                setUT(String(maneuvers[idx].date));
+                const newDateFields = timeToCalendarDate(maneuvers[idx].date, timeSettings, 1, 1);
+                setDateField(newDateFields);
+                dateFieldRef.current = newDateFields;
+            }
         } else if((prograde !== progradeRef.current) || (normal !== normalRef.current) || (radial !== radialRef.current) || (UT !== UTRef.current)) {
             progradeRef.current = prograde;
             normalRef.current = normal;
@@ -85,7 +95,7 @@ function ManeuverControls({idx, maneuvers, setManeuvers}: ManeuverControlsState)
             const newManeuvers = [...maneuvers];
             newManeuvers[idx] = {prograde: Number(prograde), normal: Number(normal), radial: Number(radial), date: Number(UT)}
             setManeuvers(newManeuvers);
-            if(UT !== UTRef.current) {
+            if(Number(UT) !== Number(UTRef.current)) {
                 const calendarDate = timeToCalendarDate(Number(UT), timeSettings, 1, 1);
                 setDateField(calendarDate);
             }
@@ -120,27 +130,27 @@ function ManeuverControls({idx, maneuvers, setManeuvers}: ManeuverControlsState)
             <Collapse in={open}>
                 <Stack spacing={1.5}>
                     <RequiredNumberField
-                        id={'prograde'}
                         label='Prograde (m/s)' 
                         value={prograde}
+                        setValue={setPrograde}
                         onChange={handleChange(setPrograde)}
                         sx={{ fullWidth: true }}/>
                     <RequiredNumberField
-                        id={'normal'}
                         label='Normal (m/s)' 
                         value={normal}
+                        setValue={setNormal}
                         onChange={handleChange(setNormal)}
                         sx={{ fullWidth: true }} />
                     <RequiredNumberField
-                        id={'radial'}
                         label={'Radial (m/s)'} 
                         value={radial}
+                        setValue={setRadial}
                         onChange={handleChange(setRadial)}
                         sx={{ fullWidth: true }} />
                     <RequiredNumberField
-                        id={'UT'}
                         label={'UT (s)'} 
                         value={UT}
+                        setValue={setUT}
                         onChange={setUTandUpdate}
                         sx={{ fullWidth: true }} />
                     <DateField 
