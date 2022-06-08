@@ -126,6 +126,7 @@ export const flightPlansAtom = atom([] as FlightPlan[]);
 // system editor (atoms)
 export const sunConfigAtom = atom(sunToConfig(kspSystem.sun));
 export const bodyConfigsAtom = atom(kspSystem.orbiters.map(bd => bodyToConfig(bd, kspSystem)));
+export const editorSelectedNameAtom = atom(kspSystem.sun.name);
 
 
 function AppBody() {

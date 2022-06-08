@@ -277,3 +277,39 @@ export function bodyToConfig(body: IOrbitingBody, system: SolarSystem): Orbiting
         templateName:           body.name,
     }
 }
+
+export function bodyConfigsToTree(sunConfig: SunConfig, bodyConfigs: OrbitingBodyConfig[], refSystem: SolarSystem): TreeNode<SunConfig | OrbitingBodyConfig> {
+    const sunNode: TreeNode<SunConfig | OrbitingBodyConfig> = {
+        data:       sunConfig,
+        children:   [] as TreeNode<OrbitingBodyConfig>[],
+    }
+
+    const unassignedBodyConfigs = [...bodyConfigs];
+    const assignedNodes = new Map<string, TreeNode<SunConfig | OrbitingBodyConfig> | TreeNode<OrbitingBodyConfig>>()
+    assignedNodes.set((sunNode.data.name || sunNode.data.templateName) as string, sunNode);
+
+    let prevUnassignedLength: number;
+    while(unassignedBodyConfigs.length > 0) {
+        prevUnassignedLength = unassignedBodyConfigs.length;
+        for(let i=0; i<unassignedBodyConfigs.length; i++) {
+            const config = unassignedBodyConfigs[i];
+            const parentName = config.referenceBody || refSystem.bodyFromId((refSystem.bodyFromName(config.templateName as string) as OrbitingBody).orbiting).name
+            if(assignedNodes.has(parentName)) {
+                const configName = (config.name || config.templateName) as string;
+                const newNode: TreeNode<OrbitingBodyConfig> = {data: config,}
+                const parentNode = assignedNodes.get(parentName) as TreeNode<SunConfig | OrbitingBodyConfig>;
+                const newChildren = parentNode.children || [] as TreeNode<OrbitingBodyConfig>[];
+                newChildren.push(newNode);
+                assignedNodes.set(configName, newNode);
+                parentNode.children = newChildren;
+                unassignedBodyConfigs.splice(i, 1);
+                i -= 1;
+            }
+        }
+        // if none of the unassigned configs get added to the tree, throw an error
+        if(unassignedBodyConfigs.length === prevUnassignedLength) {
+            throw(Error("The remaining configs do not have valid reference bodies."))
+        }
+    }
+    return sunNode;
+}

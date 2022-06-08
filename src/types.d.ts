@@ -113,6 +113,11 @@ interface IMultiFlyby {
     readonly patchTimeError:        number;
 }
 
+interface TreeNode<T> {
+    children?: TreeNode<T>[];
+    data: T;
+}
+
 type Vector2 = {x: number, y: number};
 type Vector3 = {x: number, y: number, z: number};
 type Spherical = {r: number, theta: number, phi: number};
