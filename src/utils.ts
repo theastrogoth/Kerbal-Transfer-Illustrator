@@ -1,5 +1,5 @@
 import Orbit from './main/objects/orbit';
-import { OrbitingBody } from './main/objects/body';
+import CelestialBody, { OrbitingBody } from './main/objects/body';
 import SolarSystem from './main/objects/system';
 
 import Kepler from './main/libs/kepler';
@@ -239,77 +239,4 @@ export function searchInputsFromUI(system: SolarSystem, startOrbitElements: Orbi
         noInsertionBurn:        controlsOptionsState.noInsertionBurn,
         ejectionInsertionType:  controlsOptionsState.oberthManeuvers ? "fastoberth" : "fastdirect",
     }
-}
-
-export function sunToConfig(sun: ICelestialBody): SunConfig {
-    return {
-        flightGlobalsIndex:     String(sun.id),
-        name:                   String(sun.name),
-        radius:                 String(sun.radius),
-        atmosphereHeight:       sun.atmosphereHeight ? String(sun.atmosphereHeight) : undefined,
-        geeASL:                 sun.geeASL ? String(sun.geeASL) : undefined,
-        mass:                   sun.mass ? String(sun.mass) : undefined,
-        stdGravParam:           String(sun.stdGravParam),
-        templateName:           String(sun.name),
-    }
-}
-
-export function bodyToConfig(body: IOrbitingBody, system: SolarSystem): OrbitingBodyConfig {
-    return {
-        flightGlobalsIndex:     String(body.id),
-        name:                   body.name,
-        radius:                 String(body.radius),
-        maxTerrainHeight:       body.maxTerrainHeight ? String(body.maxTerrainHeight) : undefined,
-        atmosphereHeight:       body.atmosphereHeight ? String(body.atmosphereHeight) : undefined,
-        geeASL:                 body.geeASL ? String(body.geeASL) : undefined,
-        mass:                   body.mass ? String(body.mass) : undefined,
-        stdGravParam:           String(body.stdGravParam),
-        soi:                    String(body.soi),
-        semiMajorAxis:          String(body.orbit.semiMajorAxis),
-        eccentricity:           String(body.orbit.eccentricity),
-        inclination:            String(body.orbit.inclination),
-        argOfPeriapsis:         String(body.orbit.argOfPeriapsis),
-        ascNodeLongitude:       String(body.orbit.ascNodeLongitude),
-        meanAnomalyEpoch:       String(body.orbit.meanAnomalyEpoch),
-        epoch:                  String(body.orbit.epoch),
-        color:                  (new Color(body.color)).toString(),
-        referenceBody:          system.bodyFromId(body.orbiting).name,
-        templateName:           body.name,
-    }
-}
-
-export function bodyConfigsToTree(sunConfig: SunConfig, bodyConfigs: OrbitingBodyConfig[], refSystem: SolarSystem): TreeNode<SunConfig | OrbitingBodyConfig> {
-    const sunNode: TreeNode<SunConfig | OrbitingBodyConfig> = {
-        data:       sunConfig,
-        children:   [] as TreeNode<OrbitingBodyConfig>[],
-    }
-
-    const unassignedBodyConfigs = [...bodyConfigs];
-    const assignedNodes = new Map<string, TreeNode<SunConfig | OrbitingBodyConfig> | TreeNode<OrbitingBodyConfig>>()
-    assignedNodes.set((sunNode.data.name || sunNode.data.templateName) as string, sunNode);
-
-    let prevUnassignedLength: number;
-    while(unassignedBodyConfigs.length > 0) {
-        prevUnassignedLength = unassignedBodyConfigs.length;
-        for(let i=0; i<unassignedBodyConfigs.length; i++) {
-            const config = unassignedBodyConfigs[i];
-            const parentName = config.referenceBody || refSystem.bodyFromId((refSystem.bodyFromName(config.templateName as string) as OrbitingBody).orbiting).name
-            if(assignedNodes.has(parentName)) {
-                const configName = (config.name || config.templateName) as string;
-                const newNode: TreeNode<OrbitingBodyConfig> = {data: config,}
-                const parentNode = assignedNodes.get(parentName) as TreeNode<SunConfig | OrbitingBodyConfig>;
-                const newChildren = parentNode.children || [] as TreeNode<OrbitingBodyConfig>[];
-                newChildren.push(newNode);
-                assignedNodes.set(configName, newNode);
-                parentNode.children = newChildren;
-                unassignedBodyConfigs.splice(i, 1);
-                i -= 1;
-            }
-        }
-        // if none of the unassigned configs get added to the tree, throw an error
-        if(unassignedBodyConfigs.length === prevUnassignedLength) {
-            throw(Error("The remaining configs do not have valid reference bodies."))
-        }
-    }
-    return sunNode;
 }

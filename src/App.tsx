@@ -3,7 +3,10 @@ import {Routes, Route } from 'react-router-dom';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme } from '@mui/material/styles';
 import { PaletteMode } from '@mui/material';
+import { ThemeProvider } from '@emotion/react';
 import './App.css';
+
+import { EvolutionPlotData } from './components/Flyby/EvolutionPlot';
 
 import TransferApp, { blankTransfer } from './pages/Transfer';
 import FlybyApp, { blankMultiFlyby } from './pages/Flyby';
@@ -18,9 +21,10 @@ import SolarSystem from './main/objects/system';
 import Vessel from './main/objects/vessel';
 import loadSystemData from './main/utilities/loadSystem';
 
-import { bodyToConfig, defaultManeuverComponents, defaultOrbit, makeDateFields, sunToConfig } from './utils';
-import { EvolutionPlotData } from './components/Flyby/EvolutionPlot';
-import { ThemeProvider } from '@emotion/react';
+import { defaultManeuverComponents, defaultOrbit, makeDateFields } from './utils';
+import { bodyToConfig, sunToConfig } from './main/utilities/loadPlanetConfig';
+
+
 
 import { PrimitiveAtom, atom, useAtom } from 'jotai';
 

@@ -2,8 +2,8 @@ import { TWO_PI, HALF_PI, X_DIR, Z_DIR, copysign, acosClamped, wrapAngle, vec3, 
 import { newtonRootSolve } from "./optim"
 
 namespace Kepler {
-    const gravitySeaLevelConstant = 9.80665;
-    const newtonGravityConstant = 6.7430e-11;
+    export const gravitySeaLevelConstant = 9.80665;
+    export const newtonGravityConstant = 6.7430e-11;
 
     export function orbitFromElements(elements: KeplerElements, attractor: ICelestialBody): IOrbit {
         const p = elements.semiMajorAxis * (1 - elements.eccentricity * elements.eccentricity);

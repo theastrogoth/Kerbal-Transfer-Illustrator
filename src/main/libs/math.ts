@@ -260,3 +260,21 @@ export function calendarDateToDurationString(cd: CalendarDate): String {
     
     return string;
 }
+
+/* Color */
+function standardizeColor(str: string){
+    var ctx = document.createElement('canvas').getContext('2d');
+    ctx!.fillStyle = str;
+    ctx!.fillRect(0, 0, 1, 1);
+    return ctx!.getImageData(0, 0, 1, 1).data;
+}
+
+export function colorFromString(str: string): IColor {
+    const rgbvals = standardizeColor(str);
+    const color: IColor = {
+        r:      rgbvals[0],
+        g:      rgbvals[1],
+        b:      rgbvals[2],
+    };
+    return color;
+}
