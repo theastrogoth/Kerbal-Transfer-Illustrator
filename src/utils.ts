@@ -7,6 +7,7 @@ import FlybyCalcs from './main/libs/flybycalcs';
 
 import { ControlsOptionsState } from './components/ControlsOptions';
 import { clamp, calendarDateToTime } from './main/libs/math';
+import Color from './main/objects/color';
 
 // for re-used components
 export function dateFieldIsEmpty(calendarDate: CalendarDate): boolean {
@@ -237,5 +238,42 @@ export function searchInputsFromUI(system: SolarSystem, startOrbitElements: Orbi
         matchEndMo:             controlsOptionsState.matchEndMo,
         noInsertionBurn:        controlsOptionsState.noInsertionBurn,
         ejectionInsertionType:  controlsOptionsState.oberthManeuvers ? "fastoberth" : "fastdirect",
+    }
+}
+
+export function sunToConfig(sun: ICelestialBody): SunConfig {
+    return {
+        flightGlobalsIndex:     String(sun.id),
+        name:                   String(sun.name),
+        radius:                 String(sun.radius),
+        atmosphereHeight:       sun.atmosphereHeight ? String(sun.atmosphereHeight) : undefined,
+        geeASL:                 sun.geeASL ? String(sun.geeASL) : undefined,
+        mass:                   sun.mass ? String(sun.mass) : undefined,
+        stdGravParam:           String(sun.stdGravParam),
+        templateName:           String(sun.name),
+    }
+}
+
+export function bodyToConfig(body: IOrbitingBody, system: SolarSystem): OrbitingBodyConfig {
+    return {
+        flightGlobalsIndex:     String(body.id),
+        name:                   body.name,
+        radius:                 String(body.radius),
+        maxTerrainHeight:       body.maxTerrainHeight ? String(body.maxTerrainHeight) : undefined,
+        atmosphereHeight:       body.atmosphereHeight ? String(body.atmosphereHeight) : undefined,
+        geeASL:                 body.geeASL ? String(body.geeASL) : undefined,
+        mass:                   body.mass ? String(body.mass) : undefined,
+        stdGravParam:           String(body.stdGravParam),
+        soi:                    String(body.soi),
+        semiMajorAxis:          String(body.orbit.semiMajorAxis),
+        eccentricity:           String(body.orbit.eccentricity),
+        inclination:            String(body.orbit.inclination),
+        argOfPeriapsis:         String(body.orbit.argOfPeriapsis),
+        ascNodeLongitude:       String(body.orbit.ascNodeLongitude),
+        meanAnomalyEpoch:       String(body.orbit.meanAnomalyEpoch),
+        epoch:                  String(body.orbit.epoch),
+        color:                  (new Color(body.color)).toString(),
+        referenceBody:          system.bodyFromId(body.orbiting).name,
+        templateName:           body.name,
     }
 }

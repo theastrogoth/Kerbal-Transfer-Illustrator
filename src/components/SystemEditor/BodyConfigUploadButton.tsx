@@ -1,14 +1,14 @@
 import React from "react";
 import Button from "@mui/material/Button";
-import Vessel from "../../main/objects/vessel";
-import saveFileToVessels from "../../main/utilities/loadSaveData";
+import fileToBodyConfig from "../../main/utilities/loadPlanetConfig";
 import UploadFileOutlined from "@mui/icons-material/UploadFileOutlined";
 
-function BodyConfigUploadButton({system, setVessels}: {system: ISolarSystem, setVessels: React.Dispatch<React.SetStateAction<Vessel[]>>}) {
+function BodyConfigUploadButton({editorBodies, setEditorBodies}: {editorBodies: OrbitingBodyConfig[], setEditorBodies: React.Dispatch<React.SetStateAction<OrbitingBodyConfig[]>>}) {
   
   const handleFile = (e: any) => {
     const content = e.target.result;
-    setVessels(saveFileToVessels(content, system));
+    const newEditorBodies = [...editorBodies, fileToBodyConfig(content)];
+    setEditorBodies(newEditorBodies);
     console.log("...Body loaded from config.")
   }
   
@@ -25,8 +25,11 @@ function BodyConfigUploadButton({system, setVessels}: {system: ISolarSystem, set
       accept=".cfg"
       style={{ display: 'none' }}
       id="uploaded-body-config"
-      // @ts-ignore
-      onChange={e => handleChangeFile(e.target.files[0])}
+      onChange={e => {
+        for(let i=0; i<e.target.files!.length; i++) {
+          handleChangeFile(e.target.files![i])
+        }
+      }}
       multiple={true}
     />
     <label htmlFor="uploaded-body-config">
@@ -35,7 +38,7 @@ function BodyConfigUploadButton({system, setVessels}: {system: ISolarSystem, set
               component="span" 
               startIcon={<UploadFileOutlined />}
       >
-        Upload Save File
+        Upload Kopernicus Configs
       </Button>
     </label>
   </>)

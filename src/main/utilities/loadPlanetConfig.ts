@@ -19,7 +19,7 @@ function fileToSunConfig(configFile: string): SunConfig {
     return bodyData;
 }
 
-function fileToBodyConfig(configFile: string): OrbitingBodyConfig {
+export function fileToBodyConfig(configFile: string): OrbitingBodyConfig {
     const configData: any = parseConfigNodes(configFile);
     const topKey = [...configData.keys()][0];
 
@@ -77,3 +77,5 @@ function configToSun(config: OrbitingBodyConfig, templateSystem: SolarSystem) {
 function configToOrbitingBodyInputs(config: OrbitingBodyConfig, templateSystem: SolarSystem) {
 
 }
+
+export default fileToBodyConfig;

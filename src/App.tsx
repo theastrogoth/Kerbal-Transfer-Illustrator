@@ -18,14 +18,14 @@ import SolarSystem from './main/objects/system';
 import Vessel from './main/objects/vessel';
 import loadSystemData from './main/utilities/loadSystem';
 
-import { defaultManeuverComponents, defaultOrbit, makeDateFields } from './utils';
+import { bodyToConfig, defaultManeuverComponents, defaultOrbit, makeDateFields, sunToConfig } from './utils';
 import { EvolutionPlotData } from './components/Flyby/EvolutionPlot';
 import { ThemeProvider } from '@emotion/react';
 
 import { PrimitiveAtom, atom, useAtom } from 'jotai';
 
 // prepare popular systems
-const kspSystem = loadSystemData(kspbodies);
+export const kspSystem = loadSystemData(kspbodies);
 const opmSystem = loadSystemData(opmbodies);
 const rssSystem = loadSystemData(rssbodies);
 
@@ -122,6 +122,11 @@ export const multiFlybyControlsOptionsAtom = atom({
 // flight planner state (atoms)
 export const vesselPlansAtom = atom([] as IVessel[]);
 export const flightPlansAtom = atom([] as FlightPlan[]);
+
+// system editor (atoms)
+export const sunConfigAtom = atom(sunToConfig(kspSystem.sun));
+export const bodyConfigsAtom = atom(kspSystem.orbiters.map(bd => bodyToConfig(bd, kspSystem)));
+
 
 function AppBody() {
   const [mode, setMode] = useAtom(lightModeAtom);

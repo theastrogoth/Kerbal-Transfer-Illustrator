@@ -195,6 +195,7 @@ type OrbitingBodyConfig = {
     readonly flightGlobalsIndex?:   string;
     readonly name?:                 string;
     readonly radius?:               string;
+    readonly maxTerrainHeight?:     string;
     readonly atmosphereHeight?:     string;
     readonly geeASL?:               string;
     readonly mass?:                 string;

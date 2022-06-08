@@ -6,7 +6,7 @@ import Button from '@mui/material/Button';
 type NumberFieldProps = {
     label:      string,
     value:      string,
-    setValue:   React.Dispatch<React.SetStateAction<string>>,
+    setValue:   React.Dispatch<React.SetStateAction<string>> | Function,
     step?:      number,
     max?:       number,
     min?:       number,
@@ -17,7 +17,7 @@ type NumberFieldProps = {
 
 type IncrementButtonProps = {
     value:      string,
-    setValue:   React.Dispatch<React.SetStateAction<string>>,
+    setValue:   React.Dispatch<React.SetStateAction<string>> | Function,
     step?:      number,
     text?:      string,
     style?:     any,
