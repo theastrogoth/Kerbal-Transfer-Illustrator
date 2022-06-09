@@ -199,7 +199,10 @@ function flightGlobalsBodiesIndexes(bodiesList: (SunConfig | OrbitingBodyConfig)
         if(originalIdxs.find(idx => idx === i) !== undefined) {
             flightGlobalsIdxs.push(usedFlightGlobalsIdxs[i])
         } else {
-            while(usedFlightGlobalsIdxs.find(fgi => fgi === nextIdx) !== undefined) {
+            const indexIsDuplicate = (index: number) => {
+                return usedFlightGlobalsIdxs.find(existing => existing === index) !== undefined;
+            }
+            while(indexIsDuplicate(nextIdx)) {
                 nextIdx += 1;
             }
             flightGlobalsIdxs.push(nextIdx);

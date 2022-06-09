@@ -12,7 +12,7 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
-import ClearIcon from '@mui/icons-material/Clear';
+// import ClearIcon from '@mui/icons-material/Clear';
 import Divider from '@mui/material/Divider';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
@@ -55,6 +55,8 @@ function BodyConfigControls() {
     const [bodyOptions, setBodyOptions] = useState(createBodyItems(bodyConfigs[0], bodyConfigs.slice(1)));
     const templateOptions = useRef(createTemplateItems(kspSystem)).current;
 
+    const [color, setColor] = useState(bodyConfigs[idx].color || '');
+
     const [flightGlobalsIndex, setFlightGlobalsIndex] = useState(bodyConfigs[idx].flightGlobalsIndex || '');
 
     const [radius, setRadius] = useState(bodyConfigs[idx].radius || '');
@@ -96,9 +98,17 @@ function BodyConfigControls() {
         let newName = event.target.value
         const existingNames = bodyConfigs.map(c => c.name || c.templateName as string);
         let counter = 1;
-        while(existingNames.find(name => name === newName) !== undefined) {
+        
+        const newNameIsDuplicate = (name: string) => {
+            return existingNames.find(existing => existing === name) !== undefined;
+        }
+
+        while(newNameIsDuplicate(newName)) {
             newName = event.target.value + "("+String(counter)+")"
             counter++;
+            if(counter > 1000) {
+                break
+            }
         }
         const originalName = bodyConfigs[idx].name || bodyConfigs[idx].templateName as string;
         const newConfigs = [...bodyConfigs];
@@ -122,8 +132,13 @@ function BodyConfigControls() {
     }
 
     const handleColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const color = new Color(colorFromString(event.target.value));
-        setValue("color")(color.toString());
+        setColor(event.target.value);
+        if(event.target.value !== ''){
+            const color = new Color(colorFromString(event.target.value));
+            setValue("color")(color.toString());
+        } else {
+            setValue("color")('');
+        }
     }
 
     // update displayed inputs from selectedName change
@@ -151,6 +166,7 @@ function BodyConfigControls() {
             setMeanAnomalyEpoch((bodyConfigs[newIdx] as OrbitingBodyConfig).meanAnomalyEpoch || '');
             setEpoch((bodyConfigs[newIdx] as OrbitingBodyConfig).epoch || '');
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedName])
 
     // update config from input changes
@@ -159,78 +175,93 @@ function BodyConfigControls() {
         if(!isNaN(Number(flightGlobalsIndex)) || flightGlobalsIndex === '') {
             setValue("flightGlobalsIndex")(flightGlobalsIndex);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [flightGlobalsIndex])
 
     useEffect(() => {
         if(!isNaN(Number(radius)) || radius === '') {
             setValue("radius")(radius);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [radius])
     useEffect(() => {
         if(!isNaN(Number(maxTerrainHeight)) || maxTerrainHeight === '') {
             setValue("maxTerrainHeight")(maxTerrainHeight);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [maxTerrainHeight])
     useEffect(() => {
         if(!isNaN(Number(atmosphereHeight)) || atmosphereHeight === '') {
             setValue("atmosphereHeight")(atmosphereHeight);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [atmosphereHeight])
     useEffect(() => {
         if(!isNaN(Number(geeASL)) || geeASL === '') {
             setValue("geeASL")(geeASL);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [geeASL])
     useEffect(() => {
         if(!isNaN(Number(stdGravParam)) || stdGravParam === '') {
             setValue("stdGravParam")(stdGravParam);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [stdGravParam])
     useEffect(() => {
         if(!isNaN(Number(mass)) || mass === '') {
             setValue("mass")(mass);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mass])
     useEffect(() => {
         if(!isNaN(Number(soi)) || soi === '') {
             setValue("soi")(soi);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [soi])
 
     useEffect(() => {
         if(!isNaN(Number(semiMajorAxis)) || semiMajorAxis === '') {
             setValue("semiMajorAxis")(semiMajorAxis);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [semiMajorAxis])
     useEffect(() => {
         if(!isNaN(Number(eccentricity)) || eccentricity === '') {
             setValue("eccentricity")(eccentricity);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [eccentricity])
     useEffect(() => {
         if(!isNaN(Number(inclination)) || inclination === '') {
             setValue("inclination")(inclination);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inclination])
     useEffect(() => {
         if(!isNaN(Number(argOfPeriapsis)) || argOfPeriapsis === '') {
             setValue("argOfPeriapsis")(argOfPeriapsis);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [argOfPeriapsis])
     useEffect(() => {
         if(!isNaN(Number(ascNodeLongitude)) || ascNodeLongitude === '') {
             setValue("ascNodeLongitude")(ascNodeLongitude);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ascNodeLongitude])
     useEffect(() => {
         if(!isNaN(Number(meanAnomalyEpoch)) || meanAnomalyEpoch === '') {
             setValue("meanAnomalyEpoch")(meanAnomalyEpoch);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [meanAnomalyEpoch])
     useEffect(() => {
         if(!isNaN(Number(epoch)) || epoch === '') {
             setValue("epoch")(epoch);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [epoch])
 
     return (
@@ -261,8 +292,8 @@ function BodyConfigControls() {
                 <TextField 
                     label='Color'
                     spellCheck={false}
-                    value={bodyConfigs[idx].color || ''}
-                    onChange={handleChange("color")}
+                    value={color}
+                    onChange={handleColorChange}
                     // @ts-ignore
                     inputProps={{ style: {color: bodyConfigs[idx].color ? hexFromColorString(bodyConfigs[idx].color) : 'primary'} }}
                 />

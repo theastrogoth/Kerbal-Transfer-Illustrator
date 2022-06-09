@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
 import Stack from '@mui/material/Stack';
@@ -18,8 +18,7 @@ import BodyConfigControls from "../components/SystemEditor/BodyConfigControls";
 import SolarSystem from "../main/objects/system";
 
 import { useAtom } from "jotai";
-import { kspSystem, customSystemAtom, configTreeAtom, timeSettingsAtom } from "../App";
-import { configsTreeToSystem } from "../main/utilities/loadPlanetConfig";
+import { customSystemAtom, configTreeAtom, timeSettingsAtom } from "../App";
 import OrbitDisplay from "../components/OrbitDisplay";
 import Draw from "../main/libs/draw";
 
@@ -47,13 +46,15 @@ function SolarSystemAppContent() {
   const [centralBody, setCentralBody] = useState(customSystem.sun);
   const [showHelp, setShowHelp] = useState(false);
 
+  const centralBodyNameRef = useRef(centralBodyName);
+
   useEffect(() => {
     systemLoaderWorker.onmessage = (event: MessageEvent<ISolarSystem>) => {
         if (event && event.data) {
           const newSystem = new SolarSystem(event.data.sun, event.data.orbiters);
           setCustomSystem(newSystem);
           setBodyOptions(createBodyItems(newSystem));
-          let newCentralBody = newSystem.bodies.find(bd => bd.name === centralBodyName);
+          let newCentralBody = newSystem.bodies.find(bd => bd.name === centralBodyNameRef.current);
           if(!newCentralBody) {
             newCentralBody = newSystem.bodyFromId(centralBody.id)
           }
@@ -70,24 +71,11 @@ function SolarSystemAppContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [configTree]);
 
-  // useEffect(() => {
-  //   const newSystem = configsTreeToSystem(configTree, kspSystem);
-  //   setCustomSystem(newSystem)
-  // }, [configTree])
-
-  // useEffect(() => {
-  //   setBodyOptions(createBodyItems(customSystem));
-  //   let newCentralBody = customSystem.bodies.find(bd => bd.name === centralBodyName);
-  //   if(!newCentralBody) {
-  //     newCentralBody = customSystem.bodyFromId(centralBody.id)
-  //     setCentralBodyName(newCentralBody.name);
-  //   }
-  //   setCentralBody(newCentralBody);
-  // }, [customSystem])
-
   useEffect(() => {
+    centralBodyNameRef.current = centralBodyName;
     const newCentralBody = customSystem.bodyFromName(centralBodyName);
     setCentralBody(newCentralBody);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [centralBodyName])
 
   ///// App Body /////
