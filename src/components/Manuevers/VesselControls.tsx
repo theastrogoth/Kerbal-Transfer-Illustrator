@@ -142,6 +142,7 @@ function VesselControls({idx}: {idx: number}) {
             <TextField
                 id={'name-'+String(idx)}
                 label='Name'
+                spellCheck={false}
                 value={plan.name}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => setName(event.target.value)}
                 sx={{ fullWidth: "true" }} />      

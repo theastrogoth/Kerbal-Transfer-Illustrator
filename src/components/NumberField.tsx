@@ -105,6 +105,7 @@ const RequiredNumberField = React.memo(function WrappedRequiredNumberField({labe
         />
         <TextField
             type="text"
+            spellCheck={false}
             label={label}
             value={value}
             InputLabelProps={{ shrink: true }}
@@ -138,6 +139,7 @@ export const NumberField = React.memo(function WrappedNumberField({label, value,
             />
             <TextField
                 type="text"
+                spellCheck={false}
                 label={label}
                 value={value}
                 InputLabelProps={{ shrink: true }}

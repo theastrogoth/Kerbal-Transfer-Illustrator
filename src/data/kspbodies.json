@@ -3,6 +3,7 @@
     "id": 0,
     "name": "Sun",
     "radius": 261600000,
+    "atmosphereHeight": 600000,
     "mass": 1.7565459e+28,
     "stdGravParam": 1172332800000000000,
     "soi": 1e+9999,

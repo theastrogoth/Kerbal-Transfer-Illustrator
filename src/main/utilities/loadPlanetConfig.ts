@@ -3,7 +3,7 @@ import { OrbitingBody } from "../objects/body";
 import parseConfigNodes from "./parseConfigNodes";
 import Color from "../objects/color";
 import Kepler from "../libs/kepler";
-import { colorFromString } from "../libs/math";
+import { colorFromRGBA } from "../libs/math";
 import loadSystemData from "./loadSystem";
 
 export function fileToSunConfig(configFile: string): SunConfig {
@@ -11,7 +11,6 @@ export function fileToSunConfig(configFile: string): SunConfig {
     const topKey = [...configData.keys()][0];
 
     const name = configData[topKey].Body.name;
-    // name = configData[topKey].cbNameLater || name;
 
     const bodyData: SunConfig = {
         name,
@@ -84,7 +83,8 @@ export function sunToConfig(sun: ICelestialBody): SunConfig {
         geeASL:                 sun.geeASL ? String(sun.geeASL) : undefined,
         mass:                   sun.mass ? String(sun.mass) : undefined,
         stdGravParam:           String(sun.stdGravParam),
-        templateName:           String(sun.name),
+        color:                  (new Color(sun.color)).toString(),
+        templateName:           sun.name,
     }
 }
 
@@ -196,10 +196,10 @@ function flightGlobalsBodiesIndexes(bodiesList: (SunConfig | OrbitingBodyConfig)
     const flightGlobalsIdxs: number[] = [0];
     let nextIdx = 1;
     for(let i=1; i<bodiesList.length; i++) {
-        if(i in originalIdxs) {
+        if(originalIdxs.find(idx => idx === i) !== undefined) {
             flightGlobalsIdxs.push(usedFlightGlobalsIdxs[i])
         } else {
-            while(nextIdx in usedFlightGlobalsIdxs) {
+            while(usedFlightGlobalsIdxs.find(fgi => fgi === nextIdx) !== undefined) {
                 nextIdx += 1;
             }
             flightGlobalsIdxs.push(nextIdx);
@@ -211,6 +211,10 @@ function flightGlobalsBodiesIndexes(bodiesList: (SunConfig | OrbitingBodyConfig)
                                  .map((fgiidx) => fgiidx.idx);
 
     return ids;
+}
+
+export function configReferenceBodyName(config: OrbitingBodyConfig, refSystem: SolarSystem): string {
+    return config.referenceBody || refSystem.bodyFromId((refSystem.bodyFromName(config.templateName as string) as OrbitingBody).orbiting).name;
 }
 
 function sunConfigToSystemInputs(data: SunConfig, refSystem: SolarSystem): ICelestialBody {
@@ -238,27 +242,36 @@ function sunConfigToSystemInputs(data: SunConfig, refSystem: SolarSystem): ICele
         geeASL:             allGravityMissing ? template!.geeASL : (data.geeASL ? Number(data.geeASL) : undefined),
         stdGravParam:       allGravityMissing ? template!.stdGravParam : (data.stdGravParam ? Number(data.stdGravParam) : stdGravParam),
         soi:                Infinity,
-        color:              {
-                                r: 254, 
-                                g: 198,
-                                b: 20,
-                            },
+        color:              data.color ? colorFromRGBA(data.color) : {r: 254, g: 198, b: 20} as IColor,
     }
     return sun;
 }
 
 function bodyConfigToSystemInputs(data: OrbitingBodyConfig, id: number, parentId: number, refSystem: SolarSystem): OrbitingBodyInputs {
     const template = data.templateName ? refSystem.bodyFromName(data.templateName) as OrbitingBody : undefined;
+    const allGravityMissing = (data.mass === undefined) && (data.stdGravParam === undefined) && (data.geeASL === undefined);
+
+    // we need to have the stdGravParam ready here
+    const radius = data.radius ? Number(data.radius) : template!.radius;
+    let stdGravParam: number = 1;
+    if(!allGravityMissing && (data.stdGravParam === undefined)) {
+        if(data.geeASL !== undefined) {
+            stdGravParam = Number(data.geeASL) * radius * radius * Kepler.gravitySeaLevelConstant;
+        } else {
+            stdGravParam = Number(data.mass) * Kepler.newtonGravityConstant;
+        }
+    }
+
     const body: OrbitingBodyInputs = {
         id,
         name:               data.name || template!.name,
         radius:             data.radius ? Number(data.radius) : template!.radius,
         atmosphereHeight:   data.atmosphereHeight ? Number(data.atmosphereHeight) : template!.atmosphereHeight,
-        mass:               data.mass ? Number(data.mass) : template!.mass,
-        geeASL:             data.geeASL ? Number(data.geeASL) : template!.geeASL,
-        stdGravParam:       data.stdGravParam ? Number(data.stdGravParam) : template!.stdGravParam,
-        soi:                data.soi ? Number(data.soi) : template!.soi,
-        color:              data.color ? colorFromString(data.color) : {r: 255, g: 255, b:255} as IColor,
+        mass:               allGravityMissing ? template!.mass : (data.mass ? Number(data.mass) : undefined),
+        geeASL:             allGravityMissing ? template!.geeASL : (data.geeASL ? Number(data.geeASL) : undefined),
+        stdGravParam:       allGravityMissing ? template!.stdGravParam : (data.stdGravParam ? Number(data.stdGravParam) : stdGravParam),
+        soi:                data.soi ? Number(data.soi) : undefined,
+        color:              data.color ? colorFromRGBA(data.color) : {r: 200, g: 200, b:200} as IColor,
         orbit:              {
                                 semiMajorAxis:      data.semiMajorAxis ? Number(data.semiMajorAxis) : template!.orbit.semiMajorAxis,
                                 eccentricity:       data.eccentricity ? Number(data.eccentricity) : template!.orbit.eccentricity,
@@ -283,11 +296,11 @@ export function configsTreeToSystem(tree: TreeNode<SunConfig | OrbitingBodyConfi
     const parentIds = new Map<string, number>();
     parentIds.set(sun.name, sun.id);
     const orbitingBodies: OrbitingBodyInputs[] = [];
-    for(let i=0; i<bodyConfigsList.length; i++) {
+    for(let i=1; i<bodyConfigsList.length; i++) {
         const config = bodyConfigsList[i] as OrbitingBodyConfig;
         parentIds.set(config.name || config.templateName as string, ids[i])
 
-        const parentName = config.referenceBody || refSystem.bodyFromId((refSystem.bodyFromName(config.templateName as string) as OrbitingBody).orbiting).name;
+        const parentName = configReferenceBodyName(config, refSystem);
         const parentId = parentIds.get(parentName) as number;
         const inputs = bodyConfigToSystemInputs(config, ids[i], parentId, refSystem);
         orbitingBodies.push(inputs);

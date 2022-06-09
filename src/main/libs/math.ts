@@ -262,19 +262,35 @@ export function calendarDateToDurationString(cd: CalendarDate): String {
 }
 
 /* Color */
-function standardizeColor(str: string){
+function rgbFromColorString(str: string){
     var ctx = document.createElement('canvas').getContext('2d');
     ctx!.fillStyle = str;
     ctx!.fillRect(0, 0, 1, 1);
     return ctx!.getImageData(0, 0, 1, 1).data;
 }
 
+export function hexFromColorString(str: string){
+    var ctx = document.createElement('canvas').getContext('2d');
+    ctx!.fillStyle = str;
+    return ctx!.fillStyle;
+}
+
 export function colorFromString(str: string): IColor {
-    const rgbvals = standardizeColor(str);
+    const rgbvals = rgbFromColorString(str);
     const color: IColor = {
         r:      rgbvals[0],
         g:      rgbvals[1],
         b:      rgbvals[2],
     };
     return color;
+}
+
+export function colorFromRGBA(rgba: string): IColor {
+    const rgbaFragments = rgba.slice(5,-1).split(',');
+    return {
+        r: Number(rgbaFragments[0]),
+        g: Number(rgbaFragments[1]),
+        b: Number(rgbaFragments[2]),
+        a: Number(rgbaFragments[3]),
+    }
 }

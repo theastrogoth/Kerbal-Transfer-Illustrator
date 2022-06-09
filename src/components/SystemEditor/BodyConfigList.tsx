@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -13,8 +15,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
 import { useAtom } from "jotai";
-import { kspSystem, sunConfigAtom, bodyConfigsAtom, editorSelectedNameAtom } from "../../App";
-import { bodyConfigsToTree } from "../../main/utilities/loadPlanetConfig"; 
+import { editorSelectedNameAtom, configTreeAtom } from "../../App";
 
 function BodyConfigListItem({node, depth = 0}: {node: TreeNode<SunConfig | OrbitingBodyConfig>, depth?: number}) {
     const leaf = node.children === undefined;
@@ -31,17 +32,21 @@ function BodyConfigListItem({node, depth = 0}: {node: TreeNode<SunConfig | Orbit
 
     return (
         <>
-            <ListItemButton onClick={handleNodeClick} >
-                <ListItemIcon>
-                    {depth === 0 ? <Brightness7Icon fontSize="large"/> : depth === 1 ? <PublicIcon fontSize="medium" /> : <DarkModeIcon fontSize="small" /> }
-                </ListItemIcon>
-                <ListItemText primary={node.data.name || node.data.templateName} />
+            <Stack direction="row">
+                <ListItemButton onClick={handleNodeClick} >
+                    <ListItemIcon>
+                        {depth === 0 ? <Brightness7Icon fontSize="large"/> : depth === 1 ? <PublicIcon fontSize="medium" /> : <DarkModeIcon fontSize="small" /> }
+                    </ListItemIcon>
+                    <ListItemText primary={node.data.name || node.data.templateName} />
+                </ListItemButton>
                 {!leaf && 
-                    <IconButton onClick={handleExpandClick}>
-                        {open ? <ExpandLess /> : <ExpandMore />}
-                    </IconButton>
+
+                        <IconButton onClick={handleExpandClick} sx={{borderRadius: 0}}>
+                            {open ? <ExpandLess /> : <ExpandMore />}
+                        </IconButton>
+
                 }
-            </ListItemButton>
+            </Stack>
             {!leaf && 
                 <Collapse in={open} timeout="auto">
                     <List component="div" sx={{ pl: 3 }} >
@@ -54,15 +59,7 @@ function BodyConfigListItem({node, depth = 0}: {node: TreeNode<SunConfig | Orbit
 }
 
 function BodyConfigList() {
-    const [sunConfig] = useAtom(sunConfigAtom);
-    const [bodyConfigs] = useAtom(bodyConfigsAtom);
-
-    const [configTree, setConfigTree] = useState(bodyConfigsToTree(sunConfig, bodyConfigs, kspSystem));
-    console.log(configTree)
-
-    useEffect(() => {
-        setConfigTree(bodyConfigsToTree(sunConfig, bodyConfigs, kspSystem))
-    }, [sunConfig, bodyConfigs])
+    const [configTree] = useAtom(configTreeAtom);
 
     return(
         <List>

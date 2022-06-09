@@ -22,7 +22,7 @@ import Vessel from './main/objects/vessel';
 import loadSystemData from './main/utilities/loadSystem';
 
 import { defaultManeuverComponents, defaultOrbit, makeDateFields } from './utils';
-import { bodyToConfig, sunToConfig } from './main/utilities/loadPlanetConfig';
+import { bodyConfigsToTree, bodyToConfig, sunToConfig } from './main/utilities/loadPlanetConfig';
 
 
 
@@ -128,10 +128,16 @@ export const vesselPlansAtom = atom([] as IVessel[]);
 export const flightPlansAtom = atom([] as FlightPlan[]);
 
 // system editor (atoms)
-export const sunConfigAtom = atom(sunToConfig(kspSystem.sun));
-export const bodyConfigsAtom = atom(kspSystem.orbiters.map(bd => bodyToConfig(bd, kspSystem)));
+const defaultBodyConfigs = [sunToConfig(kspSystem.sun), ...kspSystem.orbiters.map(bd => bodyToConfig(bd, kspSystem))]
+export const bodyConfigsAtom = atom<(SunConfig | OrbitingBodyConfig)[]>(defaultBodyConfigs);
 export const editorSelectedNameAtom = atom(kspSystem.sun.name);
-
+export const configTreeAtom = atom<TreeNode<SunConfig | OrbitingBodyConfig>>(
+  (get) => {
+    const configs = get(bodyConfigsAtom);
+    const tree = bodyConfigsToTree(configs[0], configs.slice(1), kspSystem);
+    return tree;
+  }
+);
 
 function AppBody() {
   const [mode, setMode] = useAtom(lightModeAtom);

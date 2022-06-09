@@ -193,6 +193,7 @@ type SunConfig = {
     readonly geeASL?:               string;
     readonly mass?:                 string;
     readonly stdGravParam?:         string;
+    readonly color?:                string;
     readonly templateName?:         string;
 }
 
