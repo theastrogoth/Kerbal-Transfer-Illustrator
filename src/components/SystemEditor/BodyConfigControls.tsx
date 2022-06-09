@@ -148,6 +148,9 @@ function BodyConfigControls() {
             const newIdx = bodyConfigs.findIndex(config => config.name ? (config.name === selectedName) : (config.templateName === selectedName))
             setIdx(newIdx);
             setBodyOptions(createBodyItems(bodyConfigs[0], bodyConfigs.slice(1)));
+
+            setColor(bodyConfigs[newIdx].color || '');
+
             setFlightGlobalsIndex(bodyConfigs[newIdx].flightGlobalsIndex || '');
         
             setRadius(bodyConfigs[newIdx].radius || '');
