@@ -1,5 +1,5 @@
 import Orbit from './main/objects/orbit';
-import CelestialBody, { OrbitingBody } from './main/objects/body';
+import { OrbitingBody } from './main/objects/body';
 import SolarSystem from './main/objects/system';
 
 import Kepler from './main/libs/kepler';
@@ -7,7 +7,6 @@ import FlybyCalcs from './main/libs/flybycalcs';
 
 import { ControlsOptionsState } from './components/ControlsOptions';
 import { clamp, calendarDateToTime } from './main/libs/math';
-import Color from './main/objects/color';
 
 // for re-used components
 export function dateFieldIsEmpty(calendarDate: CalendarDate): boolean {
