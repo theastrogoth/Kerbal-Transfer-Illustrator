@@ -17,13 +17,13 @@ import Box from '@mui/system/Box';
 import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import Button from '@mui/material/Button';
+import LoadingButton from '@mui/lab/LoadingButton';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Collapse from '@mui/material/Collapse';
-import CircularProgress from "@mui/material/CircularProgress";
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import Fade from '@mui/material/Fade';
 
 import { useAtom } from 'jotai';
@@ -164,23 +164,16 @@ function TransferAppContent() {
               }}
             >
                 <Box textAlign='center' sx={{ my: 0}}>
-                  <Button 
+                  <LoadingButton 
                       variant="contained" 
-                      disabled={porkCalculating}
+                      loadingPosition="end"
+                      endIcon={<RocketLaunchIcon />}
+                      loading={porkCalculating}
                       onClick={() => handlePlotButtonPress()}
                       sx={{ mx: 'auto', my: 2 }}
                   >
                     ⇩ Plot It!
-                    {porkCalculating &&
-                    <CircularProgress
-                      size={24}
-                      sx={{
-                        position: 'relative',
-                        left: '10px',
-                      }}
-                    />
-                  }
-                  </Button>
+                  </LoadingButton>
                 </Box>
               <PorkchopPlot 
                 plotCount={plotCount}

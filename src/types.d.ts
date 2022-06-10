@@ -113,6 +113,11 @@ interface IMultiFlyby {
     readonly patchTimeError:        number;
 }
 
+interface TreeNode<T> {
+    children?: TreeNode<T>[];
+    data: T;
+}
+
 type Vector2 = {x: number, y: number};
 type Vector3 = {x: number, y: number, z: number};
 type Spherical = {r: number, theta: number, phi: number};
@@ -181,35 +186,37 @@ type OrbitingBodyInputs = {
 }
 
 type SunConfig = {
-    readonly flightGlobalsIndex?:   string;
-    readonly name?:                 string;
-    readonly radius?:               string;
-    readonly atmosphereHeight?:     string;
-    readonly geeASL?:               string;
-    readonly mass?:                 string;
-    readonly stdGravParam?:         string;
-    readonly templateName?:         string;
+    flightGlobalsIndex?:   string;
+    name?:                 string;
+    radius?:               string;
+    atmosphereHeight?:     string;
+    geeASL?:               string;
+    mass?:                 string;
+    stdGravParam?:         string;
+    color?:                string;
+    templateName?:         string;
 }
 
 type OrbitingBodyConfig = {
-    readonly flightGlobalsIndex?:   string;
-    readonly name?:                 string;
-    readonly radius?:               string;
-    readonly atmosphereHeight?:     string;
-    readonly geeASL?:               string;
-    readonly mass?:                 string;
-    readonly stdGravParam?:         string;
-    readonly soi?:                  string;
-    readonly semiMajorAxis?:        string,
-    readonly eccentricity?:         string,
-    readonly inclination?:          string,
-    readonly argOfPeriapsis?:       string,
-    readonly ascNodeLongitude?:     string,
-    readonly meanAnomalyEpoch?:     string,
-    readonly epoch?:                string,
-    readonly color?:                string;
-    readonly referenceBody?:        string;
-    readonly templateName?:         string;
+    flightGlobalsIndex?:   string;
+    name?:                 string;
+    radius?:               string;
+    maxTerrainHeight?:     string;
+    atmosphereHeight?:     string;
+    geeASL?:               string;
+    mass?:                 string;
+    stdGravParam?:         string;
+    soi?:                  string;
+    semiMajorAxis?:        string,
+    eccentricity?:         string,
+    inclination?:          string,
+    argOfPeriapsis?:       string,
+    ascNodeLongitude?:     string,
+    meanAnomalyEpoch?:     string,
+    epoch?:                string,
+    color?:                string;
+    referenceBody?:        string;
+    templateName?:         string;
 }
 
 type FlybyInputs = {

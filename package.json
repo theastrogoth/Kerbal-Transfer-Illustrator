@@ -1,11 +1,12 @@
 {
   "name": "kerbal-transfer-illustrator",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
     "@mui/icons-material": "^5.5.0",
+    "@mui/lab": "^5.0.0-alpha.85",
     "@mui/material": "^5.2.8",
     "@types/node": "^16.11.19",
     "@types/react": "^17.0.38",

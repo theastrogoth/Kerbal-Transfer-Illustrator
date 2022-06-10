@@ -260,3 +260,59 @@ export function calendarDateToDurationString(cd: CalendarDate): String {
     
     return string;
 }
+
+/* Color */
+function colorFromFractionalRGBA(str: string){
+    const fractionalRGBAFragments = str.split(',').map(s => Number(s))
+    const color: IColor = {
+        r:      fractionalRGBAFragments[0] * 255,
+        g:      fractionalRGBAFragments[1] * 255,
+        b:      fractionalRGBAFragments[2] * 255,
+        a:      fractionalRGBAFragments[3],
+    };
+    return color;
+}
+
+function rgbFromColorString(str: string){
+    var ctx = document.createElement('canvas').getContext('2d');
+    ctx!.fillStyle = str;
+    ctx!.fillRect(0, 0, 1, 1);
+    return ctx!.getImageData(0, 0, 1, 1).data;
+}
+
+export function hexFromColorString(str: string){
+    let colorString = str;
+    if(!isNaN(Number(str[0]))) {
+        const color = colorFromFractionalRGBA(str);
+        colorString = 'rgba(' + String(color.r) + ',' + String(color.g) + ',' + String(color.b) + ',' + String(color.a) + ')';
+    }
+    var ctx = document.createElement('canvas').getContext('2d');
+    ctx!.fillStyle = colorString;
+    return ctx!.fillStyle;
+}
+
+export function colorFromString(str: string): IColor {
+    if(!isNaN(Number(str[0]))) {
+        return colorFromFractionalRGBA(str);
+    }
+    const rgbvals = rgbFromColorString(str);
+    const color: IColor = {
+        r:      rgbvals[0],
+        g:      rgbvals[1],
+        b:      rgbvals[2],
+    };
+    return color;
+}
+
+export function colorFromRGBA(rgba: string): IColor {
+    if(!isNaN(Number(rgba[0]))) {
+        return colorFromFractionalRGBA(rgba);
+    }
+    const rgbaFragments = rgba.slice(5,-1).split(',');
+    return {
+        r: Number(rgbaFragments[0]),
+        g: Number(rgbaFragments[1]),
+        b: Number(rgbaFragments[2]),
+        a: Number(rgbaFragments[3]),
+    }
+}

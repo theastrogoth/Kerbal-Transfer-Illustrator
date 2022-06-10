@@ -19,9 +19,10 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
-import Button from '@mui/material/Button';
+import LoadingButton from '@mui/lab/LoadingButton';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
+import SearchIcon from '@mui/icons-material/Search';
 import Collapse from '@mui/material/Collapse';
 import Fade from '@mui/material/Fade';
 
@@ -173,14 +174,16 @@ function FlybyAppContent() {
               }}
             >
               <Box textAlign='center' sx={{ my: 0}}>
-                <Button 
+                <LoadingButton 
                     variant="contained" 
-                    disabled={calculating}
+                    loadingPosition="end"
+                    endIcon={<SearchIcon />}
+                    loading={calculating}
                     onClick={() => handleButtonPress()}
                     sx={{ mx: 'auto', my: 2 }}
                 >
                   ⇩ Search Trajectories
-                </Button>
+                </LoadingButton>
               </Box>
               <EvolutionPlot 
                 inputs={mfSearchInputs}

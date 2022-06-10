@@ -32,6 +32,7 @@ export class CelestialBody implements ICelestialBody {
             id:                 this.id,
             name:               this.name,
             radius:             this.radius,
+            maxTerrainHeight:   this.maxTerrainHeight,
             atmosphereHeight:   this.atmosphereHeight,
             mass:               this.mass,
             geeASL:             this.geeASL,
@@ -58,6 +59,24 @@ export class CelestialBody implements ICelestialBody {
         }
         return maxDist;
     }
+
+    public rescale(scale: number) : CelestialBody {
+        const newGravParam = this.geeASL * this.radius * this.radius * scale * scale * 9.80665;
+        const newMass = newGravParam / 6.7430e-11;
+        const newData: ICelestialBody = {
+            id:                 this.id,
+            name:               this.name,
+            radius:             this.radius * scale,
+            maxTerrainHeight:   this.maxTerrainHeight * scale,
+            atmosphereHeight:   this.atmosphereHeight * scale,
+            mass:               newMass,
+            geeASL:             this.geeASL,
+            stdGravParam:       newGravParam,
+            soi:                this.soi,
+            color:              this.color
+        }
+        return new CelestialBody(newData);
+    }
 }
 
 export class OrbitingBody extends CelestialBody implements IOrbitingBody {
@@ -77,6 +96,28 @@ export class OrbitingBody extends CelestialBody implements IOrbitingBody {
             orbit:          this.orbit.data,
             orbiting:       this.orbiting,
         };
+    }
+
+    public rescaleOrbiting(scale: number, scaledAttractor: CelestialBody) : OrbitingBody {
+        const newOrbit = this.orbit.rescale(scale, scaledAttractor);
+        const newGravParam = this.geeASL * this.radius * this.radius * scale * scale * 9.80665;
+        const newSoi = newOrbit.semiMajorAxis * (newGravParam / scaledAttractor.stdGravParam)**(2/5);
+        const newMass = newGravParam / 6.7430e-11;
+        const newData: IOrbitingBody = {
+            id:                 this.id,
+            name:               this.name,
+            radius:             this.radius * scale,
+            maxTerrainHeight:   this.maxTerrainHeight * scale,
+            atmosphereHeight:   this.atmosphereHeight * scale,
+            mass:               newMass,
+            geeASL:             this.geeASL,
+            stdGravParam:       newGravParam,
+            soi:                newSoi,
+            color:              this.color,
+            orbit:              newOrbit.data,
+            orbiting:           newOrbit.orbiting,
+        }
+        return new OrbitingBody(newData, scaledAttractor);
     }
 }
 

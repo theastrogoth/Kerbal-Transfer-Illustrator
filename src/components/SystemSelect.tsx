@@ -7,7 +7,7 @@ import Select from "@mui/material/Select";
 
 import SolarSystem from '../main/objects/system';
 
-import { systemOptionsAtom, systemAtom, systemNameAtom } from '../App';
+import { kspSystem, systemOptionsAtom, systemAtom, systemNameAtom, customSystemAtom } from '../App';
 
 
 function createSystemItems(systemOptions: Map<string, SolarSystem>) {
@@ -16,10 +16,12 @@ function createSystemItems(systemOptions: Map<string, SolarSystem>) {
 }
 
 function SystemSelect() {
-    const [systemOptions] = useAtom(systemOptionsAtom);
+    const [systemOptions, setSystemOptions] = useAtom(systemOptionsAtom);
     const [, setSystem] = useAtom(systemAtom);
     const [systemName, setSystemName] = useAtom(systemNameAtom);
     const [systemOpts, setSystemOpts] = useState(createSystemItems(systemOptions));
+
+    const [customSystem] = useAtom(customSystemAtom);
 
     useEffect(() => {
         setSystemOpts(createSystemItems(systemOptions))
@@ -29,6 +31,15 @@ function SystemSelect() {
         setSystem(systemOptions.get(systemName) as SolarSystem);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [systemName]);   
+
+    useEffect(() => {
+        if(customSystem !== kspSystem) {
+            const newSystemOptions = new Map(systemOptions);
+            newSystemOptions.set("Custom System", customSystem);
+            setSystemOptions(newSystemOptions);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [customSystemAtom])
 
     return (
         <FormControl sx={{ minWidth: 120 }}>

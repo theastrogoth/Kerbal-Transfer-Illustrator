@@ -69,6 +69,21 @@ export class Orbit implements IOrbit {
         const data = Kepler.orbitFromElements(elements, attractor);
         return new Orbit(data, attractor);
     }
+    
+    public rescale(scale: number, scaledAttractor: ICelestialBody): Orbit {
+        const newElements: OrbitalElements = {
+            orbiting:         this.orbiting,
+            semiMajorAxis:    this.semiMajorAxis * scale,
+            eccentricity:     this.eccentricity,
+            inclination:      this.inclination,
+            argOfPeriapsis:   this.argOfPeriapsis,
+            ascNodeLongitude: this.ascNodeLongitude,
+            meanAnomalyEpoch: this.meanAnomalyEpoch,
+            epoch:            this.epoch,
+        }
+        const newOrbit = Orbit.fromOrbitalElements(newElements, scaledAttractor);
+        return newOrbit;
+    }
 }
 
 export default Orbit

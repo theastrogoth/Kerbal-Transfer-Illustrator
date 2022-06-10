@@ -1,15 +1,34 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import Button from "@mui/material/Button";
-import Vessel from "../../main/objects/vessel";
-import saveFileToVessels from "../../main/utilities/loadSaveData";
 import UploadFileOutlined from "@mui/icons-material/UploadFileOutlined";
+import fileToBodyConfig from "../../main/utilities/loadPlanetConfig";
 
-function BodyConfigUploadButton({system, setVessels}: {system: ISolarSystem, setVessels: React.Dispatch<React.SetStateAction<Vessel[]>>}) {
+import { useAtom } from "jotai";
+import { bodyConfigsAtom } from "../../App";
+
+function BodyConfigUploadButton() {
+  const [bodyConfigs, setBodyConfigs] = useAtom(bodyConfigsAtom);
+  const bodyConfigsRef = useRef(bodyConfigs);
   
   const handleFile = (e: any) => {
     const content = e.target.result;
-    setVessels(saveFileToVessels(content, system));
-    console.log("...Body loaded from config.")
+    const newConfig = fileToBodyConfig(content);
+
+    let newName = newConfig.name || newConfig.templateName as string;
+    const existingNames = bodyConfigsRef.current.map(c => c.name || c.templateName as string);        
+    const newNameIsDuplicate = (name: string) => {
+        return existingNames.find(existing => existing === name) !== undefined;
+    }
+    let counter = 1;
+    while(newNameIsDuplicate(newName)) {
+        newName = newConfig.name + "("+String(counter)+")";
+    }
+    newConfig.name = newName;
+
+    const newBodyConfigs = [...bodyConfigsRef.current, newConfig];
+    setBodyConfigs(newBodyConfigs);
+    bodyConfigsRef.current = newBodyConfigs;
+    console.log("...Body '" + (newConfig.name || newConfig.templateName as string) + "' loaded from config.")
   }
   
   const handleChangeFile = (file: any) => {
@@ -18,6 +37,10 @@ function BodyConfigUploadButton({system, setVessels}: {system: ISolarSystem, set
     fileData.onloadend = handleFile;
     fileData.readAsText(file);
   }
+
+  useEffect(() => {
+    bodyConfigsRef.current = bodyConfigs;
+  }, [bodyConfigs])
   
   return ( <>
     <input
@@ -25,17 +48,20 @@ function BodyConfigUploadButton({system, setVessels}: {system: ISolarSystem, set
       accept=".cfg"
       style={{ display: 'none' }}
       id="uploaded-body-config"
-      // @ts-ignore
-      onChange={e => handleChangeFile(e.target.files[0])}
+      onChange={e => {
+        for(let i=0; i<e.target.files!.length; i++) {
+          handleChangeFile(e.target.files![i])
+        }
+      }}
       multiple={true}
     />
     <label htmlFor="uploaded-body-config">
-      <Button variant="text" 
+      <Button variant="outlined" 
               color="inherit" 
               component="span" 
               startIcon={<UploadFileOutlined />}
       >
-        Upload Save File
+        Upload Body Config Files
       </Button>
     </label>
   </>)
