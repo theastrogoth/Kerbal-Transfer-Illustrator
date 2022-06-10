@@ -23,13 +23,12 @@ function BodyConfigUploadButton() {
     while(newNameIsDuplicate(newName)) {
         newName = newConfig.name + "("+String(counter)+")";
     }
-    console.log(newConfig.name, newName)
     newConfig.name = newName;
 
     const newBodyConfigs = [...bodyConfigsRef.current, newConfig];
     setBodyConfigs(newBodyConfigs);
     bodyConfigsRef.current = newBodyConfigs;
-    console.log("...Body loaded from config.")
+    console.log("...Body '" + (newConfig.name || newConfig.templateName as string) + "' loaded from config.")
   }
   
   const handleChangeFile = (file: any) => {

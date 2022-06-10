@@ -311,7 +311,7 @@ export function configsTreeToSystem(tree: TreeNode<SunConfig | OrbitingBodyConfi
     depthFirstAddChildrenToList(bodyConfigsList, tree);
     const ids = flightGlobalsBodiesIndexes(bodyConfigsList, refSystem);
     
-    console.log(JSON.stringify(bodyConfigsList))
+    // console.log(JSON.stringify(bodyConfigsList))
 
     const parentIds = new Map<string, number>();
     parentIds.set(sun.name, sun.id);

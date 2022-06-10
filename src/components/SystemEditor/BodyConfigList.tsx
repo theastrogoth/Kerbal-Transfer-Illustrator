@@ -41,11 +41,9 @@ function BodyConfigListItem({node, depth = 0, orphan = false}: {node: TreeNode<S
                     <ListItemText primary={node.data.name || node.data.templateName} />
                 </ListItemButton>
                 {!leaf && 
-
-                        <IconButton onClick={handleExpandClick} sx={{borderRadius: 0}}>
-                            {open ? <ExpandLess /> : <ExpandMore />}
-                        </IconButton>
-
+                    <IconButton onClick={handleExpandClick} sx={{borderRadius: 0}}>
+                        {open ? <ExpandLess /> : <ExpandMore />}
+                    </IconButton>
                 }
             </Stack>
             {!leaf && 
@@ -64,7 +62,7 @@ function BodyConfigList() {
 
     return(
         <Stack spacing={1} sx={{mx: 2, my: 2}}>
-            <Typography variant="h6">Solar System Tree</Typography>
+            <Typography variant="h6">Custom Bodies</Typography>
             <List>
                 <BodyConfigListItem node={configTree.tree} />
             </List>

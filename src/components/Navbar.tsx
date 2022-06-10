@@ -17,7 +17,8 @@ import DarkLightModeSwitch from "./DarkLightModeSwitch";
 
 function Navbar({showHelp, setShowHelp}: {showHelp: boolean, setShowHelp: React.Dispatch<React.SetStateAction<boolean>>}) {  
     
-    const pages = ['Transfer', 'Flyby', 'Flight Plan', 'System'];
+    const barPages = ['Transfer', 'Flyby', 'Flight Plan', 'System'];
+    const menuPages = ['Transfer Planner', 'Multi-flyby Planner', 'Flight Planner', 'System Editor']
     const links = ["/", "/Flyby", "/FlightPlan", "/System",];    
     
     const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
@@ -78,7 +79,7 @@ function Navbar({showHelp, setShowHelp}: {showHelp: boolean, setShowHelp: React.
                             display: { xs: 'block', lg: 'none' },
                         }}
                     >
-                        {pages.map((page, idx) => (
+                        {menuPages.map((page, idx) => (
                             <MenuItem key={page} component={Link} to={links[idx]} onClick={handleCloseNavMenu}>
                                 <Typography textAlign="center">{page}</Typography>
                             </MenuItem>
@@ -98,7 +99,7 @@ function Navbar({showHelp, setShowHelp}: {showHelp: boolean, setShowHelp: React.
                     Kerbal Transfer Illustrator 
                 </Typography>
                 <Box sx={{ flexGrow: 1, display: { xs: 'none', lg: 'flex'} }}>
-                    {pages.map((page, idx) => (
+                    {barPages.map((page, idx) => (
                         <Button
                             key={page}
                             component={Link}

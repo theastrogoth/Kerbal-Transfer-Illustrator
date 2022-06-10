@@ -29,7 +29,6 @@ function SystemSelect() {
 
     useEffect(() => {
         setSystem(systemOptions.get(systemName) as SolarSystem);
-        console.log(systemOptions.get(systemName));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [systemName]);   
 

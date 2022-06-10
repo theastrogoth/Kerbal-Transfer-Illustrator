@@ -38,7 +38,7 @@ const rssSystem = loadSystemFromConfigs(rssconfigs, kspSystem);
 const ksrssSystem = loadSystemFromConfigs(ksrssconfigs, kspSystem);
 
 const systemOptions = new Map<string, SolarSystem>()
-systemOptions.set('Kerbol System', kspSystem);
+systemOptions.set('Kerbol System (Stock)', kspSystem);
 systemOptions.set('Kerbol System (OPM)', opmSystem);
 systemOptions.set('Kerbol System (JNSQ)', jnsqSystem);
 systemOptions.set('Sol System (RSS)', rssSystem);
