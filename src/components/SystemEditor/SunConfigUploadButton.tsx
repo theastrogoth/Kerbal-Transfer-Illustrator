@@ -41,12 +41,8 @@ function SunConfigUploadButton() {
       accept=".cfg"
       style={{ display: 'none' }}
       id="uploaded-sun-config"
-      onChange={e => {
-        for(let i=0; i<e.target.files!.length; i++) {
-          handleChangeFile(e.target.files![i])
-        }
-      }}
-      multiple={true}
+      onChange={e => handleChangeFile(e.target.files![0])}
+      multiple={false}
     />
     <label htmlFor="uploaded-sun-config">
       <Button variant="outlined" 
