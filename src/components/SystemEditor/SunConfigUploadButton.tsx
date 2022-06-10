@@ -1,39 +1,27 @@
 import React, { useRef, useEffect } from "react";
 import Button from "@mui/material/Button";
 import UploadFileOutlined from "@mui/icons-material/UploadFileOutlined";
-import fileToBodyConfig from "../../main/utilities/loadPlanetConfig";
+import fileToSunConfig from "../../main/utilities/loadPlanetConfig";
 
 import { useAtom } from "jotai";
 import { bodyConfigsAtom } from "../../App";
 
-function BodyConfigUploadButton() {
+function SunConfigUploadButton() {
   const [bodyConfigs, setBodyConfigs] = useAtom(bodyConfigsAtom);
   const bodyConfigsRef = useRef(bodyConfigs);
   
   const handleFile = (e: any) => {
     const content = e.target.result;
-    const newConfig = fileToBodyConfig(content);
+    const newConfig = fileToSunConfig(content);
 
-    let newName = newConfig.name || newConfig.templateName as string;
-    const existingNames = bodyConfigsRef.current.map(c => c.name || c.templateName as string);        
-    const newNameIsDuplicate = (name: string) => {
-        return existingNames.find(existing => existing === name) !== undefined;
-    }
-    let counter = 1;
-    while(newNameIsDuplicate(newName)) {
-        newName = newConfig.name + "("+String(counter)+")";
-    }
-    console.log(newConfig.name, newName)
-    newConfig.name = newName;
-
-    const newBodyConfigs = [...bodyConfigsRef.current, newConfig];
+    const newBodyConfigs = [newConfig, ...bodyConfigsRef.current.slice(1)];
     setBodyConfigs(newBodyConfigs);
     bodyConfigsRef.current = newBodyConfigs;
-    console.log("...Body loaded from config.")
+    console.log("...Sun loaded from config.")
   }
   
   const handleChangeFile = (file: any) => {
-    console.log("Reading body config...")
+    console.log("Reading sun config...")
     let fileData = new FileReader();
     fileData.onloadend = handleFile;
     fileData.readAsText(file);
@@ -48,7 +36,7 @@ function BodyConfigUploadButton() {
       type="file"
       accept=".cfg"
       style={{ display: 'none' }}
-      id="uploaded-body-config"
+      id="uploaded-sun-config"
       onChange={e => {
         for(let i=0; i<e.target.files!.length; i++) {
           handleChangeFile(e.target.files![i])
@@ -56,16 +44,16 @@ function BodyConfigUploadButton() {
       }}
       multiple={true}
     />
-    <label htmlFor="uploaded-body-config">
+    <label htmlFor="uploaded-sun-config">
       <Button variant="outlined" 
               color="inherit" 
               component="span" 
               startIcon={<UploadFileOutlined />}
       >
-        Upload Body Config Files
+        Upload Sun Config File
       </Button>
     </label>
   </>)
 }
 
-export default React.memo(BodyConfigUploadButton, (prevProps, nextProps) => true);
+export default React.memo(SunConfigUploadButton, (prevProps, nextProps) => true);

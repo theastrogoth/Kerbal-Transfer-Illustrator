@@ -282,7 +282,12 @@ function BodyConfigControls() {
                         variant="contained" 
                         endIcon={<AddIcon />} 
                         sx={{maxWidth: 200}}
-                        onClick={() => {setBodyConfigs([...bodyConfigs, {name: newUniqueName('New Body'), templateName: 'Kerbin'}])}}
+                        onClick={() => {
+                            const newBodyConfig = {name: newUniqueName('New Body'), templateName: 'Kerbin'} as OrbitingBodyConfig;
+                            setBodyConfigs([...bodyConfigs, newBodyConfig]);
+                            setSelectedName(newBodyConfig.name as string);
+                            setIdx(bodyConfigs.length);
+                        }}
                     >
                         New
                     </Button>

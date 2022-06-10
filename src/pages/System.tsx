@@ -10,19 +10,23 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
+import Button from "@mui/material/Button";
+import ClearIcon from '@mui/icons-material/Clear';
 
 import Navbar from '../components/Navbar';
 import BodyConfigList from "../components/SystemEditor/BodyConfigList";
 import BodyConfigControls from "../components/SystemEditor/BodyConfigControls";
 import TimeSettingsControls from "../components/TimeSettingsControls";
+import BodyConfigUploadButton from "../components/SystemEditor/BodyConfigUploadButton";
+import SunConfigUploadButton from "../components/SystemEditor/SunConfigUploadButton";
 
 import SolarSystem from "../main/objects/system";
 
 import { useAtom } from "jotai";
-import { customSystemAtom, configTreeAtom, timeSettingsAtom } from "../App";
+import { customSystemAtom, configTreeAtom, timeSettingsAtom, bodyConfigsAtom, editorSelectedNameAtom } from "../App";
 import OrbitDisplay from "../components/OrbitDisplay";
 import Draw from "../main/libs/draw";
-import BodyConfigUploadButton from "../components/SystemEditor/BodyConfigUploadButton";
+
 
 function createBodyItems(system: SolarSystem) {
   const options =[<MenuItem key={system.sun.id} value={system.sun.name}>{system.sun.name}</MenuItem>];
@@ -38,9 +42,10 @@ const systemLoaderWorker = new Worker(new URL("../workers/system.worker.ts", imp
 
 ////////// App Content //////////
 function SolarSystemAppContent() { 
-
+  const [bodyConfigs, setBodyConfigs] = useAtom(bodyConfigsAtom);
   const [configTree] = useAtom(configTreeAtom);
   const [customSystem, setCustomSystem] = useAtom(customSystemAtom);
+  const [editorSelectedName, setEditorSelectedName] = useAtom(editorSelectedNameAtom);
   const [timeSettings] = useAtom(timeSettingsAtom);
 
   const [bodyOptions, setBodyOptions] = useState(createBodyItems(customSystem));
@@ -49,6 +54,7 @@ function SolarSystemAppContent() {
   const [showHelp, setShowHelp] = useState(false);
 
   const centralBodyNameRef = useRef(centralBodyName);
+  const [deleteBodiesTrigger, setDeleteBodiesTrigger] = useState(false);
 
   useEffect(() => {
     systemLoaderWorker.onmessage = (event: MessageEvent<ISolarSystem>) => {
@@ -80,6 +86,14 @@ function SolarSystemAppContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [centralBodyName])
 
+  useEffect(() => {
+    if(deleteBodiesTrigger) {
+      setBodyConfigs([bodyConfigs[0]]);
+      setDeleteBodiesTrigger(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deleteBodiesTrigger])
+
   ///// App Body /////
   return (
     <>
@@ -101,9 +115,24 @@ function SolarSystemAppContent() {
                 flexDirection: 'column',
               }}
             >
-              <Box sx={{mx: 2, my: 2}}>
+              <Stack spacing={1.5} sx={{mx: 2, my: 2}} alignItems='center' justifyContent='center'>
+                <SunConfigUploadButton />
                 <BodyConfigUploadButton />
-              </Box>
+                <Box>
+                  <Button
+                    variant="outlined" 
+                    color="inherit" 
+                    component="span"
+                    startIcon={<ClearIcon />}
+                    onClick={() => {
+                      setEditorSelectedName(bodyConfigs[0].name || bodyConfigs[0].templateName as string);
+                      setDeleteBodiesTrigger(true);
+                    }}
+                  >
+                    Clear Bodies
+                  </Button>
+                </Box>
+              </Stack>
               <BodyConfigList />
             </Paper>
           </Grid>
