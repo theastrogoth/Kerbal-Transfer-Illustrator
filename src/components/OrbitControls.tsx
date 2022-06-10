@@ -222,7 +222,7 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
                             step={0.1}
                             setValue={setEcc}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEcc(e.target.value)}
-                            error={parseFloat(ecc) < 0 || parseFloat(ecc) === 1 || (parseFloat(ecc) < 1 && parseFloat(sma) < 0) || (parseFloat(ecc) > 1 && parseFloat(sma) > 0)}
+                            error={parseFloat(ecc) === 1 || (parseFloat(ecc) < 1 && parseFloat(sma) < 0) || (parseFloat(ecc) > 1 && parseFloat(sma) > 0)}
                          />
                         <RequiredNumberField
                             label={'Inclination (\u00B0)'} 

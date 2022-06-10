@@ -14,12 +14,14 @@ import ManeuversApp from './pages/Maneuvers';
 import SolarSystemApp from './pages/System';
 
 import kspbodies from './data/kspbodies.json';
-import opmbodies from './data/opmbodies.json';
-import rssbodies from './data/rssbodies.json';
+import opmconfigs from './data/opm_configs.json';
+import rssconfigs from './data/rss_configs.json';
+import ksrssconfigs from './data/ksrss_configs.json';
+import jnsqconfigs from './data/jnsq_configs.json';
 
 import SolarSystem from './main/objects/system';
 import Vessel from './main/objects/vessel';
-import loadSystemData from './main/utilities/loadSystem';
+import loadSystemData, { loadSystemFromConfigs } from './main/utilities/loadSystem';
 
 import { defaultManeuverComponents, defaultOrbit, makeDateFields } from './utils';
 import { bodyConfigsToTree, bodyToConfig, sunToConfig } from './main/utilities/loadPlanetConfig';
@@ -30,13 +32,17 @@ import { PrimitiveAtom, atom, useAtom } from 'jotai';
 
 // prepare popular systems
 export const kspSystem = loadSystemData(kspbodies);
-const opmSystem = loadSystemData(opmbodies);
-const rssSystem = loadSystemData(rssbodies);
+const opmSystem = loadSystemFromConfigs(opmconfigs, kspSystem);
+const jnsqSystem = loadSystemFromConfigs(jnsqconfigs, kspSystem);
+const rssSystem = loadSystemFromConfigs(rssconfigs, kspSystem);
+const ksrssSystem = loadSystemFromConfigs(ksrssconfigs, kspSystem);
 
 const systemOptions = new Map<string, SolarSystem>()
 systemOptions.set('Kerbol System', kspSystem);
 systemOptions.set('Kerbol System (OPM)', opmSystem);
+systemOptions.set('Kerbol System (JNSQ)', jnsqSystem);
 systemOptions.set('Sol System (RSS)', rssSystem);
+systemOptions.set('Sol System (KSRSS)', ksrssSystem);
 
 // other default settings
 const kspTimeSettings: TimeSettings = {hoursPerDay: 6, daysPerYear: 426};
@@ -138,6 +144,7 @@ export const configTreeAtom = atom<{tree: TreeNode<SunConfig | OrbitingBodyConfi
     return tree;
   }
 );
+export const systemScaleAtom = atom('1');
 
 function AppBody() {
   const [mode, setMode] = useAtom(lightModeAtom);

@@ -48,6 +48,7 @@ function createTemplateItems(system: SolarSystem) {
 
 function BodyConfigControls() {
     const [bodyConfigs, setBodyConfigs] = useAtom(bodyConfigsAtom);
+    const sunRef = useRef(bodyConfigs[0]);
 
     const [selectedName, setSelectedName] = useAtom(editorSelectedNameAtom);
     const selectedNameRef = useRef(selectedName);
@@ -87,6 +88,9 @@ function BodyConfigControls() {
             newConfig[property] = value === '' ? undefined : value;
             newConfigs[idx] = newConfig;
             setBodyConfigs(newConfigs); 
+            if(idx === 0) {
+                sunRef.current = newConfigs[0];
+            }
         }
     }
 
@@ -129,6 +133,7 @@ function BodyConfigControls() {
                 newConfigs[i] = newChildConfig;
             }
         }
+
         setBodyConfigs(newConfigs); 
         setSelectedName(newName);
         selectedNameRef.current = newName;
@@ -147,7 +152,8 @@ function BodyConfigControls() {
 
     // update displayed inputs from selectedName change
     useEffect(() => {
-        if(selectedName !== selectedNameRef.current) {
+        if((selectedName !== selectedNameRef.current) || sunRef.current !== bodyConfigs[0]) {
+            sunRef.current = bodyConfigs[0];
             selectedNameRef.current = selectedName;
             const newIdx = bodyConfigs.findIndex(config => config.name ? (config.name === selectedName) : (config.templateName === selectedName))
             setIdx(newIdx);
@@ -162,7 +168,7 @@ function BodyConfigControls() {
             setAtmosphereHeight(bodyConfigs[newIdx].atmosphereHeight || '');
             setGeeASL(bodyConfigs[newIdx].geeASL || '');
             setStdGravParam(bodyConfigs[newIdx].stdGravParam || '');
-            setMass(bodyConfigs[newIdx].stdGravParam || '');
+            setMass(bodyConfigs[newIdx].mass || '');
             setSoi((bodyConfigs[newIdx] as OrbitingBodyConfig).soi || '');
         
             setSemiMajorAxis((bodyConfigs[newIdx] as OrbitingBodyConfig).semiMajorAxis || '');
@@ -174,7 +180,7 @@ function BodyConfigControls() {
             setEpoch((bodyConfigs[newIdx] as OrbitingBodyConfig).epoch || '');
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedName])
+    }, [selectedName, bodyConfigs[0]])
 
     // update config from input changes
 
@@ -272,8 +278,8 @@ function BodyConfigControls() {
     }, [epoch])
 
     return (
-        <>
-            <Stack spacing={1.5} sx={{mx:2, my:2}}>
+        <Stack alignItems='center' >
+            <Stack spacing={1.5} sx={{ width: '90%', maxWidth: 500, my: 2, mx: 2 }}>
                 <Typography variant="h5">Body Configuration</Typography>
                 {/* <Typography>Identifiers</Typography> */}
                 <Divider />
@@ -498,7 +504,7 @@ function BodyConfigControls() {
                     </>
                 }
             </Stack>
-        </>
+        </Stack>
     )
 }
 

@@ -3,6 +3,8 @@ import TextField from "@mui/material/TextField";
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 
+import { clamp } from "../main/libs/math";
+
 type NumberFieldProps = {
     label:      string,
     value:      string,
@@ -19,11 +21,13 @@ type IncrementButtonProps = {
     value:      string,
     setValue:   React.Dispatch<React.SetStateAction<string>> | Function,
     step?:      number,
+    max?:       number,
+    min?:       number,
     text?:      string,
     style?:     any,
 }
 
-function IncrementButton({value, setValue, step = 1, text="+", style={}}: IncrementButtonProps) {
+function IncrementButton({value, setValue, step = 1, max = Infinity, min = -Infinity, text="+", style={}}: IncrementButtonProps) {
     const counterRef = useRef(0);
     const intervalRef = useRef<null | NodeJS.Timer>(null);
 
@@ -40,7 +44,7 @@ function IncrementButton({value, setValue, step = 1, text="+", style={}}: Increm
             if(event.altKey) {
                 increment *= 0.1;
             }
-            setValue((prevValue) => String(Number(prevValue) + increment))
+            setValue((prevValue) => String(clamp(Number(prevValue) + increment, min, max)))
         } else if(value === '') {
             setValue('1')
         }
@@ -93,13 +97,16 @@ function IncrementButton({value, setValue, step = 1, text="+", style={}}: Increm
     )
 }
 
-const RequiredNumberField = React.memo(function WrappedRequiredNumberField({label, value, setValue, step = 1, error = false, onChange = (e) => {}, sx = {}}: NumberFieldProps) {
+const RequiredNumberField = React.memo(function WrappedRequiredNumberField({label, value, setValue, step = 1, max = Infinity, min = -Infinity, error = false, onChange = (e) => {}, sx = {}}: NumberFieldProps) {
+    const numValue = Number(value);
     return (
     <Stack direction='row' spacing={0} sx={{marginBottom: 1}}>
         <IncrementButton 
             value={value} 
             setValue={setValue} 
             step={-step} 
+            min={min}
+            max={max}
             text="-"
             style={{borderRadius: "8px 0 0 8px"}} 
         />
@@ -109,7 +116,7 @@ const RequiredNumberField = React.memo(function WrappedRequiredNumberField({labe
             label={label}
             value={value}
             InputLabelProps={{ shrink: true }}
-            error={isNaN(Number(value)) || value === '' || error}
+            error={isNaN(numValue) || numValue < min || numValue > max || error}
             onChange={onChange}
             sx={sx}
         />
@@ -117,6 +124,8 @@ const RequiredNumberField = React.memo(function WrappedRequiredNumberField({labe
             value={value} 
             setValue={setValue} 
             step={step} 
+            min={min}
+            max={max}
             text="+"
             style={{borderRadius: "0 8px 8px 0", marginRight: "8px" }} 
         />
@@ -125,7 +134,8 @@ const RequiredNumberField = React.memo(function WrappedRequiredNumberField({labe
     )
 }, (prevProps, nextProps) => prevProps.value === nextProps.value && prevProps.error === nextProps.error);
 
-export const NumberField = React.memo(function WrappedNumberField({label, value, setValue, step = 1, error = false, onChange = (e) => {}, sx = {}}: NumberFieldProps) {
+export const NumberField = React.memo(function WrappedNumberField({label, value, setValue, step = 1, max = Infinity, min = -Infinity, error = false, onChange = (e) => {}, sx = {}}: NumberFieldProps) {
+    const numValue = Number(value);
     return (
         <Stack direction='row' spacing={0} sx={{marginBottom: 1}}>
             <IncrementButton 
@@ -133,6 +143,8 @@ export const NumberField = React.memo(function WrappedNumberField({label, value,
                 value={value} 
                 setValue={setValue} 
                 step={-step} 
+                min={min}
+                max={max}
                 text="-"
                 style={{borderRadius: "8px 0 0 8px"}
             } 
@@ -143,7 +155,7 @@ export const NumberField = React.memo(function WrappedNumberField({label, value,
                 label={label}
                 value={value}
                 InputLabelProps={{ shrink: true }}
-                error={isNaN(Number(value)) || error}
+                error={isNaN(numValue) || numValue < min || numValue > max || error}
                 onChange={onChange}
                 sx={sx}
             />
@@ -152,6 +164,8 @@ export const NumberField = React.memo(function WrappedNumberField({label, value,
                 value={value} 
                 setValue={setValue} 
                 step={step} 
+                min={min}
+                max={max}
                 text="+"
                 style={{borderRadius: "0 8px 8px 0", marginRight: "8px" }} 
             />

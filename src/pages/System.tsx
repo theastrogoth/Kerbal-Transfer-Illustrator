@@ -14,18 +14,19 @@ import Button from "@mui/material/Button";
 import ClearIcon from '@mui/icons-material/Clear';
 
 import Navbar from '../components/Navbar';
+import { NumberField } from "../components/NumberField";
 import BodyConfigList from "../components/SystemEditor/BodyConfigList";
 import BodyConfigControls from "../components/SystemEditor/BodyConfigControls";
 import TimeSettingsControls from "../components/TimeSettingsControls";
 import BodyConfigUploadButton from "../components/SystemEditor/BodyConfigUploadButton";
 import SunConfigUploadButton from "../components/SystemEditor/SunConfigUploadButton";
+import OrbitDisplay from "../components/OrbitDisplay";
 
 import SolarSystem from "../main/objects/system";
+import Draw from "../main/libs/draw";
 
 import { useAtom } from "jotai";
-import { customSystemAtom, configTreeAtom, timeSettingsAtom, bodyConfigsAtom, editorSelectedNameAtom } from "../App";
-import OrbitDisplay from "../components/OrbitDisplay";
-import Draw from "../main/libs/draw";
+import { customSystemAtom, configTreeAtom, timeSettingsAtom, bodyConfigsAtom, editorSelectedNameAtom, systemScaleAtom } from "../App";
 
 
 function createBodyItems(system: SolarSystem) {
@@ -45,7 +46,8 @@ function SolarSystemAppContent() {
   const [bodyConfigs, setBodyConfigs] = useAtom(bodyConfigsAtom);
   const [configTree] = useAtom(configTreeAtom);
   const [customSystem, setCustomSystem] = useAtom(customSystemAtom);
-  const [editorSelectedName, setEditorSelectedName] = useAtom(editorSelectedNameAtom);
+  const [, setEditorSelectedName] = useAtom(editorSelectedNameAtom);
+  const [systemScale, setSystemScale] = useAtom(systemScaleAtom);
   const [timeSettings] = useAtom(timeSettingsAtom);
 
   const [bodyOptions, setBodyOptions] = useState(createBodyItems(customSystem));
@@ -75,9 +77,9 @@ function SolarSystemAppContent() {
   
   useEffect(() => {
     systemLoaderWorker
-      .postMessage(configTree.tree);
+      .postMessage({tree: configTree.tree, scale: systemScale});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [configTree]);
+  }, [configTree, systemScale]);
 
   useEffect(() => {
     centralBodyNameRef.current = centralBodyName;
@@ -101,11 +103,11 @@ function SolarSystemAppContent() {
       <Stack sx={{mx: 4, my: 1}}>
         <CssBaseline />
         <Box textAlign='left' sx={{mx: 2, my: 3}}>
-          <Typography variant="h4">Solar System Editor (coming soon) </Typography>
+          <Typography variant="h4">Solar System Editor</Typography>
           <Divider />
         </Box>
         <Grid container component='main' justifyContent="center">
-          <Grid item xs={12} sm={11} md={4} lg={3} xl={3}>
+          <Grid item xs={12} sm={5} md={4} lg={3} xl={3}>
             <Paper 
               elevation={1}
               sx={{
@@ -132,11 +134,20 @@ function SolarSystemAppContent() {
                     Clear Bodies
                   </Button>
                 </Box>
+                <Divider />
+                <NumberField 
+                  label="System Scale Factor"
+                  value={systemScale}
+                  setValue={setSystemScale}
+                  min={0}
+                  error={Number(systemScale) === 0}
+                  onChange={(e) => setSystemScale(e.target.value)}
+                />
               </Stack>
               <BodyConfigList />
             </Paper>
           </Grid>
-          <Grid item xs={12} sm={11} md={4} lg={4} xl={4}>
+          <Grid item xs={12} sm={5} md={4} lg={4} xl={4}>
             <Paper 
               elevation={1}
               sx={{
@@ -149,7 +160,7 @@ function SolarSystemAppContent() {
               <BodyConfigControls />
             </Paper>
           </Grid>
-          <Grid item xs={12} sm={11} md={4} lg={5} xl={5}>
+          <Grid item xs={12} sm={12} md={4} lg={5} xl={5}>
             <Paper 
               elevation={1}
               sx={{
@@ -172,19 +183,21 @@ function SolarSystemAppContent() {
                     {bodyOptions}
                 </Select>
               </FormControl>
-              <OrbitDisplay 
-                index={0}
-                label={'Solar System'}
-                slider={false}
-                orbits={[] as IOrbit[]}
-                trajectories={[] as Trajectory[]}
-                startDate={0}
-                endDate={0}
-                marks={[]}
-                centralBody={centralBody}
-                defaultTraces={{systemTraces: Draw.drawSystemAtTime(centralBody, 0, timeSettings), orbitTraces: [] as Line3DTrace[]}}
-                plotSize={centralBody.orbiters.length === 0 ? 10 * centralBody.radius : 2 * centralBody.furtherstOrbiterDistance}
-              />
+              <Box sx={{mx: 2, my: 2}}>
+                <OrbitDisplay 
+                  index={0}
+                  label={'Solar System'}
+                  slider={false}
+                  orbits={[] as IOrbit[]}
+                  trajectories={[] as Trajectory[]}
+                  startDate={0}
+                  endDate={0}
+                  marks={[]}
+                  centralBody={centralBody}
+                  defaultTraces={{systemTraces: Draw.drawSystemAtTime(centralBody, 0, timeSettings), orbitTraces: [] as Line3DTrace[]}}
+                  plotSize={centralBody.orbiters.length === 0 ? 10 * centralBody.radius : 2 * centralBody.furtherstOrbiterDistance}
+                />
+              </Box>
               <Box sx={{mx: 2, my: 2}}>
                 <Typography variant="body1">Time Settings</Typography>
                 <TimeSettingsControls />

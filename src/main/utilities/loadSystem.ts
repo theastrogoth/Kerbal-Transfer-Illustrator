@@ -1,5 +1,6 @@
 import Kepler from "../libs/kepler";
 import SolarSystem from "../objects/system";
+import { bodyConfigsToTree, configsTreeToSystem } from "./loadPlanetConfig";
 
 export function loadSystemData(systemData: (ICelestialBody | OrbitingBodyInputs)[]): SolarSystem {
     const sun = systemData[0] as ICelestialBody;
@@ -16,6 +17,14 @@ export function loadSystemData(systemData: (ICelestialBody | OrbitingBodyInputs)
     }
 
     return new SolarSystem(sun, orbiters, true);
+}
+
+export function loadSystemFromConfigs(configs: (SunConfig | OrbitingBodyConfig)[], refSystem: SolarSystem): SolarSystem {
+    const sunConfig = configs[0];
+    const bodyConfigs = configs.slice(1) as OrbitingBodyConfig[];
+    const configsTree = bodyConfigsToTree(sunConfig, bodyConfigs, refSystem);
+    const system = configsTreeToSystem(configsTree.tree, refSystem);
+    return system
 }
 
 export default loadSystemData;

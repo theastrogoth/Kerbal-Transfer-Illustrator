@@ -7,8 +7,8 @@ const kspSystem = loadSystemData(kspbodies);
 declare var self: DedicatedWorkerGlobalScope;
 export {};
 
-self.onmessage = (event: MessageEvent<TreeNode<SunConfig | OrbitingBodyConfig>>) => {
-    const tree = event.data;
-    const newSystem = configsTreeToSystem(tree, kspSystem);
+self.onmessage = (event: MessageEvent<{tree: TreeNode<SunConfig | OrbitingBodyConfig>, scale: number}>) => {
+    const {tree, scale} = event.data;
+    const newSystem = configsTreeToSystem(tree, kspSystem, scale);
     self.postMessage(newSystem); 
 }

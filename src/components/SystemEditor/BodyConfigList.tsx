@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Box from'@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -31,7 +32,7 @@ function BodyConfigListItem({node, depth = 0, orphan = false}: {node: TreeNode<S
     };
 
     return (
-        <>
+        <Box sx={{ maxWidth: 500 }}>
             <Stack direction="row">
                 <ListItemButton onClick={handleNodeClick} >
                     <ListItemIcon>
@@ -54,7 +55,7 @@ function BodyConfigListItem({node, depth = 0, orphan = false}: {node: TreeNode<S
                     </List>
                 </Collapse>
             }
-        </>
+        </Box>
     )
 }
 
@@ -71,7 +72,7 @@ function BodyConfigList() {
                 <>
                     <Typography variant="h6">Bodies with a missing Reference Body</Typography>
                     <List>
-                        {configTree.orphans.map(orphan => <BodyConfigListItem node={orphan} orphan={true} />)} 
+                        {configTree.orphans.map(orphan => <BodyConfigListItem key={orphan.data.name || orphan.data.templateName} node={orphan} orphan={true} />)} 
                     </List>
                 </>
             }

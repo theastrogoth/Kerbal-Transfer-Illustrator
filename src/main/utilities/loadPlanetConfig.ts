@@ -8,27 +8,26 @@ import loadSystemData from "./loadSystem";
 
 export function fileToSunConfig(configFile: string): SunConfig {
     const configData: any = parseConfigNodes(configFile);
-    const topKey = [...configData.keys()][0];
+    const topKey = [...Object.keys(configData)][0];
+    const sunData = configData[topKey].Body;
 
-    const name = configData[topKey].Body.name;
+    const name = sunData.name;
 
-    const bodyData: SunConfig = {
+    const sunConfig: SunConfig = {
         name,
-        radius:             configData[topKey].Body.Properties.radius,
-        atmosphereHeight:   configData[topKey].Body.Atmosphere.altitude,
-        stdGravParam:       configData[topKey].Body.Properties.stdGravParam,
-        geeASL:             configData[topKey].Body.Properties.geeASL,
+        radius:             sunData.Properties.radius,
+        atmosphereHeight:   sunData.Atmosphere ? sunData.Atmosphere.altitude : undefined,
+        stdGravParam:       sunData.Properties.gravParameter,
+        geeASL:             sunData.Properties.geeASL,
         templateName:       "Sun",
     }
-    return bodyData;
+    return sunConfig;
 }
 
 export function fileToBodyConfig(configFile: string): OrbitingBodyConfig {
     const configData: any = parseConfigNodes(configFile);
-    console.log(configData)
     const topKey = [...Object.keys(configData)][0];
     const bodyData = configData[topKey].Body;
-    console.log(bodyData)
 
     const templateName = bodyData.Template ? bodyData.Template.name : "Kerbin";
 
@@ -188,20 +187,29 @@ function depthFirstAddChildrenToList(list: (SunConfig | OrbitingBodyConfig)[], n
     }
 }
 
-function flightGlobalsBodiesIndexes(bodiesList: (SunConfig | OrbitingBodyConfig)[]) {
-    const usedFlightGlobalsIdxs: number[] = [];
-    const originalIdxs: number[] = [];
+function flightGlobalsBodiesIndexes(bodiesList: (SunConfig | OrbitingBodyConfig)[], refSystem: SolarSystem) {
+    const usedFlightGlobalsIdxs: number[] = [0];
+    const originalIdxs: number[] = [0];
     for(let i=1; i<bodiesList.length; i++) {
         if(bodiesList[i].flightGlobalsIndex) {
             usedFlightGlobalsIdxs.push(Number(bodiesList[i].flightGlobalsIndex));
             originalIdxs.push(i);
+        } else {
+            const bodyName = bodiesList[i].name || bodiesList[i].templateName as string;
+            const refBodyName = refSystem.bodies.map(bd => bd.name).find(name => name === bodyName);
+            if(refBodyName !== undefined) {
+                const refBody = refSystem.bodyFromName(refBodyName as string);
+                usedFlightGlobalsIdxs.push(refBody.id);
+                originalIdxs.push(i);
+            }
         }
     }
 
     const flightGlobalsIdxs: number[] = [0];
     let nextIdx = 1;
     for(let i=1; i<bodiesList.length; i++) {
-        if(originalIdxs.find(idx => idx === i) !== undefined) {
+        const oidx = originalIdxs.find(idx => idx === i)
+        if(oidx !== undefined) {
             flightGlobalsIdxs.push(usedFlightGlobalsIdxs[i])
         } else {
             const indexIsDuplicate = (index: number) => {
@@ -216,7 +224,9 @@ function flightGlobalsBodiesIndexes(bodiesList: (SunConfig | OrbitingBodyConfig)
 
     const ids = flightGlobalsIdxs.map((fgi, idx) => {return {idx, fgi}})
                                  .sort((a, b) => a.fgi - b.fgi)
-                                 .map((fgiidx) => fgiidx.idx);
+                                 .map((fgiidx, idx2) => {return {gi: fgiidx.idx, idx2}})
+                                 .sort((a, b) => a.gi - b.gi)
+                                 .map(giidx => giidx.idx2);
 
     return ids;
 }
@@ -294,13 +304,15 @@ function bodyConfigToSystemInputs(data: OrbitingBodyConfig, id: number, parentId
     return body;
 }
 
-export function configsTreeToSystem(tree: TreeNode<SunConfig | OrbitingBodyConfig>, refSystem: SolarSystem) {
+export function configsTreeToSystem(tree: TreeNode<SunConfig | OrbitingBodyConfig>, refSystem: SolarSystem, scale=1) {
     const sun = sunConfigToSystemInputs(tree.data, refSystem);
 
     const bodyConfigsList: (SunConfig | OrbitingBodyConfig)[] = [];
     depthFirstAddChildrenToList(bodyConfigsList, tree);
-    const ids = flightGlobalsBodiesIndexes(bodyConfigsList);
+    const ids = flightGlobalsBodiesIndexes(bodyConfigsList, refSystem);
     
+    console.log(JSON.stringify(bodyConfigsList))
+
     const parentIds = new Map<string, number>();
     parentIds.set(sun.name, sun.id);
     const orbitingBodies: OrbitingBodyInputs[] = [];
@@ -314,7 +326,13 @@ export function configsTreeToSystem(tree: TreeNode<SunConfig | OrbitingBodyConfi
         orbitingBodies.push(inputs);
     }
 
-    const system = loadSystemData([sun, ...orbitingBodies]);
+    let system = loadSystemData([sun, ...orbitingBodies]);
+
+    let safeScale = Math.max(1e-3, scale);
+    safeScale = isNaN(safeScale) ? 1 : safeScale;
+    if(safeScale !== 1) {
+        system = system.rescale(safeScale);
+    }
     return system;
 }
 

@@ -55,7 +55,19 @@ export function defaultOrbit(system: SolarSystem, id: number = 1, altitude: numb
     let alt = altitude;
     if(!alt) {
         alt = 10 ** Math.floor(Math.log10(body.radius + (body.atmosphereHeight || 0))); 
-        alt = clamp(alt, (body.atmosphereHeight || 0) + 1, (body.soi || Infinity) - 1)
+        const safeAlt = clamp(alt, (body.atmosphereHeight || 0), (body.soi || Infinity));
+        if(alt !== safeAlt) {
+            if((body.soi - body.radius) / body.atmosphereHeight > 10) {
+                while(alt < body.atmosphereHeight) {
+                    alt *= 10;
+                }
+                while(alt > body.atmosphereHeight) {
+                    alt *= 0.1;
+                }
+            } else {
+                alt = safeAlt;
+            }
+        }
     }
 
     const a = alt + body.radius;

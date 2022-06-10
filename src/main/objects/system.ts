@@ -80,6 +80,29 @@ export class SolarSystem implements ISolarSystem {
         }
         throw new Error('Bodies do not share a common attractor (error in defining this SolarSystem)')
     }
+
+    public rescale(scale: number) {
+        const newSun = this.sun.rescale(scale);
+        const oldBodies = [...this.orbiters];
+        const newBodies: OrbitingBody[] = [];
+        const newBodyIds = new Map<number, CelestialBody | OrbitingBody>()
+        newBodyIds.set(newSun.id, newSun);
+
+        while(oldBodies.length > 0) {
+            for(let i=0; i<oldBodies.length; i++) {
+                const oldBody = oldBodies[i];
+                const parent = newBodyIds.get(oldBody.orbiting);
+                if(parent !== undefined) {
+                    const newBody = oldBody.rescaleOrbiting(scale, parent);
+                    newBodies.push(newBody);
+                    newBodyIds.set(newBody.id, newBody);
+                    oldBodies.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+        return new SolarSystem(newSun, newBodies, false);
+    }
 }
 
 export default SolarSystem;
