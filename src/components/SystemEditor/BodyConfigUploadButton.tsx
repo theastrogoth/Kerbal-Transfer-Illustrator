@@ -1,14 +1,34 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import Button from "@mui/material/Button";
 import fileToBodyConfig from "../../main/utilities/loadPlanetConfig";
 import UploadFileOutlined from "@mui/icons-material/UploadFileOutlined";
 
-function BodyConfigUploadButton({editorBodies, setEditorBodies}: {editorBodies: OrbitingBodyConfig[], setEditorBodies: React.Dispatch<React.SetStateAction<OrbitingBodyConfig[]>>}) {
+import { useAtom } from "jotai";
+import { bodyConfigsAtom } from "../../App";
+
+function BodyConfigUploadButton() {
+  const [bodyConfigs, setBodyConfigs] = useAtom(bodyConfigsAtom);
+  const bodyConfigsRef = useRef(bodyConfigs);
   
   const handleFile = (e: any) => {
     const content = e.target.result;
-    const newEditorBodies = [...editorBodies, fileToBodyConfig(content)];
-    setEditorBodies(newEditorBodies);
+    const newConfig = fileToBodyConfig(content);
+
+    let newName = newConfig.name || newConfig.templateName as string;
+    const existingNames = bodyConfigsRef.current.map(c => c.name || c.templateName as string);        
+    const newNameIsDuplicate = (name: string) => {
+        return existingNames.find(existing => existing === name) !== undefined;
+    }
+    let counter = 1;
+    while(newNameIsDuplicate(newName)) {
+        newName = newConfig.name + "("+String(counter)+")";
+    }
+    console.log(newConfig.name, newName)
+    newConfig.name = newName;
+
+    const newBodyConfigs = [...bodyConfigsRef.current, newConfig];
+    setBodyConfigs(newBodyConfigs);
+    bodyConfigsRef.current = newBodyConfigs;
     console.log("...Body loaded from config.")
   }
   
@@ -18,6 +38,10 @@ function BodyConfigUploadButton({editorBodies, setEditorBodies}: {editorBodies: 
     fileData.onloadend = handleFile;
     fileData.readAsText(file);
   }
+
+  useEffect(() => {
+    bodyConfigsRef.current = bodyConfigs;
+  }, [bodyConfigs])
   
   return ( <>
     <input

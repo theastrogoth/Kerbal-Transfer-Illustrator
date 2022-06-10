@@ -131,7 +131,7 @@ export const flightPlansAtom = atom([] as FlightPlan[]);
 const defaultBodyConfigs = [sunToConfig(kspSystem.sun), ...kspSystem.orbiters.map(bd => bodyToConfig(bd, kspSystem))]
 export const bodyConfigsAtom = atom<(SunConfig | OrbitingBodyConfig)[]>(defaultBodyConfigs);
 export const editorSelectedNameAtom = atom(kspSystem.sun.name);
-export const configTreeAtom = atom<TreeNode<SunConfig | OrbitingBodyConfig>>(
+export const configTreeAtom = atom<{tree: TreeNode<SunConfig | OrbitingBodyConfig>, orphans: TreeNode<OrbitingBodyConfig>[]}>(
   (get) => {
     const configs = get(bodyConfigsAtom);
     const tree = bodyConfigsToTree(configs[0], configs.slice(1), kspSystem);

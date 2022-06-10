@@ -7,7 +7,7 @@ import ListItemText from '@mui/material/ListItemText';
 import IconButton from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
-// import LanguageIcon from '@mui/icons-material/Language';
+import LanguageIcon from '@mui/icons-material/Language';
 import PublicIcon from '@mui/icons-material/Public';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import ExpandLess from '@mui/icons-material/ExpandLess';
@@ -15,8 +15,9 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 
 import { useAtom } from "jotai";
 import { editorSelectedNameAtom, configTreeAtom } from "../../App";
+import { Typography } from "@mui/material";
 
-function BodyConfigListItem({node, depth = 0}: {node: TreeNode<SunConfig | OrbitingBodyConfig>, depth?: number}) {
+function BodyConfigListItem({node, depth = 0, orphan = false}: {node: TreeNode<SunConfig | OrbitingBodyConfig>, depth?: number, orphan?: boolean}) {
     const leaf = node.children === undefined;
     const [open, setOpen] = useState(depth === 0);
     const [, setSelectedName] = useAtom(editorSelectedNameAtom);
@@ -34,7 +35,7 @@ function BodyConfigListItem({node, depth = 0}: {node: TreeNode<SunConfig | Orbit
             <Stack direction="row">
                 <ListItemButton onClick={handleNodeClick} >
                     <ListItemIcon>
-                        {depth === 0 ? <Brightness7Icon fontSize="large"/> : depth === 1 ? <PublicIcon fontSize="medium" /> : <DarkModeIcon fontSize="small" /> }
+                        {orphan ? <LanguageIcon fontSize="medium" /> : (depth === 0 ? <Brightness7Icon fontSize="large"/> : depth === 1 ? <PublicIcon fontSize="medium" /> : <DarkModeIcon fontSize="small" />)}
                     </ListItemIcon>
                     <ListItemText primary={node.data.name || node.data.templateName} />
                 </ListItemButton>
@@ -61,9 +62,21 @@ function BodyConfigList() {
     const [configTree] = useAtom(configTreeAtom);
 
     return(
-        <List>
-            <BodyConfigListItem node={configTree} />
-        </List>
+        <Stack spacing={1} sx={{mx: 2, my: 2}}>
+            <Typography variant="h6">Solar System Tree</Typography>
+            <List>
+                <BodyConfigListItem node={configTree.tree} />
+            </List>
+            {configTree.orphans.length > 0 &&
+                <>
+                    <Typography variant="h6">Bodies with a missing Reference Body</Typography>
+                    <List>
+                        {configTree.orphans.map(orphan => <BodyConfigListItem node={orphan} orphan={true} />)} 
+                    </List>
+                </>
+            }
+        </Stack>
+
     )
 }
 

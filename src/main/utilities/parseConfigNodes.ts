@@ -13,7 +13,9 @@ export function parseConfigNodes(fileData: string) {
     while (fileData.includes('  ')) {
         fileData = fileData.replace(/ {2,}/g, ' ');     // ensure only single spaces
     }
-
+    if(fileData[0] === '\n') {                          // remove new line at the beginning of the file
+        fileData = fileData.slice(1);
+    }
     // characters that signal key/value start/end
     const trigger = new Set(['\n', '}', '=']);
     const keyIgnore = new Set(['\n', ' ', '{', '}', '=']);

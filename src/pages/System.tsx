@@ -14,6 +14,7 @@ import Select from "@mui/material/Select";
 import Navbar from '../components/Navbar';
 import BodyConfigList from "../components/SystemEditor/BodyConfigList";
 import BodyConfigControls from "../components/SystemEditor/BodyConfigControls";
+import TimeSettingsControls from "../components/TimeSettingsControls";
 
 import SolarSystem from "../main/objects/system";
 
@@ -21,6 +22,7 @@ import { useAtom } from "jotai";
 import { customSystemAtom, configTreeAtom, timeSettingsAtom } from "../App";
 import OrbitDisplay from "../components/OrbitDisplay";
 import Draw from "../main/libs/draw";
+import BodyConfigUploadButton from "../components/SystemEditor/BodyConfigUploadButton";
 
 function createBodyItems(system: SolarSystem) {
   const options =[<MenuItem key={system.sun.id} value={system.sun.name}>{system.sun.name}</MenuItem>];
@@ -67,7 +69,7 @@ function SolarSystemAppContent() {
   
   useEffect(() => {
     systemLoaderWorker
-      .postMessage(configTree);
+      .postMessage(configTree.tree);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [configTree]);
 
@@ -99,6 +101,9 @@ function SolarSystemAppContent() {
                 flexDirection: 'column',
               }}
             >
+              <Box sx={{mx: 2, my: 2}}>
+                <BodyConfigUploadButton />
+              </Box>
               <BodyConfigList />
             </Paper>
           </Grid>
@@ -125,6 +130,7 @@ function SolarSystemAppContent() {
                 flexDirection: 'column',
               }}
             >
+              <Typography variant="h5" sx={{mx: 2, my: 2}}>Custom System</Typography>
               <FormControl sx={{mx: 2, my: 2}} >
                 <InputLabel id={"body-select-label"}>Central Body</InputLabel>
                 <Select
@@ -150,6 +156,10 @@ function SolarSystemAppContent() {
                 defaultTraces={{systemTraces: Draw.drawSystemAtTime(centralBody, 0, timeSettings), orbitTraces: [] as Line3DTrace[]}}
                 plotSize={centralBody.orbiters.length === 0 ? 10 * centralBody.radius : 2 * centralBody.furtherstOrbiterDistance}
               />
+              <Box sx={{mx: 2, my: 2}}>
+                <Typography variant="body1">Time Settings</Typography>
+                <TimeSettingsControls />
+              </Box>
             </Paper>
           </Grid>
         </Grid>

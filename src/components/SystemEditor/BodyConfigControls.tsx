@@ -8,14 +8,16 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
+import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
-// import ClearIcon from '@mui/icons-material/Clear';
 import Divider from '@mui/material/Divider';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import AddIcon from '@mui/icons-material/Add';
+import ClearIcon from '@mui/icons-material/Clear';
 
 import { colorFromString, hexFromColorString } from "../../main/libs/math";
 
@@ -94,22 +96,23 @@ function BodyConfigControls() {
         }
     }
 
-    const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        let newName = event.target.value
-        const existingNames = bodyConfigs.map(c => c.name || c.templateName as string);
-        let counter = 1;
-        
-        const newNameIsDuplicate = (name: string) => {
-            return existingNames.find(existing => existing === name) !== undefined;
-        }
+    const newNameIsDuplicate = (name: string) => {
+        const existingNames = bodyConfigs.map(c => c.name || c.templateName as string);        
+        return existingNames.find(existing => existing === name) !== undefined;
+    }
 
+    const newUniqueName = (name: string) => {
+        let newName = name;
+        let counter = 1;
         while(newNameIsDuplicate(newName)) {
-            newName = event.target.value + "("+String(counter)+")"
+            newName = name + "("+String(counter)+")"
             counter++;
-            if(counter > 1000) {
-                break
-            }
         }
+        return newName;
+    }
+
+    const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newName = newUniqueName(event.target.value)
         const originalName = bodyConfigs[idx].name || bodyConfigs[idx].templateName as string;
         const newConfigs = [...bodyConfigs];
         const nameChangedConfig = Object.assign(bodyConfigs[idx]);
@@ -134,6 +137,7 @@ function BodyConfigControls() {
     const handleColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setColor(event.target.value);
         if(event.target.value !== ''){
+            console.log(event.target.value)
             const color = new Color(colorFromString(event.target.value));
             setValue("color")(color.toString());
         } else {
@@ -270,10 +274,34 @@ function BodyConfigControls() {
     return (
         <>
             <Stack spacing={1.5} sx={{mx:2, my:2}}>
-                <Typography>
-                    Identifiers
-                </Typography>
+                <Typography variant="h5">Body Configuration</Typography>
+                {/* <Typography>Identifiers</Typography> */}
                 <Divider />
+                <Stack direction="row" alignItems="center" justifyContent="center">
+                    <Button 
+                        variant="contained" 
+                        endIcon={<AddIcon />} 
+                        sx={{maxWidth: 200}}
+                        onClick={() => {setBodyConfigs([...bodyConfigs, {name: newUniqueName('New Body'), templateName: 'Kerbin'}])}}
+                    >
+                        New
+                    </Button>
+                    <Box flexGrow={1} sx={{maxWidth: '10%'}}/>
+                    <Button
+                        variant="contained"
+                        endIcon={<ClearIcon />}
+                        sx={{maxWidth: 200}}
+                        disabled={idx === 0}
+                        onClick={() => {
+                            const newBodyConfigs = [...bodyConfigs.slice(0, idx), ...bodyConfigs.slice(idx+1)];
+                            const newIdx = Math.min(idx, newBodyConfigs.length - 1);
+                            setBodyConfigs(newBodyConfigs);
+                            setIdx(newIdx);
+                        }}
+                    >
+                        Delete
+                    </Button>
+                </Stack>
                 <TextField 
                     label='Name' 
                     spellCheck={false}

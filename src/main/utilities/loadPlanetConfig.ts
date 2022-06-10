@@ -18,38 +18,43 @@ export function fileToSunConfig(configFile: string): SunConfig {
         atmosphereHeight:   configData[topKey].Body.Atmosphere.altitude,
         stdGravParam:       configData[topKey].Body.Properties.stdGravParam,
         geeASL:             configData[topKey].Body.Properties.geeASL,
-        templateName:       configData[topKey].Body.Template.name,
+        templateName:       "Sun",
     }
     return bodyData;
 }
 
 export function fileToBodyConfig(configFile: string): OrbitingBodyConfig {
     const configData: any = parseConfigNodes(configFile);
-    const topKey = [...configData.keys()][0];
+    console.log(configData)
+    const topKey = [...Object.keys(configData)][0];
+    const bodyData = configData[topKey].Body;
+    console.log(bodyData)
 
-    const templateName = configData[topKey].Body.Template.name;
+    const templateName = bodyData.Template ? bodyData.Template.name : "Kerbin";
 
-    let  name = configData[topKey].Body.name;
-    name = configData[topKey].cbNameLater || name;
+    const name = bodyData.name;
+    // name = configData[topKey].cbNameLater || name;
 
-    const flightGlobalsIndex = configData[topKey].Body.flightGlobalsIndex;
-    const radius = configData[topKey].Body.Properties.radius;
-    const stdGravParam = configData[topKey].Body.Properties.gravParameter;
-    const geeASL = configData[topKey].Body.Properties.geeASL;
-    const mass = configData[topKey].Body.Properties.mass;
-    const soi = configData[topKey].Body.Properties.soi;
-    const atmosphereHeight = configData[topKey].Body.Atmosphere.altitude;
+    const flightGlobalsIndex = bodyData.flightGlobalsIndex;
+    
+    const radius = bodyData.Properties.radius;
+    const stdGravParam = bodyData.Properties.gravParameter;
+    const geeASL = bodyData.Properties.geeASL;
+    const mass = bodyData.Properties.mass;
+    const soi = bodyData.Properties.soi;
 
-    const semiMajorAxis = configData[topKey].Body.Orbit.semiMajorAxis;
-    const eccentricity = configData[topKey].Body.Orbit.eccentricity;
-    const inclination = configData[topKey].Body.Orbit.inclination;
-    const argOfPeriapsis = configData[topKey].Body.Orbit.inclination;
-    const ascNodeLongitude = configData[topKey].Body.Orbit.inclination;
-    const meanAnomalyEpoch = configData[topKey].Body.Orbit.inclination;
-    const epoch = configData[topKey].Body.Orbit.inclination;
-    const referenceBody = configData[topKey].Body.Orbit.referenceBody;
+    const atmosphereHeight = bodyData.Atmosphere ? bodyData.Atmosphere.altitude : undefined;
 
-    const color = configData[topKey].Body.Orbit.color;
+    const semiMajorAxis = bodyData.Orbit.semiMajorAxis;
+    const eccentricity = bodyData.Orbit.eccentricity;
+    const inclination = bodyData.Orbit.inclination;
+    const argOfPeriapsis = bodyData.Orbit.inclination;
+    const ascNodeLongitude = bodyData.Orbit.inclination;
+    const meanAnomalyEpoch = bodyData.Orbit.inclination;
+    const epoch = bodyData.Orbit.inclination;
+    const referenceBody = bodyData.Orbit.referenceBody;
+
+    const color = bodyData.Orbit.color;
 
     const bodyConfig: OrbitingBodyConfig = {
         flightGlobalsIndex,
@@ -112,7 +117,7 @@ export function bodyToConfig(body: IOrbitingBody, system: SolarSystem): Orbiting
     }
 }
 
-export function bodyConfigsToTree(sunConfig: SunConfig, bodyConfigs: OrbitingBodyConfig[], refSystem: SolarSystem): TreeNode<SunConfig | OrbitingBodyConfig> {
+export function bodyConfigsToTree(sunConfig: SunConfig | OrbitingBodyConfig, bodyConfigs: OrbitingBodyConfig[], refSystem: SolarSystem): {tree: TreeNode<SunConfig | OrbitingBodyConfig>, orphans: TreeNode<OrbitingBodyConfig>[]} {
     const sunNode: TreeNode<SunConfig | OrbitingBodyConfig> = {
         data:       sunConfig,
         children:   [] as TreeNode<OrbitingBodyConfig>[],
@@ -143,9 +148,9 @@ export function bodyConfigsToTree(sunConfig: SunConfig, bodyConfigs: OrbitingBod
                 i -= 1;
             }
         }
-        // if none of the unassigned configs get added to the tree, throw an error
+        // if none of the unassigned configs get added to the tree, break the loop
         if(unassignedBodyConfigs.length === prevUnassignedLength) {
-            throw(Error("The remaining configs do not have valid reference bodies."))
+            break;
         }
     }
 
@@ -171,7 +176,7 @@ export function bodyConfigsToTree(sunConfig: SunConfig, bodyConfigs: OrbitingBod
         }
     }
 
-    return sunNode;
+    return {tree: sunNode, orphans: unassignedBodyConfigs.map(c => {return {data: c}}) as TreeNode<OrbitingBodyConfig>[]};
 }
 
 function depthFirstAddChildrenToList(list: (SunConfig | OrbitingBodyConfig)[], node: TreeNode<SunConfig | OrbitingBodyConfig>) {
