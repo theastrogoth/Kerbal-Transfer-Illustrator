@@ -21,6 +21,7 @@ import TimeSettingsControls from "../components/TimeSettingsControls";
 import BodyConfigUploadButton from "../components/SystemEditor/BodyConfigUploadButton";
 import SunConfigUploadButton from "../components/SystemEditor/SunConfigUploadButton";
 import OrbitDisplay from "../components/OrbitDisplay";
+import SelectProvidedConfigs from "../components/SystemEditor/SelectProvidedConfigs";
 
 import SolarSystem from "../main/objects/system";
 import Draw from "../main/libs/draw";
@@ -118,6 +119,7 @@ function SolarSystemAppContent() {
               }}
             >
               <Stack spacing={1.5} sx={{mx: 2, my: 2}} alignItems='center' justifyContent='center'>
+                <SelectProvidedConfigs />
                 <SunConfigUploadButton />
                 <BodyConfigUploadButton />
                 <Box>
