@@ -1,6 +1,6 @@
 {
   "name": "kerbal-transfer-illustrator",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.7.1",

@@ -83,6 +83,9 @@ function IncrementButton({value, setValue, step = 1, max = Infinity, min = -Infi
             onMouseDown={startIncrement} 
             onMouseUp={stopIncrement}
             onMouseLeave={stopIncrement}
+            onTouchStart={startIncrement}
+            onTouchEnd={stopIncrement}
+            onTouchMove={stopIncrement}
             style={{    
                     mx: 0,
                     my: 0,
