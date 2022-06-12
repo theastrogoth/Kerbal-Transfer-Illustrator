@@ -12,14 +12,15 @@ import jnsqconfigs from '../../data/jnsq_configs.json';
 import { sunToConfig, bodyToConfig } from "../../main/utilities/loadPlanetConfig";
 
 import { useAtom } from 'jotai';
-import { bodyConfigsAtom, kspSystem } from "../../App";
+import { bodyConfigsAtom, editorSelectedNameAtom, kspSystem } from "../../App";
 
 function SelectProvidedConfigs() {
     const [, setBodyConfigs] = useAtom(bodyConfigsAtom);
+    const [editorSelectedName, setEditorSelectedName] = useAtom(editorSelectedNameAtom)
     const [idx, setIdx] = useState(0);
 
-    const kspconfigs = useRef([sunToConfig(kspSystem.sun), ...kspSystem.orbiters.map(bd => bodyToConfig(bd, kspSystem))]).current;
-    const configsList = useRef([kspconfigs, opmconfigs, jnsqconfigs, rssconfigs, ksrssconfigs]).current;
+    const kspconfigs: (SunConfig | OrbitingBodyConfig)[] = useRef([sunToConfig(kspSystem.sun), ...kspSystem.orbiters.map(bd => bodyToConfig(bd, kspSystem))]).current;
+    const configsList: (SunConfig | OrbitingBodyConfig)[][] = useRef([kspconfigs, opmconfigs, jnsqconfigs, rssconfigs, ksrssconfigs]).current;
     const namesList = useRef(["Kerbol System (Stock)", "Kerbol System (OPM)", "Kerbol System (JNSQ)", "Sol System (RSS)", "Sol System (KSRSS)"]).current;
 
     const options = useRef(namesList.map((name, idx) => <MenuItem key={idx} value={idx}>{name}</MenuItem>)).current;
@@ -34,8 +35,13 @@ function SelectProvidedConfigs() {
                 value={idx}
                 onChange={(event) => {
                     const val = Number(event.target.value);
+                    const newConfigs = configsList[val];
+                    const nameInNewConfigs = newConfigs.find(c => (c.name || c.templateName) === editorSelectedName) !== undefined;
+                    if(!nameInNewConfigs) {
+                        setEditorSelectedName("Sun");
+                    }
                     setIdx(val);
-                    setBodyConfigs(configsList[val]);
+                    setBodyConfigs(newConfigs);
                 }}
             >
                 {options}
