@@ -54,6 +54,10 @@ function HelpCollapse({showHelp}: {showHelp: boolean}) {
                                 <TableCell align="right" sx={{borderBottom: "none"}}>9.</TableCell>
                                 <TableCell sx={{borderBottom: "none"}}>View the trajectory using the orbit plots. Left-click and drag to rotate, right-click and drag to pan, and scroll to zoom. Hover over orbit paths to see detailed information. Use the slider beneath the plot to view the system at different times throughout the transfer.</TableCell>
                             </TableRow>
+                            <TableRow>
+                                <TableCell align="right" sx={{borderBottom: "none"}}>10.</TableCell>
+                                <TableCell sx={{borderBottom: "none"}}>To save or share the computed trajectory, press the "Copy Link to this Multi-Flyby" button. Be warned: the copied URL will be very long!</TableCell>
+                            </TableRow>
                         </TableBody>
                     </Table>
                 </TableContainer>
@@ -61,14 +65,12 @@ function HelpCollapse({showHelp}: {showHelp: boolean}) {
             <Typography variant="h6">Advanced Usage</Typography>
             <Box sx={{mx:8, my: 1}}>
                 <Typography variant="body2">
-                    For those playing on PC (without mods that change the solar system), upload your savefile using the "UPLOAD SAVE FILE" button near the top of the page. Once loaded, orbits of any not-landed vessels, asteroids, and comets in your save can be selected under "Orbit Settings".
+                    For those playing on PC, upload your savefile using the "UPLOAD SAVE FILE" button near the top of the page. Once loaded, orbits of any not-landed vessels, asteroids, and comets in your save can be selected under "Orbit Settings".
+                    If you are using a modded system, be sure to select it under the System dropdown selector, or upload your Kopernics config files on the System Editor page.
                 </Typography>
             </Box>
             <Typography variant="h6">Additional Information</Typography>
             <Stack sx={{mx:8, my: 1}} spacing={1.25}>
-                <Typography variant="body2">
-                    More features are planned, including support for modded solar systems and additional options. Stay tuned!
-                </Typography>
                 <Typography variant="body2">
                     In the orbit plots, all orbiting bodies will have two wireframe traces. The smaller one represents the surface of the body, while the larger one represents its sphere of influence (SoI).
                     The SoI is where body escapes or encounters occur in KSP.
@@ -77,7 +79,11 @@ function HelpCollapse({showHelp}: {showHelp: boolean}) {
                     The trajectories calculated by the app make use of powered flybys, but do not consider the use of deep space maneuvers. 
                 </Typography>
                 <Typography variant="body2">
-                    The trajectories calculated by the app use the "zero SoI" assumption for computing transfers. For situations where a body's SoI is not negligible compared to the transfer distances, the resulting trajectories may not be accurate.
+                    The "unrefined" trajectories calculated by the app use the "zero SoI" assumption for computing transfers. For situations where a body's SoI is not negligible compared to the transfer distances, the resulting trajectories may not be accurate.
+                </Typography>
+                <Typography variant="body2">
+                    The optimizer for patching trajectories across an SoI has not yet been fine-tuned, so it may take many presses of the "REFINE TRAJECTORY" button to reduce the error to near-zero.
+                    Keep in mind that the distances involved in interplanetary travel are large, so even errors of a few thousand meters can sometimes be safely ignored. Trajectories can be very sensitive to time errors, however.
                 </Typography>
             </Stack>
             <Divider/>

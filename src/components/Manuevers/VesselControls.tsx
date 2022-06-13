@@ -3,9 +3,12 @@ import Box from "@mui/system/Box"
 import Typography from '@mui/material/Typography';
 import Stack from "@mui/material/Stack"
 import TextField from "@mui/material/TextField";
-import IconButton from "@mui/material/IconButton";
+import Button from "@mui/material/Button";
 import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
+import ClearIcon from '@mui/icons-material/Clear';
+import Divider from "@mui/material/Divider";
+
+import Color from "../../main/objects/color";
 
 import OrbitControls from "../OrbitControls";
 import ManeuverControls from "./ManeuverControls";
@@ -13,17 +16,12 @@ import VesselSelect from "../VesselSelect";
 import PasteButton from "../PasteButton"
 import { defaultManeuverComponents, orbitFromElementsAndSystem } from "../../utils";
 
-import { radToDeg } from "../../main/libs/math";
+import { radToDeg, colorFromString, hexFromColorString } from "../../main/libs/math";
 
 import { atom, useAtom } from "jotai";
 import { copiedFlightPlanAtom, systemAtom, vesselPlansAtom, vesselsAtom } from "../../App";
 
-
-export type VesselControlsState = {
-    idx:                number, 
-}
-
-function VesselControls({idx}: {idx: number}) {
+function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, tabValues: number[], setTabValues: React.Dispatch<React.SetStateAction<number[]>>, setValue: React.Dispatch<React.SetStateAction<number>>}) {
     const [system] = useAtom(systemAtom);
     const [vesselPlans, setVesselPlans] = useAtom(vesselPlansAtom);
     const [vessels] = useAtom(vesselsAtom);
@@ -42,6 +40,7 @@ function VesselControls({idx}: {idx: number}) {
     } as OrbitalElements)).current;
 
     const [plan, setPlan] = useState({name: vesselPlans[idx].name, orbit: vesselPlans[idx].orbit, maneuvers: vesselPlans[idx].maneuvers} as IVessel);
+    const [color, setColor] = useState(plan.color ? new Color(plan.color).toString() : 'rgb(200,200,200)');
 
     const [orbit, setOrbit] = useAtom(orbitAtom);
     const [vesselId, setVesselId] = useAtom(vesselIdAtom);
@@ -60,44 +59,70 @@ function VesselControls({idx}: {idx: number}) {
         }
     }
 
-    const handleAddManeuver = (event: any): void => {
-        const date = plan.maneuvers.length > 0 ? plan.maneuvers[plan.maneuvers.length - 1].date : Number(orbit.epoch);
-        const newManeuvers = [...plan.maneuvers, defaultManeuverComponents(date)];
+    const setManeuvers = (maneuvers: ManeuverComponents[]) => {
         const newPlan: IVessel = {
             name:       plan.name,
+            color:      plan.color,
             orbit:      plan.orbit,
-            maneuvers:  newManeuvers,
+            maneuvers:  maneuvers.sort((a,b) => a.date - b.date),
         }
         setPlan(newPlan);
+    };
+
+    const handleAddManeuver = () => {
+        const date = plan.maneuvers.length > 0 ? plan.maneuvers[plan.maneuvers.length - 1].date : Number(orbit.epoch);
+        const newManeuvers = [...plan.maneuvers, defaultManeuverComponents(date)];
+        setManeuvers(newManeuvers);
     }
 
-    const handleRemoveManeuver = (event: any): void => {
-        const newManeuvers = [...plan.maneuvers];
-        newManeuvers.pop();
-        const newPlan: IVessel = {
-            name:       plan.name,
-            orbit:      plan.orbit,
-            maneuvers:  newManeuvers,
-        };
-        setPlan(newPlan);
+    const handleColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setColor(event.target.value);
+        if(event.target.value !== ''){
+            const color = new Color(colorFromString(event.target.value));
+            const newPlan: IVessel = {
+                name:       plan.name,
+                color:      color.data,
+                orbit:      plan.orbit,
+                maneuvers:  plan.maneuvers,
+            }
+            setPlan(newPlan);
+        } else {
+            const newPlan: IVessel = {
+                name:       plan.name,
+                color:      undefined,
+                orbit:      plan.orbit,
+                maneuvers:  plan.maneuvers,
+            }
+            setPlan(newPlan);
+        }
     }
 
-    const setName = (name: string) => {
+    const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const newPlan: IVessel = {
-            name,
+            name:       event.target.value,
+            color:      plan.color,
             orbit:      plan.orbit,
             maneuvers:  plan.maneuvers,
         };
         setPlan(newPlan);
     };
 
-    const setManeuvers = (maneuvers: ManeuverComponents[]) => {
-        const newPlan: IVessel = {
-            name:       plan.name,
-            orbit:      plan.orbit,
-            maneuvers,
+    const handleRemoveVessel = () => {
+        if(vesselPlans.length > 0) {
+            const value = tabValues[idx]
+
+            const newTabValues = [...tabValues];
+            newTabValues.splice(idx, 1);
+            setTabValues(newTabValues);
+
+            const newVesselPlans = [...vesselPlans];
+            newVesselPlans.splice(idx, 1);
+            setVesselPlans(newVesselPlans);
+
+            if(value === idx && value !== 0) {
+                setValue(value - 1)
+            }
         }
-        setPlan(newPlan);
     };
 
     useEffect(() => {
@@ -138,35 +163,63 @@ function VesselControls({idx}: {idx: number}) {
                 vessels={vessels}
                 label={''}
                 vesselId={vesselId}
-                handleVesselIdChange={handleVesselIdChange} />
+                handleVesselIdChange={handleVesselIdChange} 
+            />
             <TextField
                 id={'name-'+String(idx)}
                 label='Name'
                 spellCheck={false}
                 value={plan.name}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setName(event.target.value)}
-                sx={{ fullWidth: "true" }} />      
+                onChange={handleNameChange}
+                sx={{ fullWidth: "true" }} 
+            />
+            <TextField
+                id={'color-'+String(idx)}
+                label='Color'
+                spellCheck={false}
+                value={color}
+                onChange={handleColorChange}
+                sx={{ fullWidth: "true" }} 
+                // @ts-ignore
+                inputProps={{ style: {color: color !== '' ? hexFromColorString(color) : 'primary'} }}
+            />      
+            <Divider />
             <OrbitControls label={"Starting Orbit"} orbitAtom={orbitAtom} vesselSelect={false} />
+            <Divider />
             <Typography variant="body1">{"Maneuvers"} </Typography>
             <Stack spacing={2} >
                 { plan.maneuvers.map( (m, idx) => <ManeuverControls key={idx} idx={idx} maneuvers={plan.maneuvers} setManeuvers={setManeuvers} /> ) }
             </Stack>
             <Stack direction="row" spacing={2} textAlign="center" justifyContent="center">
-                <IconButton sx={{border: "1px solid"}} size="small" onClick={handleAddManeuver}>
-                    <AddIcon />
-                </IconButton>
-                <IconButton sx={{border: "1px solid"}} size="small" onClick={handleRemoveManeuver}>
-                    <RemoveIcon />
-                </IconButton>
+                <Button 
+                    onClick={handleAddManeuver}
+                    startIcon={<AddIcon />}
+                >
+                    Add Maneuver
+                </Button>
             </Stack>
-            <Box></Box>
-            <Box></Box>
-            <Box display="flex" justifyContent="center" alignItems="center" >
-                <Typography variant="body1" sx={{fontWeight: 600}}>
-                        Paste Flight Plan
-                </Typography>
-                <PasteButton setObj={setPlan} copiedObj={copiedFlightPlan} />
-            </Box>
+            <Divider />
+            <Stack direction="column" spacing={2} justifyContent="center" alignItems="center" >
+                <Box display="flex" justifyContent="center" alignItems="center">
+                    <PasteButton 
+                        setObj={setPlan} 
+                        copiedObj={copiedFlightPlan} 
+                        variant="text"
+                        label="Paste Flight Plan"
+                    />
+                </Box>
+                <Box display="flex" justifyContent="center" alignItems="center">
+                    <Button 
+                        variant="text"
+                        color="inherit"
+                        onClick={handleRemoveVessel}
+                        startIcon={<ClearIcon />}
+                    >
+                        Delete Flight Plan
+                    </Button>
+                </Box>
+            </Stack>
+
         </Stack>
     )
 }

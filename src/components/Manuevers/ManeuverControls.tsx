@@ -1,17 +1,19 @@
 import React, { useEffect, useState, useRef } from "react";
+import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
-import RequiredNumberField from "../NumberField"
-import { timeFromDateFieldState, makeDateFields } from "../../utils";
-import DateField from "../DateField";
-import { timeToCalendarDate } from "../../main/libs/math";
 import Typography from "@mui/material/Typography";
 import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
 import ClearIcon from '@mui/icons-material/Clear';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import { Box } from "@mui/system";
+
+import RequiredNumberField from "../NumberField"
+import DateField from "../DateField";
 import PasteButton from "../PasteButton";
+
+import { timeToCalendarDate } from "../../main/libs/math";
+import { timeFromDateFieldState, makeDateFields } from "../../utils";
 
 import { atom, useAtom } from "jotai";
 import { copiedManeuverAtom, timeSettingsAtom } from "../../App";
@@ -52,10 +54,16 @@ function ManeuverControls({idx, maneuvers, setManeuvers}: ManeuverControlsState)
     const radialRef = useRef(radial);
     const UTRef = useRef(UT);
 
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(idx === 0);
 
     const handleToggle = () => {
         setOpen(!open);
+    }
+
+    const handleRemoveManeuver = () => {
+        const newManeuvers = [...maneuvers];
+        newManeuvers.splice(idx,1);
+        setManeuvers(newManeuvers);
     }
 
     const setUTandUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,10 +130,20 @@ function ManeuverControls({idx, maneuvers, setManeuvers}: ManeuverControlsState)
                 >
                     {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
                 </IconButton>
-                <Box sx={{ flexGrow: 1 }} />
+                <Box sx={{ flexGrow: 11 }} />
                 <Typography variant="body2" >
                     {String(Math.round(Math.sqrt(maneuvers[idx].prograde ** 2 + maneuvers[idx].normal ** 2 + maneuvers[idx].radial ** 2) * 100) / 100) + " m/s"}
                 </Typography>
+                <Box sx={{ flexGrow: 1 }} />
+                <PasteButton setObj={(m: ManeuverComponents) => { const newManeuvers = [...maneuvers]; newManeuvers[idx] = m; setManeuvers(newManeuvers)} } copiedObj={copiedManeuver}/>
+                <IconButton 
+                    size="small"
+                    color="inherit"
+                    // @ts-ignore
+                    onClick={handleRemoveManeuver}
+                >
+                    <ClearIcon />
+                </IconButton>
             </Box>
             <Collapse in={open}>
                 <Stack spacing={1.5}>
@@ -160,21 +178,9 @@ function ManeuverControls({idx, maneuvers, setManeuvers}: ManeuverControlsState)
                         correctFormat={true}
                         variant="all"  
                     />
-                    <Box display="flex" justifyContent="center" alignItems="center" >
-                        <PasteButton setObj={(m: ManeuverComponents) => { const newManeuvers = [...maneuvers]; newManeuvers[idx] = m; setManeuvers(newManeuvers)} } copiedObj={copiedManeuver}/>
-                        <IconButton 
-                            size="small"
-                            color="inherit"
-                            // @ts-ignore
-                            onClick={() => { const newManeuvers = [...maneuvers]; newManeuvers[idx] = {prograde: 0, normal: 0, radial: 0, date: maneuvers[idx].date}; setManeuvers(newManeuvers)} }
-                        >
-                            <ClearIcon />
-                        </IconButton>
-                    </Box>
                 </Stack>
             </Collapse>
         </>
-        
     );
 }
 

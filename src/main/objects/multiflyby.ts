@@ -66,14 +66,14 @@ class MultiFlyby implements IMultiFlyby {
 
     public get data(): IMultiFlyby {
         return {
-            system:                 this.system,
-            startOrbit:             this.startOrbit,
-            endOrbit:               this.endOrbit,
+            system:                 this.system.data,
+            startOrbit:             this.startOrbit.data,
+            endOrbit:               this.endOrbit.data,
             flybyIdSequence:        this.flybyIdSequence,
             startDate:              this.startDate,
             flightTimes:            this.flightTimes,
             endDate:                this.endDate,
-            transferBody:           this.transferBody,
+            transferBody:           this.transferBody.data,
             ejections:              this.ejections,
             insertions:             this.insertions,
             transfers:              this.transfers,

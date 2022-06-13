@@ -30,7 +30,7 @@ function SelectProvidedConfigs() {
             <InputLabel id={"system-select-label"}>System Configs Selection</InputLabel>
             <Select
                 labelId={"system-select-label"}
-                label='Solar System'
+                label='System Configs Selection'
                 id={'system-select'}
                 value={idx}
                 onChange={(event) => {

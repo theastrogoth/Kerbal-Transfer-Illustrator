@@ -4,7 +4,7 @@ import OrbitDisplayTabs from '../components/Manuevers/OrbitDisplayTabs';
 import FlightPlanInfoTabs from '../components/Manuevers/FlightPlanInfoTabs';
 import HelpCollapse from '../components/Manuevers/HelpCollapse';
 
-import React, {useEffect, useState, useRef } from "react";
+import React, {useEffect, useState } from "react";
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
 import Stack from '@mui/material/Stack';
@@ -17,8 +17,7 @@ import AlertTitle from '@mui/material/AlertTitle';
 import Collapse from '@mui/material/Collapse';
 
 import { useAtom } from 'jotai';
-import { atomWithHash } from 'jotai/utils';
-import { systemAtom, flightPlansAtom, vesselPlansAtom, systemNameAtom } from '../App'; // customSystemAtom
+import { systemAtom, flightPlansAtom, vesselPlansAtom } from '../App';
 
 
 // worker
@@ -26,21 +25,7 @@ const propagateWorker = new Worker(new URL("../workers/propagate.worker.ts", imp
 
 ////////// App Content //////////
 function ManeuversAppContent() { 
-  const [systemName, setSystemName] = useAtom(systemNameAtom);
-  const systemNameRef = useRef(systemName);
-  const systemNameHashAtom = useRef(atomWithHash("systemName", systemName)).current;
-  const [systemNameHash, setSystemNameHash] = useAtom(systemNameHashAtom)
-
-  // TODO: Implement system editor with custom system, store custom system in URL hash
-  // const [customSystem, setCustomSystem] = useAtom(customSystemAtom);
-  // const customSystemRef = useRef(customSystem);
-  // const customSystemHashAtom = useRef(atomWithHash("customSystem", customSystem)).current;
-  // const [customSystemHash, setSystemHash] = useAtom(customSystemHashAtom)
-
-  const [vesselPlans, setVesselPlans] = useAtom(vesselPlansAtom);
-  const vesselPlansRef = useRef(vesselPlans);
-  const vesselPlansHashAtom = useRef(atomWithHash("vesselPlans", vesselPlans)).current;
-  const [vesselPlansHash, setVesselPlansHash] = useAtom(vesselPlansHashAtom);
+  const [vesselPlans] = useAtom(vesselPlansAtom);
 
   const [system] = useAtom(systemAtom);
   const [, setFlightPlans] = useAtom(flightPlansAtom);
@@ -48,51 +33,6 @@ function ManeuversAppContent() {
   // const [invalidInput, setInvalidInput] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
-useEffect(() => {
-  if(systemName !== systemNameRef.current){
-    systemNameRef.current = systemNameHash;
-    setSystemNameHash(systemName);
-  }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [systemName])
-
-useEffect(() => {
-  if(systemNameHash !== systemNameRef.current) {
-    systemNameRef.current = systemNameHash;
-    setSystemName(systemNameHash);
-  }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [systemNameHash])
-
-// useEffect(() => {
-//   if(customSystem !== customSystemRef.current){
-//     customSystemRef.current = customSystemHash;
-//     setSystemHash(customSystem);
-//   }
-// }, [customSystem])
-
-// useEffect(() => {
-//   if(customSystemHash !== customSystemRef.current) {
-//     customSystemRef.current = customSystemHash;
-//     setCustomSystem(customSystemHash);
-//   }
-// }, [customSystemHash])
-
-useEffect(() => {
-  if(vesselPlans !== vesselPlansRef.current){
-    vesselPlansRef.current = vesselPlansHash;
-    setVesselPlansHash(vesselPlans);
-  }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [vesselPlans])
-
-useEffect(() => {
-  if(vesselPlansHash !== vesselPlansRef.current) {
-    vesselPlansRef.current = vesselPlansHash;
-    setVesselPlans(vesselPlansHash);
-  }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [vesselPlansHash])
 
 useEffect(() => {
   propagateWorker.onmessage = (event: MessageEvent<FlightPlan[]>) => {

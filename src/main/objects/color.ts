@@ -18,6 +18,15 @@ export class Color implements IColor {
                           a: this.a});
     }
 
+    public get data(): IColor {
+        return {
+            r: this.r,
+            g: this.g,
+            b: this.b,
+            a: this.a,
+        }
+    }
+
     public toString() {
         return 'rgba('.concat(this.r.toString(), ",", this.g.toString(), ",", this.b.toString(), ",", this.a.toString(), ")");
     }

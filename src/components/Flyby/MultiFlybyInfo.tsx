@@ -19,6 +19,7 @@ import { timeToCalendarDate, calendarDateToString, calendarDateToDurationString}
 
 import { useAtom } from "jotai";
 import { copiedFlightPlanAtom, multiFlybyAtom, timeSettingsAtom } from "../../App";
+import GetLinkButton from "./GetLinkButton";
 
 
 
@@ -68,6 +69,10 @@ function MultiFlybyInfo() {
             <Box textAlign="center">
                 <Typography variant="h5">Selected Transfer Details</Typography>
             </Box>
+            <Divider />
+            <Stack alignItems="center" justifyContent="center">
+                <GetLinkButton />
+            </Stack>
             <Divider />
             <Typography variant="h6">Overview</Typography>
             <TableContainer>
@@ -123,10 +128,13 @@ function MultiFlybyInfo() {
                 </Table>
             </TableContainer>
             <Box display="flex" justifyContent="center" alignItems="center">
-                <Typography variant="body1" sx={{fontWeight: 600}}>
-                        Copy Flight Plan
-                </Typography>
-                <CopyButton obj={flightPlan} copiedObj={copiedFlightPlan} setCopiedObj={setCopiedFlightPlan} size={"large"}/>
+                <CopyButton 
+                    obj={flightPlan} 
+                    copiedObj={copiedFlightPlan} 
+                    setCopiedObj={setCopiedFlightPlan} 
+                    variant="text"
+                    label="Copy Flight Plan"
+                />
             </Box>
         </Stack>
     )

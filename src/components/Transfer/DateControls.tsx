@@ -5,6 +5,8 @@ import React, { useEffect, useState } from "react"
 import Box from "@mui/material/Box";
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 import { timeSettingsAtom } from "../../App";
 
@@ -86,10 +88,11 @@ function DateControls() {
             <Box textAlign='center'>
                 <Button 
                     variant="text" 
+                    startIcon={optsVisible ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
                     onClick={() => setOptsVisible(!optsVisible)}
                     sx={{ mx: 'auto' }}
                 >
-                    {(optsVisible ? '\u25B4' : '\u25BE') + ' Advanced Options'}
+                    Advanced Options
                 </Button>
             </Box>
         </>

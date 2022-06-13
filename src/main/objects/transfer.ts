@@ -61,9 +61,9 @@ export class Transfer implements ITransfer {
 
     public get data(): ITransfer {
         return {
-            system:                 this.system,
-            startOrbit:             this.startOrbit,
-            endOrbit:               this.endOrbit,
+            system:                 this.system.data,
+            startOrbit:             this.startOrbit.data,
+            endOrbit:               this.endOrbit.data,
             startDate:              this.startDate,
             flightTime:             this.flightTime,
             endDate:                this.endDate,
