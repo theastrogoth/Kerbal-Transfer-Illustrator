@@ -172,7 +172,7 @@ function TransferAppContent() {
                       onClick={() => handlePlotButtonPress()}
                       sx={{ mx: 'auto', my: 2 }}
                   >
-                    ⇩ Plot It!
+                    Plot It!
                   </LoadingButton>
                 </Box>
               <PorkchopPlot 

@@ -72,7 +72,7 @@ function FlybyAppContent() {
   const [flightTimes] = useAtom(multiFlybyFlightTimesAtom);
   const [controlsOptionsState] = useAtom(multiFlybyControlsOptionsAtom);
 
-  const [mfSearchInputs, setMfSearchInputs] = useState(searchInputsFromUI(system, startOrbit, endOrbit, flybyIdSequence, earlyStartDate, lateStartDate, flightTimes, controlsOptionsState, timeSettings));
+  const [mfSearchInputs, setMfSearchInputs] = useState<MultiFlybySearchInputs | null>(null);
   const [invalidInput, setInvalidInput] = useState(false);
   const [buttonPresses, setButtonPresses] = useState(0);
   const [calculating, setCalculating] = useState(false);
@@ -182,11 +182,11 @@ function FlybyAppContent() {
                     onClick={() => handleButtonPress()}
                     sx={{ mx: 'auto', my: 2 }}
                 >
-                  ⇩ Search Trajectories
+                  Search Trajectories
                 </LoadingButton>
               </Box>
               <EvolutionPlot 
-                inputs={mfSearchInputs}
+                inputs={mfSearchInputs as MultiFlybySearchInputs}
                 buttonPresses={buttonPresses} 
                 setCalculating={setCalculating}
               />

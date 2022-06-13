@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 
 import { useAtom } from "jotai";
 import { atomWithHash } from "jotai/utils";
-import { bodyConfigsAtom, systemScaleAtom } from "../../App";
+import { bodyConfigsAtom, systemScaleAtom, editorSelectedNameAtom } from "../../App";
 
 const systemScaleHashAtom = atomWithHash<string | null>("systemScale", null);
 const bodyConfigsHashAtom = atomWithHash<(SunConfig | OrbitingBodyConfig)[] | null>("bodyConfigs", null);
@@ -19,6 +19,8 @@ function GetLinkButton() {
     const [bodyConfigs, setBodyConfigs] = useAtom(bodyConfigsAtom);
     const [bodyConfigsHash, setBodyConfigsHash] = useAtom(bodyConfigsHashAtom);
     const bodyConfigsRef = useRef(bodyConfigs);
+
+    const [, setSelectedName] = useAtom(editorSelectedNameAtom);
 
     const [copied, setCopied] = useState(false);
 
@@ -40,6 +42,7 @@ function GetLinkButton() {
         if(bodyConfigsHash !== null && bodyConfigsRef.current !== bodyConfigsHash) {
             setBodyConfigs(bodyConfigsHash);
             bodyConfigsRef.current = bodyConfigsHash;
+            setSelectedName(bodyConfigsHash[0].name || bodyConfigsHash[0].templateName as string);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [bodyConfigsHash])

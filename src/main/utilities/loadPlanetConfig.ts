@@ -3,7 +3,7 @@ import { OrbitingBody } from "../objects/body";
 import parseConfigNodes from "./parseConfigNodes";
 import Color from "../objects/color";
 import Kepler from "../libs/kepler";
-import { colorFromRGBA } from "../libs/math";
+import { radToDeg, colorFromRGBA } from "../libs/math";
 import loadSystemData from "./loadSystem";
 
 export function fileToSunConfig(configFile: string): SunConfig {
@@ -105,9 +105,9 @@ export function bodyToConfig(body: IOrbitingBody, system: SolarSystem): Orbiting
         soi:                    String(body.soi),
         semiMajorAxis:          String(body.orbit.semiMajorAxis),
         eccentricity:           String(body.orbit.eccentricity),
-        inclination:            String(body.orbit.inclination),
-        argOfPeriapsis:         String(body.orbit.argOfPeriapsis),
-        ascNodeLongitude:       String(body.orbit.ascNodeLongitude),
+        inclination:            String(radToDeg(body.orbit.inclination)),
+        argOfPeriapsis:         String(radToDeg(body.orbit.argOfPeriapsis)),
+        ascNodeLongitude:       String(radToDeg(body.orbit.ascNodeLongitude)),
         meanAnomalyEpoch:       String(body.orbit.meanAnomalyEpoch),
         epoch:                  String(body.orbit.epoch),
         color:                  (new Color(body.color)).toString(),
@@ -293,9 +293,9 @@ function bodyConfigToSystemInputs(data: OrbitingBodyConfig, id: number, parentId
         orbit:              {
                                 semiMajorAxis:      data.semiMajorAxis ? Number(data.semiMajorAxis) : template!.orbit.semiMajorAxis,
                                 eccentricity:       data.eccentricity ? Number(data.eccentricity) : template!.orbit.eccentricity,
-                                inclination:        data.inclination ? Number(data.inclination) : template!.orbit.inclination,
-                                argOfPeriapsis:     data.argOfPeriapsis ? Number(data.argOfPeriapsis) : template!.orbit.argOfPeriapsis,
-                                ascNodeLongitude:   data.ascNodeLongitude ? Number(data.ascNodeLongitude) : template!.orbit.ascNodeLongitude,
+                                inclination:        data.inclination ? Number(data.inclination) : radToDeg(template!.orbit.inclination),
+                                argOfPeriapsis:     data.argOfPeriapsis ? Number(data.argOfPeriapsis) : radToDeg(template!.orbit.argOfPeriapsis),
+                                ascNodeLongitude:   data.ascNodeLongitude ? Number(data.ascNodeLongitude) : radToDeg(template!.orbit.ascNodeLongitude),
                                 meanAnomalyEpoch:   data.meanAnomalyEpoch ? Number(data.meanAnomalyEpoch) : template!.orbit.meanAnomalyEpoch,
                                 epoch:              data.epoch ? Number(data.epoch) : template!.orbit.epoch,
                                 orbiting:           parentId,
