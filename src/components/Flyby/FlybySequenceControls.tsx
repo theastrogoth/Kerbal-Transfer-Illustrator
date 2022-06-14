@@ -23,7 +23,10 @@ function handleBodyIdChange(index: number, flybyIdSequence: number[], setFlybyId
 }
 
 function createBodyItems(system: SolarSystem, startBodyId: number, endBodyId: number) {
-    const transferBodyId = system.commonAttractorId(startBodyId, endBodyId);
+    let transferBodyId: number = 0;
+    try {
+        transferBodyId = system.commonAttractorId(startBodyId, endBodyId);
+    } catch {}
     const transferBody = system.bodyFromId(transferBodyId);
     const options: JSX.Element[] = [];
     const bds = transferBody.orbiters;
@@ -31,6 +34,7 @@ function createBodyItems(system: SolarSystem, startBodyId: number, endBodyId: nu
         options.push(<MenuItem key={bds[i].id} value={bds[i].id}>{bds[i].name}</MenuItem>)
     }
     return options;
+    
 }
 
 function createBodyDropdown(bodyOptions: JSX.Element[], index: number, value: number, flybyIdSequence: number[], setFlybyIdSequence: React.Dispatch<React.SetStateAction<number[]>>) {

@@ -14,6 +14,8 @@ import Stack from "@mui/material/Stack";
 import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
 import ClearIcon from '@mui/icons-material/Clear';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 import { defaultOrbit } from "../utils";
 import { radToDeg } from "../main/libs/math";
@@ -194,7 +196,7 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
                         id={'body-'+label}
                         value={bodyId}
                         onChange={(e) => setBodyId(Number(e.target.value))}
-                        error={isNaN(bodyId)}
+                        error={isNaN(bodyId) || bodyOptions.find(opt => Number(opt.key) === bodyId) === undefined}
                     >
                         {bodyOptions}
                     </Select>
@@ -260,9 +262,10 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
             <Stack direction='row' spacing={1} display="flex" justifyContent="center" alignItems="center" >
                 <Button 
                     variant="text" 
+                    startIcon={optsVisible ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
                     onClick={() => setOptsVisible(!optsVisible)}
                 >
-                    {(optsVisible ? '\u25B4' : '\u25BE' ) + ' Advanced Options'}
+                    Advanced Options
                 </Button>
                 <PasteButton setObj={(o: IOrbit) => setOrbitAndFields(o)} copiedObj={copiedOrbit}/>
                 <IconButton 

@@ -56,7 +56,7 @@ function BodyConfigUploadButton() {
       multiple={true}
     />
     <label htmlFor="uploaded-body-config">
-      <Button variant="outlined" 
+      <Button variant="text" 
               color="inherit" 
               component="span" 
               startIcon={<UploadFileOutlined />}

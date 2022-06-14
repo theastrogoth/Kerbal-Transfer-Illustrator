@@ -8,8 +8,8 @@ import Draw from "../../main/libs/draw";
 import OrbitDisplay, { OrbitDisplayProps } from "../OrbitDisplay";
 
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import CircularProgress from "@mui/material/CircularProgress";
+import LoadingButton from "@mui/lab/LoadingButton";
+import CalculateIcon from '@mui/icons-material/Calculate';
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Grid from "@mui/material/Grid";
@@ -18,6 +18,7 @@ import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
+
 import { useAtom } from "jotai";
 import { multiFlybyAtom, timeSettingsAtom } from "../../App";
 
@@ -315,23 +316,16 @@ function OrbitDisplayTabs() {
             {orbitDisplayProps.map((props, index) => <OrbitTabPanel key={index} value={value} index={props.index} props={props}/>)}
             {multiFlyby.deltaV > 0 &&
             <Box textAlign='center'>
-                <Button 
+                <LoadingButton 
                     variant="contained" 
-                    disabled={calculating}
+                    loadingPosition="end"
+                    endIcon={<CalculateIcon />}
+                    loading={calculating}
                     onClick={() => handleRefineButtonPress()}
                     sx={{ mx: 'auto', my: 4 }}
                 >
                     Refine Trajectory
-                    {calculating &&
-                    <CircularProgress
-                        size={24}
-                        sx={{
-                        position: 'relative',
-                        left: '10px',
-                        }}
-                    />
-                    }
-                </Button>
+                </LoadingButton>
                 {refined &&
                 <Grid container justifyContent='center'>
                     <Grid item xs={12} sm={10} md={8}>

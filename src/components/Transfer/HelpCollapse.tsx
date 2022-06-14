@@ -58,6 +58,10 @@ function HelpCollapse({showHelp}: {showHelp: boolean}) {
                                 <TableCell align="right" sx={{borderBottom: "none"}}>10.</TableCell>
                                 <TableCell sx={{borderBottom: "none"}}>To obtain a more accurate transfer, press the "REFINE TRANSFER" button. Error will be displayed beneath button. It can be pressed multiple times to further reduce the error.</TableCell>
                             </TableRow>
+                            <TableRow>
+                                <TableCell align="right" sx={{borderBottom: "none"}}>11.</TableCell>
+                                <TableCell sx={{borderBottom: "none"}}>To save or share the computed transfer, press the "Copy Link to this Transfer" button. Be warned: the copied URL will be very long!</TableCell>
+                            </TableRow>
                         </TableBody>
                     </Table>
                 </TableContainer>
@@ -65,14 +69,12 @@ function HelpCollapse({showHelp}: {showHelp: boolean}) {
             <Typography variant="h6">Advanced Usage</Typography>
             <Box sx={{mx:8, my: 1}}>
                 <Typography variant="body2">
-                    For those playing on PC (without mods that change the solar system), upload your savefile using the "UPLOAD SAVE FILE" button near the top of the page. Once loaded, orbits of any not-landed vessels, asteroids, and comets in your save can be selected under "Orbit Settings".
+                    For those playing on PC, upload your savefile using the "UPLOAD SAVE FILE" button near the top of the page. Once loaded, orbits of any not-landed vessels, asteroids, and comets in your save can be selected under "Orbit Settings".
+                    If you are using a modded system, be sure to select it under the System dropdown selector, or upload your Kopernics config files on the System Editor page.
                 </Typography>
             </Box>
             <Typography variant="h6">Additional Information</Typography>
             <Stack sx={{mx:8, my: 1}} spacing={1.25}>
-                <Typography variant="body2">
-                    More features are planned, including support for modded solar systems. Stay tuned!
-                </Typography>
                 <Typography variant="body2">
                     One advantage of this tool over alexmoon's and Olex's is that it can compute transfers between bodies that do not share the same primary body (e.g. Mun to Ike). Try it!
                 </Typography>
@@ -90,7 +92,7 @@ function HelpCollapse({showHelp}: {showHelp: boolean}) {
                 </Typography>
                 <Typography variant="body2">
                     The optimizer for patching trajectories across an SoI has not yet been fine-tuned, so it may take many presses of the "REFINE TRANSFER" button to reduce the error to near-zero.
-                    Keep in mind that the distances involved in interplanetary transfers are large, so even errors of many thousands of meters may be safely ignored.
+                    Keep in mind that the distances involved in interplanetary transfers are large, so even errors of a few thousand meters can sometimes be safely ignored. Trajectories can be very sensitive to time errors, however.
                 </Typography>
             </Stack>
             <Divider/>

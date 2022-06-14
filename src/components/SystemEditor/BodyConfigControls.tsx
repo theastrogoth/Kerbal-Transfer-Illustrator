@@ -142,7 +142,6 @@ function BodyConfigControls() {
     const handleColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setColor(event.target.value);
         if(event.target.value !== ''){
-            console.log(event.target.value)
             const color = new Color(colorFromString(event.target.value));
             setValue("color")(color.toString());
         } else {

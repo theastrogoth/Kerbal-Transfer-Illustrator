@@ -78,6 +78,7 @@ interface IVessel {
     readonly name:          string,
     readonly orbit:         IOrbit,
     readonly maneuvers:     ManeuverComponents[],
+    readonly color?:        IColor,
 }
 
 interface IFlyby {
@@ -308,7 +309,7 @@ type MultiFlybySearchInputs = {
 
 type FlightPlan = {
     readonly name:                      string;
-    readonly color:                     IColor;
+    readonly color?:                    IColor;
     readonly trajectories:              Trajectory[];
 }
 

@@ -80,8 +80,14 @@ const initialPorkchopPlotData: PorkchopPlotData = {
 export const lightModeAtom = atom('light' as PaletteMode);
 
 export const systemOptionsAtom = atom(systemOptions);
-export const systemAtom = atom(kspSystem);
 export const systemNameAtom = atom([...systemOptions.keys()][0]);
+export const systemAtom = atom<SolarSystem>(
+  (get) => {
+    const systemOpts = get(systemOptionsAtom);
+    const systemName = get(systemNameAtom);
+    return systemOpts.get(systemName) as SolarSystem;
+  }
+);
 export const vesselsAtom = atom([] as Vessel[]);
 export const timeSettingsAtom = atom(kspTimeSettings);
 
@@ -130,7 +136,7 @@ export const multiFlybyControlsOptionsAtom = atom({
 });
 
 // flight planner state (atoms)
-export const vesselPlansAtom = atom([] as IVessel[]);
+export const vesselPlansAtom = atom([{name: "Vessel #1", orbit: defaultOrbit(kspSystem), maneuvers: [{prograde: 0, normal: 0, radial: 0, date: 0}]}] as IVessel[]);
 export const flightPlansAtom = atom([] as FlightPlan[]);
 
 // system editor (atoms)

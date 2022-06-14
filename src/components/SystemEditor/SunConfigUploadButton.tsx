@@ -45,7 +45,7 @@ function SunConfigUploadButton() {
       multiple={false}
     />
     <label htmlFor="uploaded-sun-config">
-      <Button variant="outlined" 
+      <Button variant="text" 
               color="inherit" 
               component="span" 
               startIcon={<UploadFileOutlined />}

@@ -109,7 +109,13 @@ function TransferAppContent() {
     }
 
     // prepare porkchop inputs
-    const porkInputs = porkchopInputsFromUI(system, startOrbit, endOrbit, earlyStartDate, lateStartDate, shortFlightTime, longFlightTime, controlsOptionsState, timeSettings);
+    let porkInputs: PorkchopInputs;
+    try{
+      porkInputs = porkchopInputsFromUI(system, startOrbit, endOrbit, earlyStartDate, lateStartDate, shortFlightTime, longFlightTime, controlsOptionsState, timeSettings);
+    } catch {
+      setInvalidInput(true);
+      return
+    }
     setPorkchopInputs(porkInputs);
     setPlotCount(plotCount + 1)
     console.log('"Plot!" button pressed.');
@@ -172,7 +178,7 @@ function TransferAppContent() {
                       onClick={() => handlePlotButtonPress()}
                       sx={{ mx: 'auto', my: 2 }}
                   >
-                    ⇩ Plot It!
+                    Plot It!
                   </LoadingButton>
                 </Box>
               <PorkchopPlot 

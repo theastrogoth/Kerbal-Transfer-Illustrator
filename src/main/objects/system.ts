@@ -29,11 +29,14 @@ export class SolarSystem implements ISolarSystem {
         return [this.sun, ...this.orbiters];
     }
 
-    public get data() {
-        const data = [];
-        for(const body of this.bodies) {
-            data.push(body.data);
+    public get data(): ISolarSystem {
+        const sun = this.sun.data;
+        const orbiters = this.orbiters.map(orb => orb.data);
+        const orbiterIds = new Map<number, IOrbitingBody>();
+        for(let i=0; i<orbiters.length; i++) {
+            orbiterIds.set(orbiters[i].id, orbiters[i]);
         }
+        const data = {sun, orbiters, orbiterIds};
         return data;
     }
 

@@ -15,7 +15,7 @@ import { flightPlansAtom, systemAtom, timeSettingsAtom } from "../../App";
 
 const emptyProps: OrbitDisplayProps[] = [];
 
-function trajectoryTraces(trajectory: Trajectory, vesselName: string, timeSettings: TimeSettings): Line3DTrace[] {
+function trajectoryTraces(trajectory: Trajectory, vesselName: string, color: IColor, timeSettings: TimeSettings): Line3DTrace[] {
     const trajLen = trajectory.orbits.length;
 
     const orbitTraces: Line3DTrace[] = [];
@@ -23,17 +23,17 @@ function trajectoryTraces(trajectory: Trajectory, vesselName: string, timeSettin
         const orb = trajectory.orbits[i];
         const sTime = trajectory.intersectTimes[i];
         const eTime = trajectory.intersectTimes[i + 1] === Infinity ? sTime + orb.siderealPeriod : trajectory.intersectTimes[i + 1];
-        orbitTraces.push(Draw.drawOrbitPathFromTimes(orb, sTime, eTime, timeSettings, new Color({r: 150, g: 150, b: 150}), vesselName, false, "solid"));
+        orbitTraces.push(Draw.drawOrbitPathFromTimes(orb, sTime, eTime, timeSettings, new Color(color), vesselName, false, "solid"));
     }
     return orbitTraces;
 }
 
-function bodyPlotProps(trajectories: Trajectory[], names: string[], system: SolarSystem, date: number, timeSettings: TimeSettings): OrbitDisplayProps {
+function bodyPlotProps(trajectories: Trajectory[], names: string[], colors: IColor[], system: SolarSystem, date: number, timeSettings: TimeSettings): OrbitDisplayProps {
     const orbits = [...trajectories.map((traj) => traj.orbits.slice()).flat()];
     const body = system.bodyFromId(orbits[0].orbiting);
 
     const systemTraces = Draw.drawSystemAtTime(body, date, timeSettings);
-    const orbitTraces = [...trajectories.map((traj,i) => trajectoryTraces(traj, names[i], timeSettings)).flat()];
+    const orbitTraces = [...trajectories.map((traj,i) => trajectoryTraces(traj, names[i], colors[i], timeSettings)).flat()];
     
     const tempMarkerTraces: Marker3DTrace[] = trajectories.map(traj => Draw.drawOrbitPositionMarkerAtTime(traj.orbits[0], date));
     const markerTraces: Marker3DTrace[] = tempMarkerTraces.map((marker, idx) => updateTrajectoryMarker(date, trajectories[idx], marker));
@@ -56,26 +56,28 @@ function bodyPlotProps(trajectories: Trajectory[], names: string[], system: Sola
 }
 
 export function prepareAllDisplayProps(flightPlans: FlightPlan[], system: SolarSystem, timeSettings: TimeSettings): OrbitDisplayProps[] {
-    const bodyTrajectories = new Map<number, [Trajectory[], string[], number[]]>();
+    const bodyTrajectories = new Map<number, [Trajectory[], string[], IColor[], number[]]>();
     for(let i=0; i<flightPlans.length; i++) {
         const fp = flightPlans[i];
         const name = fp.name;
+        const color = fp.color || {r: 150, g: 150, b: 150};
         for(let j=0; j<fp.trajectories.length; j++) {
             const date = fp.trajectories[j].maneuvers.length > 0 ? fp.trajectories[j].maneuvers[0].preState.date : fp.trajectories[j].intersectTimes[0];
             const bodyIdx = fp.trajectories[j].orbits[0].orbiting;
             if(bodyTrajectories.has(bodyIdx)) {
-                const bdTrajs = bodyTrajectories.get(bodyIdx) as [Trajectory[], string[], number[]];
+                const bdTrajs = bodyTrajectories.get(bodyIdx) as [Trajectory[], string[], IColor[], number[]];
                 bdTrajs[0].push(fp.trajectories[j]);
                 bdTrajs[1].push(name);
-                bdTrajs[2][0] = Math.min(date, bdTrajs[2][0]);
+                bdTrajs[2].push(color);
+                bdTrajs[3][0] = Math.min(date, bdTrajs[3][0]);
             } else {
-                bodyTrajectories.set(bodyIdx, [[fp.trajectories[j]], [name], [date]]);
+                bodyTrajectories.set(bodyIdx, [[fp.trajectories[j]], [name], [color], [date]]);
             }
         }
     }
 
     const bodyIdxs = [...bodyTrajectories.keys()]
-    return bodyIdxs.map(idx => { const [trajectories, names, date] = bodyTrajectories.get(idx) as [Trajectory[], string[], number[]]; return bodyPlotProps(trajectories, names, system, date[0], timeSettings) })
+    return bodyIdxs.map(idx => { const [trajectories, names, colors, date] = bodyTrajectories.get(idx) as [Trajectory[], string[], IColor[], number[]]; return bodyPlotProps(trajectories, names, colors, system, date[0], timeSettings) })
 } 
 
 const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, props}: {value: number, index: number, props: OrbitDisplayProps}) {

@@ -1,5 +1,5 @@
 import SolarSystem from '../main/objects/system';
-import { OrbitingBody } from '../main/objects/body';
+import CelestialBody, { OrbitingBody } from '../main/objects/body';
 import MultiFlyby from '../main/objects/multiflyby';
 
 import { isInvalidOrbitInput, searchInputsFromUI } from '../utils';
@@ -72,7 +72,7 @@ function FlybyAppContent() {
   const [flightTimes] = useAtom(multiFlybyFlightTimesAtom);
   const [controlsOptionsState] = useAtom(multiFlybyControlsOptionsAtom);
 
-  const [mfSearchInputs, setMfSearchInputs] = useState(searchInputsFromUI(system, startOrbit, endOrbit, flybyIdSequence, earlyStartDate, lateStartDate, flightTimes, controlsOptionsState, timeSettings));
+  const [mfSearchInputs, setMfSearchInputs] = useState<MultiFlybySearchInputs | null>(null);
   const [invalidInput, setInvalidInput] = useState(false);
   const [buttonPresses, setButtonPresses] = useState(0);
   const [calculating, setCalculating] = useState(false);
@@ -103,7 +103,13 @@ function FlybyAppContent() {
     let invalid = isInvalidOrbitInput(startOrbit);
     invalid = isInvalidOrbitInput(endOrbit) ? true : invalid;
 
-    const transferBody = system.bodyFromId(system.commonAttractorId(startOrbit.orbiting, endOrbit.orbiting));
+    let transferBody: CelestialBody;
+    try{
+      transferBody = system.bodyFromId(system.commonAttractorId(startOrbit.orbiting, endOrbit.orbiting));
+    } catch {
+      setInvalidInput(true);
+      return
+    }
 
     // make sure that the flyby sequence contains appropriate bodies.
     for(let i=0; i<flybyIdSequence.length; i++) {
@@ -115,6 +121,7 @@ function FlybyAppContent() {
     // display a warning and do not calculate a Porkchop if the inputs are invalid
     setInvalidInput(invalid);
     if(invalid) {
+      setInvalidInput(true);
       return
     }
 
@@ -182,11 +189,11 @@ function FlybyAppContent() {
                     onClick={() => handleButtonPress()}
                     sx={{ mx: 'auto', my: 2 }}
                 >
-                  ⇩ Search Trajectories
+                  Search Trajectories
                 </LoadingButton>
               </Box>
               <EvolutionPlot 
-                inputs={mfSearchInputs}
+                inputs={mfSearchInputs as MultiFlybySearchInputs}
                 buttonPresses={buttonPresses} 
                 setCalculating={setCalculating}
               />

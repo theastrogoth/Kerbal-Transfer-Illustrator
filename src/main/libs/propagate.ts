@@ -198,10 +198,10 @@ export function propagateVessel(vessel: IVessel, system: ISolarSystem, startDate
     return propagateFlightPlan(vessel.orbit, system, startDate, vessel.maneuvers, nRevs);
 }
 
-export function vesselToFlightPlan(vessel: IVessel, system: ISolarSystem, color: IColor = {r: 255, g: 255, b: 255}, startDate: number = vessel.orbit.epoch, nRevs: number = 3): FlightPlan {
+export function vesselToFlightPlan(vessel: IVessel, system: ISolarSystem, startDate: number = vessel.orbit.epoch, nRevs: number = 3): FlightPlan {
     const fp = {
         name:           vessel.name,
-        color,
+        color:          vessel.color || {r: 255, g: 255, b: 255},
         trajectories:   propagateVessel(vessel, system, startDate, nRevs),
     }
     return fp;
@@ -211,6 +211,7 @@ export function flightPlanToVessel(flightPlan: FlightPlan): IVessel {
     const maneuvers: ManeuverComponents[] = flightPlan.trajectories.map(t => t.maneuvers.map(m => Kepler.maneuverToComponents(m))).flat();
     return {
         name:       flightPlan.name,
+        color:      flightPlan.color || {r: 255, g: 255, b: 255},
         orbit:      flightPlan.trajectories[0].orbits[0],
         maneuvers,         
     }

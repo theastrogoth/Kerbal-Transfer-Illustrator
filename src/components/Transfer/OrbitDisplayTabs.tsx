@@ -10,14 +10,14 @@ import OrbitDisplay, { OrbitDisplayProps } from "../OrbitDisplay";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
+import LoadingButton from "@mui/lab/LoadingButton";
+import CalculateIcon from '@mui/icons-material/Calculate';
 import TableContainer from "@mui/material/TableContainer";
 import Table from "@mui/material/Table";
 import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import Grid from "@mui/material/Grid";
-import CircularProgress from "@mui/material/CircularProgress";
 
 import { useAtom } from "jotai";
 import { transferAtom, timeSettingsAtom } from "../../App";
@@ -236,7 +236,7 @@ function OrbitDisplayTabs() {
         // eslint-disable-next-line react-hooks/exhaustive-deps       
     }, [transferOptWorker]);
 
-    function handleRefineTransferButtonPress() {
+    function handleRefineButtonPress() {
         console.log('Optimizing SoI patches')
         setCalculating(true);
         transferOptWorker
@@ -272,23 +272,16 @@ function OrbitDisplayTabs() {
             {orbitDisplayProps.map(props => <OrbitTabPanel key={props.index} value={value} index={props.index} props={props}/>)}
             {transfer.deltaV > 0 &&
                 <Box textAlign='center'>
-                    <Button 
+                    <LoadingButton 
                         variant="contained" 
-                        disabled={calculating}
-                        onClick={() => handleRefineTransferButtonPress()}
+                        loadingPosition="end"
+                        endIcon={<CalculateIcon />}
+                        loading={calculating}
+                        onClick={() => handleRefineButtonPress()}
                         sx={{ mx: 'auto', my: 4 }}
                     >
                         Refine Transfer
-                        {calculating &&
-                        <CircularProgress
-                            size={24}
-                            sx={{
-                            position: 'relative',
-                            left: '10px',
-                            }}
-                        />
-                        }
-                    </Button>
+                    </LoadingButton>
                     {refined && 
                         <Grid container justifyContent='center'>
                             <Grid item xs={12} sm={10} md={8}>

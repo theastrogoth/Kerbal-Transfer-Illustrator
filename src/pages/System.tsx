@@ -14,6 +14,7 @@ import Button from "@mui/material/Button";
 import ClearIcon from '@mui/icons-material/Clear';
 
 import Navbar from '../components/Navbar';
+import HelpCollapse from "../components/SystemEditor/HelpCollapse";
 import { NumberField } from "../components/NumberField";
 import BodyConfigList from "../components/SystemEditor/BodyConfigList";
 import BodyConfigControls from "../components/SystemEditor/BodyConfigControls";
@@ -22,6 +23,7 @@ import BodyConfigUploadButton from "../components/SystemEditor/BodyConfigUploadB
 import SunConfigUploadButton from "../components/SystemEditor/SunConfigUploadButton";
 import OrbitDisplay from "../components/OrbitDisplay";
 import SelectProvidedConfigs from "../components/SystemEditor/SelectProvidedConfigs";
+import GetLinkButton from "../components/SystemEditor/GetLinkButton";
 
 import SolarSystem from "../main/objects/system";
 import Draw from "../main/libs/draw";
@@ -107,6 +109,7 @@ function SolarSystemAppContent() {
           <Typography variant="h4">Solar System Editor</Typography>
           <Divider />
         </Box>
+        <HelpCollapse showHelp={showHelp} />
         <Grid container component='main' justifyContent="center">
           <Grid item xs={12} sm={5} md={4} lg={3} xl={3}>
             <Paper 
@@ -118,13 +121,23 @@ function SolarSystemAppContent() {
                 flexDirection: 'column',
               }}
             >
-              <Stack spacing={1.5} sx={{mx: 2, my: 2}} alignItems='center' justifyContent='center'>
+              <Stack spacing={2} sx={{mx: 2, my: 2}} >
                 <SelectProvidedConfigs />
+                <NumberField 
+                  label="System Scale Factor"
+                  value={systemScale}
+                  setValue={setSystemScale}
+                  min={0}
+                  error={Number(systemScale) === 0}
+                  onChange={(e) => setSystemScale(e.target.value)}
+                />
+              </Stack>
+              <Stack spacing={1.5} sx={{mx: 2, my: 2}} alignItems='center' justifyContent='center'>
                 <SunConfigUploadButton />
                 <BodyConfigUploadButton />
                 <Box>
                   <Button
-                    variant="outlined" 
+                    variant="text" 
                     color="inherit" 
                     component="span"
                     startIcon={<ClearIcon />}
@@ -136,16 +149,9 @@ function SolarSystemAppContent() {
                     Clear Bodies
                   </Button>
                 </Box>
-                <Divider />
-                <NumberField 
-                  label="System Scale Factor"
-                  value={systemScale}
-                  setValue={setSystemScale}
-                  min={0}
-                  error={Number(systemScale) === 0}
-                  onChange={(e) => setSystemScale(e.target.value)}
-                />
+
               </Stack>
+              <Divider />
               <BodyConfigList />
             </Paper>
           </Grid>
@@ -172,19 +178,25 @@ function SolarSystemAppContent() {
                 flexDirection: 'column',
               }}
             >
+              <Stack alignItems="center" justifyContent="center" sx={{mx: 2, my: 2}}>
+                <GetLinkButton />
+              </Stack>
+              <Divider />
               <Typography variant="h5" sx={{mx: 2, my: 2}}>Custom System</Typography>
-              <FormControl sx={{mx: 2, my: 2}} >
-                <InputLabel id={"body-select-label"}>Central Body</InputLabel>
-                <Select
-                    labelId={"body-select-label"}
-                    label='Body'
-                    id={'central-body'}
-                    value={centralBodyName}
-                    onChange={(e) => setCentralBodyName(e.target.value)}
-                >
-                    {bodyOptions}
-                </Select>
-              </FormControl>
+              <Stack sx={{mx: 2, my: 2, maxWidth: '300px'}} >
+                <FormControl>
+                  <InputLabel id={"body-select-label"}>Central Body</InputLabel>
+                  <Select
+                      labelId={"body-select-label"}
+                      label='Central Body'
+                      id={'central-body'}
+                      value={centralBodyName}
+                      onChange={(e) => setCentralBodyName(e.target.value)}
+                  >
+                      {bodyOptions}
+                  </Select>
+                </FormControl>
+              </Stack>
               <Box sx={{mx: 2, my: 2}}>
                 <OrbitDisplay 
                   index={0}
