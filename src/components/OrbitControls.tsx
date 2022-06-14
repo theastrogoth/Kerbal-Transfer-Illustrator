@@ -196,7 +196,7 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
                         id={'body-'+label}
                         value={bodyId}
                         onChange={(e) => setBodyId(Number(e.target.value))}
-                        error={isNaN(bodyId)}
+                        error={isNaN(bodyId) || bodyOptions.find(opt => Number(opt.key) === bodyId) === undefined}
                     >
                         {bodyOptions}
                     </Select>

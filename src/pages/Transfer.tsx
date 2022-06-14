@@ -103,13 +103,19 @@ function TransferAppContent() {
     invalidFlag = isInvalidOrbitInput(endOrbit) ? true : invalidFlag;
     
     // display a warning and do not calculate a Porkchop if the inputs are invalid
-    setInvalidInput(invalidFlag);
     if(invalidFlag) {
+      setInvalidInput(invalidFlag);
       return
     }
 
     // prepare porkchop inputs
-    const porkInputs = porkchopInputsFromUI(system, startOrbit, endOrbit, earlyStartDate, lateStartDate, shortFlightTime, longFlightTime, controlsOptionsState, timeSettings);
+    let porkInputs: PorkchopInputs;
+    try{
+      porkInputs = porkchopInputsFromUI(system, startOrbit, endOrbit, earlyStartDate, lateStartDate, shortFlightTime, longFlightTime, controlsOptionsState, timeSettings);
+    } catch {
+      setInvalidInput(true);
+      return
+    }
     setPorkchopInputs(porkInputs);
     setPlotCount(plotCount + 1)
     console.log('"Plot!" button pressed.');

@@ -1,5 +1,5 @@
 import SolarSystem from '../main/objects/system';
-import { OrbitingBody } from '../main/objects/body';
+import CelestialBody, { OrbitingBody } from '../main/objects/body';
 import MultiFlyby from '../main/objects/multiflyby';
 
 import { isInvalidOrbitInput, searchInputsFromUI } from '../utils';
@@ -103,7 +103,13 @@ function FlybyAppContent() {
     let invalid = isInvalidOrbitInput(startOrbit);
     invalid = isInvalidOrbitInput(endOrbit) ? true : invalid;
 
-    const transferBody = system.bodyFromId(system.commonAttractorId(startOrbit.orbiting, endOrbit.orbiting));
+    let transferBody: CelestialBody;
+    try{
+      transferBody = system.bodyFromId(system.commonAttractorId(startOrbit.orbiting, endOrbit.orbiting));
+    } catch {
+      setInvalidInput(true);
+      return
+    }
 
     // make sure that the flyby sequence contains appropriate bodies.
     for(let i=0; i<flybyIdSequence.length; i++) {
@@ -115,6 +121,7 @@ function FlybyAppContent() {
     // display a warning and do not calculate a Porkchop if the inputs are invalid
     setInvalidInput(invalid);
     if(invalid) {
+      setInvalidInput(true);
       return
     }
 

@@ -73,10 +73,13 @@ function FlightPlanInfo({flightPlan}: {flightPlan: FlightPlan}) {
                 </Table>
             </TableContainer>
             <Box display="flex" justifyContent="center" alignItems="center">
-                <Typography variant="body1" sx={{fontWeight: 600}}>
-                        Copy Flight Plan
-                </Typography>
-                <CopyButton obj={vesselPlan} copiedObj={copiedFlightPlan} setCopiedObj={setCopiedFlightPlan} size={"large"}/>
+                <CopyButton 
+                    obj={vesselPlan} 
+                    copiedObj={copiedFlightPlan} 
+                    setCopiedObj={setCopiedFlightPlan} 
+                    variant="text"
+                    label="Copy Flight Plan"
+                />
             </Box>
         </Stack>
     )
