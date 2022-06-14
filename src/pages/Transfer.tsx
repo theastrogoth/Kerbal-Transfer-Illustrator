@@ -103,8 +103,8 @@ function TransferAppContent() {
     invalidFlag = isInvalidOrbitInput(endOrbit) ? true : invalidFlag;
     
     // display a warning and do not calculate a Porkchop if the inputs are invalid
+    setInvalidInput(invalidFlag);
     if(invalidFlag) {
-      setInvalidInput(invalidFlag);
       return
     }
 
