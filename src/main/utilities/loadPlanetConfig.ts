@@ -3,7 +3,7 @@ import { OrbitingBody } from "../objects/body";
 import parseConfigNodes from "./parseConfigNodes";
 import Color from "../objects/color";
 import Kepler from "../libs/kepler";
-import { radToDeg, colorFromRGBA } from "../libs/math";
+import { degToRad, radToDeg, colorFromRGBA } from "../libs/math";
 import loadSystemData from "./loadSystem";
 
 export function fileToSunConfig(configFile: string): SunConfig {
@@ -16,7 +16,7 @@ export function fileToSunConfig(configFile: string): SunConfig {
     const sunConfig: SunConfig = {
         name,
         radius:             sunData.Properties.radius,
-        atmosphereHeight:   sunData.Atmosphere ? sunData.Atmosphere.altitude : undefined,
+        atmosphereHeight:   sunData.Atmosphere ? (sunData.Atmosphere.maxAltitude || sunData.Atmosphere.altitude) : undefined,
         stdGravParam:       sunData.Properties.gravParameter,
         geeASL:             sunData.Properties.geeASL,
         templateName:       "Sun",
@@ -42,15 +42,15 @@ export function fileToBodyConfig(configFile: string): OrbitingBodyConfig {
     const mass = bodyData.Properties.mass;
     const soi = bodyData.Properties.soi;
 
-    const atmosphereHeight = bodyData.Atmosphere ? bodyData.Atmosphere.altitude : undefined;
+    const atmosphereHeight = bodyData.Atmosphere ? (bodyData.Atmosphere.maxAltitude || bodyData.Atmosphere.altitude) : undefined;
 
     const semiMajorAxis = bodyData.Orbit.semiMajorAxis;
     const eccentricity = bodyData.Orbit.eccentricity;
     const inclination = bodyData.Orbit.inclination;
-    const argOfPeriapsis = bodyData.Orbit.inclination;
-    const ascNodeLongitude = bodyData.Orbit.inclination;
-    const meanAnomalyEpoch = bodyData.Orbit.inclination;
-    const epoch = bodyData.Orbit.inclination;
+    const argOfPeriapsis = bodyData.Orbit.argumentOfPeriapsis;
+    const ascNodeLongitude = bodyData.Orbit.longitudeOfAscendingNode;
+    const meanAnomalyEpoch = bodyData.Orbit.meanAnomalyAtEpoch || String(degToRad(Number(bodyData.Orbit.meanAnomalyAtEpochD)));
+    const epoch = bodyData.Orbit.epoch;
     const referenceBody = bodyData.Orbit.referenceBody;
 
     const color = bodyData.Orbit.color;

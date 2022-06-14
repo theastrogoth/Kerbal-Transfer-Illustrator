@@ -1,4 +1,5 @@
 import SolarSystem from "../main/objects/system";
+import Kepler from "../main/libs/kepler";
 
 import RequiredNumberField from "./NumberField";
 import VesselSelect from "./VesselSelect";
@@ -51,6 +52,7 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
 
     const [orbit, setOrbit] = useAtom(orbitAtom);
     const orbitRef = useRef(orbit);
+    const fieldsSetFromOrbit = useRef(false);
 
     const [bodyId, setBodyId] = useState(orbit.orbiting);
     const bodyIdRef = useRef(bodyId);
@@ -80,10 +82,7 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
     const [optsVisible, setOptsVisible] = useState(false);
     const [bodyOptions, setBodyOptions] = useState(createBodyItems(system));
 
-    function setOrbitAndFields(newOrbit: OrbitalElements, newAlt: number | undefined = undefined) {
-        setOrbit(newOrbit)
-        orbitRef.current = newOrbit;
-
+    function setFields(newOrbit: OrbitalElements, newAlt: number | undefined = undefined) {
         setSma(String(newOrbit.semiMajorAxis));
         smaRef.current = String(newOrbit.semiMajorAxis);
 
@@ -107,6 +106,14 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
             setAlt(newAlt);
             altRef.current = newAlt;
         }
+        fieldsSetFromOrbit.current = true;
+    }
+
+    function setOrbitAndFields(newOrbit: OrbitalElements, newAlt: number | undefined = undefined) {
+        setOrbit(newOrbit)
+        orbitRef.current = newOrbit;
+
+        setFields(newOrbit, newAlt);
     }
 
     useEffect(() => {
@@ -128,7 +135,7 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
             vesselsRef.current = vessels;
             if(vesselId >= 0) {
                 setOrbitAndFields(vessels[vesselId].orbit);
-            }           
+            }
         // detect a change in the selection of a body, and change the orbit to the default one
         } else if(bodyId !== bodyIdRef.current) {
             bodyIdRef.current = bodyId;
@@ -142,7 +149,7 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
             const newSMA = Number(alt) + body.radius;
             setSma(String(newSMA));
         // detect a change in the orbital element inputs, and update the orbit to match
-        } else {
+        } else if(!fieldsSetFromOrbit.current) {
             const newOrbit = {
                 semiMajorAxis:      Number(sma),
                 eccentricity:       Number(ecc),
@@ -155,7 +162,6 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
             } as OrbitalElements;
             setOrbit(newOrbit);
             orbitRef.current = newOrbit;
-            
             // if it's the SMA that's changed, update the alitude
             if(sma !== smaRef.current) {
                 smaRef.current = sma;
@@ -168,10 +174,21 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
                     }
                 }
             }
+        } else {
+            fieldsSetFromOrbit.current = false;
         }
         // I've disabled the check for exhaustive deps to remove the warning for missing the setters, which shouldn't cause an issue.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [alt, sma, ecc, inc, arg, lan, moe, epoch, bodyId, body, vesselId, vessels, system])
+
+    useEffect(() => {
+        // detect a change in the orbit from elsewhere
+        if(!Kepler.orbitalElementsAreEqual(orbit, orbitRef.current)) {
+            orbitRef.current = orbit;
+            setFields(orbit);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [orbit])
 
     return (
         <>

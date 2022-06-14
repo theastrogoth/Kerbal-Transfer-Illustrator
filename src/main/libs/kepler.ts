@@ -22,6 +22,31 @@ namespace Kepler {
         }
     }
 
+    export function keplerElementsAreEqual(els1: KeplerElements, els2: KeplerElements) {
+        let equal = true;
+        equal = equal && els1.semiMajorAxis     === els2.semiMajorAxis;
+        equal = equal && els1.eccentricity      === els2.eccentricity;
+        equal = equal && els1.inclination       === els2.inclination;
+        equal = equal && els1.argOfPeriapsis    === els2.argOfPeriapsis;
+        equal = equal && els1.ascNodeLongitude  === els2.ascNodeLongitude;
+        equal = equal && els1.meanAnomalyEpoch  === els2.meanAnomalyEpoch;
+        equal = equal && els1.epoch             === els2.epoch;
+        return equal;
+    }
+
+    export function orbitalElementsAreEqual(els1: OrbitalElements, els2: OrbitalElements) {
+        let equal = keplerElementsAreEqual(els1, els2);
+        equal = equal && els1.orbiting === els2.orbiting;
+        return equal;
+    }
+
+    export function orbitsAreEqual(orb1: IOrbit, orb2: IOrbit) {
+        let equal = orbitalElementsAreEqual(orb1, orb2);
+        equal = equal && orb1.siderealPeriod  === orb2.siderealPeriod;
+        equal = equal && orb1.semiLatusRectum === orb2.semiLatusRectum;
+        return equal;
+    }
+
     export function maneuverFromOrbitalStates(preState: OrbitalState, postState: OrbitalState): Maneuver {
         const deltaV = sub3(postState.vel, preState.vel);
         const deltaVMag = mag3(deltaV);

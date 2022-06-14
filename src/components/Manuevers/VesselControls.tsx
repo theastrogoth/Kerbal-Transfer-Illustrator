@@ -8,6 +8,7 @@ import AddIcon from '@mui/icons-material/Add';
 import ClearIcon from '@mui/icons-material/Clear';
 import Divider from "@mui/material/Divider";
 
+import Kepler from "../../main/libs/kepler";
 import Color from "../../main/objects/color";
 
 import OrbitControls from "../OrbitControls";
@@ -136,13 +137,9 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
             const newVesselPlans = [...vesselPlans];
             newVesselPlans[idx] = plan;
             setVesselPlans(newVesselPlans);
-            if(!wasSetFromOrbit.current) {
-                setOrbit(plan.orbit);
-                orbitRef.current = plan.orbit;
-            } else {
-                wasSetFromOrbit.current = false;
-            }
-        } else if(orbit !== orbitRef.current) {
+            setOrbit(plan.orbit);
+            orbitRef.current = plan.orbit;
+        } else if(!Kepler.orbitalElementsAreEqual(orbit, orbitRef.current)) {
             orbitRef.current = orbit;
             wasSetFromOrbit.current = true;
             const orb = orbitFromElementsAndSystem(system, orbit);

@@ -5,29 +5,27 @@ import SolarSystem from "../../main/objects/system";
 
 import { useAtom } from "jotai";
 import { atomWithHash } from "jotai/utils";
-import { systemNameAtom, customSystemAtom, flightPlansAtom, vesselPlansAtom } from "../../App";
-import { flightPlanToVessel } from "../../main/libs/propagate";
+import { systemNameAtom, customSystemAtom, vesselPlansAtom } from "../../App";
 
 const systemNameHashAtom = atomWithHash<string | null>("systemName", null);
 const customSystemHashAtom = atomWithHash<ISolarSystem | null>("customSystem", null)
-const flightPlansHashAtom = atomWithHash<FlightPlan[] | null>("flightPlans", null);
+const vesselPlansHashAtom = atomWithHash<IVessel[] | null>("vesselPlans", null);
 
 const userAgent = navigator.userAgent;
 const usingIE = userAgent.indexOf("Trident") > -1;
 
 function GetLinkButton() {
-    const [flightPlans, setFlightPlans] = useAtom(flightPlansAtom);
-    const [, setVesselPlans] = useAtom(vesselPlansAtom);
+    const [vesselPlans, setVesselPlans] = useAtom(vesselPlansAtom);
     const [systemName, setSystemName] = useAtom(systemNameAtom);
     const [customSystem, setCustomSystem] = useAtom(customSystemAtom);
 
-    const [flightPlansHash, setFlightPlansHash] = useAtom(flightPlansHashAtom);
+    const [vesselPlansHash, setVesselPlansHash] = useAtom(vesselPlansHashAtom);
     const [customSystemHash, setCustomSystemHash] = useAtom(customSystemHashAtom);
     const [systemNameHash, setSystemNameHash] = useAtom(systemNameHashAtom);
 
     const systemNameRef = useRef(systemName);
     const customSystemRef = useRef(customSystem);
-    const flightPlansRef = useRef(flightPlans);
+    const vesselPlansRef = useRef(vesselPlans);
 
     const [copied, setCopied] = useState(false);
 
@@ -49,26 +47,24 @@ function GetLinkButton() {
     }, [customSystemHash])
 
     useEffect(() => {
-        if(flightPlansHash !== null && flightPlansRef.current !== flightPlansHash) {
-            setFlightPlans(flightPlansHash);
-            flightPlansRef.current = flightPlansHash;
-            
-            const newVesselPlans = flightPlansHash.map(fp => flightPlanToVessel(fp));
-            setVesselPlans(newVesselPlans);
+        if(vesselPlansHash !== null && vesselPlansRef.current !== vesselPlansHash) {
+            console.log("set vessel plans from hash")
+            setVesselPlans(vesselPlansHash);
+            vesselPlansRef.current = vesselPlansHash;
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [flightPlansHash])
+    }, [vesselPlansHash])
 
     useEffect(() => {
-        if(flightPlansRef.current !== flightPlans || systemNameRef.current !== systemName || customSystemRef.current !== customSystem) {
+        if(vesselPlansRef.current !== vesselPlans || systemNameRef.current !== systemName || customSystemRef.current !== customSystem) {
             setCopied(false);
         }
-    }, [systemName, flightPlans, customSystem])
+    }, [systemName, vesselPlans, customSystem])
 
     const handleClick = () => {
         setCopied(true);
         setSystemNameHash(systemName);
-        setFlightPlansHash(flightPlans);
+        setVesselPlansHash(vesselPlans);
         if(systemName === "Custom System") {
             setCustomSystemHash(customSystem);
         }

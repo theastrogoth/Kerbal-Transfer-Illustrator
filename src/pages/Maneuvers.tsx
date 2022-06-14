@@ -4,7 +4,7 @@ import OrbitDisplayTabs from '../components/Manuevers/OrbitDisplayTabs';
 import FlightPlanInfoTabs from '../components/Manuevers/FlightPlanInfoTabs';
 import HelpCollapse from '../components/Manuevers/HelpCollapse';
 
-import React, {useEffect, useState } from "react";
+import React, {useEffect, useState, useRef } from "react";
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
 import Stack from '@mui/material/Stack';
@@ -26,9 +26,11 @@ const propagateWorker = new Worker(new URL("../workers/propagate.worker.ts", imp
 ////////// App Content //////////
 function ManeuversAppContent() { 
   const [vesselPlans] = useAtom(vesselPlansAtom);
+  const vesselPlansRef = useRef<IVessel[] | null>(null);
 
   const [system] = useAtom(systemAtom);
-  const [, setFlightPlans] = useAtom(flightPlansAtom);
+  const [flightPlans, setFlightPlans] = useAtom(flightPlansAtom);
+  const flightPlansRef = useRef(flightPlans)
 
   // const [invalidInput, setInvalidInput] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
@@ -36,16 +38,26 @@ function ManeuversAppContent() {
 
 useEffect(() => {
   propagateWorker.onmessage = (event: MessageEvent<FlightPlan[]>) => {
+    if(flightPlans === flightPlansRef.current) {
       if (event && event.data) {
         setFlightPlans(event.data);
+        flightPlansRef.current = event.data;
       }
+    } else {
+      flightPlansRef.current = flightPlans;
+    }
   }
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [propagateWorker]);
 
 useEffect(() => {
-  propagateWorker
+  if(vesselPlansRef.current == null) {
+    vesselPlansRef.current = vesselPlans;
+  } else if(vesselPlansRef.current !== vesselPlans) {
+    vesselPlansRef.current = vesselPlans;
+    propagateWorker
     .postMessage({vesselPlans, system});
+  }
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [vesselPlans, system]);
 
