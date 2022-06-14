@@ -1,4 +1,4 @@
-import { TWO_PI, HALF_PI, X_DIR, Z_DIR, copysign, acosClamped, wrapAngle, vec3, magSq3, mag3, sub3, div3, mult3, dot3, cross3, zxz, normalize3, add3 } from "./math"
+import { TWO_PI, HALF_PI, X_DIR, Z_DIR, copysign, acosClamped, wrapAngle, vec3, magSq3, mag3, sub3, div3, mult3, dot3, cross3, zxz, normalize3, add3, colorsAreEqual } from "./math"
 import { newtonRootSolve } from "./optim"
 
 namespace Kepler {
@@ -44,6 +44,46 @@ namespace Kepler {
         let equal = orbitalElementsAreEqual(orb1, orb2);
         equal = equal && orb1.siderealPeriod  === orb2.siderealPeriod;
         equal = equal && orb1.semiLatusRectum === orb2.semiLatusRectum;
+        return equal;
+    }
+
+    export function maneuverComponentsAreEqual(man1: ManeuverComponents, man2: ManeuverComponents) {
+        let equal = true;
+        equal = equal && man1.prograde === man2.prograde;
+        equal = equal && man1.normal === man2.normal;
+        equal = equal && man1.radial === man2.radial;
+        equal = equal && man1.date === man2.date;
+        return equal;
+    }
+
+    export function vesselsAreEqual(ves1: IVessel, ves2: IVessel) {
+        let equal = orbitalElementsAreEqual(ves1.orbit, ves2.orbit);
+        equal = equal && ves1.maneuvers.length === ves2.maneuvers.length;
+        equal = equal && ves1.name === ves2.name;
+        if(ves1.color !== ves2.color) {
+            if(ves1.color !== undefined && ves2.color !== undefined) {
+                equal = equal && colorsAreEqual(ves1.color, ves2.color);
+            } else {
+                return false;
+            }
+        }
+        if(equal) {
+            for(let i=0; i<ves1.maneuvers.length; i++) {
+                equal = equal && maneuverComponentsAreEqual(ves1.maneuvers[i], ves2.maneuvers[i]);
+                if(!equal) { break; }
+            }
+        }
+        return equal;
+    }
+
+    export function vesselListsAreEqual(vessels1: IVessel[], vessels2: IVessel[]) {
+        let equal = vessels1.length === vessels2.length;
+        if(equal) {
+            for(let i=0; i<vessels1.length; i++) {
+                equal = equal && vesselsAreEqual(vessels1[i], vessels2[i]);
+                if(!equal) { break; }
+            }
+        }
         return equal;
     }
 

@@ -18,6 +18,7 @@ import Collapse from '@mui/material/Collapse';
 
 import { useAtom } from 'jotai';
 import { systemAtom, flightPlansAtom, vesselPlansAtom } from '../App';
+import Kepler from '../main/libs/kepler';
 
 
 // worker
@@ -26,11 +27,10 @@ const propagateWorker = new Worker(new URL("../workers/propagate.worker.ts", imp
 ////////// App Content //////////
 function ManeuversAppContent() { 
   const [vesselPlans] = useAtom(vesselPlansAtom);
-  const vesselPlansRef = useRef<IVessel[] | null>(null);
+  const vesselPlansRef = useRef<IVessel[]>(vesselPlans);
 
   const [system] = useAtom(systemAtom);
-  const [flightPlans, setFlightPlans] = useAtom(flightPlansAtom);
-  const flightPlansRef = useRef(flightPlans)
+  const [, setFlightPlans] = useAtom(flightPlansAtom);
 
   // const [invalidInput, setInvalidInput] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
@@ -38,22 +38,15 @@ function ManeuversAppContent() {
 
 useEffect(() => {
   propagateWorker.onmessage = (event: MessageEvent<FlightPlan[]>) => {
-    if(flightPlans === flightPlansRef.current) {
-      if (event && event.data) {
-        setFlightPlans(event.data);
-        flightPlansRef.current = event.data;
-      }
-    } else {
-      flightPlansRef.current = flightPlans;
+    if (event && event.data) {
+      setFlightPlans(event.data);
     }
   }
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [propagateWorker]);
 
 useEffect(() => {
-  if(vesselPlansRef.current == null) {
-    vesselPlansRef.current = vesselPlans;
-  } else if(vesselPlansRef.current !== vesselPlans) {
+if(!Kepler.vesselListsAreEqual(vesselPlansRef.current, vesselPlans)) {
     vesselPlansRef.current = vesselPlans;
     propagateWorker
     .postMessage({vesselPlans, system});

@@ -52,7 +52,6 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
 
     const [orbit, setOrbit] = useAtom(orbitAtom);
     const orbitRef = useRef(orbit);
-    const fieldsSetFromOrbit = useRef(false);
 
     const [bodyId, setBodyId] = useState(orbit.orbiting);
     const bodyIdRef = useRef(bodyId);
@@ -106,7 +105,6 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
             setAlt(newAlt);
             altRef.current = newAlt;
         }
-        fieldsSetFromOrbit.current = true;
     }
 
     function setOrbitAndFields(newOrbit: OrbitalElements, newAlt: number | undefined = undefined) {
@@ -149,7 +147,7 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
             const newSMA = Number(alt) + body.radius;
             setSma(String(newSMA));
         // detect a change in the orbital element inputs, and update the orbit to match
-        } else if(!fieldsSetFromOrbit.current) {
+        } else {
             const newOrbit = {
                 semiMajorAxis:      Number(sma),
                 eccentricity:       Number(ecc),
@@ -174,8 +172,6 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
                     }
                 }
             }
-        } else {
-            fieldsSetFromOrbit.current = false;
         }
         // I've disabled the check for exhaustive deps to remove the warning for missing the setters, which shouldn't cause an issue.
         // eslint-disable-next-line react-hooks/exhaustive-deps

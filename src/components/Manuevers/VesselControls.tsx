@@ -132,7 +132,8 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
             const vesselPlan = vesselPlans[idx];
             setPlan(vesselPlan);
             setVesselId(-1);
-        } else if(plan !== planRef.current) {
+        } else if(!Kepler.vesselsAreEqual(plan, planRef.current)) {
+            console.log("set plans from plan")
             planRef.current = plan;
             const newVesselPlans = [...vesselPlans];
             newVesselPlans[idx] = plan;
@@ -140,6 +141,7 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
             setOrbit(plan.orbit);
             orbitRef.current = plan.orbit;
         } else if(!Kepler.orbitalElementsAreEqual(orbit, orbitRef.current)) {
+            console.log("set plan from orbit")
             orbitRef.current = orbit;
             wasSetFromOrbit.current = true;
             const orb = orbitFromElementsAndSystem(system, orbit);

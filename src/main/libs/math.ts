@@ -165,9 +165,6 @@ export function counterClockwiseAngleInPlane(x: Vector3, y: Vector3, normalDirec
     const yPlane = roderigues(y, axis, angle);
     const xAngle = Math.atan2(xPlane.y, xPlane.x);
     const yAngle = Math.atan2(yPlane.y, yPlane.x);
-    // if(Math.abs(xPlane.z) > 1e-8 || Math.abs(yPlane.z) > 1e-8) {
-    //     console.log(x, y, normalDirection)
-    // }
     return wrapAngle(yAngle - xAngle);
 }
 
@@ -315,4 +312,13 @@ export function colorFromRGBA(rgba: string): IColor {
         b: Number(rgbaFragments[2]),
         a: Number(rgbaFragments[3]),
     }
+}
+
+export function colorsAreEqual(col1: IColor, col2: IColor) {
+    let equal = true;
+    equal = equal && col1.r === col2.r;
+    equal = equal && col1.g === col2.g;
+    equal = equal && col1.b === col2.b;
+    equal = equal && col1.a === col2.a;
+    return equal;
 }
