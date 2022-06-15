@@ -59,7 +59,7 @@ function transferPlotProps(multiFlyby: MultiFlyby, timeSettings: TimeSettings): 
 
     const markerTraces: Marker3DTrace[] = trajectories.map(traj => Draw.drawOrbitPositionMarkerAtTime(traj.orbits[0], startDate));
 
-    const plotSize = multiFlyby.transferBody.orbiters.length === 0 ? multiFlyby.transferBody.soi : 2 * multiFlyby.transferBody.furtherstOrbiterDistance;
+    const plotSize = Draw.getPlotSize(multiFlyby.transferBody);
     const marks = [
         {
             value: Math.ceil(startDate),
@@ -101,7 +101,7 @@ function ejectionPlotProps(multiFlyby: MultiFlyby, ejectionIdx: number, timeSett
         orbitTraces.push(Draw.drawOrbitPathFromStartTime(multiFlyby.startOrbit, startDate, timeSettings, new Color({r: 255, g: 255, b: 255}), 'Starting Orbit'))
     }
 
-    const plotSize = body.orbiters.length === 0 ? body.soi : Math.min(body.soi, 2 * body.furtherstOrbiterDistance);
+    const plotSize = Draw.getPlotSize(body);
     const marks = [
         {
             value: Math.ceil(startDate),
@@ -142,7 +142,7 @@ function insertionPlotProps(multiFlyby: MultiFlyby, insertionIdx: number, timeSe
         orbitTraces.push(Draw.drawOrbitPathFromStartTime(multiFlyby.endOrbit, endDate, timeSettings, new Color({r: 255, g: 255, b: 255}), 'Target Orbit'))
     }
 
-    const plotSize = body.orbiters.length === 0 ? body.soi : Math.min(body.soi, 2 * body.furtherstOrbiterDistance);
+    const plotSize = Draw.getPlotSize(body);
     const marks = [
         {
             value: Math.ceil(startDate),
@@ -180,7 +180,7 @@ function flybyPlotProps(multiFlyby: MultiFlyby, flybyIdx: number, timeSettings: 
     const orbitTraces = trajectoryTraces(trajectory, 0, timeSettings, body.name+' Flyby ');
     const markerTraces = [Draw.drawOrbitPositionMarkerAtTime(trajectory.orbits[0], startDate)];
     
-    const plotSize = body.orbiters.length === 0 ? body.soi : Math.min(body.soi, 2 * body.furtherstOrbiterDistance);
+    const plotSize = Draw.getPlotSize(body);
     const marks = [
         {
             value: Math.ceil(startDate),

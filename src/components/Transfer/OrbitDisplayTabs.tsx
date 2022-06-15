@@ -71,7 +71,7 @@ function transferPlotProps(transfer: Transfer, timeSettings: TimeSettings): Orbi
         },
     ]
 
-    const plotSize = body.orbiters.length === 0 ? body.soi : Math.min(body.soi === null ? Infinity : body.soi, 2 * body.furtherstOrbiterDistance);
+    const plotSize = Draw.getPlotSize(body);
     return {
         index:          0,
         label:          'Transfer',
@@ -103,7 +103,7 @@ function ejectionPlotProps(transfer: Transfer, ejectionIdx: number, timeSettings
         orbitTraces.push(Draw.drawOrbitPathFromStartTime(transfer.startOrbit, startDate, timeSettings, new Color({r: 255, g: 255, b: 255}), 'Starting Orbit'))
     }
 
-    const plotSize = body.orbiters.length === 0 ? body.soi : Math.min(body.soi, 2 * body.furtherstOrbiterDistance);
+    const plotSize = Draw.getPlotSize(body);
     const marks = [
         {
             value: Math.ceil(startDate),
@@ -144,7 +144,7 @@ function insertionPlotProps(transfer: Transfer, insertionIdx: number, timeSettin
         orbitTraces.push(Draw.drawOrbitPathFromStartTime(transfer.endOrbit, endDate, timeSettings, new Color({r: 255, g: 255, b: 255}), 'Target Orbit'))
     }
     
-    const plotSize = body.orbiters.length === 0 ? body.soi : Math.min(body.soi, 2 * body.furtherstOrbiterDistance);
+    const plotSize = Draw.getPlotSize(body);
     const marks = [
         {
             value: Math.ceil(startDate),

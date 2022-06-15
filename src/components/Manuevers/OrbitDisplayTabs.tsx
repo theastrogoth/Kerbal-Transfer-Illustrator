@@ -38,7 +38,7 @@ function bodyPlotProps(trajectories: Trajectory[], names: string[], colors: ICol
     const tempMarkerTraces: Marker3DTrace[] = trajectories.map(traj => Draw.drawOrbitPositionMarkerAtTime(traj.orbits[0], date));
     const markerTraces: Marker3DTrace[] = tempMarkerTraces.map((marker, idx) => updateTrajectoryMarker(date, trajectories[idx], marker));
     
-    const plotSize = body.orbiters.length === 0 ? body.soi : 2 * body.furtherstOrbiterDistance;
+    const plotSize = Draw.getPlotSize(body);
 
     return {
         index:          0,

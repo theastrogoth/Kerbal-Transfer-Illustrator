@@ -351,6 +351,12 @@ export namespace Draw {
             }
         }
     }
+
+    export function getPlotSize(centralBody: CelestialBody) {
+        const plotSize = centralBody.orbiters.length === 0 ? centralBody.soi : Math.min(isNaN(centralBody.soi) ? Infinity : centralBody.soi, 2 * centralBody.furtherstOrbiterDistance);
+        return plotSize;
+    }
+
 }
 
 export default Draw;

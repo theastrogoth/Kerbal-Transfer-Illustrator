@@ -209,7 +209,7 @@ function SolarSystemAppContent() {
                   marks={[]}
                   centralBody={centralBody}
                   defaultTraces={{systemTraces: Draw.drawSystemAtTime(centralBody, 0, timeSettings), orbitTraces: [] as Line3DTrace[]}}
-                  plotSize={centralBody.orbiters.length === 0 ? 10 * centralBody.radius : 2 * centralBody.furtherstOrbiterDistance}
+                  plotSize={Draw.getPlotSize(centralBody)}
                 />
               </Box>
               <Box sx={{mx: 2, my: 2}}>
