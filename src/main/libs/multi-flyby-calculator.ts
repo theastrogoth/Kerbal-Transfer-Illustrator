@@ -45,7 +45,7 @@ class MultiFlybyCalculator {
     private _noInsertionBurn:           boolean;
 
     private _maneuvers:                 Maneuver[];
-    private _maneuverContexts:          String[];
+    private _maneuverContexts:          string[];
     private _deltaV!:                   number;
 
     constructor(inputs: MultiFlybyInputs) {
@@ -389,7 +389,7 @@ class MultiFlybyCalculator {
                 } else {
                     const maneuvers = this._ejections[i].maneuvers.slice(1)
                     const bodyname = this.bodyFromId(this._ejections[i].orbits[0].orbiting).name;
-                    const contexts: String[] = [];
+                    const contexts: string[] = [];
                     for(let j=0; j<maneuvers.length; j++) {
                         contexts.push("Oberth Maneuver Burn over " + bodyname)
                     }
@@ -403,7 +403,7 @@ class MultiFlybyCalculator {
         }
         for(let i=0; i<this._transfers.length; i++) {
             const tferManeuvers = this._transfers[i].maneuvers.slice(1,-1)
-            const tferContexts: String[] = [];
+            const tferContexts: string[] = [];
             for(let j=0; j<tferManeuvers.length; j++) {
                 tferContexts.push("Plane Change Burn");
             }
@@ -411,7 +411,7 @@ class MultiFlybyCalculator {
             this._maneuverContexts.push(...tferContexts)
             if(i<this._transfers.length - 1) {
                 this._maneuvers.push(...this._flybys[i].maneuvers);
-                const flybyContexts: String[] = [];
+                const flybyContexts: string[] = [];
                 for(let j=0; j<this._flybys[i].maneuvers.length; j++) {
                     flybyContexts.push("Flyby Burn over " + this._flybyBodySequence[i].name);
                 }
@@ -433,7 +433,7 @@ class MultiFlybyCalculator {
                 } else {
                     const maneuvers = this._insertions[i].maneuvers.slice(0,-1);
                     const bodyname = this.bodyFromId(this._insertions[i].orbits[0].orbiting).name;
-                    const contexts: String[] = [];
+                    const contexts: string[] = [];
                     for(let j=0; j<maneuvers.length; j++) {
                         contexts.push("Oberth Maneuver Burn over " + bodyname)
                     }

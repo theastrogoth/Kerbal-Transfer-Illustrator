@@ -7,9 +7,35 @@ import { useAtom } from "jotai";
 import { atomWithHash } from "jotai/utils";
 import { systemNameAtom, customSystemAtom, vesselPlansAtom } from "../../App";
 
-const systemNameHashAtom = atomWithHash<string | null>("systemName", null);
-const customSystemHashAtom = atomWithHash<ISolarSystem | null>("customSystem", null)
-const vesselPlansHashAtom = atomWithHash<IVessel[] | null>("vesselPlans", null);
+import CJSON from "../../main/utilities/cjson";
+import{ compress, decompress } from "../../main/utilities/shrinkString"; 
+
+const serialize = (obj: any) => {
+    const str = CJSON.stringify(obj);
+    const compressedStr = compress(str);
+    return compressedStr;
+}
+
+const deserialize = (str: string) => {
+    let obj: any;
+    try {
+        const decompressedStr = decompress(str);
+        obj = CJSON.parse(decompressedStr);
+    } catch {
+        obj = JSON.parse(str);
+    }
+    return obj;
+}
+
+const hashOpts = {
+    serialize,
+    deserialize,
+    replaceState:   true,
+};
+
+const systemNameHashAtom = atomWithHash<string | null>("systemName", null, {replaceState: true});
+const customSystemHashAtom = atomWithHash<ISolarSystem | null>("customSystem", null, hashOpts)
+const vesselPlansHashAtom = atomWithHash<IVessel[] | null>("vesselPlans", null, hashOpts);
 
 const userAgent = navigator.userAgent;
 const usingIE = userAgent.indexOf("Trident") > -1;
@@ -48,7 +74,6 @@ function GetLinkButton() {
 
     useEffect(() => {
         if(vesselPlansHash !== null && vesselPlansRef.current !== vesselPlansHash) {
-            console.log("set vessel plans from hash")
             setVesselPlans(vesselPlansHash);
             vesselPlansRef.current = vesselPlansHash;
         }

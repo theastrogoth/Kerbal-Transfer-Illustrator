@@ -7,7 +7,33 @@ import { useAtom } from "jotai";
 import { atomWithHash } from "jotai/utils";
 import { transferAtom } from "../../App";
 
-const transferHashAtom = atomWithHash<ITransfer | null>("transfer", null);
+import CJSON from "../../main/utilities/cjson";
+import{ compress, decompress } from "../../main/utilities/shrinkString"; 
+
+const serialize = (obj: any) => {
+    const str = CJSON.stringify(obj);
+    const compressedStr = compress(str);
+    return compressedStr;
+}
+
+const deserialize = (str: string) => {
+    let obj: any;
+    try {
+        const decompressedStr = decompress(str);
+        obj = CJSON.parse(decompressedStr);
+    } catch {
+        obj = JSON.parse(str);
+    }
+    return obj;
+}
+
+const hashOpts = {
+    serialize,
+    deserialize,
+    replaceState:   true,
+};
+
+const transferHashAtom = atomWithHash<ITransfer | null>("transfer", null, hashOpts);
 
 const userAgent = navigator.userAgent;
 const usingIE = userAgent.indexOf("Trident") > -1;

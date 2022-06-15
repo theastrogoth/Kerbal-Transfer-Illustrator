@@ -7,7 +7,33 @@ import { useAtom } from "jotai";
 import { atomWithHash } from "jotai/utils";
 import { multiFlybyAtom } from "../../App";
 
-const multiFlybyHashAtom = atomWithHash<IMultiFlyby | null>("multiFlyby", null);
+import CJSON from "../../main/utilities/cjson";
+import{ compress, decompress } from "../../main/utilities/shrinkString"; 
+
+const serialize = (obj: any) => {
+    const str = CJSON.stringify(obj);
+    const compressedStr = compress(str);
+    return compressedStr;
+}
+
+const deserialize = (str: string) => {
+    let obj: any;
+    try {
+        const decompressedStr = decompress(str);
+        obj = CJSON.parse(decompressedStr);
+    } catch(err) {
+        obj = JSON.parse(str);
+    }
+    return obj;
+}
+
+const hashOpts = {
+    serialize,
+    deserialize,
+    replaceState:   true,
+};
+
+const multiFlybyHashAtom = atomWithHash<IMultiFlyby | null>("multiFlyby", null, hashOpts);
 
 const userAgent = navigator.userAgent;
 const usingIE = userAgent.indexOf("Trident") > -1;
@@ -16,11 +42,13 @@ function GetLinkButton() {
     const [multiFlyby, setMultiFlyby] = useAtom(multiFlybyAtom);
     const [multiFlybyHash, setMultiFlybyHash] = useAtom(multiFlybyHashAtom);
     const multiFlybyRef = useRef(multiFlyby);
+    const multiFlybyHashRef = useRef(multiFlyby.data);
 
     const [copied, setCopied] = useState(false);
 
     useEffect(() => {
-        if(multiFlybyHash !== null && multiFlybyRef.current !== multiFlybyHash) {
+        if(multiFlybyHash !== null && multiFlybyHashRef.current !== multiFlybyHash) {
+            multiFlybyHashRef.current = multiFlybyHash;
             const newMultiFlyby = new MultiFlyby(multiFlybyHash)
             setMultiFlyby(newMultiFlyby);
             multiFlybyRef.current = newMultiFlyby;

@@ -35,7 +35,7 @@ class TransferCalculator {
     private _matchEndMo:                boolean;
 
     private _maneuvers:                 Maneuver[];
-    private _maneuverContexts:          String[];
+    private _maneuverContexts:          string[];
     private _deltaV!:                   number;
 
     constructor(inputs: TransferInputs) {
@@ -277,7 +277,7 @@ class TransferCalculator {
                 } else {
                     const maneuvers = this._ejections[i].maneuvers.slice(1)
                     const bodyname = this.bodyFromId(this._ejections[i].orbits[0].orbiting).name;
-                    const contexts: String[] = [];
+                    const contexts: string[] = [];
                     for(let j=0; j<maneuvers.length; j++) {
                         contexts.push("Oberth Maneuver Burn over " + bodyname)
                     }
@@ -312,7 +312,7 @@ class TransferCalculator {
                 } else {
                     const maneuvers = this._insertions[i].maneuvers.slice(0,-1);
                     const bodyname = this.bodyFromId(this._insertions[i].orbits[0].orbiting).name;
-                    const contexts: String[] = [];
+                    const contexts: string[] = [];
                     for(let j=0; j<maneuvers.length; j++) {
                         contexts.push("Oberth Maneuver Burn over " + bodyname)
                     }

@@ -16,7 +16,7 @@ class MultiFlyby implements IMultiFlyby {
     readonly transfers:              Trajectory[];
     readonly flybys:                 Trajectory[];
     readonly maneuvers:              Maneuver[];
-    readonly maneuverContexts:       String[];
+    readonly maneuverContexts:       string[];
     readonly deltaV:                 number;
     readonly soiPatchPositions:      Vector3[];
     readonly flybyDurations:         { inTime: number; outTime: number; total: number; }[];

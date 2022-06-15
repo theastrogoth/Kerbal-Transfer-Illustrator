@@ -17,7 +17,7 @@ export class Transfer implements ITransfer {
     readonly ejections:                 Trajectory[];
     readonly insertions:                Trajectory[];
     readonly maneuvers:                 Maneuver[];
-    readonly maneuverContexts:          String[];
+    readonly maneuverContexts:          string[];
     readonly deltaV:                    number;
     readonly soiPatchPositions:         Vector3[];
     readonly ejectionInsertionType:     "fastdirect" | "direct" | "fastoberth" | "oberth";
