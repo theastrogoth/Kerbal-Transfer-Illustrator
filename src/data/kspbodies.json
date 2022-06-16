@@ -6,7 +6,6 @@
     "atmosphereHeight": 600000,
     "mass": 1.7565459e+28,
     "stdGravParam": 1172332800000000000,
-    "soi": 1e+9999,
     "color": {
       "r": 254, 
       "g": 198,

@@ -57,7 +57,7 @@ export function defaultOrbit(system: SolarSystem, id: number = 1, altitude: numb
         alt = 10 ** Math.floor(Math.log10(body.radius + (body.atmosphereHeight || 0))); 
         const safeAlt = clamp(alt, (body.atmosphereHeight || 0), (body.soi || Infinity));
         if(alt !== safeAlt) {
-            if((body.soi - body.radius) / body.atmosphereHeight > 10) {
+            if((body.soi || Infinity - body.radius) / body.atmosphereHeight > 10) {
                 while(alt < body.atmosphereHeight) {
                     alt *= 10;
                 }

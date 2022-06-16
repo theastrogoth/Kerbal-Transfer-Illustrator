@@ -40,7 +40,7 @@ export function fileToBodyConfig(configFile: string): OrbitingBodyConfig {
     const stdGravParam = bodyData.Properties.gravParameter;
     const geeASL = bodyData.Properties.geeASL;
     const mass = bodyData.Properties.mass;
-    const soi = bodyData.Properties.soi;
+    const soi = bodyData.Properties.sphereOfInfluence;
 
     const atmosphereHeight = bodyData.Atmosphere ? (bodyData.Atmosphere.maxAltitude || bodyData.Atmosphere.altitude) : undefined;
 
@@ -259,7 +259,6 @@ function sunConfigToSystemInputs(data: SunConfig, refSystem: SolarSystem): ICele
         mass:               allGravityMissing ? template!.mass : (data.mass ? Number(data.mass) : undefined),
         geeASL:             allGravityMissing ? template!.geeASL : (data.geeASL ? Number(data.geeASL) : undefined),
         stdGravParam:       allGravityMissing ? template!.stdGravParam : (data.stdGravParam ? Number(data.stdGravParam) : stdGravParam),
-        soi:                Infinity,
         color:              data.color ? colorFromRGBA(data.color) : {r: 254, g: 198, b: 20} as IColor,
     }
     return sun;
@@ -272,7 +271,7 @@ function bodyConfigToSystemInputs(data: OrbitingBodyConfig, id: number, parentId
     // we need to have the stdGravParam ready here
     const radius = data.radius ? Number(data.radius) : template!.radius;
     let stdGravParam: number = 1;
-    if(!allGravityMissing && (data.stdGravParam === undefined)) {
+    if(!allGravityMissing && (data.stdGravParam === undefined || data.stdGravParam === null)) {
         if(data.geeASL !== undefined) {
             stdGravParam = Number(data.geeASL) * radius * radius * Kepler.gravitySeaLevelConstant;
         } else {
@@ -333,6 +332,7 @@ export function configsTreeToSystem(tree: TreeNode<SunConfig | OrbitingBodyConfi
     if(safeScale !== 1) {
         system = system.rescale(safeScale);
     }
+    console.log(tree, system)
     return system;
 }
 

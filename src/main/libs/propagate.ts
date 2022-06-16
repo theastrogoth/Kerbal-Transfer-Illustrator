@@ -24,9 +24,9 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
     let escapes: boolean = orbit.eccentricity > 1;
     let escapeDate: number = NaN;
     const soi = attractor.soi === null ? Infinity : attractor.soi;
-    if (!escapes && attractor.soi !== null) {
+    if (!escapes && (attractor.soi !== null && attractor.soi !== undefined)) {
         const apoapsis = orbit.apoapsis ? orbit.apoapsis : orbit.semiMajorAxis * (1 + orbit.eccentricity);
-        escapes = apoapsis > attractor.soi;
+        escapes = apoapsis > (attractor.soi as number);
     }
     if (escapes) {
         if (soi === Infinity) {

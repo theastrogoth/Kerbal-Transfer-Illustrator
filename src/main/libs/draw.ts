@@ -245,7 +245,7 @@ export namespace Draw {
         const line: LineOptions = {color: (new Color(body.color)).toString()};
         const hovertemplate = ("<b>"+name+"</b><br>").concat(
             "   radius = ", (Math.round(body.radius)).toString(), " m<br>" ,
-            "   SoI    = ", (Math.round(body.soi)).toString(), " m<br>",
+            body.soi ? ("   SoI    = " + (Math.round(body.soi as number)).toString() + " m<br>") : '',
             body.atmosphereHeight ? "   atmosphere height = " + (Math.round(body.atmosphereHeight)).toString() + " m<br>" : "",
             body.maxTerrainHeight ? "   highest terrain   = " + (Math.round(body.maxTerrainHeight)).toString() + " m<br>" : "",
         )
@@ -291,7 +291,7 @@ export namespace Draw {
     ///// markers and text /////
 
     export function drawReferenceDirection(centralBody: CelestialBody): Line3DTrace {
-        const dist = centralBody.orbiters.length > 0 ? centralBody.furtherstOrbiterDistance * 2 : centralBody.soi;
+        const dist = getPlotSize(centralBody);
         return {
             x:          [0, dist],
             y:          [0, 0],
@@ -353,7 +353,7 @@ export namespace Draw {
     }
 
     export function getPlotSize(centralBody: CelestialBody) {
-        const plotSize = centralBody.orbiters.length === 0 ? centralBody.soi : Math.min(isNaN(centralBody.soi) ? Infinity : centralBody.soi, 2 * centralBody.furtherstOrbiterDistance);
+        const plotSize = centralBody.orbiters.length === 0 ? centralBody.soi || 2 * centralBody.radius : 2 * centralBody.furtherstOrbiterDistance;
         return plotSize;
     }
 

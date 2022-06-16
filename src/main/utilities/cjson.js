@@ -182,6 +182,9 @@ function expand( templates, value )
                 result[keys[i]] = expand( templates, value[""][i+1] );
             }
         }
+    } else if ( value === null ) {
+        // adding this to ensure type correctness for missing keys
+        result = undefined;
     } else {
         result = value;
     }

@@ -14,7 +14,7 @@ export class Orbit implements IOrbit {
     readonly semiLatusRectum!:       number;
     readonly siderealPeriod!:        number;
     readonly orbiting!:              number;
-    readonly attractorSoi!:          number;
+    readonly attractorSoi?:          number;
     readonly attractorStdGravParam!: number
 
 

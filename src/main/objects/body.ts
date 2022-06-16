@@ -10,7 +10,7 @@ export class CelestialBody implements ICelestialBody {
     readonly mass!:             number;
     readonly geeASL:            number;
     readonly stdGravParam!:     number;
-    readonly soi!:              number;
+    readonly soi?:              number;
     readonly color!:            Color;
     readonly orbiters:          OrbitingBody[] = [];
 
@@ -82,12 +82,15 @@ export class CelestialBody implements ICelestialBody {
 export class OrbitingBody extends CelestialBody implements IOrbitingBody {
     readonly orbit!:            Orbit;
     readonly orbiting!:         number;
+    //@ts-ignore
+    readonly soi!:              number;
 
     constructor(data: IOrbitingBody, public readonly attractor: CelestialBody, anglesToRad: boolean = false) {
         super(data);
         
         this.orbit        = new Orbit(data.orbit, this.attractor, anglesToRad);
         this.orbiting     = data.orbiting;
+        this.soi          = data.soi;
     }
 
     public get data(): IOrbitingBody {
@@ -95,14 +98,15 @@ export class OrbitingBody extends CelestialBody implements IOrbitingBody {
             ...super.data,
             orbit:          this.orbit.data,
             orbiting:       this.orbiting,
+            soi:            this.soi,
         };
     }
 
     public rescaleOrbiting(scale: number, scaledAttractor: CelestialBody) : OrbitingBody {
         const newOrbit = this.orbit.rescale(scale, scaledAttractor);
         const newGravParam = this.geeASL * this.radius * this.radius * scale * scale * 9.80665;
-        const newSoi = newOrbit.semiMajorAxis * (newGravParam / scaledAttractor.stdGravParam)**(2/5);
-        const newMass = newGravParam / 6.7430e-11;
+        const newSoi = this.soi * scale; // newOrbit.semiMajorAxis * (newGravParam / scaledAttractor.stdGravParam)**(2/5);
+        const newMass = this.mass * scale * scale; // newGravParam / 6.7430e-11;
         const newData: IOrbitingBody = {
             id:                 this.id,
             name:               this.name,

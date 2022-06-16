@@ -13,13 +13,14 @@ interface ICelestialBody {
     readonly mass?:             number;
     readonly geeASL?:           number;
     readonly stdGravParam:      number;
-    readonly soi:               number;
+    readonly soi?:              number;
     readonly color:             IColor;
 }
 
-interface IOrbitingBody extends ICelestialBody {
+interface IOrbitingBody extends Omit<ICelestialBody, 'soi'> {
     readonly orbiting:      number;
     readonly orbit:         IOrbit;
+    readonly soi:           number;
 }
 
 interface IOrbit {
