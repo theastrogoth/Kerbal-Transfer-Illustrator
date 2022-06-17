@@ -42,7 +42,7 @@ function TransferInfo() {
 
     return (
         <Stack spacing={1} sx={{ my: 2, mx: 2 }}>
-            <Box textAlign="center">
+            <Box component="div" textAlign="center">
                 <Typography variant="h5">Selected Transfer Details</Typography>
             </Box>
             <Divider />
@@ -110,7 +110,7 @@ function TransferInfo() {
                     </TableBody>
                 </Table>
             </TableContainer>
-            <Box display="flex" justifyContent="center" alignItems="center">
+            <Box component="div" display="flex" justifyContent="center" alignItems="center">
                 <CopyButton 
                     obj={flightPlan} 
                     copiedObj={copiedFlightPlan} 

@@ -21,15 +21,15 @@ import BodyConfigControls from "../components/SystemEditor/BodyConfigControls";
 import TimeSettingsControls from "../components/TimeSettingsControls";
 import BodyConfigUploadButton from "../components/SystemEditor/BodyConfigUploadButton";
 import SunConfigUploadButton from "../components/SystemEditor/SunConfigUploadButton";
-import OrbitDisplay from "../components/OrbitDisplay";
+import OrbitDisplay from "../components/OrbitDisplay2";
 import SelectProvidedConfigs from "../components/SystemEditor/SelectProvidedConfigs";
 import GetLinkButton from "../components/SystemEditor/GetLinkButton";
 
 import SolarSystem from "../main/objects/system";
-import Draw from "../main/libs/draw";
+// import Draw from "../main/libs/draw";
 
 import { useAtom } from "jotai";
-import { customSystemAtom, configTreeAtom, timeSettingsAtom, bodyConfigsAtom, editorSelectedNameAtom, systemScaleAtom } from "../App";
+import { customSystemAtom, configTreeAtom, /* timeSettingsAtom, */ bodyConfigsAtom, editorSelectedNameAtom, systemScaleAtom } from "../App";
 
 
 function createBodyItems(system: SolarSystem) {
@@ -51,7 +51,7 @@ function SolarSystemAppContent() {
   const [customSystem, setCustomSystem] = useAtom(customSystemAtom);
   const [, setEditorSelectedName] = useAtom(editorSelectedNameAtom);
   const [systemScale, setSystemScale] = useAtom(systemScaleAtom);
-  const [timeSettings] = useAtom(timeSettingsAtom);
+  // const [timeSettings] = useAtom(timeSettingsAtom);
 
   const [bodyOptions, setBodyOptions] = useState(createBodyItems(customSystem));
   const [centralBodyName, setCentralBodyName] = useState(customSystem.sun.name);
@@ -105,7 +105,7 @@ function SolarSystemAppContent() {
       <Navbar showHelp={showHelp} setShowHelp={setShowHelp} />
       <Stack sx={{mx: 4, my: 1}}>
         <CssBaseline />
-        <Box textAlign='left' sx={{mx: 2, my: 3}}>
+        <Box component="div" textAlign='left' sx={{mx: 2, my: 3}}>
           <Typography variant="h4">Solar System Editor</Typography>
           <Divider />
         </Box>
@@ -135,7 +135,7 @@ function SolarSystemAppContent() {
               <Stack spacing={1.5} sx={{mx: 2, my: 2}} alignItems='center' justifyContent='center'>
                 <SunConfigUploadButton />
                 <BodyConfigUploadButton />
-                <Box>
+                <Box component="div">
                   <Button
                     variant="text" 
                     color="inherit" 
@@ -197,8 +197,8 @@ function SolarSystemAppContent() {
                   </Select>
                 </FormControl>
               </Stack>
-              <Box sx={{mx: 2, my: 2}}>
-                <OrbitDisplay 
+              <Box component="div" sx={{mx: 2, my: 2}}>
+                {/* <OrbitDisplay 
                   index={0}
                   label={'Solar System'}
                   slider={false}
@@ -210,9 +210,10 @@ function SolarSystemAppContent() {
                   centralBody={centralBody}
                   defaultTraces={{systemTraces: Draw.drawSystemAtTime(centralBody, 0, timeSettings), orbitTraces: [] as Line3DTrace[]}}
                   plotSize={Draw.getPlotSize(centralBody)}
-                />
+                /> */}
+                <OrbitDisplay />
               </Box>
-              <Box sx={{mx: 2, my: 2}}>
+              <Box component="div" sx={{mx: 2, my: 2}}>
                 <Typography variant="body1">Time Settings</Typography>
                 <TimeSettingsControls />
               </Box>

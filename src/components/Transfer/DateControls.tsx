@@ -85,7 +85,7 @@ function DateControls() {
                     error={flightErr}  
                 />
             </Collapse>
-            <Box textAlign='center'>
+            <Box component="div" textAlign='center'>
                 <Button 
                     variant="text" 
                     startIcon={optsVisible ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}

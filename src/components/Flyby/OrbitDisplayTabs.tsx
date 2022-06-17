@@ -315,7 +315,7 @@ function OrbitDisplayTabs() {
             </Tabs>
             {orbitDisplayProps.map((props, index) => <OrbitTabPanel key={index} value={value} index={props.index} props={props}/>)}
             {multiFlyby.deltaV > 0 &&
-            <Box textAlign='center'>
+            <Box component="div" textAlign='center'>
                 <LoadingButton 
                     variant="contained" 
                     loadingPosition="end"

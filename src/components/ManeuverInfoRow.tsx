@@ -56,7 +56,7 @@ function ManeuverInfoRow({name, maneuver}: {name: String, maneuver: Maneuver}) {
         <TableRow>
             <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={4}>
                 <Collapse in={open} timeout="auto">
-                    <Box sx={{ margin: 1 }}>
+                    <Box component="div" sx={{ margin: 1 }}>
                         <Table size="small">
                             <TableBody>
                                 <TableRow>

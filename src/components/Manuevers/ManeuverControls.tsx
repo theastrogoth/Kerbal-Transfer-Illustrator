@@ -120,7 +120,7 @@ function ManeuverControls({idx, maneuvers, setManeuvers}: ManeuverControlsState)
 
     return (
         <>
-            <Box display="flex" alignItems="center" >
+            <Box component="div" display="flex" alignItems="center" >
                 <Typography variant="body2" >
                     {"Maneuver #" + String(idx + 1)}
                 </Typography>
@@ -130,11 +130,11 @@ function ManeuverControls({idx, maneuvers, setManeuvers}: ManeuverControlsState)
                 >
                     {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
                 </IconButton>
-                <Box sx={{ flexGrow: 11 }} />
+                <Box component="div" sx={{ flexGrow: 11 }} />
                 <Typography variant="body2" >
                     {String(Math.round(Math.sqrt(maneuvers[idx].prograde ** 2 + maneuvers[idx].normal ** 2 + maneuvers[idx].radial ** 2) * 100) / 100) + " m/s"}
                 </Typography>
-                <Box sx={{ flexGrow: 1 }} />
+                <Box component="div" sx={{ flexGrow: 1 }} />
                 <PasteButton setObj={(m: ManeuverComponents) => { const newManeuvers = [...maneuvers]; newManeuvers[idx] = m; setManeuvers(newManeuvers)} } copiedObj={copiedManeuver}/>
                 <IconButton 
                     size="small"

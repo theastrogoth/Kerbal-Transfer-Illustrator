@@ -78,7 +78,7 @@ function VesselTabs() {
     return (
         <Stack alignItems='center' >
             <Stack spacing={1} sx={{ width: '90%', maxWidth: 600, my: 2, mx: 2 }} >
-                <Box textAlign="center" >
+                <Box component="div" textAlign="center" >
                     <Typography variant="h5">Flight Plan Controls</Typography>
                     <Divider />
                 </Box>

@@ -271,7 +271,7 @@ function OrbitDisplayTabs() {
             </Tabs>
             {orbitDisplayProps.map(props => <OrbitTabPanel key={props.index} value={value} index={props.index} props={props}/>)}
             {transfer.deltaV > 0 &&
-                <Box textAlign='center'>
+                <Box component="div" textAlign='center'>
                     <LoadingButton 
                         variant="contained" 
                         loadingPosition="end"

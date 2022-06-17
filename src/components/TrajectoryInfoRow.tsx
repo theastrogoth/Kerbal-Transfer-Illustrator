@@ -35,7 +35,7 @@ function TrajectoryInfoRow({name, orbitnames, trajectory}: {name: string, orbitn
         <TableRow>
             <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={2}>
                 <Collapse in={open} timeout="auto" unmountOnExit>
-                    <Box sx={{ margin: 1 }}>
+                    <Box component="div" sx={{ margin: 1 }}>
                         <Table size="small">
                             <TableBody>
                                 {trajectory.map((orbit, index) => <OrbitInfoRow key={index} name={orbitnames[index]} orbit={orbit} />)}

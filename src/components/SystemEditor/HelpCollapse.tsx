@@ -12,10 +12,10 @@ import Divider from '@mui/material/Divider';
 
 function HelpCollapse({showHelp}: {showHelp: boolean}) {
     return (
-    <Box justifyContent="center" textAlign='left' sx={{mx: 4, my: 1}}>
+    <Box component="div" justifyContent="center" textAlign='left' sx={{mx: 4, my: 1}}>
         <Collapse in={showHelp}>
             <Typography variant="h6">Basic Instructions</Typography>
-            <Box sx={{mx:8}}>
+            <Box component="div" sx={{mx:8}}>
                 <TableContainer>
                     <Table size="small">
                         <TableBody>

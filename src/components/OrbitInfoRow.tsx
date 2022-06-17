@@ -44,7 +44,7 @@ function OrbitInfoRow({name, orbit}: {name: string, orbit: IOrbit}) {
         <TableRow>
             <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={2}>
                 <Collapse in={open} timeout="auto" unmountOnExit>
-                    <Box sx={{ margin: 1 }}>
+                    <Box component="div" sx={{ margin: 1 }}>
                         <Table size="small">
                             <TableBody>
                                 <TableRow>

@@ -16,7 +16,7 @@ function MissionControls() {
     return (
         <Stack alignItems='center' >
             <Stack spacing={1} sx={{ width: '90%', maxWidth: 500, my: 2, mx: 2 }} >
-                <Box textAlign="center">
+                <Box component="div" textAlign="center">
                     <Typography variant="h5">Mission Controls</Typography>
                 </Box>
                 <Divider />

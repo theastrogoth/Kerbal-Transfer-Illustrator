@@ -145,7 +145,7 @@ function FlybyAppContent() {
       <Navbar showHelp={showHelp} setShowHelp={setShowHelp} />
       <Stack sx={{mx: 4, my: 1}}>
         <CssBaseline />
-        <Box textAlign='left' sx={{mx: 2, my: 3}}>
+        <Box component="div" textAlign='left' sx={{mx: 2, my: 3}}>
           <Typography variant="h4">Multi-Flyby Planner</Typography>
           <Divider />
         </Box>
@@ -180,7 +180,7 @@ function FlybyAppContent() {
                 flexDirection: 'column',
               }}
             >
-              <Box textAlign='center' sx={{ my: 0}}>
+              <Box component="div" textAlign='center' sx={{ my: 0}}>
                 <LoadingButton 
                     variant="contained" 
                     loadingPosition="end"
@@ -226,9 +226,9 @@ function FlybyAppContent() {
             </Fade>
           </Grid>
         </Grid>
-        <Box sx={{my:4}}>
+        <Box component="div" sx={{my:4}}>
           <Typography variant="h5">Acknowledgements</Typography>
-          <Box sx={{mx:4}}>
+          <Box component="div" sx={{mx:4}}>
             <Typography variant="h6">Many thanks to...</Typography>
             <Stack spacing={0.1}>
               <Typography>...Arrowstar, for his incredible <a href="https://forum.kerbalspaceprogram.com/index.php?/topic/33568-winmaclinux-ksp-trajectory-optimization-tool-v168-new-matlab-version/">KSP Trajectory Optimization Tool</a>, which this page is modeled after.</Typography>
