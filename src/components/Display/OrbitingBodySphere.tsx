@@ -13,9 +13,9 @@ function OrbitingBodySphere({body, plotSize, date}: {body: OrbitingBody, plotSiz
         <>
         <mesh position={position}>
             <sphereGeometry args={[body.radius / plotSize, 32, 32]} />
-            <meshStandardMaterial color={color} />
+            <meshLambertMaterial color={color} />
         </mesh>
-        <OrbitLine orbit={body.orbit} plotSize={plotSize} color={color} />
+        <OrbitLine orbit={body.orbit} plotSize={plotSize} color={body.color} />
         </>
     )
   }

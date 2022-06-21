@@ -8,7 +8,7 @@ function CentralBodySphere({body, plotSize}: {body: CelestialBody, plotSize: num
     return (
         <mesh position={position.current}>
             <sphereGeometry args={[body.radius / plotSize, 32, 32]} />
-            <meshStandardMaterial color={hexFromColorString(body.color.toString())} />
+            <meshLambertMaterial color={hexFromColorString(body.color.toString())} />
         </mesh>
     )
   }

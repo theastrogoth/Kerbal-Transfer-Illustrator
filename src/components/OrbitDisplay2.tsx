@@ -15,7 +15,7 @@ function OrbitDisplay({centralBody, date}: {centralBody: CelestialBody, date: nu
     <Canvas style={{height: '500px'}} >
         <OrthographicCamera makeDefault={true} position={[0,1,0]} zoom={750} />
             <mesh>
-              <ambientLight />
+              <ambientLight intensity={0.25} />
               <pointLight position={[0, 0, 0]} />
             </mesh>
             <SystemDisplay centralBody={centralBody} plotSize={plotSize} date={date}/>

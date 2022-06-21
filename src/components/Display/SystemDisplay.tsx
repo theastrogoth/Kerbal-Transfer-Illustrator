@@ -1,6 +1,6 @@
 import React from 'react';
 import CelestialBody from '../../main/objects/body';
-import CentralBodySphere from './CentralBody';
+import CentralBodySphere from './CentralBodySphere';
 import OrbitingBodySphere from './OrbitingBodySphere';
 
 function SystemDisplay({centralBody, plotSize, date}: {centralBody: CelestialBody, plotSize: number, date: number}) {
