@@ -119,8 +119,8 @@ namespace FlybyCalcs {
         const outOrbit = Kepler.stateToOrbit(outPeriapsisState, body);
         const maneuver = Kepler.maneuverFromOrbitalStates(inPeriapsisState, outPeriapsisState);
         
-        const inDate  = DepartArrive.insertionDate(inOrbit, body);
-        const outDate = DepartArrive.ejectionDate(outOrbit, body);
+        const inDate  = DepartArrive.insertionDate(inOrbit, soi);
+        const outDate = DepartArrive.ejectionDate(outOrbit, soi);
 
         // // testing: make sure directions and deltaV are correct
         // console.log(params.error)

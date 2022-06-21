@@ -33,7 +33,7 @@ export namespace Draw {
             positions.push(Kepler.positionAtTrueAnomaly(orbit, nus[i]));
             tMin = (Kepler.trueAnomalyToOrbitDate(nus[i], orbit, orbit.eccentricity < 1 ? tMin : undefined));
             times.push(tMin);
-            nus2.push(Kepler.dateToOrbitTrueAnomaly(tMin, orbit));
+            // nus2.push(Kepler.dateToOrbitTrueAnomaly(tMin, orbit));
         }
 
         // attempt to debug hyperbolic orbit dates

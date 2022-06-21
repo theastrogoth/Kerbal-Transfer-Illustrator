@@ -34,7 +34,7 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
             escapeDate = Kepler.trueAnomalyToOrbitDate(Kepler.trueAnomalyAtDistance(maxDist, orbit.eccentricity, orbit.semiLatusRectum), orbit, startDate);
             maxDate = Math.min(maxDate, escapeDate);
         } else {
-            escapeDate = DepartArrive.ejectionDate(orbit, attractor as IOrbitingBody);
+            escapeDate = DepartArrive.ejectionDate(orbit, (attractor as IOrbitingBody).soi);
         }
         maxDate = Math.min(maxDate, escapeDate);
     } else {
