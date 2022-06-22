@@ -1,22 +1,36 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
+import Slider from '@mui/material/Slider';
 import DateField from './DateField';
 
-import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { OrthographicCamera, OrbitControls } from '@react-three/drei'
 import SystemDisplay from './Display/SystemDisplay';
 
-import Kepler from '../main/libs/kepler';
-import CelestialBody, { OrbitingBody } from '../main/objects/body';
+import CelestialBody from '../main/objects/body';
 import SolarSystem from '../main/objects/system';
 
-import { normalize3, mult3, timeToCalendarDate } from '../main/libs/math';
+import { calendarDateToString, timeToCalendarDate } from '../main/libs/math';
 import { makeDateFields, timeFromDateFieldState } from '../utils';
 
 import { atom, useAtom } from 'jotai';
 import { timeSettingsAtom } from '../App';
+import TrajectoryDisplay from './Display/TrajectoryDisplay';
+
+export type OrbitDisplayProps = {
+  label:              string,
+  index:              number,
+  centralBody:        CelestialBody,
+  system:             SolarSystem,
+  startDate?:         number,
+  endDate?:           number,
+  trajectories?:      Trajectory[],
+  trajectoryNames?:   string[],
+  trajectoryColors?:  IColor[],
+  slider?:            boolean,
+  marks?:             {value: number, label: string}[],
+}
 
 function getPlotSize(centralBody: CelestialBody) {
   return((centralBody.soi === undefined || centralBody.soi === null || centralBody.soi === Infinity) ? 
@@ -26,7 +40,7 @@ function getPlotSize(centralBody: CelestialBody) {
           centralBody.soi as number);
 }
 
-function OrbitDisplay({centralBody, startDate, system, trajectories=[], trajectoryNames=[]}: {centralBody: CelestialBody, startDate: number, system: SolarSystem, trajectories?: Trajectory[], trajectoryNames?: string[]}) {
+function OrbitDisplay({centralBody, system, startDate=0, endDate=startDate + 9201600, trajectories=[], trajectoryNames=[], trajectoryColors=[], slider=false, marks=[]}: OrbitDisplayProps) {
 
   const [timeSettings] = useAtom(timeSettingsAtom);
   const timeSettingsRef = useRef(timeSettings);
@@ -43,49 +57,67 @@ function OrbitDisplay({centralBody, startDate, system, trajectories=[], trajecto
 
   const [plotSize, setPlotSize] = useState(getPlotSize(centralBody));
 
- 
+  useEffect(() => {
+    if((timeSettings === timeSettingsRef.current)) {
+        if(startDate !== startDateRef.current) {
+          startDateRef.current = startDate;
+          setDate(startDate);
+          dateRef.current = startDate;
+          const calendarDate = timeToCalendarDate(startDate, timeSettings, 1, 1);
+          setDateField(calendarDate);
+          dateFieldRef.current = calendarDate;
+        }
+    }
+    setPlotSize(getPlotSize(centralBody));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startDate, centralBody, timeSettings]);
 
-      useEffect(() => {
-        if((timeSettings === timeSettingsRef.current)) {
-          let d = date;
-            if(startDate !== startDateRef.current) {
-              d = startDate;
-              startDateRef.current = startDate;
-              setDate(startDate);
-              dateRef.current = startDate;
-              const calendarDate = timeToCalendarDate(startDate, timeSettings, 1, 1);
+  useEffect(() => {
+      if(dateField !== dateFieldRef.current) {
+          dateFieldRef.current = dateField;
+          const newDate = timeFromDateFieldState(dateField, timeSettings, 1, 1);
+          setDate(newDate)
+      } else {
+          dateRef.current = date;
+          if(updateFields || (timeSettings !== timeSettingsRef.current)) {
+              timeSettingsRef.current = timeSettings;
+              setUpdateFields(false);
+              const calendarDate = timeToCalendarDate(date, timeSettings, 1, 1);
               setDateField(calendarDate);
               dateFieldRef.current = calendarDate;
-            }
-            setPlotSize(getPlotSize(centralBody));
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [startDate, centralBody, timeSettings]);
-
-    useEffect(() => {
-        if(dateField !== dateFieldRef.current) {
-            dateFieldRef.current = dateField;
-            const newDate = timeFromDateFieldState(dateField, timeSettings, 1, 1);
-            setDate(newDate)
-        } else {
-            dateRef.current = date;
-            if(updateFields || (timeSettings !== timeSettingsRef.current)) {
-                timeSettingsRef.current = timeSettings;
-                setUpdateFields(false);
-                const calendarDate = timeToCalendarDate(date, timeSettings, 1, 1);
-                setDateField(calendarDate);
-                dateFieldRef.current = calendarDate;
-            }
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [date, dateField, updateFields, timeSettings]);
+          }
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [date, dateField, updateFields, timeSettings]);
   return (
-    <Stack>
+    <Stack sx={{my: 1}} spacing={4} display="flex" alignItems="center" justifyContent="center">
       <Canvas style={{height: '500px'}} >
         <OrthographicCamera makeDefault={true} position={[0,1,0]} zoom={750} />
         <SystemDisplay centralBody={centralBody} system={system} plotSize={plotSize} date={date} isSun={centralBody.name === system.sun.name}/>
-        <OrbitControls rotateSpeed={0.5}/>
+        {trajectories.map((traj, index) => 
+          <TrajectoryDisplay 
+            key={index} 
+            trajectory={traj} 
+            system={system}
+            date={date}
+            plotSize={plotSize}
+          />)}
+        <OrbitControls rotateSpeed={0.5} />
       </Canvas>
+
+      { slider ? <Slider
+        sx={{ width: "60%" }}
+        valueLabelDisplay="auto"
+        value={date}
+        valueLabelFormat={(d: number) => calendarDateToString(timeToCalendarDate(d, timeSettings, 1, 1))}
+        min={Math.ceil(startDate)}     
+        max={Math.floor(endDate)}
+        step={Math.max((endDate-startDate)/1000, 1)}
+        marks={marks}
+        /* @ts-ignore */
+        onChange={(event) => setDate(Number(event.target.value)) }
+        onChangeCommitted={() => { setUpdateFields(true) }}
+      /> : <></> }
       <Box component="div" display="flex" alignItems="center" justifyContent="center" maxWidth="700px">
           <DateField id={'plot-date'} label={'Date'} calendarDateAtom={dateFieldAtom} correctFormat={true} variant="all"/>
       </Box>
@@ -93,4 +125,4 @@ function OrbitDisplay({centralBody, startDate, system, trajectories=[], trajecto
   )
 }
 
-export default OrbitDisplay
+export default OrbitDisplay;

@@ -2,10 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 
 import { OrbitingBody } from "../../main/objects/body";
 import Transfer from "../../main/objects/transfer";
-import Color from "../../main/objects/color";
-import Draw from "../../main/libs/draw";
 
-import OrbitDisplay, { OrbitDisplayProps } from "../OrbitDisplay";
+import OrbitDisplay, { OrbitDisplayProps } from "../OrbitDisplay2";
 
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -25,41 +23,20 @@ import { transferAtom, timeSettingsAtom } from "../../App";
 
 const emptyProps: OrbitDisplayProps[] = [];
 
-function trajectoryTraces(trajectory: Trajectory, timeSettings: TimeSettings, orbitName: string = ''): Line3DTrace[] {
-    const trajLen = trajectory.orbits.length;
-
-    const orbitTraces: Line3DTrace[] = [];
-    for(let i=0; i<trajLen; i++) {
-        const orb = trajectory.orbits[i];
-        const sTime = trajectory.intersectTimes[i];
-        const eTime = trajectory.intersectTimes[i + 1];
-        orbitTraces.push(Draw.drawOrbitPathFromTimes(orb, sTime, eTime, timeSettings, new Color({r: 255, g: 255, b: 255}), orbitName.concat(String(i + 1)), false, "solid"));
-    }
-    return orbitTraces;
-}
-
-function transferPlotProps(transfer: Transfer, timeSettings: TimeSettings): OrbitDisplayProps {
-    const trajectory = transfer.transferTrajectory;
-    const body = transfer.transferBody;
+function transferPlotProps(transfer: Transfer): OrbitDisplayProps {
+    const trajectories = [transfer.transferTrajectory];
+    const centralBody = transfer.transferBody;
+    const system = transfer.system;
     const startDate = transfer.startDate;
     const endDate = transfer.endDate;
-    const orbits = trajectory.orbits.slice();
 
-    const systemTraces: SystemTraces = Draw.drawSystemAtTime(body, startDate, timeSettings);
-    const orbitTraces = trajectoryTraces(trajectory, timeSettings, 'Transfer Orbit ');
-    let markerTraces: Marker3DTrace[] | undefined = undefined;
-    if(trajectory.orbits.length > 0) {
-        markerTraces = [Draw.drawOrbitPositionMarkerAtTime(trajectory.orbits[0], startDate)];
-    }
     if(transfer.ejections.length === 0) {
-        orbits.push(transfer.startOrbit);
-        orbitTraces.push(Draw.drawOrbitPathFromStartTime(transfer.startOrbit, transfer.startDate, timeSettings, new Color({r: 255, g: 255, b: 255}), 'Starting Orbit'))
+        trajectories.push({orbits: [transfer.startOrbit], intersectTimes: [-Infinity, startDate], maneuvers: []});
     }
     if(transfer.insertions.length === 0) {
-        orbits.push(transfer.endOrbit);
-        orbitTraces.push(Draw.drawOrbitPathFromStartTime(transfer.endOrbit, transfer.endDate, timeSettings, new Color({r: 255, g: 255, b: 255}), 'Target Orbit'))
+        trajectories.push({orbits: [transfer.endOrbit], intersectTimes: [endDate, Infinity], maneuvers: []});
     }
-    
+
     const marks = [
         {
             value: Math.ceil(startDate),
@@ -71,39 +48,33 @@ function transferPlotProps(transfer: Transfer, timeSettings: TimeSettings): Orbi
         },
     ]
 
-    const plotSize = Draw.getPlotSize(body);
     return {
-        index:          0,
-        label:          'Transfer',
+        label:  'Transfer',
+        index:  0,
+        centralBody,
+        system,
+        startDate,
+        endDate,
+        trajectories,
+        slider: true,
         marks,
-        centralBody:    transfer.transferBody,
-        orbits:         orbits,
-        trajectories:   [trajectory],
-        startDate:      transfer.startDate,
-        endDate:        transfer.endDate,
-        defaultTraces:  {systemTraces, orbitTraces, markerTraces},
-        plotSize,
-    };
+    }
 }
 
-function ejectionPlotProps(transfer: Transfer, ejectionIdx: number, timeSettings: TimeSettings): OrbitDisplayProps {
+function ejectionPlotProps(transfer: Transfer, ejectionIdx: number): OrbitDisplayProps {
     const trajectory = transfer.ejections[ejectionIdx];
+    const trajectories = [trajectory];
     const trajLen = trajectory.orbits.length;
-    const body  = transfer.system.bodyFromId(trajectory.orbits[0].orbiting) as OrbitingBody;
+    const centralBody  = transfer.system.bodyFromId(trajectory.orbits[0].orbiting) as OrbitingBody;
+    const system = transfer.system;
     const startDate  = trajectory.intersectTimes[0];
     const endDate = trajectory.intersectTimes[trajLen];
-    const orbits = trajectory.orbits.slice();
 
-
-    const systemTraces = Draw.drawSystemAtTime(body, startDate, timeSettings);    
-    const orbitTraces = trajectoryTraces(trajectory, timeSettings, body.name+' Ejection ');
-    const markerTraces: Marker3DTrace[] = [Draw.drawOrbitPositionMarkerAtTime(trajectory.orbits[0], startDate)];
     if(ejectionIdx === 0) {
-        orbits.push(transfer.startOrbit);
-        orbitTraces.push(Draw.drawOrbitPathFromStartTime(transfer.startOrbit, startDate, timeSettings, new Color({r: 255, g: 255, b: 255}), 'Starting Orbit'))
+        console.log("add starting orbit to ejection")
+        trajectories.push({orbits: [transfer.startOrbit], intersectTimes: [-Infinity, startDate], maneuvers: []});
     }
 
-    const plotSize = Draw.getPlotSize(body);
     const marks = [
         {
             value: Math.ceil(startDate),
@@ -114,37 +85,33 @@ function ejectionPlotProps(transfer: Transfer, ejectionIdx: number, timeSettings
             label: "SoI Escape",
         },
     ]
+
     return {
+        label:          centralBody.name + " Departure",
         index:          ejectionIdx - transfer.ejections.length,
+        centralBody,
+        system,
+        startDate,
+        endDate,
+        trajectories,
+        slider:         true,
         marks,
-        label:          body.name + " Departure",
-        centralBody:    body,
-        orbits,
-        trajectories:   [trajectory],
-        startDate:      startDate,
-        endDate:        endDate,
-        defaultTraces:  {systemTraces, orbitTraces, markerTraces},
-        plotSize,
-    };
+    }
 }
 
-function insertionPlotProps(transfer: Transfer, insertionIdx: number, timeSettings: TimeSettings): OrbitDisplayProps {
+function insertionPlotProps(transfer: Transfer, insertionIdx: number): OrbitDisplayProps {
     const trajectory = transfer.insertions[insertionIdx];
+    const trajectories = [trajectory];
     const trajLen = trajectory.orbits.length;
-    const body  = transfer.system.bodyFromId(trajectory.orbits[0].orbiting) as OrbitingBody;
+    const centralBody  = transfer.system.bodyFromId(trajectory.orbits[0].orbiting) as OrbitingBody;
+    const system = transfer.system;
     const startDate  = trajectory.intersectTimes[0];
     const endDate = trajectory.intersectTimes[trajLen];
-    const orbits = trajectory.orbits.slice();
-    
-    const systemTraces = Draw.drawSystemAtTime(body, startDate, timeSettings);
-    const orbitTraces = trajectoryTraces(trajectory, timeSettings, body.name+' Insertion ');
-    const markerTraces: Marker3DTrace[] = [Draw.drawOrbitPositionMarkerAtTime(trajectory.orbits[0], startDate)];
+
     if(insertionIdx === transfer.insertions.length - 1) {
-        orbits.push(transfer.endOrbit);
-        orbitTraces.push(Draw.drawOrbitPathFromStartTime(transfer.endOrbit, endDate, timeSettings, new Color({r: 255, g: 255, b: 255}), 'Target Orbit'))
+        trajectories.push({orbits: [transfer.endOrbit], intersectTimes: [endDate, Infinity], maneuvers: []});
     }
-    
-    const plotSize = Draw.getPlotSize(body);
+
     const marks = [
         {
             value: Math.ceil(startDate),
@@ -155,31 +122,31 @@ function insertionPlotProps(transfer: Transfer, insertionIdx: number, timeSettin
             label: "Target Encounter",
         },
     ]
+
     return {
+        label:          centralBody.name + " Arrival",
         index:          insertionIdx + 1,
-        label:          body.name + " Arrival",
-        marks,
-        centralBody:    body,
-        orbits,
-        trajectories:   [trajectory],
+        centralBody,
+        system,
         startDate,
         endDate,
-        defaultTraces:  {systemTraces, orbitTraces, markerTraces},
-        plotSize,
-    };
+        trajectories,
+        slider:         true,
+        marks,
+    }
 }
 
-export function prepareAllDisplayProps(transfer: Transfer, timeSettings: TimeSettings) {
+export function prepareAllDisplayProps(transfer: Transfer) {
     const orbDisplayProps: OrbitDisplayProps[] = [];    
 
     for(let i=0; i<transfer.ejections.length; i++) {
-        orbDisplayProps.push(ejectionPlotProps(transfer, i, timeSettings));
+        orbDisplayProps.push(ejectionPlotProps(transfer, i));
     }
 
-    orbDisplayProps.push(transferPlotProps(transfer, timeSettings));
+    orbDisplayProps.push(transferPlotProps(transfer));
 
     for(let i=0; i<transfer.insertions.length; i++) {
-        orbDisplayProps.push(insertionPlotProps(transfer, i, timeSettings))
+        orbDisplayProps.push(insertionPlotProps(transfer, i))
     }
     // console.log('...Orbit plot traces computed from transfer.')
     return orbDisplayProps;
@@ -253,7 +220,7 @@ function OrbitDisplayTabs() {
             if(value < -transfer.ejections.length || value > transfer.insertions.length) {
                 setValue(0);
             }
-            setOrbitDisplayProps(prepareAllDisplayProps(transfer, timeSettings));
+            setOrbitDisplayProps(prepareAllDisplayProps(transfer));
         }
         // hide warning for missing setters
         // eslint-disable-next-line react-hooks/exhaustive-deps

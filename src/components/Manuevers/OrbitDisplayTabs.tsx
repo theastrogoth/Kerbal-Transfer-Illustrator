@@ -2,10 +2,8 @@ import React, {useState, useEffect, useRef} from "react";
 
 import SolarSystem from "../../main/objects/system";
 import { OrbitingBody } from "../../main/objects/body";
-import Color from "../../main/objects/color";
-import Draw from "../../main/libs/draw";
 
-import OrbitDisplay, { OrbitDisplayProps, updateTrajectoryMarker } from "../OrbitDisplay";
+import OrbitDisplay, { OrbitDisplayProps } from "../OrbitDisplay2";
 
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -15,43 +13,21 @@ import { flightPlansAtom, systemAtom, timeSettingsAtom } from "../../App";
 
 const emptyProps: OrbitDisplayProps[] = [];
 
-function trajectoryTraces(trajectory: Trajectory, vesselName: string, color: IColor, timeSettings: TimeSettings): Line3DTrace[] {
-    const trajLen = trajectory.orbits.length;
-
-    const orbitTraces: Line3DTrace[] = [];
-    for(let i=0; i<trajLen; i++) {
-        const orb = trajectory.orbits[i];
-        const sTime = trajectory.intersectTimes[i];
-        const eTime = trajectory.intersectTimes[i + 1] === Infinity ? sTime + orb.siderealPeriod : trajectory.intersectTimes[i + 1];
-        orbitTraces.push(Draw.drawOrbitPathFromTimes(orb, sTime, eTime, timeSettings, new Color(color), vesselName, false, "solid"));
-    }
-    return orbitTraces;
-}
-
-function bodyPlotProps(trajectories: Trajectory[], names: string[], colors: IColor[], system: SolarSystem, date: number, timeSettings: TimeSettings): OrbitDisplayProps {
+function bodyPlotProps(trajectories: Trajectory[], names: string[], colors: IColor[], system: SolarSystem, date: number): OrbitDisplayProps {
     const orbits = [...trajectories.map((traj) => traj.orbits.slice()).flat()];
     const body = system.bodyFromId(orbits[0].orbiting);
 
-    const systemTraces = Draw.drawSystemAtTime(body, date, timeSettings);
-    const orbitTraces = [...trajectories.map((traj,i) => trajectoryTraces(traj, names[i], colors[i], timeSettings)).flat()];
-    
-    const tempMarkerTraces: Marker3DTrace[] = trajectories.map(traj => Draw.drawOrbitPositionMarkerAtTime(traj.orbits[0], date));
-    const markerTraces: Marker3DTrace[] = tempMarkerTraces.map((marker, idx) => updateTrajectoryMarker(date, trajectories[idx], marker));
-    
-    const plotSize = Draw.getPlotSize(body);
-
     return {
-        index:          0,
-        label:          body.name + ' System',
-        marks:          [] as {value: number, label: string}[],
-        centralBody:    body,
-        orbits:         orbits,
+        index:              0,
+        label:              body.name + ' System',
+        centralBody:        body,
+        system,
         trajectories,
-        startDate:      date,
-        endDate:        date,
-        defaultTraces:  {systemTraces, orbitTraces, markerTraces},
-        plotSize,
-        slider:         false,
+        trajectoryNames:    names,
+        trajectoryColors:   colors,
+        startDate:          date,
+        endDate:            date,
+        slider:             false,
     };
 }
 
@@ -77,7 +53,7 @@ export function prepareAllDisplayProps(flightPlans: FlightPlan[], system: SolarS
     }
 
     const bodyIdxs = [...bodyTrajectories.keys()]
-    return bodyIdxs.map(idx => { const [trajectories, names, colors, date] = bodyTrajectories.get(idx) as [Trajectory[], string[], IColor[], number[]]; return bodyPlotProps(trajectories, names, colors, system, date[0], timeSettings) })
+    return bodyIdxs.map(idx => { const [trajectories, names, colors, date] = bodyTrajectories.get(idx) as [Trajectory[], string[], IColor[], number[]]; return bodyPlotProps(trajectories, names, colors, system, date[0]) })
 } 
 
 const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, props}: {value: number, index: number, props: OrbitDisplayProps}) {

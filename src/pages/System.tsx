@@ -211,7 +211,13 @@ function SolarSystemAppContent() {
                   defaultTraces={{systemTraces: Draw.drawSystemAtTime(centralBody, 0, timeSettings), orbitTraces: [] as Line3DTrace[]}}
                   plotSize={Draw.getPlotSize(centralBody)}
                 /> */}
-                <OrbitDisplay centralBody={centralBody} startDate={0.0} system={customSystem}/>
+                <OrbitDisplay 
+                  label='Custom System'
+                  index={0}
+                  centralBody={centralBody} 
+                  startDate={0.0} 
+                  system={customSystem}
+                />
               </Box>
               <Box component="div" sx={{mx: 2, my: 2}}>
                 <Typography variant="body1">Time Settings</Typography>
