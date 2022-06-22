@@ -26,7 +26,7 @@ export class CelestialBody implements ICelestialBody {
         this.geeASL             = data.geeASL ? data.geeASL : data.stdGravParam / (data.radius * data.radius * 9.80665);
         this.stdGravParam       = data.stdGravParam;
         this.soi                = data.soi;
-        this.rotationPeriod     = data.rotationPeriod ? data.rotationPeriod : 0.0;
+        this.rotationPeriod     = data.rotationPeriod ? data.rotationPeriod : Infinity;
         this.initialRotation    = data.initialRotation ? data.initialRotation : 0.0;
         this.color              = new Color(data.color);
     }

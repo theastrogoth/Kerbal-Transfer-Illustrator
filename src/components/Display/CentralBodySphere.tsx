@@ -47,7 +47,9 @@ function CentralBodySphere({body, date, plotSize, isSun = true}: {body: Celestia
         <>
         <mesh position={position.current} rotation={[0, degToRad(body.initialRotation) + TWO_PI * ((date % body.rotationPeriod) / body.rotationPeriod), 0]} >
             <sphereGeometry args={[body.radius / plotSize, 32, 32]} />
-            <meshLambertMaterial color={hasTexture ? 'white' : hexFromColorString(body.color.toString())} map={texture} />
+            {isSun ? <meshBasicMaterial color={hasTexture ? 'white' : hexFromColorString(body.color.toString())} map={texture} />
+                : <meshLambertMaterial color={hasTexture ? 'white' : hexFromColorString(body.color.toString())} map={texture} />
+            }
         </mesh>
         {body.atmosphereHeight > 0 &&
             <mesh >

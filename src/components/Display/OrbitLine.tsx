@@ -65,7 +65,6 @@ function OrbitLine({orbit, date, plotSize, minAnomaly = NaN, maxAnomaly = NaN, c
     const [colors, setColors] = useState(getColorsAtDate(date, orbit, gradientColors, nus));
 
     useEffect(() => {
-        console.log("recalculate positions")
         const newRange = getTrueAnomalyRange(orbit, minAnomaly, maxAnomaly);
         setRange(newRange);
         const newNus = linspace(newRange.min, newRange.max, 501);
@@ -74,11 +73,9 @@ function OrbitLine({orbit, date, plotSize, minAnomaly = NaN, maxAnomaly = NaN, c
         setPoints(newPoints);
     }, [orbit, minAnomaly, maxAnomaly, plotSize])
     useEffect(() => {
-        console.log("recalculate gradient")
         setGradientColors(getGradientColors(color));
     }, [color])
     useEffect(() => {
-        console.log("recalculate colors")
         setColors(getColorsAtDate(date, orbit, gradientColors, nus));
     }, [date, gradientColors])
     

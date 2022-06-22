@@ -269,8 +269,8 @@ function sunConfigToSystemInputs(data: SunConfig, refSystem: SolarSystem): ICele
         mass:               allGravityMissing ? template!.mass : (data.mass ? Number(data.mass) : undefined),
         geeASL:             allGravityMissing ? template!.geeASL : (data.geeASL ? Number(data.geeASL) : undefined),
         stdGravParam:       allGravityMissing ? template!.stdGravParam : (data.stdGravParam ? Number(data.stdGravParam) : stdGravParam),
-        rotationPeriod:     data.rotationPeriod ? Number(data.rotationPeriod) : undefined,
-        initialRotation:    data.initialRotation ? Number(data.initialRotation) : undefined,
+        rotationPeriod:     data.rotationPeriod ? Number(data.rotationPeriod) : template!.rotationPeriod,
+        initialRotation:    data.initialRotation ? Number(data.initialRotation) : template!.initialRotation,
         color:              data.color ? colorFromRGBA(data.color) : {r: 254, g: 198, b: 20} as IColor,
     }
     return sun;
@@ -300,8 +300,8 @@ function bodyConfigToSystemInputs(data: OrbitingBodyConfig, id: number, parentId
         geeASL:             allGravityMissing ? template!.geeASL : (data.geeASL ? Number(data.geeASL) : undefined),
         stdGravParam:       allGravityMissing ? template!.stdGravParam : (data.stdGravParam ? Number(data.stdGravParam) : stdGravParam),
         soi:                data.soi ? Number(data.soi) : undefined,
-        rotationPeriod:     data.rotationPeriod ? Number(data.rotationPeriod) : undefined,
-        initialRotation:    data.initialRotation ? Number(data.initialRotation) : undefined,
+        rotationPeriod:     data.rotationPeriod ? Number(data.rotationPeriod) : template!.rotationPeriod,
+        initialRotation:    data.initialRotation ? Number(data.initialRotation) : template!.initialRotation,
         color:              data.color ? colorFromRGBA(data.color) : {r: 200, g: 200, b:200} as IColor,
         orbit:              {
                                 semiMajorAxis:      data.semiMajorAxis ? Number(data.semiMajorAxis) : template!.orbit.semiMajorAxis,

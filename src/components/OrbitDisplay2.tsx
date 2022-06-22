@@ -26,22 +26,14 @@ function getPlotSize(centralBody: CelestialBody) {
           centralBody.soi as number);
 }
 
-function getSunLight(centralBody: CelestialBody, system: SolarSystem, date: number) {
-  if(centralBody.name === system.sun.name) {
-    return <pointLight position={[0, 0, 0] } intensity={1.5} />
-  } else {
-    const sunDirection = normalize3(Kepler.orbitToPositionAtDate((centralBody as OrbitingBody).orbit, date));
-    return <directionalLight position={new THREE.Vector3(-sunDirection.x, sunDirection.z, sunDirection.y)} intensity={1.5} />
-  }
-}
-
-function OrbitDisplay({centralBody, startDate, system}: {centralBody: CelestialBody, startDate: number, system: SolarSystem}) {
+function OrbitDisplay({centralBody, startDate, system, trajectories=[], trajectoryNames=[]}: {centralBody: CelestialBody, startDate: number, system: SolarSystem, trajectories?: Trajectory[], trajectoryNames?: string[]}) {
 
   const [timeSettings] = useAtom(timeSettingsAtom);
   const timeSettingsRef = useRef(timeSettings);
 
   const [date, setDate] = useState(startDate);
   const dateRef = useRef(date);
+  const startDateRef = useRef(startDate);
 
   const dateFieldAtom = useRef(atom(makeDateFields(...Object.values(timeToCalendarDate(startDate, timeSettings, 1, 1))))).current;
   const [dateField, setDateField] = useAtom(dateFieldAtom);
@@ -51,18 +43,21 @@ function OrbitDisplay({centralBody, startDate, system}: {centralBody: CelestialB
 
   const [plotSize, setPlotSize] = useState(getPlotSize(centralBody));
 
-  const [sunLight, setSunLight] = useState(getSunLight(centralBody, system, date));
+ 
 
       useEffect(() => {
         if((timeSettings === timeSettingsRef.current)) {
-            const d = Math.ceil(startDate)
-            setDate(d);
-            dateRef.current = d;
-            const calendarDate = timeToCalendarDate(d, timeSettings, 1, 1);
-            setDateField(calendarDate);
-            dateFieldRef.current = calendarDate;
+          let d = date;
+            if(startDate !== startDateRef.current) {
+              d = startDate;
+              startDateRef.current = startDate;
+              setDate(startDate);
+              dateRef.current = startDate;
+              const calendarDate = timeToCalendarDate(startDate, timeSettings, 1, 1);
+              setDateField(calendarDate);
+              dateFieldRef.current = calendarDate;
+            }
             setPlotSize(getPlotSize(centralBody));
-            setSunLight(getSunLight(centralBody, system, startDate));
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [startDate, centralBody, timeSettings]);
@@ -72,7 +67,6 @@ function OrbitDisplay({centralBody, startDate, system}: {centralBody: CelestialB
             dateFieldRef.current = dateField;
             const newDate = timeFromDateFieldState(dateField, timeSettings, 1, 1);
             setDate(newDate)
-            setSunLight(getSunLight(centralBody, system, date));
         } else {
             dateRef.current = date;
             if(updateFields || (timeSettings !== timeSettingsRef.current)) {
@@ -88,14 +82,9 @@ function OrbitDisplay({centralBody, startDate, system}: {centralBody: CelestialB
   return (
     <Stack>
       <Canvas style={{height: '500px'}} >
-          <OrthographicCamera makeDefault={true} position={[0,1,0]} zoom={750} />
-              <mesh>
-                <ambientLight intensity={0.1} />
-                {sunLight}
-              </mesh>
-              <SystemDisplay centralBody={centralBody} plotSize={plotSize} date={date} isSun={centralBody.name === system.sun.name}/>
-
-          <OrbitControls />
+        <OrthographicCamera makeDefault={true} position={[0,1,0]} zoom={750} />
+        <SystemDisplay centralBody={centralBody} system={system} plotSize={plotSize} date={date} isSun={centralBody.name === system.sun.name}/>
+        <OrbitControls rotateSpeed={0.5}/>
       </Canvas>
       <Box component="div" display="flex" alignItems="center" justifyContent="center" maxWidth="700px">
           <DateField id={'plot-date'} label={'Date'} calendarDateAtom={dateFieldAtom} correctFormat={true} variant="all"/>
