@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import * as THREE from 'three';
 import { OrbitingBody } from '../../main/objects/body';
-import { div3, hexFromColorString } from '../../main/libs/math';
+import { div3, hexFromColorString, TWO_PI, degToRad } from '../../main/libs/math';
 import Kepler from '../../main/libs/kepler';
 import OrbitLine from './OrbitLine';
 import textures from '../../textureData';
@@ -18,9 +18,9 @@ function OrbitingBodySphere({body, plotSize, date}: {body: OrbitingBody, plotSiz
     const texture = useLoader(THREE.TextureLoader, textureURL);
     return (
         <>
-        <mesh position={position}>
+        <mesh position={position} rotation={[0, 0, degToRad(body.initialRotation) + TWO_PI * ((date % body.rotationPeriod) / body.rotationPeriod)]}>
             <sphereGeometry args={[body.radius / plotSize, 32, 32]} />
-            <meshLambertMaterial color={hasTexture ? 'white' : hexFromColorString(body.color.toString())} map={texture} />
+            <meshLambertMaterial color={hasTexture ? 'white' : color} map={texture} />
         </mesh>
         <mesh position={position}>
             <sphereGeometry args={[body.soi / plotSize, 32, 32]} />

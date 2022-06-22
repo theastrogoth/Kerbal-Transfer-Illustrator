@@ -28,10 +28,10 @@ function getPlotSize(centralBody: CelestialBody) {
 
 function getSunLight(centralBody: CelestialBody, system: SolarSystem, date: number) {
   if(centralBody.name === system.sun.name) {
-    return <pointLight position={[0, 0, 0] } intensity={2} />
+    return <pointLight position={[0, 0, 0] } intensity={1.5} />
   } else {
     const sunDirection = normalize3(Kepler.orbitToPositionAtDate((centralBody as OrbitingBody).orbit, date));
-    return <directionalLight position={new THREE.Vector3(sunDirection.x, sunDirection.y, sunDirection.z)} intensity={2} />
+    return <directionalLight position={new THREE.Vector3(-sunDirection.x, sunDirection.z, sunDirection.y)} intensity={1.5} />
   }
 }
 
@@ -93,7 +93,7 @@ function OrbitDisplay({centralBody, startDate, system}: {centralBody: CelestialB
                 <ambientLight intensity={0.1} />
                 {sunLight}
               </mesh>
-              <SystemDisplay centralBody={centralBody} plotSize={plotSize} date={date}/>
+              <SystemDisplay centralBody={centralBody} plotSize={plotSize} date={date} isSun={centralBody.name === system.sun.name}/>
 
           <OrbitControls />
       </Canvas>

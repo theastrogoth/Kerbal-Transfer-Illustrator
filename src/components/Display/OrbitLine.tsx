@@ -9,7 +9,7 @@ import Color from '../../main/objects/color';
 
 function getGradientColors(color:IColor) {
     const fullColor = new Color(color);
-    const colorScales = linspace(0.05, 1, 501);
+    const colorScales = linspace(0.05, 0.5, 501);
     const gradientColors: [number, number, number][] = [];
     for(let i=0; i<colorScales.length; i++) {
         const pointColor = fullColor.rescale(colorScales[i])

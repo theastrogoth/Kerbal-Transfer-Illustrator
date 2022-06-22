@@ -6,6 +6,7 @@
     "atmosphereHeight": 600000,
     "mass": 1.7565459e+28,
     "stdGravParam": 1172332800000000000,
+    "rotationPeriod": 432000,
     "color": {
       "r": 254, 
       "g": 198,
@@ -21,6 +22,8 @@
     "mass": 2.5263314e+21,
     "stdGravParam": 168609380000,
     "soi": 9646663,
+    "rotationPeriod": 1210000,
+    "initialRotation": 190,
     "orbit": {
       "semiMajorAxis": 5263138304,
       "eccentricity": 0.2,
@@ -47,6 +50,8 @@
     "mass": 1.224398e+23,
     "stdGravParam": 8171730200000,
     "soi": 85109365,
+    "rotationPeriod": 80500,
+    "initialRotation": 0,
     "orbit": {
       "semiMajorAxis": 9832684544,
       "eccentricity": 0.01,
@@ -73,6 +78,8 @@
     "mass": 124203630000000000,
     "stdGravParam": 8289449.8,
     "soi": 126123.27,
+    "rotationPeriod": 28255,
+    "initialRotation": 5,
     "orbit": {
       "semiMajorAxis": 31500000,
       "eccentricity": 0.55,
@@ -99,6 +106,8 @@
     "mass": 5.2915158e+22,
     "stdGravParam": 3531600000000,
     "soi": 84159286,
+    "rotationPeriod": 21549.425183090,
+    "initialRotation": 90,
     "orbit": {
       "semiMajorAxis": 13599840256,
       "eccentricity": 0,
@@ -125,6 +134,8 @@
     "mass": 975990660000000000000,
     "stdGravParam": 65138398000,
     "soi": 2429559.1,
+    "rotationPeriod": 138984.376574476,
+    "initialRotation": 230,
     "orbit": {
       "semiMajorAxis": 12000000,
       "eccentricity": 0,
@@ -151,6 +162,8 @@
     "mass": 26457580000000000000,
     "stdGravParam": 1765800000,
     "soi": 2247428.4,
+    "rotationPeriod": 40400,
+    "initialRotation": 230,
     "orbit": {
       "semiMajorAxis": 47000000,
       "eccentricity": 0,
@@ -177,6 +190,8 @@
     "mass": 4.515427e+21,
     "stdGravParam": 301363210000,
     "soi": 47921949,
+    "rotationPeriod": 65517.859375,
+    "initialRotation": 90,
     "orbit": {
       "semiMajorAxis": 20726155264,
       "eccentricity": 0.051,
@@ -203,6 +218,8 @@
     "mass": 278216150000000000000,
     "stdGravParam": 18568369000,
     "soi": 1049598.9,
+    "rotationPeriod": 65517.859375,
+    "initialRotation": 0,
     "orbit": {
       "semiMajorAxis": 3200000,
       "eccentricity": 0.03,
@@ -229,6 +246,8 @@
     "mass": 321909370000000000000,
     "stdGravParam": 21484489000,
     "soi": 32832840,
+    "rotationPeriod": 34800,
+    "initialRotation": 25,
     "orbit": {
       "semiMajorAxis": 40839348203,
       "eccentricity": 0.145,
@@ -254,6 +273,8 @@
     "mass": 4.2332127e+24,
     "stdGravParam": 282528000000000,
     "soi": 2455985200,
+    "rotationPeriod": 36000,
+    "initialRotation": 0,
     "orbit": {
       "semiMajorAxis": 68773560320,
       "eccentricity": 0.05,
@@ -280,6 +301,8 @@
     "mass": 2.9397311e+22,
     "stdGravParam": 1962000000000,
     "soi": 3723645.8,
+    "rotationPeriod": 52980.879059380,
+    "initialRotation": 90,
     "orbit": {
       "semiMajorAxis": 27184000,
       "eccentricity": 0,
@@ -306,6 +329,8 @@
     "mass": 3.1087655e+21,
     "stdGravParam": 207481500000,
     "soi": 2406401.4,
+    "rotationPeriod": 105962.088893924,
+    "initialRotation": 0,
     "orbit": {
       "semiMajorAxis": 43152000,
       "eccentricity": 0,
@@ -332,6 +357,8 @@
     "mass": 4.2332127e+22,
     "stdGravParam": 2825280000000,
     "soi": 10856518,
+    "rotationPeriod": 211926.358021230,
+    "initialRotation": 0,
     "orbit": {
       "semiMajorAxis": 68500000,
       "eccentricity": 0,
@@ -358,6 +385,8 @@
     "mass": 37261090000000000000,
     "stdGravParam": 2486834900,
     "soi": 1221060.9,
+    "rotationPeriod": 544507.428516654,
+    "initialRotation": 230,
     "orbit": {
       "semiMajorAxis": 128500000,
       "eccentricity": 0.235,
@@ -384,6 +413,8 @@
     "mass": 10813507000000000000,
     "stdGravParam": 721702080,
     "soi": 1042138.9,
+    "rotationPeriod": 901902.623531173,
+    "initialRotation": 25,
     "orbit": {
       "semiMajorAxis": 179890000,
       "eccentricity": 0.171,
@@ -410,6 +441,8 @@
     "mass": 1.1149224e+21,
     "stdGravParam": 74410815000,
     "soi": 119082940,
+    "rotationPeriod": 19460,
+    "initialRotation": 25,
     "orbit": {
       "semiMajorAxis": 90118820000,
       "eccentricity": 0.26,

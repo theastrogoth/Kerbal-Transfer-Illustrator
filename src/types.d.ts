@@ -15,6 +15,8 @@ interface ICelestialBody {
     readonly stdGravParam:      number;
     readonly soi?:              number;
     readonly color:             IColor;
+    readonly rotationPeriod?:   number;
+    readonly initialRotation?:  number;
 }
 
 interface IOrbitingBody extends Omit<ICelestialBody, 'soi'> {
@@ -185,6 +187,8 @@ type OrbitingBodyInputs = {
     readonly soi?:              number;
     readonly color?:            IColor;
     readonly orbit:             OrbitalElements;
+    readonly rotationPeriod?:   number;
+    readonly initialRotation?:  number;
 }
 
 type SunConfig = {
@@ -197,6 +201,8 @@ type SunConfig = {
     stdGravParam?:         string;
     color?:                string;
     templateName?:         string;
+    rotationPeriod?:       string;
+    initialRotation?:      string;
 }
 
 type OrbitingBodyConfig = {
@@ -219,6 +225,8 @@ type OrbitingBodyConfig = {
     color?:                string;
     referenceBody?:        string;
     templateName?:         string;
+    rotationPeriod?:       string;
+    initialRotation?:      string;
 }
 
 type FlybyInputs = {

@@ -19,6 +19,8 @@ export function fileToSunConfig(configFile: string): SunConfig {
         atmosphereHeight:   sunData.Atmosphere ? (sunData.Atmosphere.maxAltitude || sunData.Atmosphere.altitude) : undefined,
         stdGravParam:       sunData.Properties.gravParameter,
         geeASL:             sunData.Properties.geeASL,
+        rotationPeriod:     sunData.Properties.rotationPeriod,
+        initialRotation:    sunData.Properties.initialRotation,
         templateName:       "Sun",
     }
     return sunConfig;
@@ -42,6 +44,9 @@ export function fileToBodyConfig(configFile: string): OrbitingBodyConfig {
     const mass = bodyData.Properties.mass;
     const soi = bodyData.Properties.sphereOfInfluence;
 
+    const rotationPeriod = bodyData.Properties.rotationPeriod;
+    const initialRotation = bodyData.Properties.initialRotation;
+
     const atmosphereHeight = bodyData.Atmosphere ? (bodyData.Atmosphere.maxAltitude || bodyData.Atmosphere.altitude) : undefined;
 
     const semiMajorAxis = bodyData.Orbit.semiMajorAxis;
@@ -64,6 +69,8 @@ export function fileToBodyConfig(configFile: string): OrbitingBodyConfig {
         mass,
         stdGravParam,
         soi,
+        rotationPeriod,
+        initialRotation,
         semiMajorAxis,
         eccentricity,
         inclination,
@@ -87,6 +94,8 @@ export function sunToConfig(sun: ICelestialBody): SunConfig {
         geeASL:                 sun.geeASL ? String(sun.geeASL) : undefined,
         mass:                   sun.mass ? String(sun.mass) : undefined,
         stdGravParam:           String(sun.stdGravParam),
+        rotationPeriod:         sun.rotationPeriod ? String(sun.rotationPeriod) : undefined,
+        initialRotation:        sun.initialRotation ? String(sun.initialRotation) : undefined,
         color:                  (new Color(sun.color)).toString(),
         templateName:           sun.name,
     }
@@ -103,6 +112,8 @@ export function bodyToConfig(body: IOrbitingBody, system: SolarSystem): Orbiting
         mass:                   body.mass ? String(body.mass) : undefined,
         stdGravParam:           String(body.stdGravParam),
         soi:                    String(body.soi),
+        rotationPeriod:         body.rotationPeriod ? String(body.rotationPeriod) : undefined,
+        initialRotation:        body.initialRotation ? String(body.initialRotation) : undefined,
         semiMajorAxis:          String(body.orbit.semiMajorAxis),
         eccentricity:           String(body.orbit.eccentricity),
         inclination:            String(radToDeg(body.orbit.inclination)),
@@ -250,7 +261,6 @@ function sunConfigToSystemInputs(data: SunConfig, refSystem: SolarSystem): ICele
         }
     }
 
-    
     const sun: ICelestialBody = {
         id:                 0,
         name:               data.name || template!.name,
@@ -259,6 +269,8 @@ function sunConfigToSystemInputs(data: SunConfig, refSystem: SolarSystem): ICele
         mass:               allGravityMissing ? template!.mass : (data.mass ? Number(data.mass) : undefined),
         geeASL:             allGravityMissing ? template!.geeASL : (data.geeASL ? Number(data.geeASL) : undefined),
         stdGravParam:       allGravityMissing ? template!.stdGravParam : (data.stdGravParam ? Number(data.stdGravParam) : stdGravParam),
+        rotationPeriod:     data.rotationPeriod ? Number(data.rotationPeriod) : undefined,
+        initialRotation:    data.initialRotation ? Number(data.initialRotation) : undefined,
         color:              data.color ? colorFromRGBA(data.color) : {r: 254, g: 198, b: 20} as IColor,
     }
     return sun;
@@ -288,6 +300,8 @@ function bodyConfigToSystemInputs(data: OrbitingBodyConfig, id: number, parentId
         geeASL:             allGravityMissing ? template!.geeASL : (data.geeASL ? Number(data.geeASL) : undefined),
         stdGravParam:       allGravityMissing ? template!.stdGravParam : (data.stdGravParam ? Number(data.stdGravParam) : stdGravParam),
         soi:                data.soi ? Number(data.soi) : undefined,
+        rotationPeriod:     data.rotationPeriod ? Number(data.rotationPeriod) : undefined,
+        initialRotation:    data.initialRotation ? Number(data.initialRotation) : undefined,
         color:              data.color ? colorFromRGBA(data.color) : {r: 200, g: 200, b:200} as IColor,
         orbit:              {
                                 semiMajorAxis:      data.semiMajorAxis ? Number(data.semiMajorAxis) : template!.orbit.semiMajorAxis,
