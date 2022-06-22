@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import * as THREE from 'three';
-import CelestialBody, { isOrbitingBody, OrbitingBody } from '../../main/objects/body';
+import CelestialBody, { OrbitingBody } from '../../main/objects/body';
 import { div3, hexFromColorString } from '../../main/libs/math';
 import { useLoader } from '@react-three/fiber';
 import textures from '../../textureData';
