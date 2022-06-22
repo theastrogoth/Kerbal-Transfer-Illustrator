@@ -24,7 +24,7 @@ export namespace Draw {
         // true anomalies, positions, and times
         const safeMaxTrueAnomaly = wrapAngle(maxTrueAnomaly, minTrueAnomaly + 1e-6);
         const nus = linspace(minTrueAnomaly, safeMaxTrueAnomaly, nPoints);
-        const nus2: number[] = [];
+        // const nus2: number[] = [];
         let positions: Vector3[] = [];
         let times: number[] = [];
         let tMin = startTime - 1e-6;
