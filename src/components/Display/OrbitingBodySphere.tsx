@@ -18,11 +18,15 @@ function OrbitingBodySphere({body, plotSize, date}: {body: OrbitingBody, plotSiz
     const texture = useLoader(THREE.TextureLoader, textureURL);
     return (
         <>
-        <mesh position={position} rotation={[0, degToRad(body.initialRotation) + TWO_PI * ((date % body.rotationPeriod) / body.rotationPeriod), 0]}>
+        <mesh 
+            position={position} 
+            rotation={[0, degToRad(body.initialRotation) + TWO_PI * ((date % body.rotationPeriod) / body.rotationPeriod), 0]}
+            onClick={(e) => {e.stopPropagation(); console.log(e)}}
+        >
             <sphereGeometry args={[body.radius / plotSize, 32, 32]} />
             <meshLambertMaterial color={hasTexture ? 'white' : color} map={texture} />
         </mesh>
-        <mesh position={position}>
+        <mesh position={position} onClick={(e) => {e.stopPropagation(); console.log(e)}}>
             <sphereGeometry args={[body.soi / plotSize, 32, 32]} />
             <meshBasicMaterial transparent={true} opacity={0.25} color={soiColor} />
         </mesh>

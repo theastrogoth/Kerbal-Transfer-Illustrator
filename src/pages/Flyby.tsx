@@ -30,10 +30,11 @@ import { useAtom } from 'jotai';
 import { multiFlybyAtom, multiFlybyEndOrbitAtom, multiFlybyStartOrbitAtom, flybyIdSequenceAtom, systemAtom, timeSettingsAtom, multiFlybyEarlyStartDateAtom, multiFlybyLateStartDateAtom, multiFlybyFlightTimesAtom, multiFlybyControlsOptionsAtom} from '../App';
 
 export function blankMultiFlyby(system: SolarSystem): MultiFlyby {
+  const orbit = (system.bodyFromId(1) as OrbitingBody).orbit;
   return new MultiFlyby({
     system:                 system,
-    startOrbit:             (system.bodyFromId(1) as OrbitingBody).orbit,
-    endOrbit:               (system.bodyFromId(1) as OrbitingBody).orbit,
+    startOrbit:             orbit,
+    endOrbit:               orbit,
     flybyIdSequence:        [],
     transferBody:           system.sun,
     startDate:              0,

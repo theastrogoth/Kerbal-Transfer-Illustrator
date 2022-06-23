@@ -24,17 +24,39 @@ import { transferAtom, timeSettingsAtom } from "../../App";
 const emptyProps: OrbitDisplayProps[] = [];
 
 function transferPlotProps(transfer: Transfer): OrbitDisplayProps {
-    const trajectories = [transfer.transferTrajectory];
+    const trajectory = transfer.transferTrajectory;
+    const trajectories = [trajectory];
     const centralBody = transfer.transferBody;
     const system = transfer.system;
     const startDate = transfer.startDate;
     const endDate = transfer.endDate;
 
+    const soiIcons: number[] = [];
+    const maneuverIcons: number[] = [];
+    const trajectoryIcons = [{maneuver: maneuverIcons, soi: soiIcons}];
+
     if(transfer.ejections.length === 0) {
-        trajectories.push({orbits: [transfer.startOrbit], intersectTimes: [-Infinity, startDate], maneuvers: []});
+        trajectories.unshift({orbits: [transfer.startOrbit], intersectTimes: [-Infinity, startDate], maneuvers: []});
+        trajectoryIcons.unshift({maneuver: [], soi: []});
+        if(trajectory.maneuvers.length > 0) {
+            maneuverIcons.push(0);
+        }
+    } else {
+        soiIcons.push(0);
     }
+
+    for(let i=1; i<trajectory.intersectTimes.length-1; i++) {
+        maneuverIcons.push(i);
+    }
+
     if(transfer.insertions.length === 0) {
         trajectories.push({orbits: [transfer.endOrbit], intersectTimes: [endDate, Infinity], maneuvers: []});
+        trajectoryIcons.push({maneuver: [], soi: []});
+        if(trajectory.maneuvers.length > 0) {
+            maneuverIcons.push(trajectory.intersectTimes.length-1)        
+        }
+    } else {
+        soiIcons.push(trajectory.intersectTimes.length-1)
     }
 
     const marks = [
@@ -58,6 +80,7 @@ function transferPlotProps(transfer: Transfer): OrbitDisplayProps {
         trajectories,
         slider: true,
         marks,
+        trajectoryIcons,
     }
 }
 
@@ -70,9 +93,23 @@ function ejectionPlotProps(transfer: Transfer, ejectionIdx: number): OrbitDispla
     const startDate  = trajectory.intersectTimes[0];
     const endDate = trajectory.intersectTimes[trajLen];
 
+    const soiIcons: number[] = [];
+    const maneuverIcons: number[] = [];
+    const trajectoryIcons = [{maneuver: maneuverIcons, soi: soiIcons}];
+
     if(ejectionIdx === 0) {
-        console.log("add starting orbit to ejection")
-        trajectories.push({orbits: [transfer.startOrbit], intersectTimes: [-Infinity, startDate], maneuvers: []});
+        trajectories.unshift({orbits: [transfer.startOrbit], intersectTimes: [-Infinity, startDate], maneuvers: []});
+        trajectoryIcons.unshift({maneuver: [], soi: []});
+        if(trajectory.maneuvers.length > 0) {
+            maneuverIcons.push(0);
+        }
+    } else {
+        soiIcons.push(0);
+    }
+    soiIcons.push(trajectory.intersectTimes.length-1)
+
+    for(let i=1; i<trajectory.intersectTimes.length-1; i++) {
+        maneuverIcons.push(i);
     }
 
     const marks = [
@@ -96,6 +133,7 @@ function ejectionPlotProps(transfer: Transfer, ejectionIdx: number): OrbitDispla
         trajectories,
         slider:         true,
         marks,
+        trajectoryIcons,
     }
 }
 
@@ -108,8 +146,23 @@ function insertionPlotProps(transfer: Transfer, insertionIdx: number): OrbitDisp
     const startDate  = trajectory.intersectTimes[0];
     const endDate = trajectory.intersectTimes[trajLen];
 
+    const soiIcons: number[] = [];
+    const maneuverIcons: number[] = [];
+    const trajectoryIcons = [{maneuver: maneuverIcons, soi: soiIcons}];
+
+    soiIcons.push(0);
+    for(let i=1; i<trajectory.intersectTimes.length-1; i++) {
+        maneuverIcons.push(i);
+    }
+
     if(insertionIdx === transfer.insertions.length - 1) {
         trajectories.push({orbits: [transfer.endOrbit], intersectTimes: [endDate, Infinity], maneuvers: []});
+        trajectoryIcons.push({maneuver: [], soi: []});
+        if(trajectory.maneuvers.length > 0) {
+            maneuverIcons.push(trajectory.intersectTimes.length-1)        
+        }
+    } else {
+        soiIcons.push(trajectory.intersectTimes.length-1)
     }
 
     const marks = [
@@ -133,6 +186,7 @@ function insertionPlotProps(transfer: Transfer, insertionIdx: number): OrbitDisp
         trajectories,
         slider:         true,
         marks,
+        trajectoryIcons,
     }
 }
 

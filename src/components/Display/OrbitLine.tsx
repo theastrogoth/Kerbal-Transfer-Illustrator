@@ -19,16 +19,19 @@ function getGradientColors(color:IColor) {
 }
 
 function getColorsAtDate(date: number, orbit: IOrbit, gradientColors: [number, number, number][], nus: number[], minDate: number =  -Infinity, maxDate: number = Infinity) {
-    if(date < minDate || date > maxDate) {
-        return new Float32Array(Array(501).fill(gradientColors[150]).flat())
+    if(date < minDate) {
+        return new Float32Array(Array(gradientColors.length-1).fill(gradientColors[10]).flat());
     } 
+    if(date > maxDate) {
+        return new Float32Array(Array(gradientColors.length-1).fill(gradientColors[gradientColors.length-1]).flat());
+    }
     const nuAtDate = wrapAngle(Kepler.dateToOrbitTrueAnomaly(date, orbit), nus[0]);
     const shiftIndex = nus.findIndex(nu => nu > nuAtDate);
     const shiftLength = nus.length - shiftIndex + 1;
     const firstHalf: [number, number, number][] = gradientColors.slice(shiftLength);
     let secondHalf: [number, number, number][];
-    if(Number.isFinite(maxDate)) {
-        secondHalf = Array(shiftLength).fill(gradientColors[50]);
+    if((Math.abs(nus[nus.length-1] - nus[0])%TWO_PI) > 1e-3) {
+        secondHalf = Array(shiftLength).fill(gradientColors[10]);
     } else {
         secondHalf = gradientColors.slice(0, shiftLength);
     }
@@ -46,15 +49,15 @@ function getTrueAnomalyRange(orbit: Orbit, minDate: number = -Infinity, maxDate:
             tempMin = DepartArrive.insertionTrueAnomaly(orbit, orbit.attractorSoi as number);
             tempMax = DepartArrive.ejectionTrueAnomaly(orbit, orbit.attractorSoi as number);
         }
-        if(!isNaN(min)) {
-            max = Math.max(tempMax, min + TWO_PI);
-        } else {
-            max = tempMax;
-        }
         if(!isNaN(max)) {
-            min = Math.min(tempMin, max - TWO_PI);
+            min = wrapAngle(Math.min(tempMin, max - TWO_PI), max - TWO_PI + 1e-9);
         } else {
             min = tempMin;
+        }
+        if(!isNaN(min)) {
+            max = wrapAngle(Math.max(tempMax, min + TWO_PI), min + 1e-9);
+        } else {
+            max = tempMax;
         }
     } else {
         max = wrapAngle(max, min)
@@ -72,7 +75,7 @@ function getPoints(orbit: Orbit, plotSize: number, nus: number[]) {
     return points;
 }
 
-function OrbitLine({orbit, date, plotSize, minDate = NaN, maxDate = NaN, color = {r: 200, g: 200, b: 200}}: {orbit: Orbit, date: number, plotSize: number, minDate?: number, maxDate?: number, color?: IColor}) {
+function OrbitLine({orbit, date, plotSize, minDate = -Infinity, maxDate = Infinity, color = {r: 200, g: 200, b: 200}}: {orbit: Orbit, date: number, plotSize: number, minDate?: number, maxDate?: number, color?: IColor}) {
 
     const [range, setRange] = useState(getTrueAnomalyRange(orbit, minDate, maxDate));
     const [nus, setNus] = useState(linspace(range.min, range.max, 501));
@@ -99,8 +102,10 @@ function OrbitLine({orbit, date, plotSize, minDate = NaN, maxDate = NaN, color =
     const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
     lineGeometry.setAttribute('color', new BufferAttribute(colors,3))
     return (
+        <line 
         //@ts-ignore
-        <line geometry={lineGeometry} >
+            geometry={lineGeometry}
+        >
             <lineBasicMaterial vertexColors={true} attach="material" linewidth={5} />
         </line>
     );

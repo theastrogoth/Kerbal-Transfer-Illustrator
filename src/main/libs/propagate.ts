@@ -138,7 +138,7 @@ export function propagateFlightPlan(startOrbit: IOrbit, system: ISolarSystem, st
 
     // propagate starting orbit forward
     let orbits: IOrbit[] = [startOrbit];
-    let intersectTimes: number[] = [startDate];
+    let intersectTimes: number[] = [-Infinity];
     let maneuvers: Maneuver[] = [];
     let currentOrbit: IOrbit = startOrbit;
     let sDate: number = startDate;

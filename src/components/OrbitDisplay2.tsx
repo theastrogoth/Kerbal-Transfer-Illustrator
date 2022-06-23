@@ -5,7 +5,7 @@ import Slider from '@mui/material/Slider';
 import DateField from './DateField';
 
 import { Canvas } from '@react-three/fiber';
-import { OrthographicCamera, OrbitControls } from '@react-three/drei'
+import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
 import SystemDisplay from './Display/SystemDisplay';
 
 import CelestialBody from '../main/objects/body';
@@ -28,6 +28,7 @@ export type OrbitDisplayProps = {
   trajectories?:      Trajectory[],
   trajectoryNames?:   string[],
   trajectoryColors?:  IColor[],
+  trajectoryIcons?:   {maneuver: number[], soi: number[]}[]
   slider?:            boolean,
   marks?:             {value: number, label: string}[],
 }
@@ -40,7 +41,7 @@ function getPlotSize(centralBody: CelestialBody) {
           centralBody.soi as number);
 }
 
-function OrbitDisplay({centralBody, system, startDate=0, endDate=startDate + 9201600, trajectories=[], trajectoryNames=[], trajectoryColors=[], slider=false, marks=[]}: OrbitDisplayProps) {
+function OrbitDisplay({centralBody, system, startDate=0, endDate=startDate + 9201600, trajectories=[], trajectoryNames=[], trajectoryColors=[], trajectoryIcons=[], slider=false, marks=[]}: OrbitDisplayProps) {
 
   const [timeSettings] = useAtom(timeSettingsAtom);
   const timeSettingsRef = useRef(timeSettings);
@@ -55,7 +56,7 @@ function OrbitDisplay({centralBody, system, startDate=0, endDate=startDate + 920
 
   const [updateFields, setUpdateFields] = useState(false);
 
-  const [plotSize, setPlotSize] = useState(getPlotSize(centralBody));
+  const [plotSize, setPlotSize] = useState(getPlotSize(centralBody) / 10);
 
   useEffect(() => {
     if((timeSettings === timeSettingsRef.current)) {
@@ -92,7 +93,7 @@ function OrbitDisplay({centralBody, system, startDate=0, endDate=startDate + 920
   return (
     <Stack sx={{my: 1}} spacing={4} display="flex" alignItems="center" justifyContent="center">
       <Canvas style={{height: '500px'}} >
-        <OrthographicCamera makeDefault={true} position={[0,1,0]} zoom={750} />
+        <PerspectiveCamera makeDefault={true} position={[0,1,0]} zoom={1} near={1e-3}/>
         <SystemDisplay centralBody={centralBody} system={system} plotSize={plotSize} date={date} isSun={centralBody.name === system.sun.name}/>
         {trajectories.map((traj, index) => 
           <TrajectoryDisplay 
@@ -101,6 +102,7 @@ function OrbitDisplay({centralBody, system, startDate=0, endDate=startDate + 920
             system={system}
             date={date}
             plotSize={plotSize}
+            icons={trajectoryIcons[index]}
           />)}
         <OrbitControls rotateSpeed={0.5} />
       </Canvas>

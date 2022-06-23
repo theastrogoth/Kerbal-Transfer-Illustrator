@@ -17,6 +17,25 @@ function bodyPlotProps(trajectories: Trajectory[], names: string[], colors: ICol
     const orbits = [...trajectories.map((traj) => traj.orbits.slice()).flat()];
     const body = system.bodyFromId(orbits[0].orbiting);
 
+    const trajectoryIcons = trajectories.map(trajectory => {
+        const maneuver: number[] = [];
+        const soi: number[] =[];
+
+        for(let i=1; i<trajectory.intersectTimes.length-1; i++) {
+            if(Number.isFinite(trajectory.intersectTimes[i])) {
+                maneuver.push(i);
+            }
+        }
+        if(Number.isFinite(trajectory.intersectTimes[0])) {
+            soi.push(0)
+        }
+        if(Number.isFinite(trajectory.intersectTimes[trajectory.intersectTimes.length-1])) {
+            soi.push(trajectory.intersectTimes.length-1)
+        }
+
+        return {maneuver, soi};
+    })
+
     return {
         index:              0,
         label:              body.name + ' System',
@@ -25,13 +44,14 @@ function bodyPlotProps(trajectories: Trajectory[], names: string[], colors: ICol
         trajectories,
         trajectoryNames:    names,
         trajectoryColors:   colors,
-        startDate:          date,
-        endDate:            date,
+        startDate:          Number.isFinite(date) ? date : 0,
+        endDate:            Number.isFinite(date) ? date : 0,
         slider:             false,
+        trajectoryIcons,
     };
 }
 
-export function prepareAllDisplayProps(flightPlans: FlightPlan[], system: SolarSystem, timeSettings: TimeSettings): OrbitDisplayProps[] {
+export function prepareAllDisplayProps(flightPlans: FlightPlan[], system: SolarSystem): OrbitDisplayProps[] {
     const bodyTrajectories = new Map<number, [Trajectory[], string[], IColor[], number[]]>();
     for(let i=0; i<flightPlans.length; i++) {
         const fp = flightPlans[i];
@@ -127,9 +147,9 @@ function OrbitDisplayTabs() {
                 name:       '',
                 color:      {r: 255, g: 255, b: 255},
             }
-            setOrbitDisplayProps(prepareAllDisplayProps([fp], system, timeSettings));
+            setOrbitDisplayProps(prepareAllDisplayProps([fp], system));
         } else {
-            setOrbitDisplayProps(prepareAllDisplayProps(flightPlans, system, timeSettings));
+            setOrbitDisplayProps(prepareAllDisplayProps(flightPlans, system));
         }
         // hide warning for missing setters
         // eslint-disable-next-line react-hooks/exhaustive-deps

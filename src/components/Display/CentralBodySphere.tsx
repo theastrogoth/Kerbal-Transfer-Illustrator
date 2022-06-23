@@ -45,14 +45,18 @@ function CentralBodySphere({body, date, plotSize, isSun = true}: {body: Celestia
     const texture = useLoader(THREE.TextureLoader, textureURL);
     return (
         <>
-        <mesh position={position.current} rotation={[0, degToRad(body.initialRotation) + TWO_PI * ((date % body.rotationPeriod) / body.rotationPeriod), 0]} >
+        <mesh 
+            position={position.current}
+            rotation={[0, degToRad(body.initialRotation) + TWO_PI * ((date % body.rotationPeriod) / body.rotationPeriod), 0]} 
+            onClick={(e) => {e.stopPropagation(); console.log(e)}}
+        >
             <sphereGeometry args={[body.radius / plotSize, 32, 32]} />
             {isSun ? <meshBasicMaterial color={hasTexture ? 'white' : hexFromColorString(body.color.toString())} map={texture} />
                 : <meshLambertMaterial color={hasTexture ? 'white' : hexFromColorString(body.color.toString())} map={texture} />
             }
         </mesh>
         {body.atmosphereHeight > 0 &&
-            <mesh >
+            <mesh onClick={(e) => {e.stopPropagation(); console.log(e)}} >
                 <sphereGeometry args={[(body.radius + body.atmosphereHeight) / plotSize, 32, 32]} />
                 <meshStandardMaterial color={hexFromColorString(body.color.toString())} transparent={true} opacity={0.05} roughness={1} />
             </mesh> 

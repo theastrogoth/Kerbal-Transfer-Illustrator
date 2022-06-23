@@ -346,7 +346,6 @@ export function configsTreeToSystem(tree: TreeNode<SunConfig | OrbitingBodyConfi
     if(safeScale !== 1) {
         system = system.rescale(safeScale);
     }
-    console.log(tree, system)
     return system;
 }
 

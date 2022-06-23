@@ -31,14 +31,15 @@ import { porkchopInputsAtom, systemAtom, timeSettingsAtom, transferAtom, transfe
 
 
 export function blankTransfer(system: SolarSystem): Transfer {
+  const orbit = (system.bodyFromId(1) as OrbitingBody).orbit;
   return new Transfer({
     system:                 system,
-    startOrbit:             (system.bodyFromId(1) as OrbitingBody).orbit,
-    endOrbit:               (system.bodyFromId(1) as OrbitingBody).orbit,
+    startOrbit:             orbit,
+    endOrbit:               orbit,
     startDate:              0.0,
-    flightTime:             (system.bodyFromId(1) as OrbitingBody).orbit.siderealPeriod,
-    endDate:                (system.bodyFromId(1) as OrbitingBody).orbit.siderealPeriod,
-    transferTrajectory:     {orbits: [], intersectTimes: [], maneuvers: []},
+    flightTime:             orbit.siderealPeriod,
+    endDate:                orbit.siderealPeriod,
+    transferTrajectory:     {orbits: [orbit], intersectTimes: [0,0], maneuvers: []},
     ejections:              [],
     insertions:             [],
     maneuvers:              [],

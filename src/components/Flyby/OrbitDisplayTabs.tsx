@@ -22,17 +22,37 @@ import { multiFlybyAtom, timeSettingsAtom } from "../../App";
 
 const emptyProps: OrbitDisplayProps[] = [];
 
-function transferPlotProps(multiFlyby: MultiFlyby, timeSettings: TimeSettings): OrbitDisplayProps {
+function transferPlotProps(multiFlyby: MultiFlyby): OrbitDisplayProps {
     const trajectories = multiFlyby.transfers.slice();
     const startDate = multiFlyby.startDate;
     const endDate = multiFlyby.endDate;
 
-    if(multiFlyby.ejections.length === 0) {
+    if(multiFlyby.ejections.length === 0 && multiFlyby.transfers.length > 0) {
         trajectories.push({orbits: [multiFlyby.startOrbit], intersectTimes: [-Infinity, startDate], maneuvers: []});
     }
-    if(multiFlyby.insertions.length === 0) {
+    if(multiFlyby.insertions.length === 0 && multiFlyby.transfers.length > 0) {
         trajectories.push({orbits: [multiFlyby.endOrbit], intersectTimes: [endDate, Infinity], maneuvers: []});
     }
+
+    const trajectoryIcons = trajectories.map(trajectory => {
+        const maneuver: number[] = [];
+        const soi: number[] =[];
+
+        for(let i=1; i<trajectory.intersectTimes.length-1; i++) {
+            if(Number.isFinite(trajectory.intersectTimes[i])) {
+                maneuver.push(i);
+            }
+        }
+        if(Number.isFinite(trajectory.intersectTimes[0])) {
+            soi.push(0)
+        }
+        if(Number.isFinite(trajectory.intersectTimes[trajectory.intersectTimes.length-1])) {
+            soi.push(trajectory.intersectTimes.length-1)
+        }
+
+        return {maneuver, soi};
+    })
+
     const marks = [
         {
             value: Math.ceil(startDate),
@@ -54,10 +74,11 @@ function transferPlotProps(multiFlyby: MultiFlyby, timeSettings: TimeSettings): 
         startDate:      startDate,
         endDate:        endDate,
         slider:         true,
+        trajectoryIcons,
     };
 }
 
-function ejectionPlotProps(multiFlyby: MultiFlyby, ejectionIdx: number, timeSettings: TimeSettings): OrbitDisplayProps {
+function ejectionPlotProps(multiFlyby: MultiFlyby, ejectionIdx: number): OrbitDisplayProps {
     const trajectory = multiFlyby.ejections[ejectionIdx];
     const trajectories = [trajectory];
     const trajLen = trajectory.orbits.length;
@@ -65,8 +86,23 @@ function ejectionPlotProps(multiFlyby: MultiFlyby, ejectionIdx: number, timeSett
     const startDate  = trajectory.intersectTimes[0];
     const endDate = trajectory.intersectTimes[trajLen];
 
+    const soiIcons: number[] = [];
+    const maneuverIcons: number[] = [];
+    const trajectoryIcons = [{maneuver: maneuverIcons, soi: soiIcons}];
+
     if(ejectionIdx === 0) {
-        trajectories.push({orbits: [multiFlyby.startOrbit], intersectTimes: [-Infinity, startDate], maneuvers: []});
+        trajectories.unshift({orbits: [multiFlyby.startOrbit], intersectTimes: [-Infinity, startDate], maneuvers: []});
+        trajectoryIcons.unshift({maneuver: [], soi: []});
+        if(trajectory.maneuvers.length > 0) {
+            maneuverIcons.push(0);
+        }
+    } else {
+        soiIcons.push(0);
+    }
+    soiIcons.push(trajectory.intersectTimes.length-1)
+
+    for(let i=1; i<trajectory.intersectTimes.length-1; i++) {
+        maneuverIcons.push(i);
     }
 
     const marks = [
@@ -89,10 +125,11 @@ function ejectionPlotProps(multiFlyby: MultiFlyby, ejectionIdx: number, timeSett
         startDate:      startDate,
         endDate:        endDate,
         slider:         true,
+        trajectoryIcons,
     };
 }
 
-function insertionPlotProps(multiFlyby: MultiFlyby, insertionIdx: number, timeSettings: TimeSettings): OrbitDisplayProps {
+function insertionPlotProps(multiFlyby: MultiFlyby, insertionIdx: number): OrbitDisplayProps {
     const trajectory = multiFlyby.insertions[insertionIdx];
     const trajectories = [trajectory];
     const trajLen = trajectory.orbits.length;
@@ -100,8 +137,23 @@ function insertionPlotProps(multiFlyby: MultiFlyby, insertionIdx: number, timeSe
     const startDate  = trajectory.intersectTimes[0];
     const endDate = trajectory.intersectTimes[trajLen];
 
+    const soiIcons: number[] = [];
+    const maneuverIcons: number[] = [];
+    const trajectoryIcons = [{maneuver: maneuverIcons, soi: soiIcons}];
+
+    soiIcons.push(0);
+    for(let i=1; i<trajectory.intersectTimes.length-1; i++) {
+        maneuverIcons.push(i);
+    }
+
     if(insertionIdx === multiFlyby.insertions.length - 1) {
         trajectories.push({orbits: [multiFlyby.endOrbit], intersectTimes: [endDate, Infinity], maneuvers: []});
+        trajectoryIcons.push({maneuver: [], soi: []});
+        if(trajectory.maneuvers.length > 0) {
+            maneuverIcons.push(trajectory.intersectTimes.length-1)        
+        }
+    } else {
+        soiIcons.push(trajectory.intersectTimes.length-1)
     }
 
     const marks = [
@@ -124,16 +176,24 @@ function insertionPlotProps(multiFlyby: MultiFlyby, insertionIdx: number, timeSe
         startDate:      startDate,
         endDate:        endDate,
         slider:         true,
+        trajectoryIcons,
     };
 }
 
-function flybyPlotProps(multiFlyby: MultiFlyby, flybyIdx: number, timeSettings: TimeSettings): OrbitDisplayProps {
+function flybyPlotProps(multiFlyby: MultiFlyby, flybyIdx: number): OrbitDisplayProps {
     const trajectory = multiFlyby.flybys[flybyIdx];
     const trajLen = trajectory.orbits.length;
     const body = multiFlyby.system.bodyFromId(trajectory.orbits[0].orbiting) as OrbitingBody;
     const startDate = trajectory.intersectTimes[0];
     const midDate = trajectory.intersectTimes[1];
     const endDate = trajectory.intersectTimes[trajLen];
+
+    const soiIcons: number[] = [];
+    const maneuverIcons: number[] = [];
+    const trajectoryIcons = [{maneuver: maneuverIcons, soi: soiIcons}];
+
+    soiIcons.push(0, trajectory.intersectTimes.length - 1);
+    maneuverIcons.push(1);
     
     const marks = [
         {
@@ -159,23 +219,24 @@ function flybyPlotProps(multiFlyby: MultiFlyby, flybyIdx: number, timeSettings: 
         startDate:      startDate,
         endDate:        endDate,
         slider:         true,
+        trajectoryIcons,
     };
 }
 
-export function prepareAllDisplayProps(multiFlyby: MultiFlyby, timeSettings: TimeSettings) {
+export function prepareAllDisplayProps(multiFlyby: MultiFlyby) {
     const orbDisplayProps: OrbitDisplayProps[] = [];    
 
     for(let i=0; i<multiFlyby.ejections.length; i++) {
-        orbDisplayProps.push(ejectionPlotProps(multiFlyby, i, timeSettings));
+        orbDisplayProps.push(ejectionPlotProps(multiFlyby, i));
     }
 
-    orbDisplayProps.push(transferPlotProps(multiFlyby, timeSettings));
+    orbDisplayProps.push(transferPlotProps(multiFlyby));
 
     for(let i=0; i<multiFlyby.flybys.length; i++) {
-        orbDisplayProps.push(flybyPlotProps(multiFlyby, i, timeSettings));
+        orbDisplayProps.push(flybyPlotProps(multiFlyby, i));
     }
     for(let i=0; i<multiFlyby.insertions.length; i++) {
-        orbDisplayProps.push(insertionPlotProps(multiFlyby, i, timeSettings));
+        orbDisplayProps.push(insertionPlotProps(multiFlyby, i));
     }
 
     // console.log('...Orbit plot traces computed from trajectory.')
@@ -250,7 +311,7 @@ function OrbitDisplayTabs() {
             if(value < -multiFlyby.ejections.length || value > multiFlyby.flybys.length + multiFlyby.insertions.length) {
                 setValue(0);
             }
-            setOrbitDisplayProps(prepareAllDisplayProps(multiFlyby, timeSettings));
+            setOrbitDisplayProps(prepareAllDisplayProps(multiFlyby));
         }
         // hide warning for missing setters
         // eslint-disable-next-line react-hooks/exhaustive-deps
