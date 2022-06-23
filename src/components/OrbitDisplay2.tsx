@@ -91,8 +91,9 @@ function OrbitDisplay({centralBody, system, startDate=0, endDate=startDate + 920
       // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date, dateField, updateFields, timeSettings]);
   return (
-    <Stack sx={{my: 1}} spacing={4} display="flex" alignItems="center" justifyContent="center">
+    <Stack sx={{my: 1, mx: 1}} spacing={4} display="flex" alignItems="center" justifyContent="center">
       <Canvas style={{height: '500px'}} >
+        <color attach="background" args={[0.07, 0.07, 0.07]} />
         <PerspectiveCamera makeDefault={true} position={[0,1,0]} zoom={1} near={1e-3}/>
         <SystemDisplay centralBody={centralBody} system={system} plotSize={plotSize} date={date} isSun={centralBody.name === system.sun.name}/>
         {trajectories.map((traj, index) => 
