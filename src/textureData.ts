@@ -1,37 +1,71 @@
-import blankTexture from './assets/textures/blank.png'
+import blankTexture from './assets/textures/blank.png';
 // stock bodies
-import kerbinTexture from './assets/textures/kerbin.png'
-import munTexture from './assets/textures/mun.png'
-import minmusTexture from './assets/textures/minmus.png'
-import mohoTexture from './assets/textures/moho.png'
-import eveTexture from './assets/textures/eve.png'
-import gillyTexture from './assets/textures/gilly.png'
-import dunaTexture from './assets/textures/duna.png'
-import ikeTexture from './assets/textures/ike.png'
-import dresTexture from './assets/textures/dres.png'
-import joolTexture from './assets/textures/jool.png'
-import laytheTexture from './assets/textures/laythe.png'
-import vallTexture from './assets/textures/vall.png'
-import tyloTexture from './assets/textures/tylo.png'
-import bopTexture from './assets/textures/bop.png'
-import polTexture from './assets/textures/pol.png'
-import eelooTexture from './assets/textures/eeloo.png'
+import kerbinTexture from './assets/textures/kerbin.png';
+import munTexture from './assets/textures/mun.png';
+import minmusTexture from './assets/textures/minmus.png';
+import mohoTexture from './assets/textures/moho.png';
+import eveTexture from './assets/textures/eve.png';
+import gillyTexture from './assets/textures/gilly.png';
+import dunaTexture from './assets/textures/duna.png';
+import ikeTexture from './assets/textures/ike.png';
+import dresTexture from './assets/textures/dres.png';
+import joolTexture from './assets/textures/jool.png';
+import laytheTexture from './assets/textures/laythe.png';
+import vallTexture from './assets/textures/vall.png';
+import tyloTexture from './assets/textures/tylo.png';
+import bopTexture from './assets/textures/bop.png';
+import polTexture from './assets/textures/pol.png';
+import eelooTexture from './assets/textures/eeloo.png';
 // OPM bodies
-import sarnusTexture from './assets/textures/sarnus.png'
-import haleTexture from './assets/textures/hale.png'
-import ovokTexture from './assets/textures/ovok.png'
-import slateTexture from './assets/textures/slate.png'
-import tektoTexture from './assets/textures/tekto.png'
-import urlumTexture from './assets/textures/urlum.png'
-import poltaTexture from './assets/textures/polta.png'
-import priaxTexture from './assets/textures/priax.png'
-import walTexture from './assets/textures/wal.png'
-import talTexture from './assets/textures/tal.png'
-import neidonTexture from './assets/textures/neidon.png'
-import thatmoTexture from './assets/textures/thatmo.png'
-import nisseeTexture from './assets/textures/nissee.png'
-import plockTexture from './assets/textures/plock.png'
-import karenTexture from './assets/textures/karen.png'
+import sarnusTexture from './assets/textures/sarnus.png';
+import haleTexture from './assets/textures/hale.png';
+import ovokTexture from './assets/textures/ovok.png';
+import slateTexture from './assets/textures/slate.png';
+import tektoTexture from './assets/textures/tekto.png';
+import urlumTexture from './assets/textures/urlum.png';
+import poltaTexture from './assets/textures/polta.png';
+import priaxTexture from './assets/textures/priax.png';
+import walTexture from './assets/textures/wal.png';
+import talTexture from './assets/textures/tal.png';
+import neidonTexture from './assets/textures/neidon.png';
+import thatmoTexture from './assets/textures/thatmo.png';
+import nisseeTexture from './assets/textures/nissee.png';
+import plockTexture from './assets/textures/plock.png';
+import karenTexture from './assets/textures/karen.png';
+// RSS and KSRSS bodies
+import earthTexture from './assets/textures/earth.png';
+import moonTexture from './assets/textures/moon.png';
+import mercuryTexture from './assets/textures/mercury.png';
+import venusTexture from './assets/textures/venus.png';
+import marsTexture from './assets/textures/mars.png';
+import phobosTexture from './assets/textures/phobos.png';
+import deimosTexture from './assets/textures/deimos.png';
+import vestaTexture from './assets/textures/vesta.png';
+import ceresTexture from './assets/textures/ceres.png';
+import jupiterTexture from './assets/textures/jupiter.png';
+import ioTexture from './assets/textures/io.png';
+import ganymedeTexture from './assets/textures/ganymede.png';
+import europaTexture from './assets/textures/europa.png';
+import callistoTexture from './assets/textures/callisto.png';
+import saturnTexture from './assets/textures/saturn.png';
+import mimasTexture from './assets/textures/mimas.png';
+import enceladusTexture from './assets/textures/enceladus.png';
+import tethysTexture from './assets/textures/tethys.png';
+import dioneTexture from './assets/textures/dione.png';
+import rheaTexture from './assets/textures/rhea.png';
+import titanTexture from './assets/textures/titan.png';
+import iapetusTexture from './assets/textures/iapetus.png';
+import uranusTexture from './assets/textures/uranus.png';
+import mirandaTexture from './assets/textures/miranda.png';
+import arielTexture from './assets/textures/ariel.png';
+import umbrielTexture from './assets/textures/umbriel.png';
+import titaniaTexture from './assets/textures/titania.png';
+import oberonTexture from './assets/textures/oberon.png';
+import neptuneTexture from './assets/textures/neptune.png';
+import tritonTexture from './assets/textures/triton.png';
+import plutoTexture from './assets/textures/pluto.png';
+import charonTexture from './assets/textures/charon.png';
+
 
 // map planet names to corresponding surface textures
 const textures = new Map<string, string>();
@@ -69,6 +103,39 @@ textures.set("Thatmo", thatmoTexture);
 textures.set("Nissee", nisseeTexture);
 textures.set("Plock", plockTexture);
 textures.set("Karen", karenTexture);
+// RSS and KSRSS
+textures.set("Earth", earthTexture);
+textures.set("Moon", moonTexture);
+textures.set("Mercury", mercuryTexture);
+textures.set("Venus", venusTexture);
+textures.set("Mars", marsTexture);
+textures.set("Phobos", phobosTexture);
+textures.set("Deimos", deimosTexture);
+textures.set("Vesta", vestaTexture);
+textures.set("Ceres", ceresTexture);
+textures.set("Jupiter", jupiterTexture);
+textures.set("Io", ioTexture); 
+textures.set("Ganymede", ganymedeTexture);
+textures.set("Europa", europaTexture);
+textures.set("Callisto", callistoTexture);
+textures.set("Saturn", saturnTexture);
+textures.set("Mimas", mimasTexture); 
+textures.set("Enceladus", enceladusTexture);
+textures.set("Tethys", tethysTexture);
+textures.set("Dione", dioneTexture);
+textures.set("Rhea", rheaTexture);
+textures.set("Titan", titanTexture); 
+textures.set("Iapetus", iapetusTexture);
+textures.set("Uranus", uranusTexture); 
+textures.set("Miranda", mirandaTexture); 
+textures.set("Ariel", arielTexture);
+textures.set("Umbriel", umbrielTexture);
+textures.set("Titania", titaniaTexture);
+textures.set("Oberon", oberonTexture);
+textures.set("Neptune", neptuneTexture);
+textures.set("Triton", tritonTexture); 
+textures.set("Pluto", plutoTexture); 
+textures.set("Charon", charonTexture); 
 
 
 export default textures;
