@@ -17,7 +17,33 @@ import { timeToCalendarDate, calendarDateToString } from "../main/libs/math";
 import { copiedManeuverAtom, timeSettingsAtom } from "../App";
 
 
-function ManeuverInfoRow({name, maneuver}: {name: String, maneuver: Maneuver}) {
+export function ManeuverTable({maneuver}: {maneuver: Maneuver}) {
+    const maneuverComponents: ManeuverComponents = Kepler.maneuverToComponents(maneuver);
+    return (
+        <Table size="small">
+            <TableBody>
+                <TableRow>
+                    <TableCell sx={{ borderBottom: 0 }}>Prograde:</TableCell>
+                    <TableCell sx={{ borderBottom: 0 }}>{String(maneuverComponents.prograde).concat(" m/s")}</TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell sx={{ borderBottom: 0 }}>Normal:</TableCell>
+                    <TableCell sx={{ borderBottom: 0 }}>{String(maneuverComponents.normal).concat(" m/s")}</TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell sx={{ borderBottom: 0 }}>Radial:</TableCell>
+                    <TableCell sx={{ borderBottom: 0 }}>{String(maneuverComponents.radial).concat(" m/s")}</TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell sx={{ borderBottom: 0 }}>UT:</TableCell>
+                    <TableCell sx={{ borderBottom: 0 }}>{String(maneuverComponents.date).concat("s")}</TableCell>
+                </TableRow>
+            </TableBody>
+        </Table>
+    )
+}
+
+function ManeuverInfoRow({name = undefined, maneuver}: {name?: String, maneuver: Maneuver}) {
     const [open, setOpen] = useState(false);
     const [copiedManeuver, setCopiedManeuver] = useAtom(copiedManeuverAtom);
     const [timeSettings] = useAtom(timeSettingsAtom);
@@ -25,9 +51,6 @@ function ManeuverInfoRow({name, maneuver}: {name: String, maneuver: Maneuver}) {
     const handleToggle = () => {
         setOpen(!open);
     }
-
-    const maneuverComponents: ManeuverComponents = Kepler.maneuverToComponents(maneuver);
-    // const maneuverString = JSON.stringify(maneuverComponents);
 
     return (
     <>
@@ -40,9 +63,11 @@ function ManeuverInfoRow({name, maneuver}: {name: String, maneuver: Maneuver}) {
                     {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
                 </IconButton>
             </TableCell>
-            <TableCell sx={{ borderBottom: 0 }}>
-                {name}
-            </TableCell>
+            {name &&
+                <TableCell sx={{ borderBottom: 0 }}>
+                    {name}
+                </TableCell>
+            }
             <TableCell sx={{ borderBottom: 0 }}>
                 {String(Math.round(maneuver.deltaVMag * 100) / 100).concat( " m/s")}
             </TableCell>
@@ -54,29 +79,10 @@ function ManeuverInfoRow({name, maneuver}: {name: String, maneuver: Maneuver}) {
             </TableCell>
         </TableRow>
         <TableRow>
-            <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={4}>
+            <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={4} sx={{ borderBottom: 0 }}>
                 <Collapse in={open} timeout="auto">
                     <Box component="div" sx={{ margin: 1 }}>
-                        <Table size="small">
-                            <TableBody>
-                                <TableRow>
-                                    <TableCell sx={{ borderBottom: 0 }}>Prograde:</TableCell>
-                                    <TableCell sx={{ borderBottom: 0 }}>{String(maneuverComponents.prograde).concat(" m/s")}</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell sx={{ borderBottom: 0 }}>Normal:</TableCell>
-                                    <TableCell sx={{ borderBottom: 0 }}>{String(maneuverComponents.normal).concat(" m/s")}</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell sx={{ borderBottom: 0 }}>Radial:</TableCell>
-                                    <TableCell sx={{ borderBottom: 0 }}>{String(maneuverComponents.radial).concat(" m/s")}</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell sx={{ borderBottom: 0 }}>UT:</TableCell>
-                                    <TableCell sx={{ borderBottom: 0 }}>{String(maneuverComponents.date).concat(" s")}</TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
+                        <ManeuverTable maneuver={maneuver} />
                     </Box>
                 </Collapse>
             </TableCell>

@@ -127,7 +127,6 @@ function FlybyAppContent() {
     }
 
     const newMfSearchInputs = searchInputsFromUI(system, startOrbit, endOrbit, flybyIdSequence, earlyStartDate, lateStartDate, flightTimes, controlsOptionsState, timeSettings);
-
     setMfSearchInputs(newMfSearchInputs);
     setButtonPresses(buttonPresses + 1);
 

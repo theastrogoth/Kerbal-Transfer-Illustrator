@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import * as THREE from 'three';
+
 import Orbit from '../../main/objects/orbit';
+import Color from '../../main/objects/color';
+import DepartArrive from '../../main/libs/departarrive';
 import Kepler from '../../main/libs/kepler';
 import { TWO_PI, div3, wrapAngle, linspace } from '../../main/libs/math';
-import DepartArrive from '../../main/libs/departarrive';
-import { BufferAttribute } from 'three';
-import Color from '../../main/objects/color';
 
 function getGradientColors(color:IColor) {
     const fullColor = new Color(color);
@@ -22,10 +22,7 @@ function getColorsAtDate(date: number, orbit: IOrbit, gradientColors: [number, n
     if(date < minDate) {
         return new Float32Array(Array(gradientColors.length-1).fill(gradientColors[10]).flat());
     } 
-    if(date > maxDate) {
-        return new Float32Array(Array(gradientColors.length-1).fill(gradientColors[gradientColors.length-1]).flat());
-    }
-    const nuAtDate = wrapAngle(Kepler.dateToOrbitTrueAnomaly(date, orbit), nus[0]);
+    const nuAtDate = wrapAngle(Kepler.dateToOrbitTrueAnomaly(Math.min(date, maxDate), orbit), nus[0]);
     const shiftIndex = nus.findIndex(nu => nu > nuAtDate);
     const shiftLength = nus.length - shiftIndex + 1;
     const firstHalf: [number, number, number][] = gradientColors.slice(shiftLength);
@@ -49,13 +46,13 @@ function getTrueAnomalyRange(orbit: Orbit, minDate: number = -Infinity, maxDate:
             tempMin = DepartArrive.insertionTrueAnomaly(orbit, orbit.attractorSoi as number);
             tempMax = DepartArrive.ejectionTrueAnomaly(orbit, orbit.attractorSoi as number);
         }
-        if(!isNaN(max)) {
-            min = wrapAngle(Math.min(tempMin, max - TWO_PI), max - TWO_PI + 1e-9);
+        if(Number.isFinite(maxDate)) {
+            min = wrapAngle(Math.min(tempMin, max - TWO_PI), max - TWO_PI + 1e-4);
         } else {
             min = tempMin;
         }
-        if(!isNaN(min)) {
-            max = wrapAngle(Math.max(tempMax, min + TWO_PI), min + 1e-9);
+        if(Number.isFinite(minDate)) {
+            max = wrapAngle(Math.max(tempMax, min + TWO_PI), min + 1e-4);
         } else {
             max = tempMax;
         }
@@ -100,7 +97,7 @@ function OrbitLine({orbit, date, plotSize, minDate = -Infinity, maxDate = Infini
     }, [date, gradientColors])
 
     const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-    lineGeometry.setAttribute('color', new BufferAttribute(colors,3))
+    lineGeometry.setAttribute('color', new THREE.BufferAttribute(colors,3))
     return (
         <line 
         //@ts-ignore

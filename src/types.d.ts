@@ -351,91 +351,110 @@ interface IColor {
     readonly a?:     number,
 }
 
-type LineOptions = {
-    color?:                  number[] | string | undefined,
-    readonly colorscale?:    string | string[][] | undefined,
-    readonly dash?:          "dash" | "dashdot" | "dot" | "longdash" | "longdashdot" | "solid" | undefined,
-    readonly width?:         number | undefined,
+interface SoiChangeInfo {
+    name:       string,
+    pos:        Vector3,
+    date:       number,
+    color:      IColor,
 }
 
-type MarkerOptions = {
-    color?:                  number[] | string | undefined,
-    readonly colorscale?:    string | string[][] | undefined,
-    readonly symbol?:        "circle" | "circle-open" | "cross" | "diamond" | "diamond-open" | "square" | "square-open" | "x" | undefined,
-    readonly size?:          number | undefined,
+interface TrajectoryIconInfo {
+    maneuver:   [number, string][],
+    soi:        [number, string][]
 }
 
-type Font = {
-    readonly family: string,
-    readonly size:   number,
+interface ManeuverInfo extends Maneuver {
+    color:  IColor,
+    name:   string,
 }
 
-type HoverLabel = {
-    readonly bgcolor?:       string,
-    readonly bordercolor?:   string,
-    readonly font?:          Font,
-    readonly align?:         "left" | "auto" | "right" | undefined,
-}
+type InfoItem = ICelestialBody | IOrbitingBody | IVessel | ManeuverInfo | SoiChangeInfo | null;
 
-type Line3DTrace = {
-    x:                       number[],
-    y:                       number[],
-    z:                       number[],
-    readonly type:           "scatter3d",
-    readonly mode:           "lines",
-    line?:                   LineOptions,
-    readonly customdata?:    any,
-    readonly name?:          string | undefined,
-    readonly hovertemplate?: string,
-    readonly hoverinfo?:     "skip" | undefined,
-    readonly hoverlabel?:    HoverLabel,
-    readonly showlegend?:    boolean | undefined,
-    readonly visible?:       "legendonly" | undefined,
-}
+// type LineOptions = {
+//     color?:                  number[] | string | undefined,
+//     readonly colorscale?:    string | string[][] | undefined,
+//     readonly dash?:          "dash" | "dashdot" | "dot" | "longdash" | "longdashdot" | "solid" | undefined,
+//     readonly width?:         number | undefined,
+// }
 
-type Marker3DTrace = {
-    x:                       number[],
-    y:                       number[],
-    z:                       number[],
-    readonly type:           "scatter3d",
-    readonly mode:           "markers",
-    marker?:                 MarkerOptions,
-    readonly customdata?:    any,
-    readonly name?:          string | undefined,
-    readonly hovertemplate?: string,
-    readonly hoverinfo?:     "skip" | undefined,
-    readonly hoverlabel?:    HoverLabel,
-    readonly showlegend?:    boolean | undefined,
-    readonly visible?:       "legendonly" | undefined,            
-}
+// type MarkerOptions = {
+//     color?:                  number[] | string | undefined,
+//     readonly colorscale?:    string | string[][] | undefined,
+//     readonly symbol?:        "circle" | "circle-open" | "cross" | "diamond" | "diamond-open" | "square" | "square-open" | "x" | undefined,
+//     readonly size?:          number | undefined,
+// }
 
-type Mesh3DTrace = {
-    x:                       number[],
-    y:                       number[],
-    z:                       number[],
-    i:                       number[],
-    j:                       number[],
-    k:                       number[],
-    readonly type:           "mesh3d",
-    opacity:                 number,
-    intensity:               number[],
-    colorscale:              [number, string][];
-}
+// type Font = {
+//     readonly family: string,
+//     readonly size:   number,
+// }
 
-type SystemTraces = {
-    bodyOrbitTraces:        Line3DTrace[],
-    centralBodyTrace:       Line3DTrace | Mesh3DTrace,
-    centralBodyOrbitTrace?: Line3DTrace,
-    orbitingBodyTraces:     Line3DTrace[],
-    orbitingSoiTraces:      Line3DTrace[],
-    markerTraces:           Line3DTrace[],
-}
+// type HoverLabel = {
+//     readonly bgcolor?:       string,
+//     readonly bordercolor?:   string,
+//     readonly font?:          Font,
+//     readonly align?:         "left" | "auto" | "right" | undefined,
+// }
 
-type OrbitPlotTraces = {
-    systemTraces:       SystemTraces,
-    orbitTraces:        Line3DTrace[],
-    markerTraces?:      Marker3DTrace[],
-}
+// type Line3DTrace = {
+//     x:                       number[],
+//     y:                       number[],
+//     z:                       number[],
+//     readonly type:           "scatter3d",
+//     readonly mode:           "lines",
+//     line?:                   LineOptions,
+//     readonly customdata?:    any,
+//     readonly name?:          string | undefined,
+//     readonly hovertemplate?: string,
+//     readonly hoverinfo?:     "skip" | undefined,
+//     readonly hoverlabel?:    HoverLabel,
+//     readonly showlegend?:    boolean | undefined,
+//     readonly visible?:       "legendonly" | undefined,
+// }
+
+// type Marker3DTrace = {
+//     x:                       number[],
+//     y:                       number[],
+//     z:                       number[],
+//     readonly type:           "scatter3d",
+//     readonly mode:           "markers",
+//     marker?:                 MarkerOptions,
+//     readonly customdata?:    any,
+//     readonly name?:          string | undefined,
+//     readonly hovertemplate?: string,
+//     readonly hoverinfo?:     "skip" | undefined,
+//     readonly hoverlabel?:    HoverLabel,
+//     readonly showlegend?:    boolean | undefined,
+//     readonly visible?:       "legendonly" | undefined,            
+// }
+
+// type Mesh3DTrace = {
+//     x:                       number[],
+//     y:                       number[],
+//     z:                       number[],
+//     i:                       number[],
+//     j:                       number[],
+//     k:                       number[],
+//     readonly type:           "mesh3d",
+//     opacity:                 number,
+//     intensity:               number[],
+//     colorscale:              [number, string][];
+// }
+
+// type SystemTraces = {
+//     bodyOrbitTraces:        Line3DTrace[],
+//     centralBodyTrace:       Line3DTrace | Mesh3DTrace,
+//     centralBodyOrbitTrace?: Line3DTrace,
+//     orbitingBodyTraces:     Line3DTrace[],
+//     orbitingSoiTraces:      Line3DTrace[],
+//     markerTraces:           Line3DTrace[],
+// }
+
+// type OrbitPlotTraces = {
+//     systemTraces:       SystemTraces,
+//     orbitTraces:        Line3DTrace[],
+//     markerTraces?:      Marker3DTrace[],
+// }
 
 
 // React component types

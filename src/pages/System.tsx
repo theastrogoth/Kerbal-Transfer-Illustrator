@@ -61,6 +61,8 @@ function SolarSystemAppContent() {
   const centralBodyNameRef = useRef(centralBodyName);
   const [deleteBodiesTrigger, setDeleteBodiesTrigger] = useState(false);
 
+  const [infoItem, setInfoItem] = useState<InfoItem>(null);
+
   useEffect(() => {
     systemLoaderWorker.onmessage = (event: MessageEvent<ISolarSystem>) => {
         if (event && event.data) {
@@ -198,25 +200,13 @@ function SolarSystemAppContent() {
                 </FormControl>
               </Stack>
               <Box component="div" sx={{mx: 2, my: 2}}>
-                {/* <OrbitDisplay 
-                  index={0}
-                  label={'Solar System'}
-                  slider={false}
-                  orbits={[] as IOrbit[]}
-                  trajectories={[] as Trajectory[]}
-                  startDate={0}
-                  endDate={0}
-                  marks={[]}
-                  centralBody={centralBody}
-                  defaultTraces={{systemTraces: Draw.drawSystemAtTime(centralBody, 0, timeSettings), orbitTraces: [] as Line3DTrace[]}}
-                  plotSize={Draw.getPlotSize(centralBody)}
-                /> */}
                 <OrbitDisplay 
                   label='Custom System'
                   index={0}
                   centralBody={centralBody} 
                   startDate={0.0} 
                   system={customSystem}
+                  setInfoItem={setInfoItem}
                 />
               </Box>
               <Box component="div" sx={{mx: 2, my: 2}}>

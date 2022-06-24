@@ -25,7 +25,7 @@ function getSunLight(centralBody: CelestialBody, system: SolarSystem, date: numb
     }
 }
 
-function SystemDisplay({centralBody, system, plotSize, date, isSun = true}: {centralBody: CelestialBody, system: SolarSystem, plotSize: number, date: number, isSun?: boolean}) {
+function SystemDisplay({centralBody, system, plotSize, date, isSun = true, setInfoItem}: {centralBody: CelestialBody, system: SolarSystem, plotSize: number, date: number, isSun?: boolean, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>}) {
     const [sunLight, setSunLight] = useState(getSunLight(centralBody, system, date));
     useEffect(() => {
         setSunLight(getSunLight(centralBody, system, date));
@@ -36,9 +36,9 @@ function SystemDisplay({centralBody, system, plotSize, date, isSun = true}: {cen
                 <ambientLight intensity={0.1} />
                 {sunLight}
             </mesh>
-            <CentralBodySphere body={centralBody} date={date} plotSize={plotSize} isSun={isSun} />
+            <CentralBodySphere body={centralBody} date={date} plotSize={plotSize} isSun={isSun} setInfoItem={setInfoItem} />
             {centralBody.orbiters.map((orbiter, index) => 
-                <OrbitingBodySphere key={index} body={orbiter} plotSize={plotSize} date={date} />    
+                <OrbitingBodySphere key={index} body={orbiter} plotSize={plotSize} date={date} setInfoItem={setInfoItem} />    
             )}
         </Suspense>
     )

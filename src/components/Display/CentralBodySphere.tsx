@@ -1,13 +1,14 @@
 import React, { useRef } from 'react';
 import * as THREE from 'three';
-import CelestialBody, { OrbitingBody } from '../../main/objects/body';
-import { div3, hexFromColorString } from '../../main/libs/math';
 import { useLoader } from '@react-three/fiber';
 import textures from '../../textureData';
-import { TWO_PI, degToRad, linspace, wrapAngle, sub3 } from '../../main/libs/math';
-import Kepler from '../../main/libs/kepler';
+
+import CelestialBody, { OrbitingBody } from '../../main/objects/body';
 import Color from '../../main/objects/color';
-import { BufferAttribute } from 'three';
+
+import Kepler from '../../main/libs/kepler';
+import { TWO_PI, degToRad, linspace, wrapAngle, sub3, div3, hexFromColorString } from '../../main/libs/math';
+
 
 function getCentralBodyOrbit(body: OrbitingBody, date: number, plotSize: number) {
     const nu = Kepler.dateToOrbitTrueAnomaly(date, body.orbit);
@@ -28,7 +29,7 @@ function getCentralBodyOrbit(body: OrbitingBody, date: number, plotSize: number)
         return [color.r / 255, color.g/255, color.b/255];
     }).flat();
     const colors = new Float32Array(scaledColors);
-    lineGeometry.setAttribute('color', new BufferAttribute(colors,3))
+    lineGeometry.setAttribute('color', new THREE.BufferAttribute(colors,3))
     return (
         //@ts-ignore
         <line geometry={lineGeometry}>
@@ -37,7 +38,7 @@ function getCentralBodyOrbit(body: OrbitingBody, date: number, plotSize: number)
     )
 }
 
-function CentralBodySphere({body, date, plotSize, isSun = true}: {body: CelestialBody, date: number, plotSize: number, isSun?: boolean}) {
+function CentralBodySphere({body, date, plotSize, isSun = true, setInfoItem}: {body: CelestialBody, date: number, plotSize: number, isSun?: boolean, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>}) {
     const position = useRef(new THREE.Vector3(0,0,0));
     let textureURL = textures.get(body.name);
     const hasTexture = textureURL !== undefined;
@@ -48,7 +49,7 @@ function CentralBodySphere({body, date, plotSize, isSun = true}: {body: Celestia
         <mesh 
             position={position.current}
             rotation={[0, degToRad(body.initialRotation) + TWO_PI * ((date % body.rotationPeriod) / body.rotationPeriod), 0]} 
-            onClick={(e) => {e.stopPropagation(); console.log(e)}}
+            onClick={(e) => {e.stopPropagation(); setInfoItem(body)}}
         >
             <sphereGeometry args={[body.radius / plotSize, 32, 32]} />
             {isSun ? <meshBasicMaterial color={hasTexture ? 'white' : hexFromColorString(body.color.toString())} map={texture} />
@@ -56,7 +57,7 @@ function CentralBodySphere({body, date, plotSize, isSun = true}: {body: Celestia
             }
         </mesh>
         {body.atmosphereHeight > 0 &&
-            <mesh onClick={(e) => {e.stopPropagation(); console.log(e)}} >
+            <mesh onClick={(e) => {e.stopPropagation(); setInfoItem(body)}} >
                 <sphereGeometry args={[(body.radius + body.atmosphereHeight) / plotSize, 32, 32]} />
                 <meshStandardMaterial color={hexFromColorString(body.color.toString())} transparent={true} opacity={0.05} roughness={1} />
             </mesh> 

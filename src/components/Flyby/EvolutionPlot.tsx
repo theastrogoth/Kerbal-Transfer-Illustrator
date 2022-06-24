@@ -31,10 +31,9 @@ function EvolutionPlot({inputs, buttonPresses, setCalculating}: EvolutionPlotPro
                 const lastBestY = event.data.bestY[event.data.bestY.length - 1];
                 const lastMeanY = event.data.meanY[event.data.meanY.length - 1];
                 const percentDiff = (lastMeanY - lastBestY) / lastBestY;
-
                 if(event.data.generation < 500 && percentDiff > 0.01) {
                     multiFlybyOptWorker
-                        .postMessage({inputs: event.data.inputs, population: event.data.population, fitnesses: event.data.fitnesses, generation: event.data.generation, x: event.data.x, bestY: event.data.bestY, meanY: event.data.meanY})
+                        .postMessage(event.data)
                 } else {
                     console.log("...trajectory search completed.")
                     let bestIdx = -1;

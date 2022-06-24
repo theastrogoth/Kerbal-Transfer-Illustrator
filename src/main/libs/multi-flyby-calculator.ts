@@ -508,7 +508,8 @@ class MultiFlybyCalculator {
         const soiPatchPositions = this.calculateSoiPatches();
         let err = 0.0;
         for(let i=0; i<this._soiPatchPositions.length; i++) {
-            err += mag3(sub3(this._soiPatchPositions[i], soiPatchPositions[i]));
+            const patchErr = mag3(sub3(this._soiPatchPositions[i], soiPatchPositions[i]))
+            err += isNaN(patchErr) ? 0 : patchErr;
         }
         return err;
     }
@@ -554,15 +555,15 @@ class MultiFlybyCalculator {
         let err = 0.0;
         const upErrs = this.soiPatchUpTimeErrors();
         for(let i=0; i<upErrs.length; i++) {
-            err += Math.abs(upErrs[i]);
+            err += isNaN(upErrs[i]) ? 0 : Math.abs(upErrs[i]);
         }
         const encErrs = this.flybyEncounterTimeErrors();
         for(let i=0; i<encErrs.length; i++) {
-            err += Math.abs(encErrs[i]);
+            err += isNaN(encErrs[i]) ? 0 : Math.abs(encErrs[i]);
         }
         const downErrs = this.soiPatchDownTimeErrors();
         for(let i=0; i<downErrs.length; i++) {
-            err += Math.abs(downErrs[i])
+            err += isNaN(downErrs[i]) ? 0 : Math.abs(downErrs[i]);
         }
         return err;
     }
@@ -608,7 +609,8 @@ class MultiFlybyCalculator {
             this.computeFlybyOrbits();
             this.setFlybyDurations();
             this.computeFullTrajectory();
-            return this.soiPatchPositionError() + 10 * this.soiPatchTimeError() + 5000 * this._deltaV;
+            const error = this.soiPatchPositionError() + 10 * this.soiPatchTimeError() + 5000 * this._deltaV
+            return isNaN(error) ? Number.MAX_VALUE : error;
         }
         const initialPoints: number[][] = [[...this.patchPositionsToAngles(), this._startDate, ...this._flightTimes]];
         const numPatches = this._soiPatchBodies.length;
