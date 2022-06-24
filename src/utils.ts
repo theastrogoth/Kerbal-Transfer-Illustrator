@@ -279,6 +279,7 @@ export const useContainerDimensions = (myRef: React.RefObject<any>, update: bool
                 window.removeEventListener('resize', handleResize);
             };
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [myRef, myRef.current, update]);
     return dimensions;
   };

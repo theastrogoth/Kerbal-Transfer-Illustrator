@@ -61,7 +61,7 @@ function SolarSystemAppContent() {
   const centralBodyNameRef = useRef(centralBodyName);
   const [deleteBodiesTrigger, setDeleteBodiesTrigger] = useState(false);
 
-  const [infoItem, setInfoItem] = useState<InfoItem>(null);
+  const [, setInfoItem] = useState<InfoItem>(null);
 
   useEffect(() => {
     systemLoaderWorker.onmessage = (event: MessageEvent<ISolarSystem>) => {
