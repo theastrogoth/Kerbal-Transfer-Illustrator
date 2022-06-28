@@ -34,7 +34,8 @@ export type OrbitDisplayProps = {
 }
 
 interface OrbitDisplayPropsWithSetInfo extends OrbitDisplayProps {
-  setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>,
+  infoItem:     InfoItem,
+  setInfoItem:  React.Dispatch<React.SetStateAction<InfoItem>>,
 }
 
 function getPlotSize(centralBody: CelestialBody) {
@@ -45,7 +46,7 @@ function getPlotSize(centralBody: CelestialBody) {
           centralBody.soi as number);
 }
 
-function OrbitDisplay({centralBody, system, startDate=0, endDate=startDate + 9201600, trajectories=[], trajectoryNames=[], trajectoryColors=[], trajectoryIcons=[], slider=false, marks=[], setInfoItem}: OrbitDisplayPropsWithSetInfo) {
+function OrbitDisplay({centralBody, system, startDate=0, endDate=startDate + 9201600, trajectories=[], trajectoryNames=[], trajectoryColors=[], trajectoryIcons=[], slider=false, marks=[], infoItem, setInfoItem}: OrbitDisplayPropsWithSetInfo) {
   
   const [timeSettings] = useAtom(timeSettingsAtom);
   const timeSettingsRef = useRef(timeSettings);
@@ -58,8 +59,6 @@ function OrbitDisplay({centralBody, system, startDate=0, endDate=startDate + 920
   const [updateFields, setUpdateFields] = useState(false);
 
   const [plotSize, setPlotSize] = useState(getPlotSize(centralBody) / 10);
-
-  console.log(startDate, endDate)
 
   useEffect(() => {
     if((timeSettings === timeSettingsRef.current)) {
@@ -78,18 +77,18 @@ function OrbitDisplay({centralBody, system, startDate=0, endDate=startDate + 920
 
   useEffect(() => {
       if(dateField !== dateFieldRef.current) {
-          dateFieldRef.current = dateField;
-          const newDate = timeFromDateFieldState(dateField, timeSettings, 1, 1);
-          setDate(newDate)
+        dateFieldRef.current = dateField;
+        const newDate = timeFromDateFieldState(dateField, timeSettings, 1, 1);
+        setDate(newDate)
       } else {
-          dateRef.current = date;
-          if(updateFields || (timeSettings !== timeSettingsRef.current)) {
-              timeSettingsRef.current = timeSettings;
-              setUpdateFields(false);
-              const calendarDate = timeToCalendarDate(date, timeSettings, 1, 1);
-              setDateField(calendarDate);
-              dateFieldRef.current = calendarDate;
-          }
+        dateRef.current = date;
+        if(updateFields || (timeSettings !== timeSettingsRef.current)) {
+            timeSettingsRef.current = timeSettings;
+            setUpdateFields(false);
+            const calendarDate = timeToCalendarDate(date, timeSettings, 1, 1);
+            setDateField(calendarDate);
+            dateFieldRef.current = calendarDate;
+        }
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date, dateField, updateFields, timeSettings]);
@@ -98,7 +97,7 @@ function OrbitDisplay({centralBody, system, startDate=0, endDate=startDate + 920
     <Stack sx={{my: 1, mx: 1}} spacing={4} display="flex" alignItems="center" justifyContent="center">
       <Canvas style={{height: '500px'}} >
         <color attach="background" args={[0.07, 0.07, 0.07]} />
-        <PerspectiveCamera makeDefault={true} position={[0,1,0]} zoom={1} near={1e-3}/>
+        <PerspectiveCamera makeDefault={true} position={[0,1,0]} zoom={1} near={1e-3} />
         <SystemDisplay centralBody={centralBody} system={system} plotSize={plotSize} date={date} isSun={centralBody.name === system.sun.name} setInfoItem={setInfoItem}/>
         {trajectories.map((traj, index) => 
           <TrajectoryDisplay 
@@ -110,6 +109,7 @@ function OrbitDisplay({centralBody, system, startDate=0, endDate=startDate + 920
             name={trajectoryNames[index]}
             color={trajectoryColors[index]}
             icons={trajectoryIcons[index]}
+            infoItem={infoItem}
             setInfoItem={setInfoItem}
           />)}
         <OrbitControls rotateSpeed={0.5} />

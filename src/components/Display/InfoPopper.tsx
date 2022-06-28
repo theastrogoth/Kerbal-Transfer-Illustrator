@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack';
 import Popper from '@mui/material/Popper';
@@ -11,6 +11,7 @@ import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 
+import { useResizeDetector } from 'react-resize-detector';
 import { useContainerDimensions } from '../../utils';
 import OrbitInfoRow from '../OrbitInfoRow';
 import ManeuverInfoRow from '../ManeuverInfoRow';
@@ -81,10 +82,8 @@ const getContent = (info: InfoItem, timeSettings: TimeSettings) => {
 }
 
 function InfoPopper({info, setInfo, parentRef, color=defaultColor}: {info: InfoItem, setInfo: React.Dispatch<React.SetStateAction<InfoItem>>, parentRef: React.MutableRefObject<null | HTMLElement>, color?: IColor}) {
-    const elementRef = useRef<HTMLElement | null>(null);
-    const [updateDimensions, setUpdateDimensions] = useState(false);
-    const parentDimensions = useContainerDimensions(parentRef, updateDimensions);
-    const elementDimensions = useContainerDimensions(elementRef, updateDimensions);
+    const {width, ref} = useResizeDetector();
+    const parentDimensions = useContainerDimensions(parentRef);
 
     const [timeSettings] = useAtom(timeSettingsAtom);
 
@@ -100,13 +99,10 @@ function InfoPopper({info, setInfo, parentRef, color=defaultColor}: {info: InfoI
             setContent(getContent(info, timeSettings));
             const newColor: IColor = (info.hasOwnProperty('color')) ? (info as ICelestialBody | IOrbitingBody | IVessel | ManeuverInfo | SoiChangeInfo).color || defaultColor : defaultColor; 
             setClearColor(getClearColor(newColor)); 
-            setUpdateDimensions(true);
-        } else {
-            setUpdateDimensions(false);
         }
     }, [info, timeSettings])
 
-    const maxWidth = parentDimensions.width * 0.5;
+    const maxWidth = parentDimensions.width * 0.4;
     const maxHeight = 400;
 
     return (
@@ -118,7 +114,7 @@ function InfoPopper({info, setInfo, parentRef, color=defaultColor}: {info: InfoI
                 {
                     name: "offset",
                     options: {
-                        offset: [15, -Math.min(elementDimensions.width, maxWidth) - 15]
+                        offset: [15, -Math.min(width || 0, maxWidth) - 30]
                     }
                 },
                 {
@@ -129,7 +125,7 @@ function InfoPopper({info, setInfo, parentRef, color=defaultColor}: {info: InfoI
         >
             {({ TransitionProps }) => (
             <Fade {...TransitionProps} timeout={350}>
-                <Stack ref={el => {elementRef.current = (el as HTMLElement);}} sx={{ p: 1, bgcolor: clearColor, borderRadius: 10, width: maxWidth, maxHeight: maxHeight, overflowY: 'auto', overflowX: 'clip' }}>
+                <Stack ref={ref} sx={{ p: 1, bgcolor: clearColor, borderRadius: 10, width: maxWidth, maxHeight: maxHeight, overflowY: 'auto', overflowX: 'clip' }}>
                     <Stack direction="row">
                         <Box component="div" sx={{ p: 1 }}>
                         <Typography variant="body1">

@@ -254,11 +254,11 @@ export function searchInputsFromUI(system: SolarSystem, startOrbitElements: Orbi
     }
 }
 
-export const useContainerDimensions = (myRef: React.RefObject<any>, update: boolean) => {
+export const useContainerDimensions = (myRef: React.RefObject<any>) => {
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     useEffect(() => {
          if(myRef.current === null) {
-            setDimensions({width: 0, height: 0})
+            // setDimensions({width: 0, height: 0})
         } else {
             const getDimensions = () => ({
                 width: (myRef && myRef.current.offsetWidth) || 0,
@@ -280,6 +280,6 @@ export const useContainerDimensions = (myRef: React.RefObject<any>, update: bool
             };
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [myRef, myRef.current, update]);
+    }, [myRef, myRef.current]);
     return dimensions;
-  };
+};

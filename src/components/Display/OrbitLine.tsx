@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import * as THREE from 'three';
+import { Line } from '@react-three/drei'
 
 import Orbit from '../../main/objects/orbit';
 import Color from '../../main/objects/color';
 import DepartArrive from '../../main/libs/departarrive';
 import Kepler from '../../main/libs/kepler';
 import { TWO_PI, div3, wrapAngle, linspace } from '../../main/libs/math';
+
+import periapsisIcon from '../../assets/icons/periapsis.png';
+import apoapsisIcon from '../../assets/icons/apoapsis.png';
+
+const textureLoader = new THREE.TextureLoader();
+const periapsisTexture = textureLoader.load(periapsisIcon);
+const apoapsisTexture = textureLoader.load(apoapsisIcon);
 
 function getGradientColors(color:IColor) {
     const fullColor = new Color(color);
@@ -18,9 +26,9 @@ function getGradientColors(color:IColor) {
     return gradientColors;
 }
 
-function getColorsAtDate(date: number, orbit: IOrbit, gradientColors: [number, number, number][], nus: number[], minDate: number =  -Infinity, maxDate: number = Infinity) {
+function getColorsAtDate(date: number, orbit: IOrbit, gradientColors: [number, number, number][], nus: number[], minDate: number =  -Infinity, maxDate: number = Infinity): [number, number, number][] {
     if(date < minDate) {
-        return new Float32Array(Array(gradientColors.length-1).fill(gradientColors[10]).flat());
+        return Array(gradientColors.length-1).fill(gradientColors[10])
     } 
     const nuAtDate = wrapAngle(Kepler.dateToOrbitTrueAnomaly(Math.min(date, maxDate), orbit), nus[0]);
     const shiftIndex = nus.findIndex(nu => nu > nuAtDate);
@@ -32,7 +40,7 @@ function getColorsAtDate(date: number, orbit: IOrbit, gradientColors: [number, n
     } else {
         secondHalf = gradientColors.slice(0, shiftLength);
     }
-    const shiftedColors = new Float32Array([...firstHalf.flat(), ...secondHalf.flat()]);
+    const shiftedColors = [...firstHalf, ...secondHalf];
     return shiftedColors;
 }
 
@@ -62,7 +70,6 @@ function getTrueAnomalyRange(orbit: Orbit, minDate: number = -Infinity, maxDate:
     return {min, max}
 }
 
-
 function getPoints(orbit: Orbit, plotSize: number, nus: number[]) {
     const points: THREE.Vector3[] = [];
     for(let i=0; i<nus.length; i++) {
@@ -72,13 +79,48 @@ function getPoints(orbit: Orbit, plotSize: number, nus: number[]) {
     return points;
 }
 
-function OrbitLine({orbit, date, plotSize, minDate = -Infinity, maxDate = Infinity, color = {r: 200, g: 200, b: 200}}: {orbit: Orbit, date: number, plotSize: number, minDate?: number, maxDate?: number, color?: IColor}) {
+function getPeriapsisIcon(orbit: Orbit, plotSize: number, nus: number[], color: string = 'white') {
+    if(wrapAngle(0, nus[0] - 1e-3) < nus[nus.length-1]) {
+        const pos = div3(Kepler.positionAtTrueAnomaly(orbit, 0), plotSize);
+        const position = new THREE.Vector3(-pos.x, pos.z, pos.y);
+        return <sprite
+            scale={[0.075,0.075,0.075]} 
+            position={position}
+        >
+            <spriteMaterial map={periapsisTexture} sizeAttenuation={false} color={color} depthTest={false} />
+        </sprite>
+    } else {
+        return <></>
+    }
+}
+
+function getApoapsisIcon(orbit: Orbit, plotSize: number, nus: number[], color: string = 'white') {
+    if((wrapAngle(Math.PI, nus[0] - 1e-3) < nus[nus.length-1]) && Number.isFinite(orbit.apoapsis) && (orbit.apoapsis < (orbit.attractorSoi || Infinity))) {
+        const pos = div3(Kepler.positionAtTrueAnomaly(orbit, Math.PI), plotSize);
+        const position = new THREE.Vector3(-pos.x, pos.z, pos.y);
+        return <sprite
+            scale={[0.075,0.075,0.075]} 
+            position={position}
+        >
+            <spriteMaterial map={apoapsisTexture} sizeAttenuation={false} color={color} depthTest={false} />
+        </sprite>
+    } else {
+        return <></>
+    }
+}
+
+function OrbitLine({orbit, date, plotSize, minDate = -Infinity, maxDate = Infinity, color = {r: 200, g: 200, b: 200}, periapsis=false, apoapsis=false}: {orbit: Orbit, date: number, plotSize: number, minDate?: number, maxDate?: number, color?: IColor, periapsis?: boolean, apoapsis?: boolean}) {
 
     const [range, setRange] = useState(getTrueAnomalyRange(orbit, minDate, maxDate));
     const [nus, setNus] = useState(linspace(range.min, range.max, 501));
     const [points, setPoints] = useState(getPoints(orbit, plotSize, nus));
-    const [gradientColors, setGradientColors] = useState(getGradientColors(color))
+    const [gradientColors, setGradientColors] = useState(getGradientColors(color));
     const [colors, setColors] = useState(getColorsAtDate(date, orbit, gradientColors, nus, minDate, maxDate));
+
+    const [colorString, setColorString] = useState(new Color(color).toString());
+    const [periapsisIcon, setPeriapsisIcon] = useState(getPeriapsisIcon(orbit, plotSize, nus, colorString));
+    const [apoapsisIcon, setApoapsisIcon] = useState(getApoapsisIcon(orbit, plotSize, nus, colorString));
+
 
     useEffect(() => {
         const newRange = getTrueAnomalyRange(orbit, minDate, maxDate);
@@ -87,24 +129,33 @@ function OrbitLine({orbit, date, plotSize, minDate = -Infinity, maxDate = Infini
         setNus(newNus);
         const newPoints = getPoints(orbit, plotSize, newNus)
         setPoints(newPoints);
+        setPeriapsisIcon(getPeriapsisIcon(orbit, plotSize, newNus, colorString));
+        setApoapsisIcon(getApoapsisIcon(orbit, plotSize, newNus, colorString));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [orbit, minDate, maxDate, plotSize])
     useEffect(() => {
+        setColorString(new Color(color).toString());
         setGradientColors(getGradientColors(color));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [color])
     useEffect(() => {
         setColors(getColorsAtDate(date, orbit, gradientColors, nus, minDate, maxDate));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [date, gradientColors])
 
-    const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-    lineGeometry.setAttribute('color', new THREE.BufferAttribute(colors,3))
+    // const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+    // lineGeometry.setAttribute('color', new THREE.BufferAttribute(colors,3))
     return (
-        <line 
-        //@ts-ignore
-            geometry={lineGeometry}
-        >
-            <lineBasicMaterial vertexColors={true} attach="material" linewidth={5} />
-        </line>
+        <>
+            <Line 
+                points={points}
+                color='white'
+                vertexColors={colors}
+                lineWidth={2}
+            />
+            {periapsis && periapsisIcon}
+            {apoapsis && apoapsisIcon}
+        </>
     );
 }
   

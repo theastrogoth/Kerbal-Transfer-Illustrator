@@ -260,7 +260,7 @@ export function prepareAllDisplayProps(multiFlyby: MultiFlyby) {
     return orbDisplayProps;
 } 
 
-const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, props, setInfoItem}: {value: number, index: number, props: OrbitDisplayProps, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>}) {
+const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, props, infoItem, setInfoItem}: {value: number, index: number, props: OrbitDisplayProps, infoItem: InfoItem, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>}) {
     const [orbitPlotProps, setOrbitPlotProps] = useState(props);
 
     useEffect(() => {
@@ -278,7 +278,7 @@ const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, pr
 
     return (
         <div style={{ display: (value === index ? 'block' : 'none'), width: "100%", height: "100%" }}>
-            <OrbitDisplay {...orbitPlotProps} setInfoItem={setInfoItem} />
+            <OrbitDisplay {...orbitPlotProps} infoItem={infoItem} setInfoItem={setInfoItem} />
         </div>
     )
 });
@@ -348,7 +348,7 @@ function OrbitDisplayTabs() {
                 {orbitDisplayProps.map((props, index) => <Tab key={index} value={props.index} label={props.label} ></Tab>)}
             </Tabs>
             <div ref={canvasRef}>
-                {orbitDisplayProps.map((props, index) => <OrbitTabPanel key={index} value={value} index={props.index} props={props} setInfoItem={setInfoItem} />)}
+                {orbitDisplayProps.map((props, index) => <OrbitTabPanel key={index} value={value} index={props.index} props={props} infoItem={infoItem} setInfoItem={setInfoItem} />)}
             </div>
             <InfoPopper info={infoItem} setInfo={setInfoItem} parentRef={canvasRef} />
 

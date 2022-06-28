@@ -8,8 +8,9 @@ import { OrbitingBody } from '../../main/objects/body';
 import Kepler from '../../main/libs/kepler';
 import { div3, hexFromColorString, TWO_PI, degToRad } from '../../main/libs/math';
 
+import sphereIcon from '../../assets/icons/sphere.png';
 
-
+const sphereTexture = new THREE.TextureLoader().load(sphereIcon);
 
 function OrbitingBodySphere({body, plotSize, date, setInfoItem}: {body: OrbitingBody, plotSize: number, date: number, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>}) {
     const [color, setColor] = useState(hexFromColorString(body.color.toString()));
@@ -45,6 +46,13 @@ function OrbitingBodySphere({body, plotSize, date, setInfoItem}: {body: Orbiting
                 <sphereGeometry args={[body.soi / plotSize, 32, 32]} />
                 <meshBasicMaterial transparent={true} opacity={0.25} color={soiColor} />
             </mesh>
+            <sprite 
+                scale={[0.04,0.04,0.04]} 
+                position={position}
+                onClick={(e) => {e.stopPropagation(); setInfoItem(body)}}
+            >
+                <spriteMaterial map={sphereTexture} sizeAttenuation={false} color={color} depthTest={false} />
+            </sprite>
             <OrbitLine orbit={body.orbit} date={date} plotSize={plotSize} color={body.color} />
         </>
     )

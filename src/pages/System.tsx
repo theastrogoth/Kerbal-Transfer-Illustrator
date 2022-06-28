@@ -30,6 +30,7 @@ import SolarSystem from "../main/objects/system";
 
 import { useAtom } from "jotai";
 import { customSystemAtom, configTreeAtom, /* timeSettingsAtom, */ bodyConfigsAtom, editorSelectedNameAtom, systemScaleAtom } from "../App";
+import InfoPopper from "../components/Display/InfoPopper";
 
 
 function createBodyItems(system: SolarSystem) {
@@ -61,7 +62,8 @@ function SolarSystemAppContent() {
   const centralBodyNameRef = useRef(centralBodyName);
   const [deleteBodiesTrigger, setDeleteBodiesTrigger] = useState(false);
 
-  const [, setInfoItem] = useState<InfoItem>(null);
+  const [infoItem, setInfoItem] = useState<InfoItem>(null);
+  const canvasRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     systemLoaderWorker.onmessage = (event: MessageEvent<ISolarSystem>) => {
@@ -200,14 +202,18 @@ function SolarSystemAppContent() {
                 </FormControl>
               </Stack>
               <Box component="div" sx={{mx: 2, my: 2}}>
-                <OrbitDisplay 
-                  label='Custom System'
-                  index={0}
-                  centralBody={centralBody} 
-                  startDate={0.0} 
-                  system={customSystem}
-                  setInfoItem={setInfoItem}
-                />
+                <div ref={canvasRef}>
+                  <OrbitDisplay 
+                    label='Custom System'
+                    index={0}
+                    centralBody={centralBody} 
+                    startDate={0.0} 
+                    system={customSystem}
+                    infoItem={infoItem}
+                    setInfoItem={setInfoItem}
+                  />
+                </div>
+                <InfoPopper info={infoItem} setInfo={setInfoItem} parentRef={canvasRef} />
               </Box>
               <Box component="div" sx={{mx: 2, my: 2}}>
                 <Typography variant="body1">Time Settings</Typography>
