@@ -114,7 +114,7 @@ function InfoPopper({info, setInfo, parentRef, color=defaultColor}: {info: InfoI
                 {
                     name: "offset",
                     options: {
-                        offset: [15, -Math.min(width || 0, maxWidth) - 30]
+                        offset: [15, -Math.min(width || maxWidth, maxWidth) - 30]
                     }
                 },
                 {
