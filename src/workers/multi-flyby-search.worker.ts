@@ -33,8 +33,8 @@ self.onmessage = (event: MessageEvent<{inputs: MultiFlybySearchInputs, populatio
         newFitnesses  = res.fit;
     }
     const newX     = [...x,     generation+1];
-    const newBestY = [...bestY, Math.min(...newFitnesses)];
-    const newMeanY = [...meanY, newFitnesses.reduce((p,c) => p + c) / newFitnesses.length];
+    const newBestY = [...bestY, Math.min(...(newFitnesses.filter(value => !isNaN(value))))];
+    const newMeanY = [...meanY, newFitnesses.reduce((p,c) => p + (isNaN(c) ? 0 : c), 0) / newFitnesses.length];
 
     self.postMessage({inputs, population: newPopulation, fitnesses: newFitnesses, generation: generation+1, x: newX, bestY: newBestY, meanY: newMeanY}); 
 }

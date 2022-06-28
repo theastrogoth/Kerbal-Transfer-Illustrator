@@ -2,10 +2,9 @@ import React, {useState, useEffect, useRef} from "react";
 
 import MultiFlyby from "../../main/objects/multiflyby";
 import { OrbitingBody } from "../../main/objects/body";
-import Color from "../../main/objects/color";
-import Draw from "../../main/libs/draw";
 
-import OrbitDisplay, { OrbitDisplayProps } from "../OrbitDisplay";
+import OrbitDisplay, { OrbitDisplayProps } from "../OrbitDisplay2";
+import InfoPopper from "../Display/InfoPopper";
 
 import Box from "@mui/material/Box";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -24,42 +23,54 @@ import { multiFlybyAtom, timeSettingsAtom } from "../../App";
 
 const emptyProps: OrbitDisplayProps[] = [];
 
-function trajectoryTraces(trajectory: Trajectory, trajectoryIdx: number, timeSettings: TimeSettings, orbitName: string = ''): Line3DTrace[] {
-    const trajLen = trajectory.orbits.length;
-
-    const orbitTraces: Line3DTrace[] = [];
-    for(let i=0; i<trajLen; i++) {
-        const orb = trajectory.orbits[i];
-        const sTime = trajectory.intersectTimes[i];
-        const eTime = trajectory.intersectTimes[i + 1];
-        orbitTraces.push(Draw.drawOrbitPathFromTimes(orb, sTime, eTime, timeSettings, new Color({r: 150, g: 150, b: 150}), orbitName + " " + String(trajectoryIdx + 1) + (trajLen > 1 ? (", orbit " + String(i+1)) : ""), false, "solid"));
-    }
-    return orbitTraces;
-}
-
-function transferPlotProps(multiFlyby: MultiFlyby, timeSettings: TimeSettings): OrbitDisplayProps {
+function transferPlotProps(multiFlyby: MultiFlyby): OrbitDisplayProps {
     const trajectories = multiFlyby.transfers.slice();
-    const orbits = [...trajectories.map((traj) => traj.orbits.slice()).flat()];
-
-    // const startDate = trajectories[0].intersectTimes[0];
-    // const endDate   = trajectories[trajectories.length - 1].intersectTimes[trajectories[trajectories.length - 1].orbits.length];
     const startDate = multiFlyby.startDate;
     const endDate = multiFlyby.endDate;
 
-    const systemTraces = Draw.drawSystemAtTime(multiFlyby.transferBody, startDate, timeSettings);
-    const orbitTraces = [...trajectories.map((traj,i) => trajectoryTraces(traj, i, timeSettings, 'Transfer leg ')).flat()];
-    if(multiFlyby.ejections.length === 0) {
-        orbits.push(multiFlyby.startOrbit);
-        orbitTraces.push(Draw.drawOrbitPathFromStartTime(multiFlyby.startOrbit, startDate, timeSettings, new Color({r: 255, g: 255, b: 255}), 'Starting Orbit'))
+    let addStartOrbit = 0;
+    let addEndOrbit = 0;
+    if(multiFlyby.ejections.length === 0 && multiFlyby.transfers.length > 0) {
+        trajectories.unshift({orbits: [multiFlyby.startOrbit], intersectTimes: [-Infinity, startDate], maneuvers: []});
+        addStartOrbit = 1;
     }
-    if(multiFlyby.insertions.length === 0) {
-        orbits.push(multiFlyby.endOrbit);
-        orbitTraces.push(Draw.drawOrbitPathFromStartTime(multiFlyby.endOrbit, startDate, timeSettings, new Color({r: 255, g: 255, b: 255}), 'Target Orbit'))
+    if(multiFlyby.insertions.length === 0 && multiFlyby.transfers.length > 0) {
+        trajectories.push({orbits: [multiFlyby.endOrbit], intersectTimes: [endDate, Infinity], maneuvers: []});
+        addEndOrbit = 1;
     }
 
-    const markerTraces: Marker3DTrace[] = trajectories.map(traj => Draw.drawOrbitPositionMarkerAtTime(traj.orbits[0], startDate));
+    const trajectoryIcons = trajectories.map((trajectory, index) => {
+        const maneuver: [number, string][] = [];
+        const soi: [number, string][] = [];
 
-    const plotSize = Draw.getPlotSize(multiFlyby.transferBody);
+        if(index === 1 && multiFlyby.ejections.length === 0) {
+            maneuver.push([0, "Departure Burn"])
+        }
+        if(index === trajectories.length-2 && multiFlyby.insertions.length === 0) {
+            maneuver.push([trajectory.maneuvers.length-1, "Arrival Burn"])
+        }
+
+        for(let i=1; i<trajectory.intersectTimes.length-1; i++) {
+            if(Number.isFinite(trajectory.intersectTimes[i])) {
+                maneuver.push([i, "Plane Change Maneuver"]);
+            }
+        }
+        if(!(index === 0 && addStartOrbit === 1) && !(index === trajectories.length-1 && addEndOrbit === 1)) {
+            if(Number.isFinite(trajectory.intersectTimes[0]) && !(index === 1 && addStartOrbit === 1)) {
+                const prevBodyIdx = (index === 0 && multiFlyby.ejections.length > 0) ? multiFlyby.ejections[multiFlyby.ejections.length-1].orbits[0].orbiting : multiFlyby.flybyIdSequence[index-1-addStartOrbit];
+                const prevBody = multiFlyby.system.bodyFromId(prevBodyIdx);
+                soi.push([0, "Escape from " + prevBody.name]);
+            }
+            if(Number.isFinite(trajectory.intersectTimes[trajectory.intersectTimes.length-1]) && !(index === trajectories.length-2 && addEndOrbit === 1)) {
+                const nextBodyIdx = (index === trajectories.length-1) ? multiFlyby.insertions[0].orbits[0].orbiting : multiFlyby.flybyIdSequence[index - addStartOrbit];
+                const nextBody = multiFlyby.system.bodyFromId(nextBodyIdx);
+                soi.push([trajectory.intersectTimes.length-1, nextBody.name + " Encounter"]);
+            }
+        }
+
+        return {maneuver, soi};
+    })
+
     const marks = [
         {
             value: Math.ceil(startDate),
@@ -76,32 +87,43 @@ function transferPlotProps(multiFlyby: MultiFlyby, timeSettings: TimeSettings): 
         label:          'Transfer Legs',
         marks,
         centralBody:    multiFlyby.transferBody,
-        orbits:         orbits,
+        system:         multiFlyby.system,
         trajectories,
         startDate:      startDate,
         endDate:        endDate,
-        defaultTraces:  {systemTraces, orbitTraces, markerTraces},
-        plotSize,
+        slider:         true,
+        trajectoryIcons,
     };
 }
 
-function ejectionPlotProps(multiFlyby: MultiFlyby, ejectionIdx: number, timeSettings: TimeSettings): OrbitDisplayProps {
+function ejectionPlotProps(multiFlyby: MultiFlyby, ejectionIdx: number): OrbitDisplayProps {
     const trajectory = multiFlyby.ejections[ejectionIdx];
+    const trajectories = [trajectory];
     const trajLen = trajectory.orbits.length;
     const body = multiFlyby.system.bodyFromId(trajectory.orbits[0].orbiting) as OrbitingBody;
     const startDate  = trajectory.intersectTimes[0];
     const endDate = trajectory.intersectTimes[trajLen];
-    const orbits = trajectory.orbits.slice();
 
-    const systemTraces = Draw.drawSystemAtTime(body, startDate, timeSettings);    
-    const orbitTraces = trajectoryTraces(trajectory, 0, timeSettings, body.name+' Ejection ');
-    const markerTraces = [Draw.drawOrbitPositionMarkerAtTime(trajectory.orbits[0], startDate)];
+    const soiIcons: [number, string][] = [];
+    const maneuverIcons: [number, string][] = [];
+    const trajectoryIcons = [{maneuver: maneuverIcons, soi: soiIcons}];
+
     if(ejectionIdx === 0) {
-        orbits.push(multiFlyby.startOrbit);
-        orbitTraces.push(Draw.drawOrbitPathFromStartTime(multiFlyby.startOrbit, startDate, timeSettings, new Color({r: 255, g: 255, b: 255}), 'Starting Orbit'))
+        trajectories.unshift({orbits: [multiFlyby.startOrbit], intersectTimes: [-Infinity, startDate], maneuvers: []});
+        trajectoryIcons.unshift({maneuver: [], soi: []});
+        if(trajectory.maneuvers.length > 0) {
+            maneuverIcons.push([0, "Departure Burn"]);
+        }
+    } else {
+        const prevBody = multiFlyby.system.bodyFromId(multiFlyby.ejections[ejectionIdx-1].orbits[0].orbiting);
+        soiIcons.push([0, "Escape from " + prevBody.name]);    
+    }
+    soiIcons.push([trajectory.intersectTimes.length-1, "Escape from " + body.name])
+
+    for(let i=1; i<trajectory.maneuvers.length; i++) {
+        maneuverIcons.push([i, "Oberth Maneuver"]);
     }
 
-    const plotSize = Draw.getPlotSize(body);
     const marks = [
         {
             value: Math.ceil(startDate),
@@ -117,32 +139,43 @@ function ejectionPlotProps(multiFlyby: MultiFlyby, ejectionIdx: number, timeSett
         marks,
         label:          body.name + ' Departure',
         centralBody:    body,
-        orbits,
-        trajectories:   [trajectory],
+        system:         multiFlyby.system,
+        trajectories,
         startDate:      startDate,
         endDate:        endDate,
-        defaultTraces:  {systemTraces, orbitTraces, markerTraces},
-        plotSize,
+        slider:         true,
+        trajectoryIcons,
     };
 }
 
-function insertionPlotProps(multiFlyby: MultiFlyby, insertionIdx: number, timeSettings: TimeSettings): OrbitDisplayProps {
+function insertionPlotProps(multiFlyby: MultiFlyby, insertionIdx: number): OrbitDisplayProps {
     const trajectory = multiFlyby.insertions[insertionIdx];
+    const trajectories = [trajectory];
     const trajLen = trajectory.orbits.length;
     const body = multiFlyby.system.bodyFromId(trajectory.orbits[0].orbiting) as OrbitingBody;
     const startDate  = trajectory.intersectTimes[0];
     const endDate = trajectory.intersectTimes[trajLen];
-    const orbits = trajectory.orbits.slice();
 
-    const systemTraces = Draw.drawSystemAtTime(body, startDate, timeSettings);    
-    const orbitTraces = trajectoryTraces(trajectory, 0, timeSettings, body.name+' Insertion ');
-    const markerTraces = [Draw.drawOrbitPositionMarkerAtTime(trajectory.orbits[0], startDate)];
-    if(insertionIdx === multiFlyby.insertions.length - 1) {
-        orbits.push(multiFlyby.endOrbit);
-        orbitTraces.push(Draw.drawOrbitPathFromStartTime(multiFlyby.endOrbit, endDate, timeSettings, new Color({r: 255, g: 255, b: 255}), 'Target Orbit'))
+    const soiIcons: [number, string][] = [];
+    const maneuverIcons: [number, string][] = [];
+    const trajectoryIcons = [{maneuver: maneuverIcons, soi: soiIcons}];
+
+    soiIcons.push([0, body.name + " Encounter"]);
+    for(let i=0; i<trajectory.maneuvers.length-1; i++) {
+        maneuverIcons.push([i, "Oberth Maneuver"]);
     }
 
-    const plotSize = Draw.getPlotSize(body);
+    if(insertionIdx === multiFlyby.insertions.length - 1) {
+        trajectories.push({orbits: [multiFlyby.endOrbit], intersectTimes: [endDate, Infinity], maneuvers: []});
+        trajectoryIcons.push({maneuver: [], soi: []});
+        if(trajectory.maneuvers.length > 0) {
+            maneuverIcons.push([trajectory.maneuvers.length-1, "Arrival Burn"])        
+        }
+    } else {
+        const nextBody = multiFlyby.system.bodyFromId(multiFlyby.insertions[insertionIdx+1].orbits[0].orbiting);
+        soiIcons.push([trajectory.intersectTimes.length-1, nextBody.name + " Encounter"])
+    }
+
     const marks = [
         {
             value: Math.ceil(startDate),
@@ -158,29 +191,27 @@ function insertionPlotProps(multiFlyby: MultiFlyby, insertionIdx: number, timeSe
         marks,
         label:          body.name + ' Arrival',
         centralBody:    body,
-        orbits,
-        trajectories:   [trajectory],
+        system:         multiFlyby.system,
+        trajectories,
         startDate:      startDate,
         endDate:        endDate,
-        defaultTraces:  {systemTraces, orbitTraces, markerTraces},
-        plotSize,
+        slider:         true,
+        trajectoryIcons,
     };
 }
 
-function flybyPlotProps(multiFlyby: MultiFlyby, flybyIdx: number, timeSettings: TimeSettings): OrbitDisplayProps {
+function flybyPlotProps(multiFlyby: MultiFlyby, flybyIdx: number): OrbitDisplayProps {
     const trajectory = multiFlyby.flybys[flybyIdx];
     const trajLen = trajectory.orbits.length;
     const body = multiFlyby.system.bodyFromId(trajectory.orbits[0].orbiting) as OrbitingBody;
     const startDate = trajectory.intersectTimes[0];
     const midDate = trajectory.intersectTimes[1];
     const endDate = trajectory.intersectTimes[trajLen];
-    const orbits = trajectory.orbits.slice();
 
-    const systemTraces = Draw.drawSystemAtTime(body, startDate, timeSettings);    
-    const orbitTraces = trajectoryTraces(trajectory, 0, timeSettings, body.name+' Flyby ');
-    const markerTraces = [Draw.drawOrbitPositionMarkerAtTime(trajectory.orbits[0], startDate)];
+    const soi: [number, string][] = [[0, body.name + " Encounter"], [trajectory.intersectTimes.length - 1, "Escape from " + body.name]];
+    const maneuver: [number, string][] = [[0, "Flyby Burn"]];
+    const trajectoryIcons = [{maneuver, soi}];
     
-    const plotSize = Draw.getPlotSize(body);
     const marks = [
         {
             value: Math.ceil(startDate),
@@ -200,36 +231,36 @@ function flybyPlotProps(multiFlyby: MultiFlyby, flybyIdx: number, timeSettings: 
         marks,
         label:          body.name + " Flyby",
         centralBody:    body,
-        orbits,
+        system:         multiFlyby.system,
         trajectories:   [trajectory],
         startDate:      startDate,
         endDate:        endDate,
-        defaultTraces:  {systemTraces, orbitTraces, markerTraces},
-        plotSize,
+        slider:         true,
+        trajectoryIcons,
     };
 }
 
-export function prepareAllDisplayProps(multiFlyby: MultiFlyby, timeSettings: TimeSettings) {
+export function prepareAllDisplayProps(multiFlyby: MultiFlyby) {
     const orbDisplayProps: OrbitDisplayProps[] = [];    
 
     for(let i=0; i<multiFlyby.ejections.length; i++) {
-        orbDisplayProps.push(ejectionPlotProps(multiFlyby, i, timeSettings));
+        orbDisplayProps.push(ejectionPlotProps(multiFlyby, i));
     }
 
-    orbDisplayProps.push(transferPlotProps(multiFlyby, timeSettings));
+    orbDisplayProps.push(transferPlotProps(multiFlyby));
 
     for(let i=0; i<multiFlyby.flybys.length; i++) {
-        orbDisplayProps.push(flybyPlotProps(multiFlyby, i, timeSettings));
+        orbDisplayProps.push(flybyPlotProps(multiFlyby, i));
     }
     for(let i=0; i<multiFlyby.insertions.length; i++) {
-        orbDisplayProps.push(insertionPlotProps(multiFlyby, i, timeSettings));
+        orbDisplayProps.push(insertionPlotProps(multiFlyby, i));
     }
 
     // console.log('...Orbit plot traces computed from trajectory.')
     return orbDisplayProps;
 } 
 
-const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, props}: {value: number, index: number, props: OrbitDisplayProps}) {
+const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, props, infoItem, setInfoItem}: {value: number, index: number, props: OrbitDisplayProps, infoItem: InfoItem, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>}) {
     const [orbitPlotProps, setOrbitPlotProps] = useState(props);
 
     useEffect(() => {
@@ -247,7 +278,7 @@ const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, pr
 
     return (
         <div style={{ display: (value === index ? 'block' : 'none'), width: "100%", height: "100%" }}>
-            <OrbitDisplay {...orbitPlotProps}/>
+            <OrbitDisplay {...orbitPlotProps} infoItem={infoItem} setInfoItem={setInfoItem} />
         </div>
     )
 });
@@ -267,6 +298,8 @@ function OrbitDisplayTabs() {
     const [calculating, setCalculating] = useState(false);
 
     const [orbitDisplayProps, setOrbitDisplayProps] = useState(emptyProps);
+    const [infoItem, setInfoItem] = useState<InfoItem>(null);
+    const canvasRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         multiFlybyOptWorker.onmessage = (event: MessageEvent<IMultiFlyby>) => {
@@ -294,10 +327,11 @@ function OrbitDisplayTabs() {
             timeSettingsRef.current = timeSettings;
         } else {
             console.log('Updating Orbit plots with a new multi-flyby')
+            console.log(multiFlyby)
             if(value < -multiFlyby.ejections.length || value > multiFlyby.flybys.length + multiFlyby.insertions.length) {
                 setValue(0);
             }
-            setOrbitDisplayProps(prepareAllDisplayProps(multiFlyby, timeSettings));
+            setOrbitDisplayProps(prepareAllDisplayProps(multiFlyby));
         }
         // hide warning for missing setters
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -313,9 +347,13 @@ function OrbitDisplayTabs() {
             <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons={true}>
                 {orbitDisplayProps.map((props, index) => <Tab key={index} value={props.index} label={props.label} ></Tab>)}
             </Tabs>
-            {orbitDisplayProps.map((props, index) => <OrbitTabPanel key={index} value={value} index={props.index} props={props}/>)}
+            <div ref={canvasRef}>
+                {orbitDisplayProps.map((props, index) => <OrbitTabPanel key={index} value={value} index={props.index} props={props} infoItem={infoItem} setInfoItem={setInfoItem} />)}
+            </div>
+            <InfoPopper info={infoItem} setInfo={setInfoItem} parentRef={canvasRef} />
+
             {multiFlyby.deltaV > 0 &&
-            <Box textAlign='center'>
+            <Box component="div" textAlign='center'>
                 <LoadingButton 
                     variant="contained" 
                     loadingPosition="end"

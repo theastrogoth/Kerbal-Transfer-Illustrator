@@ -9,7 +9,7 @@ function orbitDistanceFromBody(date: number, orbit: IOrbit, satelliteBody: IOrbi
     return mag3(sub3(bodyPos, orbitPos)) - satelliteBody.soi;
 }
 
-function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, endDate: number = Infinity, nRevs: number = 3): IOrbit | null {
+function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, endDate: number = Infinity, nRevs: number = 1): IOrbit | null {
     // prepare attractor body
     const attractor = orbit.orbiting === 0 ? system.sun : system.orbiterIds.get(orbit.orbiting) as IOrbitingBody;
     // prepare satellite bodies
@@ -34,7 +34,7 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
             escapeDate = Kepler.trueAnomalyToOrbitDate(Kepler.trueAnomalyAtDistance(maxDist, orbit.eccentricity, orbit.semiLatusRectum), orbit, startDate);
             maxDate = Math.min(maxDate, escapeDate);
         } else {
-            escapeDate = DepartArrive.ejectionDate(orbit, attractor as IOrbitingBody);
+            escapeDate = DepartArrive.ejectionDate(orbit, (attractor as IOrbitingBody).soi);
         }
         maxDate = Math.min(maxDate, escapeDate);
     } else {
@@ -129,7 +129,7 @@ function findNextOrbit(orbit: IOrbit, system: ISolarSystem, startDate: number, e
 //     return man1.preState.date - man2.preState.date;
 // }
 
-export function propagateFlightPlan(startOrbit: IOrbit, system: ISolarSystem, startDate: number, maneuverComponents: ManeuverComponents[], nRevs: number = 3): Trajectory[] {
+export function propagateFlightPlan(startOrbit: IOrbit, system: ISolarSystem, startDate: number, maneuverComponents: ManeuverComponents[], nRevs: number = 1): Trajectory[] {
     // maneuvers should be in chronological order
     const sortedManeuverComponents = [...maneuverComponents].sort((a,b) => a.date - b.date);
     
@@ -138,7 +138,7 @@ export function propagateFlightPlan(startOrbit: IOrbit, system: ISolarSystem, st
 
     // propagate starting orbit forward
     let orbits: IOrbit[] = [startOrbit];
-    let intersectTimes: number[] = [startDate];
+    let intersectTimes: number[] = [-Infinity];
     let maneuvers: Maneuver[] = [];
     let currentOrbit: IOrbit = startOrbit;
     let sDate: number = startDate;
@@ -194,11 +194,11 @@ export function propagateFlightPlan(startOrbit: IOrbit, system: ISolarSystem, st
     return trajectories;
 }
 
-export function propagateVessel(vessel: IVessel, system: ISolarSystem, startDate: number = vessel.orbit.epoch, nRevs: number = 3) {
+export function propagateVessel(vessel: IVessel, system: ISolarSystem, startDate: number = vessel.orbit.epoch, nRevs: number = 1) {
     return propagateFlightPlan(vessel.orbit, system, startDate, vessel.maneuvers, nRevs);
 }
 
-export function vesselToFlightPlan(vessel: IVessel, system: ISolarSystem, startDate: number = vessel.orbit.epoch, nRevs: number = 3): FlightPlan {
+export function vesselToFlightPlan(vessel: IVessel, system: ISolarSystem, startDate: number = vessel.orbit.epoch, nRevs: number = 1): FlightPlan {
     const fp = {
         name:           vessel.name,
         color:          vessel.color || {r: 255, g: 255, b: 255},

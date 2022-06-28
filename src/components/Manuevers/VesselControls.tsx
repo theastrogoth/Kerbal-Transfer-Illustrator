@@ -197,7 +197,7 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
             </Stack>
             <Divider />
             <Stack direction="column" spacing={2} justifyContent="center" alignItems="center" >
-                <Box display="flex" justifyContent="center" alignItems="center">
+                <Box component="div" display="flex" justifyContent="center" alignItems="center">
                     <PasteButton 
                         setObj={setPlan} 
                         copiedObj={copiedFlightPlan} 
@@ -205,7 +205,7 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
                         label="Paste Flight Plan"
                     />
                 </Box>
-                <Box display="flex" justifyContent="center" alignItems="center">
+                <Box component="div" display="flex" justifyContent="center" alignItems="center">
                     <Button 
                         variant="text"
                         color="inherit"

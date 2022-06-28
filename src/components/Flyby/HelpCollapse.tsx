@@ -11,10 +11,10 @@ import Divider from '@mui/material/Divider';
 
 function HelpCollapse({showHelp}: {showHelp: boolean}) {
     return (
-    <Box justifyContent="center" textAlign='left' sx={{mx: 4, my: 1}}>
+    <Box component="div" justifyContent="center" textAlign='left' sx={{mx: 4, my: 1}}>
         <Collapse in={showHelp}>
         <Typography variant="h6">Basic Instructions</Typography>
-            <Box sx={{mx:8}}>
+            <Box component="div" sx={{mx:8}}>
                 <TableContainer>
                     <Table size="small">
                         <TableBody>
@@ -52,7 +52,7 @@ function HelpCollapse({showHelp}: {showHelp: boolean}) {
                             </TableRow>
                             <TableRow>
                                 <TableCell align="right" sx={{borderBottom: "none"}}>9.</TableCell>
-                                <TableCell sx={{borderBottom: "none"}}>View the trajectory using the orbit plots. Left-click and drag to rotate, right-click and drag to pan, and scroll to zoom. Hover over orbit paths to see detailed information. Use the slider beneath the plot to view the system at different times throughout the transfer.</TableCell>
+                                <TableCell sx={{borderBottom: "none"}}>View the trajectory using the orbit plots. Left-click and drag to rotate, right-click and drag to pan, and scroll to zoom. Click on bodies/crafts to see detailed information. Use the slider beneath the plot to view the system at different times throughout the transfer.</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell align="right" sx={{borderBottom: "none"}}>10.</TableCell>
@@ -63,7 +63,7 @@ function HelpCollapse({showHelp}: {showHelp: boolean}) {
                 </TableContainer>
             </Box>
             <Typography variant="h6">Advanced Usage</Typography>
-            <Box sx={{mx:8, my: 1}}>
+            <Box component="div" sx={{mx:8, my: 1}}>
                 <Typography variant="body2">
                     For those playing on PC, upload your savefile using the "UPLOAD SAVE FILE" button near the top of the page. Once loaded, orbits of any not-landed vessels, asteroids, and comets in your save can be selected under "Orbit Settings".
                     If you are using a modded system, be sure to select it under the System dropdown selector, or upload your Kopernics config files on the System Editor page.

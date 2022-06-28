@@ -296,7 +296,7 @@ function BodyConfigControls() {
                     >
                         New
                     </Button>
-                    <Box flexGrow={1} sx={{maxWidth: '10%'}}/>
+                    <Box component="div" flexGrow={1} sx={{maxWidth: '10%'}}/>
                     <Button
                         variant="contained"
                         endIcon={<ClearIcon />}
@@ -352,8 +352,8 @@ function BodyConfigControls() {
                     <Typography >
                         Physical Characteristics
                     </Typography>
-                    <Box sx={{ flexGrow: 1 }} />
-                    <Box>
+                    <Box component="div" sx={{ flexGrow: 1 }} />
+                    <Box component="div">
                         <IconButton
                             size="small"
                             onClick={() => setPhysOpen(!physOpen)}
@@ -428,8 +428,8 @@ function BodyConfigControls() {
                             <Typography >
                                 Orbital Characteristics
                             </Typography>
-                            <Box sx={{ flexGrow: 1 }} />
-                            <Box>
+                            <Box component="div" sx={{ flexGrow: 1 }} />
+                            <Box component="div">
                                 <IconButton
                                     size="small"
                                     onClick={() => setOrbitOpen(!orbitOpen)}

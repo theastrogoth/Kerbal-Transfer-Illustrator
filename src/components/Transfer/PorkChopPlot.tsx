@@ -48,12 +48,12 @@ function PorkchopPlot({plotCount, setCalculating}: PorkchopPlotProps) {
 
     return (
         inputs.nTimes === 0 ?
-        <Box width="100%" height="450px" justifyContent="center" textAlign="center" display="flex" flexDirection={"column"}>
+        <Box component="div" width="100%" height="450px" justifyContent="center" textAlign="center" display="flex" flexDirection={"column"}>
         A Porkchop Plot will be generated here.
         </Box> 
         :
         <Fade in={plotData.logDeltaVs.length > 1} timeout={400}>
-            <Box>
+            <Box component="div">
                 <Plot
                     data={[
                         { 

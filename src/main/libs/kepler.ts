@@ -421,6 +421,8 @@ namespace Kepler {
             geeASL,
             stdGravParam,
             soi,
+            rotationPeriod: inputs.rotationPeriod,
+            initialRotation: inputs.initialRotation,
             color,
             orbit,
             orbiting: orbit.orbiting,

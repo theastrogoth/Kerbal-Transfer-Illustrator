@@ -170,7 +170,7 @@ namespace DepartArrive {
             return Math.abs(deltaForNu - delta);
         }
         parkNu = parkOrbit.eccentricity < 1 ? brentMinimize(parkNuObj, parkNu - Math.PI, parkNu + Math.PI) 
-                                            : brentMinimize(parkNuObj, insertionTrueAnomaly(parkOrbit, parkBody), ejectionTrueAnomaly(parkOrbit, parkBody));
+                                            : brentMinimize(parkNuObj, insertionTrueAnomaly(parkOrbit, soi), ejectionTrueAnomaly(parkOrbit, soi));
 
         // set positions and speeds
         const parkPos  = Kepler.positionAtTrueAnomaly(parkOrbit, parkNu);
@@ -279,9 +279,9 @@ namespace DepartArrive {
         // bounds for elliptical starting orbit
         let minNu = -TWO_PI;
         let maxNu = TWO_PI - Number.EPSILON;
+        const mu = parkBody.stdGravParam;
+        const soi = parkBody.soi;
         if(type === "direct") {
-            const mu = parkBody.stdGravParam;
-            const soi = parkBody.soi;
             const soiSpeedSq = magSq3(relativeVel);
     
             const a = 1 / (2 / soi - soiSpeedSq / mu);
@@ -291,10 +291,7 @@ namespace DepartArrive {
             const {parkNu} = fastDepartureArrivalForPeriapsis(periapsis, parkOrbit, mu, soi, relativeVelPlane, soiSpeedSq, a, c);
             minNu = parkNu - Math.PI;
             maxNu = parkNu + Math.PI;
-        }else if(type === "oberth") {
-            const mu = parkBody.stdGravParam;
-            const soi = parkBody.soi;
-    
+        }else if(type === "oberth") {   
             const periapsis = FlybyCalcs.minFlybyRadius(parkBody);
     
             const soiVelSq = magSq3(relativeVel);
@@ -312,7 +309,7 @@ namespace DepartArrive {
         }
         // bounds for hyperbolic starting orbit
         if(parkOrbit.eccentricity > 1) {
-            maxNu = ejectionTrueAnomaly(parkOrbit, parkBody) - 2 * Number.EPSILON;
+            maxNu = ejectionTrueAnomaly(parkOrbit, soi) - 2 * Number.EPSILON;
             minNu = -maxNu;
         }
 
@@ -640,60 +637,60 @@ namespace DepartArrive {
 
     // At the SoI boundary...
 
-    function patchTrueAnomaly(orb: IOrbit, attractor: IOrbitingBody, c: 1 | -1) {
-        return c * Kepler.trueAnomalyAtDistance(attractor.soi, orb.eccentricity, orb.semiLatusRectum)
+    function patchTrueAnomaly(orb: IOrbit, soi: number, c: 1 | -1) {
+        return c * Kepler.trueAnomalyAtDistance(soi, orb.eccentricity, orb.semiLatusRectum)
     }
 
-    export function ejectionTrueAnomaly(orb: IOrbit, attractor: IOrbitingBody) {
-        return patchTrueAnomaly(orb, attractor, 1)
+    export function ejectionTrueAnomaly(orb: IOrbit, soi: number) {
+        return patchTrueAnomaly(orb, soi, 1)
     }
 
-    export function insertionTrueAnomaly(orb: IOrbit, attractor: IOrbitingBody) {
-        return patchTrueAnomaly(orb, attractor, -1)
+    export function insertionTrueAnomaly(orb: IOrbit, soi: number) {
+        return patchTrueAnomaly(orb, soi, -1)
     }
 
 
-    function patchDate(orb: IOrbit, attractor: IOrbitingBody, c: 1 | -1) {
+    function patchDate(orb: IOrbit, soi: number, c: 1 | -1) {
         let tMin: number | undefined = undefined;
         // take care to get correct time for elliptical (periodic) orbits
         if(orb.eccentricity < 1) {
             tMin = c === 1 ? orb.epoch : orb.epoch - orb.siderealPeriod;
         }
-        return Kepler.trueAnomalyToDate(patchTrueAnomaly(orb, attractor, c), orb.eccentricity, orb.siderealPeriod, orb.meanAnomalyEpoch, orb.epoch, tMin)
+        return Kepler.trueAnomalyToDate(patchTrueAnomaly(orb, soi, c), orb.eccentricity, orb.siderealPeriod, orb.meanAnomalyEpoch, orb.epoch, tMin)
     }
 
-    export function ejectionDate(orb: IOrbit, attractor: IOrbitingBody) {
-        return patchDate(orb, attractor, 1)
+    export function ejectionDate(orb: IOrbit, soi: number) {
+        return patchDate(orb, soi, 1)
     }
 
-    export function insertionDate(orb: IOrbit, attractor: IOrbitingBody) {
-        return patchDate(orb, attractor, -1)
-    }
-
-
-    function patchPosition(orb: IOrbit, attractor: IOrbitingBody, c: 1 | -1) {
-        return Kepler.positionAtTrueAnomaly(orb, patchTrueAnomaly(orb, attractor, c))
-    }
-
-    export function ejectionPosition(orb: IOrbit, attractor: IOrbitingBody) {
-        return patchPosition(orb, attractor, 1)
-    }
-
-    export function insertionPosition(orb: IOrbit, attractor: IOrbitingBody) {
-        return patchPosition(orb, attractor, -1)
+    export function insertionDate(orb: IOrbit, soi: number) {
+        return patchDate(orb, soi, -1)
     }
 
 
-    function patchVelocity(orb: IOrbit, attractor: IOrbitingBody, c: 1 | -1) {
-        return Kepler.velocityAtTrueAnomaly(orb, attractor.stdGravParam, patchTrueAnomaly(orb, attractor, c))
+    function patchPosition(orb: IOrbit, soi: number, c: 1 | -1) {
+        return Kepler.positionAtTrueAnomaly(orb, patchTrueAnomaly(orb, soi, c))
     }
 
-    export function ejectionVelocity(orb: IOrbit, attractor: IOrbitingBody) {
-        return patchVelocity(orb, attractor, 1)
+    export function ejectionPosition(orb: IOrbit, soi: number) {
+        return patchPosition(orb, soi, 1)
     }
 
-    export function insertionVelocity(orb: IOrbit, attractor: IOrbitingBody) {
-        return patchPosition(orb, attractor, -1)
+    export function insertionPosition(orb: IOrbit, soi: number) {
+        return patchPosition(orb, soi, -1)
+    }
+
+
+    function patchVelocity(orb: IOrbit, soi: number, mu: number, c: 1 | -1) {
+        return Kepler.velocityAtTrueAnomaly(orb, mu, patchTrueAnomaly(orb, soi, c))
+    }
+
+    export function ejectionVelocity(orb: IOrbit, soi: number, mu: number) {
+        return patchVelocity(orb, soi, mu, 1)
+    }
+
+    export function insertionVelocity(orb: IOrbit, soi: number, mu: number) {
+        return patchVelocity(orb, soi, mu, -1)
     }
 }
 

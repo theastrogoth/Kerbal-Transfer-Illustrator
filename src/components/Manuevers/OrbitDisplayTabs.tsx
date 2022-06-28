@@ -1,11 +1,9 @@
 import React, {useState, useEffect, useRef} from "react";
 
 import SolarSystem from "../../main/objects/system";
-import { OrbitingBody } from "../../main/objects/body";
-import Color from "../../main/objects/color";
-import Draw from "../../main/libs/draw";
 
-import OrbitDisplay, { OrbitDisplayProps, updateTrajectoryMarker } from "../OrbitDisplay";
+import OrbitDisplay, { OrbitDisplayProps } from "../OrbitDisplay2";
+import InfoPopper from "../Display/InfoPopper";
 
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -15,47 +13,43 @@ import { flightPlansAtom, systemAtom, timeSettingsAtom } from "../../App";
 
 const emptyProps: OrbitDisplayProps[] = [];
 
-function trajectoryTraces(trajectory: Trajectory, vesselName: string, color: IColor, timeSettings: TimeSettings): Line3DTrace[] {
-    const trajLen = trajectory.orbits.length;
-
-    const orbitTraces: Line3DTrace[] = [];
-    for(let i=0; i<trajLen; i++) {
-        const orb = trajectory.orbits[i];
-        const sTime = trajectory.intersectTimes[i];
-        const eTime = trajectory.intersectTimes[i + 1] === Infinity ? sTime + orb.siderealPeriod : trajectory.intersectTimes[i + 1];
-        orbitTraces.push(Draw.drawOrbitPathFromTimes(orb, sTime, eTime, timeSettings, new Color(color), vesselName, false, "solid"));
-    }
-    return orbitTraces;
-}
-
-function bodyPlotProps(trajectories: Trajectory[], names: string[], colors: IColor[], system: SolarSystem, date: number, timeSettings: TimeSettings): OrbitDisplayProps {
+function bodyPlotProps(trajectories: Trajectory[], names: string[], colors: IColor[], system: SolarSystem, date: number): OrbitDisplayProps {
     const orbits = [...trajectories.map((traj) => traj.orbits.slice()).flat()];
     const body = system.bodyFromId(orbits[0].orbiting);
 
-    const systemTraces = Draw.drawSystemAtTime(body, date, timeSettings);
-    const orbitTraces = [...trajectories.map((traj,i) => trajectoryTraces(traj, names[i], colors[i], timeSettings)).flat()];
-    
-    const tempMarkerTraces: Marker3DTrace[] = trajectories.map(traj => Draw.drawOrbitPositionMarkerAtTime(traj.orbits[0], date));
-    const markerTraces: Marker3DTrace[] = tempMarkerTraces.map((marker, idx) => updateTrajectoryMarker(date, trajectories[idx], marker));
-    
-    const plotSize = Draw.getPlotSize(body);
+    const trajectoryIcons = trajectories.map(trajectory => {
+        const maneuver: [number, string][] = [];
+        const soi: [number, string][] =[];
+
+        for(let i=0; i<trajectory.maneuvers.length; i++) {
+            maneuver.push([i, "Maneuver Node"])
+        }
+        if(Number.isFinite(trajectory.intersectTimes[0])) {
+            soi.push([0, "SoI Change"])
+        }
+        if(Number.isFinite(trajectory.intersectTimes[trajectory.intersectTimes.length-1])) {
+            soi.push([trajectory.intersectTimes.length-1, "SoI Change"])
+        }
+
+        return {maneuver, soi};
+    })
 
     return {
-        index:          0,
-        label:          body.name + ' System',
-        marks:          [] as {value: number, label: string}[],
-        centralBody:    body,
-        orbits:         orbits,
+        index:              0,
+        label:              body.name + ' System',
+        centralBody:        body,
+        system,
         trajectories,
-        startDate:      date,
-        endDate:        date,
-        defaultTraces:  {systemTraces, orbitTraces, markerTraces},
-        plotSize,
-        slider:         false,
+        trajectoryNames:    names,
+        trajectoryColors:   colors,
+        startDate:          Number.isFinite(date) ? date : 0,
+        endDate:            Number.isFinite(date) ? date : 0,
+        slider:             false,
+        trajectoryIcons,
     };
 }
 
-export function prepareAllDisplayProps(flightPlans: FlightPlan[], system: SolarSystem, timeSettings: TimeSettings): OrbitDisplayProps[] {
+export function prepareAllDisplayProps(flightPlans: FlightPlan[], system: SolarSystem): OrbitDisplayProps[] {
     const bodyTrajectories = new Map<number, [Trajectory[], string[], IColor[], number[]]>();
     for(let i=0; i<flightPlans.length; i++) {
         const fp = flightPlans[i];
@@ -77,10 +71,10 @@ export function prepareAllDisplayProps(flightPlans: FlightPlan[], system: SolarS
     }
 
     const bodyIdxs = [...bodyTrajectories.keys()]
-    return bodyIdxs.map(idx => { const [trajectories, names, colors, date] = bodyTrajectories.get(idx) as [Trajectory[], string[], IColor[], number[]]; return bodyPlotProps(trajectories, names, colors, system, date[0], timeSettings) })
+    return bodyIdxs.map(idx => { const [trajectories, names, colors, date] = bodyTrajectories.get(idx) as [Trajectory[], string[], IColor[], number[]]; return bodyPlotProps(trajectories, names, colors, system, date[0]) })
 } 
 
-const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, props}: {value: number, index: number, props: OrbitDisplayProps}) {
+const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, props, infoItem, setInfoItem}: {value: number, index: number, props: OrbitDisplayProps, infoItem: InfoItem, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>}) {
     const [orbitPlotProps, setOrbitPlotProps] = useState(props);
 
     useEffect(() => {
@@ -97,7 +91,7 @@ const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, pr
 
     return (
         <div style={{ display: (value === index ? 'block' : 'none'), width: "100%", height: "100%" }}>
-            <OrbitDisplay {...orbitPlotProps}/>
+            <OrbitDisplay {...orbitPlotProps} infoItem={infoItem} setInfoItem={setInfoItem} />
         </div>
     )
 });
@@ -113,47 +107,28 @@ function OrbitDisplayTabs() {
     const valueRef = useRef(value);
 
     const [orbitDisplayProps, setOrbitDisplayProps] = useState(emptyProps);
+    const [infoItem, setInfoItem] = useState<InfoItem>(null);
+    const canvasRef = useRef<HTMLDivElement | null>(null);
 
-    // useEffect(() => {
-    //     // console.log('Updating Orbit plots with new flight plans...')
-    //     if(flightPlans.length === 0) {
-    //         const orb = (system.bodyFromId(1) as OrbitingBody).orbit;
-    //         const fp: FlightPlan = {
-    //             trajectories: [{
-    //                 orbits:         [orb] as IOrbit[],
-    //                 intersectTimes: [0, Infinity],
-    //                 maneuvers:      [],
-    //             }],
-    //             name:       '',
-    //             color:      {r: 255, g: 255, b: 255},
-    //         }
-    //         setOrbitDisplayProps(prepareAllDisplayProps([fp], system, timeSettings));
-    //     } else {
-    //         // console.log(flightPlans)
-    //         setOrbitDisplayProps(prepareAllDisplayProps(flightPlans, system, timeSettings));
-    //     }
-    //   // eslint-disable-next-line react-hooks/exhaustive-deps
-    //   }, [flightPlans, timeSettings]);
-
-      useEffect(() => {
+    useEffect(() => {
         if(value !== valueRef.current) {
             valueRef.current = value;
         } else if(timeSettings !== timeSettingsRef.current) {
             timeSettingsRef.current = timeSettings;
         } else if(flightPlans.length === 0) {
-            const orb = (system.bodyFromId(1) as OrbitingBody).orbit;
-            const fp: FlightPlan = {
-                trajectories: [{
-                    orbits:         [orb] as IOrbit[],
-                    intersectTimes: [0, Infinity],
-                    maneuvers:      [],
-                }],
-                name:       '',
-                color:      {r: 255, g: 255, b: 255},
-            }
-            setOrbitDisplayProps(prepareAllDisplayProps([fp], system, timeSettings));
+            const plotProps: OrbitDisplayProps = {
+                index:              0,
+                label:              system.sun.name + ' System',
+                centralBody:        system.sun,
+                system,
+                trajectories:       [],
+                startDate:          0,
+                endDate:            0,
+                slider:             false,
+            };
+            setOrbitDisplayProps([plotProps]);
         } else {
-            setOrbitDisplayProps(prepareAllDisplayProps(flightPlans, system, timeSettings));
+            setOrbitDisplayProps(prepareAllDisplayProps(flightPlans, system));
         }
         // hide warning for missing setters
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -179,7 +154,10 @@ function OrbitDisplayTabs() {
             <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons={true}>
                 {orbitDisplayProps.map((props, index) => <Tab key={index} value={index} label={props.label} ></Tab>)}
             </Tabs>
-            {orbitDisplayProps.map((props, index) => <OrbitTabPanel key={index} value={value} index={index} props={props}/>)}
+            <div ref={canvasRef}>
+                {orbitDisplayProps.map((props, index) => <OrbitTabPanel key={index} value={value} index={index} props={props} infoItem={infoItem} setInfoItem={setInfoItem}/>)}
+            </div>
+            <InfoPopper info={infoItem} setInfo={setInfoItem} parentRef={canvasRef} />
         </>
     )
 }

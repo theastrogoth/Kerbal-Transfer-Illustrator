@@ -8,6 +8,7 @@ import opmconfigs from '../../data/opm_configs.json';
 import rssconfigs from '../../data/rss_configs.json';
 import ksrssconfigs from '../../data/ksrss_configs.json';
 import jnsqconfigs from '../../data/jnsq_configs.json';
+import galileoconfigs from '../../data/galileo_configs.json';
 
 import { sunToConfig, bodyToConfig } from "../../main/utilities/loadPlanetConfig";
 
@@ -20,8 +21,8 @@ function SelectProvidedConfigs() {
     const [idx, setIdx] = useState(0);
 
     const kspconfigs: (SunConfig | OrbitingBodyConfig)[] = useRef([sunToConfig(kspSystem.sun), ...kspSystem.orbiters.map(bd => bodyToConfig(bd, kspSystem))]).current;
-    const configsList: (SunConfig | OrbitingBodyConfig)[][] = useRef([kspconfigs, opmconfigs, jnsqconfigs, rssconfigs, ksrssconfigs]).current;
-    const namesList = useRef(["Kerbol System (Stock)", "Kerbol System (OPM)", "Kerbol System (JNSQ)", "Sol System (RSS)", "Sol System (KSRSS)"]).current;
+    const configsList: (SunConfig | OrbitingBodyConfig)[][] = useRef([kspconfigs, opmconfigs, jnsqconfigs, rssconfigs, ksrssconfigs, galileoconfigs]).current;
+    const namesList = useRef(["Kerbol System (Stock)", "Kerbol System (OPM)", "Kerbol System (JNSQ)", "Sol System (RSS)", "Sol System (KSRSS)", "Ciro System (Galileo)"]).current;
 
     const options = useRef(namesList.map((name, idx) => <MenuItem key={idx} value={idx}>{name}</MenuItem>)).current;
 

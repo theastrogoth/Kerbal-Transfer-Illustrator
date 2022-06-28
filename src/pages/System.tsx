@@ -21,15 +21,16 @@ import BodyConfigControls from "../components/SystemEditor/BodyConfigControls";
 import TimeSettingsControls from "../components/TimeSettingsControls";
 import BodyConfigUploadButton from "../components/SystemEditor/BodyConfigUploadButton";
 import SunConfigUploadButton from "../components/SystemEditor/SunConfigUploadButton";
-import OrbitDisplay from "../components/OrbitDisplay";
+import OrbitDisplay from "../components/OrbitDisplay2";
 import SelectProvidedConfigs from "../components/SystemEditor/SelectProvidedConfigs";
 import GetLinkButton from "../components/SystemEditor/GetLinkButton";
 
 import SolarSystem from "../main/objects/system";
-import Draw from "../main/libs/draw";
+// import Draw from "../main/libs/draw";
 
 import { useAtom } from "jotai";
-import { customSystemAtom, configTreeAtom, timeSettingsAtom, bodyConfigsAtom, editorSelectedNameAtom, systemScaleAtom } from "../App";
+import { customSystemAtom, configTreeAtom, /* timeSettingsAtom, */ bodyConfigsAtom, editorSelectedNameAtom, systemScaleAtom } from "../App";
+import InfoPopper from "../components/Display/InfoPopper";
 
 
 function createBodyItems(system: SolarSystem) {
@@ -51,7 +52,7 @@ function SolarSystemAppContent() {
   const [customSystem, setCustomSystem] = useAtom(customSystemAtom);
   const [, setEditorSelectedName] = useAtom(editorSelectedNameAtom);
   const [systemScale, setSystemScale] = useAtom(systemScaleAtom);
-  const [timeSettings] = useAtom(timeSettingsAtom);
+  // const [timeSettings] = useAtom(timeSettingsAtom);
 
   const [bodyOptions, setBodyOptions] = useState(createBodyItems(customSystem));
   const [centralBodyName, setCentralBodyName] = useState(customSystem.sun.name);
@@ -60,6 +61,9 @@ function SolarSystemAppContent() {
 
   const centralBodyNameRef = useRef(centralBodyName);
   const [deleteBodiesTrigger, setDeleteBodiesTrigger] = useState(false);
+
+  const [infoItem, setInfoItem] = useState<InfoItem>(null);
+  const canvasRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     systemLoaderWorker.onmessage = (event: MessageEvent<ISolarSystem>) => {
@@ -105,7 +109,7 @@ function SolarSystemAppContent() {
       <Navbar showHelp={showHelp} setShowHelp={setShowHelp} />
       <Stack sx={{mx: 4, my: 1}}>
         <CssBaseline />
-        <Box textAlign='left' sx={{mx: 2, my: 3}}>
+        <Box component="div" textAlign='left' sx={{mx: 2, my: 3}}>
           <Typography variant="h4">Solar System Editor</Typography>
           <Divider />
         </Box>
@@ -135,7 +139,7 @@ function SolarSystemAppContent() {
               <Stack spacing={1.5} sx={{mx: 2, my: 2}} alignItems='center' justifyContent='center'>
                 <SunConfigUploadButton />
                 <BodyConfigUploadButton />
-                <Box>
+                <Box component="div">
                   <Button
                     variant="text" 
                     color="inherit" 
@@ -197,22 +201,21 @@ function SolarSystemAppContent() {
                   </Select>
                 </FormControl>
               </Stack>
-              <Box sx={{mx: 2, my: 2}}>
-                <OrbitDisplay 
-                  index={0}
-                  label={'Solar System'}
-                  slider={false}
-                  orbits={[] as IOrbit[]}
-                  trajectories={[] as Trajectory[]}
-                  startDate={0}
-                  endDate={0}
-                  marks={[]}
-                  centralBody={centralBody}
-                  defaultTraces={{systemTraces: Draw.drawSystemAtTime(centralBody, 0, timeSettings), orbitTraces: [] as Line3DTrace[]}}
-                  plotSize={Draw.getPlotSize(centralBody)}
-                />
+              <Box component="div" sx={{mx: 2, my: 2}}>
+                <div ref={canvasRef}>
+                  <OrbitDisplay 
+                    label='Custom System'
+                    index={0}
+                    centralBody={centralBody} 
+                    startDate={0.0} 
+                    system={customSystem}
+                    infoItem={infoItem}
+                    setInfoItem={setInfoItem}
+                  />
+                </div>
+                <InfoPopper info={infoItem} setInfo={setInfoItem} parentRef={canvasRef} />
               </Box>
-              <Box sx={{mx: 2, my: 2}}>
+              <Box component="div" sx={{mx: 2, my: 2}}>
                 <Typography variant="body1">Time Settings</Typography>
                 <TimeSettingsControls />
               </Box>

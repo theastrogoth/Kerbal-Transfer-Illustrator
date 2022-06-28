@@ -32,7 +32,7 @@ function BodyConfigListItem({node, depth = 0, orphan = false}: {node: TreeNode<S
     };
 
     return (
-        <Box sx={{ maxWidth: 500 }}>
+        <Box component="div" sx={{ maxWidth: 500 }}>
             <Stack direction="row">
                 <ListItemButton onClick={handleNodeClick} >
                     <ListItemIcon>

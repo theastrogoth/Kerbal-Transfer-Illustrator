@@ -11,6 +11,8 @@ export class CelestialBody implements ICelestialBody {
     readonly geeASL:            number;
     readonly stdGravParam!:     number;
     readonly soi?:              number;
+    readonly rotationPeriod:    number;
+    readonly initialRotation:   number;
     readonly color!:            Color;
     readonly orbiters:          OrbitingBody[] = [];
 
@@ -24,6 +26,8 @@ export class CelestialBody implements ICelestialBody {
         this.geeASL             = data.geeASL ? data.geeASL : data.stdGravParam / (data.radius * data.radius * 9.80665);
         this.stdGravParam       = data.stdGravParam;
         this.soi                = data.soi;
+        this.rotationPeriod     = data.rotationPeriod ? data.rotationPeriod : Infinity;
+        this.initialRotation    = data.initialRotation ? data.initialRotation : 0.0;
         this.color              = new Color(data.color);
     }
 
@@ -38,6 +42,8 @@ export class CelestialBody implements ICelestialBody {
             geeASL:             this.geeASL,
             stdGravParam:       this.stdGravParam,
             soi:                this.soi,
+            rotationPeriod:     this.rotationPeriod,
+            initialRotation:    this.initialRotation,
             color:              this.color
         }
     }
@@ -73,6 +79,8 @@ export class CelestialBody implements ICelestialBody {
             geeASL:             this.geeASL,
             stdGravParam:       newGravParam,
             soi:                this.soi,
+            rotationPeriod:     this.rotationPeriod,
+            initialRotation:    this.initialRotation,
             color:              this.color
         }
         return new CelestialBody(newData);
@@ -117,6 +125,8 @@ export class OrbitingBody extends CelestialBody implements IOrbitingBody {
             geeASL:             this.geeASL,
             stdGravParam:       newGravParam,
             soi:                newSoi,
+            rotationPeriod:     this.rotationPeriod,
+            initialRotation:    this.initialRotation,
             color:              this.color,
             orbit:              newOrbit.data,
             orbiting:           newOrbit.orbiting,

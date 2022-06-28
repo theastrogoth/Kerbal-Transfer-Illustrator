@@ -53,7 +53,7 @@ function Navbar({showHelp, setShowHelp}: {showHelp: boolean, setShowHelp: React.
                 >
                     Kerbal Transfer Illustrator 
                 </Typography>
-                <Box sx={{ flexGrow: 1, display: { xs: 'flex', lg: 'none' } }}>
+                <Box component="div" sx={{ flexGrow: 1, display: { xs: 'flex', lg: 'none' } }}>
                     <IconButton
                         size="large"
                         onClick={handleOpenNavMenu}
@@ -98,7 +98,7 @@ function Navbar({showHelp, setShowHelp}: {showHelp: boolean, setShowHelp: React.
                 >
                     Kerbal Transfer Illustrator 
                 </Typography>
-                <Box sx={{ flexGrow: 1, display: { xs: 'none', lg: 'flex'} }}>
+                <Box component="div" sx={{ flexGrow: 1, display: { xs: 'none', lg: 'flex'} }}>
                     {barPages.map((page, idx) => (
                         <Button
                             key={page}
@@ -111,11 +111,11 @@ function Navbar({showHelp, setShowHelp}: {showHelp: boolean, setShowHelp: React.
                         </Button>
                     ))}
                 </Box>
-                <Box sx={{ flexGrow: 1 }} />
-                <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                <Box component="div" sx={{ flexGrow: 1 }} />
+                <Box component="div" sx={{ display: { xs: 'none', md: 'flex' } }}>
                       <SaveFileUploadButton />
                 </Box>
-                <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                <Box component="div" sx={{ display: { xs: 'none', md: 'flex' } }}>
                     <Button 
                         color="inherit"
                         onClick={() => setShowHelp(!showHelp)}
@@ -123,10 +123,10 @@ function Navbar({showHelp, setShowHelp}: {showHelp: boolean, setShowHelp: React.
                         <HelpOutline />
                     </Button>
                 </Box>
-                <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                <Box component="div" sx={{ display: { xs: 'none', md: 'flex' } }}>
                     <DarkLightModeSwitch />
                 </Box>
-                <Box sx={{ flexGrow: 0,  display: { xs: 'flex', md: 'none' } }}>
+                <Box component="div" sx={{ flexGrow: 0,  display: { xs: 'flex', md: 'none' } }}>
                     <IconButton onClick={handleOpenButtonMenu} >
                         <MoreIcon />
                     </IconButton>
