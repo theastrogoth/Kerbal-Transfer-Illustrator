@@ -219,12 +219,12 @@ function flightGlobalsBodiesIndexes(bodiesList: (SunConfig | OrbitingBodyConfig)
     const flightGlobalsIdxs: number[] = [0];
     let nextIdx = 1;
     for(let i=1; i<bodiesList.length; i++) {
-        const oidx = originalIdxs.find(idx => idx === i)
-        if(oidx !== undefined) {
-            flightGlobalsIdxs.push(usedFlightGlobalsIdxs[i])
+        const oidx = originalIdxs.findIndex(idx => idx === i)
+        if(oidx !== -1) {
+            flightGlobalsIdxs.push(usedFlightGlobalsIdxs[oidx])
         } else {
             const indexIsDuplicate = (index: number) => {
-                return usedFlightGlobalsIdxs.find(existing => existing === index) !== undefined;
+                return [...usedFlightGlobalsIdxs, ...flightGlobalsIdxs].find(existing => existing === index) !== undefined;
             }
             while(indexIsDuplicate(nextIdx)) {
                 nextIdx += 1;
