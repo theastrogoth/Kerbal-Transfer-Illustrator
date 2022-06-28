@@ -36,7 +36,7 @@ function OrbitingBodySphere({body, plotSize, date, setInfoItem}: {body: Orbiting
         <>
             <mesh 
                 position={position} 
-                rotation={[0, degToRad(body.initialRotation) + TWO_PI * ((date % body.rotationPeriod) / body.rotationPeriod), 0]}
+                rotation={[0, degToRad(body.initialRotation || 0) + TWO_PI * ((date % (body.rotationPeriod || Infinity)) / (body.rotationPeriod || Infinity)), 0]} 
                 onClick={(e) => {e.stopPropagation(); setInfoItem(body)}}
             >
                 <sphereGeometry args={[body.radius / plotSize, 32, 32]} />
