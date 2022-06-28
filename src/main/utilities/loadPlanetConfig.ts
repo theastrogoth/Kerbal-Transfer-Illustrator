@@ -36,7 +36,7 @@ export function fileToBodyConfig(configFile: string): OrbitingBodyConfig {
     const name = bodyData.name;
     // name = configData[topKey].cbNameLater || name;
 
-    const flightGlobalsIndex = bodyData.flightGlobalsIndex;
+    const flightGlobalsIndex = bodyData.flightGlobalsIndex || (bodyData.name === "Kerbin" ? "1" : undefined);
     
     const radius = bodyData.Properties.radius;
     const stdGravParam = bodyData.Properties.gravParameter;

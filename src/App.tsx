@@ -18,6 +18,7 @@ import opmconfigs from './data/opm_configs.json';
 import rssconfigs from './data/rss_configs.json';
 import ksrssconfigs from './data/ksrss_configs.json';
 import jnsqconfigs from './data/jnsq_configs.json';
+import galileoconfigs from './data/galileo_configs.json';
 
 import SolarSystem from './main/objects/system';
 import Vessel from './main/objects/vessel';
@@ -36,6 +37,7 @@ const opmSystem = loadSystemFromConfigs(opmconfigs, kspSystem);
 const jnsqSystem = loadSystemFromConfigs(jnsqconfigs, kspSystem);
 const rssSystem = loadSystemFromConfigs(rssconfigs, kspSystem);
 const ksrssSystem = loadSystemFromConfigs(ksrssconfigs, kspSystem);
+const galileoSystem = loadSystemFromConfigs(galileoconfigs, kspSystem);
 
 const systemOptions = new Map<string, SolarSystem>()
 systemOptions.set('Kerbol System (Stock)', kspSystem);
@@ -43,6 +45,7 @@ systemOptions.set('Kerbol System (OPM)', opmSystem);
 systemOptions.set('Kerbol System (JNSQ)', jnsqSystem);
 systemOptions.set('Sol System (RSS)', rssSystem);
 systemOptions.set('Sol System (KSRSS)', ksrssSystem);
+systemOptions.set('Ciro System (Galileo)', galileoSystem);
 
 // other default settings
 const kspTimeSettings: TimeSettings = {hoursPerDay: 6, daysPerYear: 426};
