@@ -45,7 +45,7 @@ function HelpCollapse({showHelp}: {showHelp: boolean}) {
                             </TableRow>
                             <TableRow>
                                 <TableCell align="right" sx={{borderBottom: "none"}}>7.</TableCell>
-                                <TableCell sx={{borderBottom: "none"}}>The system that results from your custom body configurations and settings will be displayed in an interactive 3D plot in the "Custom System" section. Focus on a particular body by selecting it with the "Central Body" dropdown.</TableCell>
+                                <TableCell sx={{borderBottom: "none"}}>The system that results from your custom body configurations and settings will be displayed in an interactive 3D plot in the "Custom System" section. Focus on a particular body by selecting it with the "Central Body" dropdown. Click on a body in the plot to see its detailed information (after scaling has been applied).</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell align="right" sx={{borderBottom: "none"}}>8.</TableCell>

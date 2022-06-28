@@ -52,7 +52,7 @@ function HelpCollapse({showHelp}: {showHelp: boolean}) {
                             </TableRow>
                             <TableRow>
                                 <TableCell align="right" sx={{borderBottom: "none"}}>9.</TableCell>
-                                <TableCell sx={{borderBottom: "none"}}>View the trajectory using the orbit plots. Left-click and drag to rotate, right-click and drag to pan, and scroll to zoom. Hover over orbit paths to see detailed information. Use the slider beneath the plot to view the system at different times throughout the transfer.</TableCell>
+                                <TableCell sx={{borderBottom: "none"}}>View the trajectory using the orbit plots. Left-click and drag to rotate, right-click and drag to pan, and scroll to zoom. Click on bodies/crafts to see detailed information. Use the slider beneath the plot to view the system at different times throughout the transfer.</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell align="right" sx={{borderBottom: "none"}}>10.</TableCell>

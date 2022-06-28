@@ -41,7 +41,7 @@ function HelpCollapse({showHelp}: {showHelp: boolean}) {
                             </TableRow>
                             <TableRow>
                                 <TableCell align="right" sx={{borderBottom: "none"}}>6.</TableCell>
-                                <TableCell sx={{borderBottom: "none"}}>View the resulting trajectories in the Orbit Plot Tabs, which will update automatically.</TableCell>
+                                <TableCell sx={{borderBottom: "none"}}>View the resulting trajectories in the Orbit Plot Tabs, which will update automatically. Click on bodies/crafts to see detailed information.</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell align="right" sx={{borderBottom: "none"}}>7.</TableCell>
