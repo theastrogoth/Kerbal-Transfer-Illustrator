@@ -320,6 +320,7 @@ type FlightPlan = {
     readonly name:                      string;
     readonly color?:                    IColor;
     readonly trajectories:              Trajectory[];
+    readonly maneuverContexts?:         string[];
 }
 
 // Plotting and Display
@@ -368,7 +369,13 @@ interface ManeuverInfo extends Maneuver {
     name:   string,
 }
 
-type InfoItem = ICelestialBody | IOrbitingBody | IVessel | ManeuverInfo | SoiChangeInfo | null;
+interface OrbitInfo extends IOrbit {
+    color:  IColor,
+    name:   string,
+}
+
+type InfoItem = ICelestialBody | IOrbitingBody | IVessel | OrbitInfo | ManeuverInfo | SoiChangeInfo | null;
+type TargetObject = ICelestialBody | IOrbitingBody | FlightPlan | IOrbit;
 
 // type LineOptions = {
 //     color?:                  number[] | string | undefined,

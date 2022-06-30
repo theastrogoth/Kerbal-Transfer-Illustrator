@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { OrbitingBody } from "../../main/objects/body";
 import Transfer from "../../main/objects/transfer";
 
-import OrbitDisplay, { OrbitDisplayProps } from "../OrbitDisplay2";
+import OrbitDisplay, { OrbitDisplayProps } from "../Display/OrbitDisplay";
 import InfoPopper from "../Display/InfoPopper";
 
 import Tabs from "@mui/material/Tabs";
@@ -25,42 +25,12 @@ import { transferAtom, timeSettingsAtom } from "../../App";
 const emptyProps: OrbitDisplayProps[] = [];
 
 function transferPlotProps(transfer: Transfer): OrbitDisplayProps {
-    const trajectory = transfer.transferTrajectory;
-    const trajectories = [trajectory];
     const centralBody = transfer.transferBody;
     const system = transfer.system;
     const startDate = transfer.startDate;
     const endDate = transfer.endDate;
 
-    const soiIcons: [number, string][] = [];
-    const maneuverIcons: [number, string][] = [];
-    const trajectoryIcons = [{maneuver: maneuverIcons, soi: soiIcons}];
-
-    if(transfer.ejections.length === 0) {
-        trajectories.unshift({orbits: [transfer.startOrbit], intersectTimes: [-Infinity, startDate], maneuvers: []});
-        trajectoryIcons.unshift({maneuver: [], soi: []});
-        if(trajectory.maneuvers.length > 0) {
-            maneuverIcons.push([0, "Departure Burn"]);
-        }
-    } else {
-        const prevBody = system.bodyFromId(transfer.ejections[transfer.ejections.length-1].orbits[0].orbiting);
-        soiIcons.push([0, "Escape from " + prevBody.name]);
-    }
-
-    for(let i=1; i<trajectory.intersectTimes.length-1; i++) {
-        maneuverIcons.push([i, "Plane Change Maneuver"]);
-    }
-
-    if(transfer.insertions.length === 0) {
-        trajectories.push({orbits: [transfer.endOrbit], intersectTimes: [endDate, Infinity], maneuvers: []});
-        trajectoryIcons.push({maneuver: [], soi: []});
-        if(trajectory.maneuvers.length > 0) {
-            maneuverIcons.push([trajectory.intersectTimes.length-1, "Arrival Burn"])        
-        }
-    } else {
-        const nextBody = system.bodyFromId(transfer.insertions[0].orbits[0].orbiting);
-        soiIcons.push([trajectory.intersectTimes.length-1, nextBody.name + " Encounter"]);
-    }
+    const flightPlans = transfer.transferTrajectory.orbits.length > 0 ? [transfer.flightPlan] : [];
 
     const marks = [
         {
@@ -78,44 +48,23 @@ function transferPlotProps(transfer: Transfer): OrbitDisplayProps {
         index:  0,
         centralBody,
         system,
+        flightPlans,
         startDate,
         endDate,
-        trajectories,
         slider: true,
         marks,
-        trajectoryIcons,
     }
 }
 
 function ejectionPlotProps(transfer: Transfer, ejectionIdx: number): OrbitDisplayProps {
     const trajectory = transfer.ejections[ejectionIdx];
-    const trajectories = [trajectory];
     const trajLen = trajectory.orbits.length;
     const centralBody  = transfer.system.bodyFromId(trajectory.orbits[0].orbiting) as OrbitingBody;
     const system = transfer.system;
     const startDate  = trajectory.intersectTimes[0];
     const endDate = trajectory.intersectTimes[trajLen];
 
-    const soiIcons: [number, string][] = [];
-    const maneuverIcons: [number, string][] = [];
-    const trajectoryIcons = [{maneuver: maneuverIcons, soi: soiIcons}];
-
-    if(ejectionIdx === 0) {
-        trajectories.unshift({orbits: [transfer.startOrbit], intersectTimes: [-Infinity, startDate], maneuvers: []});
-        trajectoryIcons.unshift({maneuver: [], soi: []});
-        if(trajectory.maneuvers.length > 0) {
-            maneuverIcons.push([0, "Departure Burn"]);
-        }
-    } else {
-        const prevBody = system.bodyFromId(transfer.ejections[ejectionIdx-1].orbits[0].orbiting);
-        soiIcons.push([0, "Escape from " + prevBody.name]);
-    }
-
-    soiIcons.push([trajectory.intersectTimes.length-1, "Escape from " + centralBody.name])
-
-    for(let i=1; i<trajectory.maneuvers.length; i++) {
-        maneuverIcons.push([i, "Oberth Maneuver"]);
-    }
+    const flightPlans = transfer.transferTrajectory.orbits.length > 0 ? [transfer.flightPlan] : [];
 
     const marks = [
         {
@@ -133,43 +82,23 @@ function ejectionPlotProps(transfer: Transfer, ejectionIdx: number): OrbitDispla
         index:          ejectionIdx - transfer.ejections.length,
         centralBody,
         system,
+        flightPlans,
         startDate,
         endDate,
-        trajectories,
         slider:         true,
         marks,
-        trajectoryIcons,
     }
 }
 
 function insertionPlotProps(transfer: Transfer, insertionIdx: number): OrbitDisplayProps {
     const trajectory = transfer.insertions[insertionIdx];
-    const trajectories = [trajectory];
     const trajLen = trajectory.orbits.length;
     const centralBody  = transfer.system.bodyFromId(trajectory.orbits[0].orbiting) as OrbitingBody;
     const system = transfer.system;
     const startDate  = trajectory.intersectTimes[0];
     const endDate = trajectory.intersectTimes[trajLen];
 
-    const soiIcons: [number, string][] = [];
-    const maneuverIcons: [number, string][] = [];
-    const trajectoryIcons = [{maneuver: maneuverIcons, soi: soiIcons}];
-
-    soiIcons.push([0, centralBody.name + " Encounter"]);
-    for(let i=0; i<trajectory.maneuvers.length-1; i++) {
-        maneuverIcons.push([i, "Oberth Maneuver"]);
-    }
-
-    if(insertionIdx === transfer.insertions.length - 1) {
-        trajectories.push({orbits: [transfer.endOrbit], intersectTimes: [endDate, Infinity], maneuvers: []});
-        trajectoryIcons.push({maneuver: [], soi: []});
-        if(trajectory.maneuvers.length > 0) {
-            maneuverIcons.push([trajectory.maneuvers.length-1, "Arrival Burn"])        
-        }
-    } else {
-        const nextBody = system.bodyFromId(transfer.insertions[insertionIdx+1].orbits[0].orbiting);
-        soiIcons.push([trajectory.intersectTimes.length-1, nextBody.name + " Encounter"])
-    }
+    const flightPlans = transfer.transferTrajectory.orbits.length > 0 ? [transfer.flightPlan] : [];
 
     const marks = [
         {
@@ -182,18 +111,16 @@ function insertionPlotProps(transfer: Transfer, insertionIdx: number): OrbitDisp
         },
     ]
 
-    console.log(maneuverIcons, trajectory.maneuvers)
     return {
         label:          centralBody.name + " Arrival",
         index:          insertionIdx + 1,
         centralBody,
         system,
+        flightPlans,
         startDate,
         endDate,
-        trajectories,
         slider:         true,
         marks,
-        trajectoryIcons,
     }
 }
 

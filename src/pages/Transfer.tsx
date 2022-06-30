@@ -39,7 +39,7 @@ export function blankTransfer(system: SolarSystem): Transfer {
     startDate:              0.0,
     flightTime:             orbit.siderealPeriod,
     endDate:                orbit.siderealPeriod,
-    transferTrajectory:     {orbits: [orbit], intersectTimes: [0,0], maneuvers: []},
+    transferTrajectory:     {orbits: [], intersectTimes: [0,0], maneuvers: []},
     ejections:              [],
     insertions:             [],
     maneuvers:              [],

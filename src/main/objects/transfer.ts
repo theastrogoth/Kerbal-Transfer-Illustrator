@@ -123,6 +123,57 @@ export class Transfer implements ITransfer {
         const eAngle = Kepler.angleInOrbitPlane(ePos, sOrb);
         return wrapAngle(eAngle - sAngle);
     }
+
+    public get flightPlan(): FlightPlan {
+        const name = 'Transfer';
+        const color = {r: 255, g: 255, b: 255};
+        const trajectories: Trajectory[] = [];
+
+        for(let i=0; i<this.ejections.length; i++) {
+            const orbits: IOrbit[] = [...this.ejections[i].orbits];
+            const maneuvers: Maneuver[] = [...this.ejections[i].maneuvers];
+            const intersectTimes: number[] = [...this.ejections[i].intersectTimes];
+            if(i===0) {
+                orbits.unshift(this.startOrbit.data);
+                intersectTimes.unshift(-Infinity);
+            } else {
+                maneuvers.splice(0,1);
+            }
+            trajectories.push({orbits, maneuvers, intersectTimes});
+        }
+
+        const orbits: IOrbit[] = [...this.transferTrajectory.orbits];
+        const maneuvers: Maneuver[] = [...this.transferTrajectory.maneuvers];
+        const intersectTimes: number[] = [...this.transferTrajectory.intersectTimes];
+        if(this.ejections.length===0) {
+            orbits.unshift(this.startOrbit.data);
+            intersectTimes.unshift(-Infinity);
+        } else {
+            maneuvers.splice(0,1);
+        }
+        if(this.insertions.length===0) {
+            orbits.push(this.endOrbit.data);
+            intersectTimes.push(Infinity);
+        } else {
+            maneuvers.pop();
+        }
+        trajectories.push({orbits, maneuvers, intersectTimes});
+        
+        for(let i=0; i<this.insertions.length; i++) {
+            const orbits: IOrbit[] = [...this.insertions[i].orbits];
+            const maneuvers: Maneuver[] = [...this.insertions[i].maneuvers];
+            const intersectTimes: number[] = [...this.insertions[i].intersectTimes];
+            if(i===this.insertions.length-1) {
+                orbits.push(this.endOrbit.data);
+                intersectTimes.push(Infinity);
+            } else {
+                maneuvers.pop();
+            }
+            trajectories.push({orbits, maneuvers, intersectTimes});
+        }
+
+        return {name, color, trajectories, maneuverContexts: this.maneuverContexts};
+    }
 }
 
 export default Transfer;

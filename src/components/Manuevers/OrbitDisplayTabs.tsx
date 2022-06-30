@@ -1,8 +1,9 @@
 import React, {useState, useEffect, useRef} from "react";
 
 import SolarSystem from "../../main/objects/system";
+import CelestialBody from "../../main/objects/body";
 
-import OrbitDisplay, { OrbitDisplayProps } from "../OrbitDisplay2";
+import OrbitDisplay, { OrbitDisplayProps } from "../Display/OrbitDisplay";
 import InfoPopper from "../Display/InfoPopper";
 
 import Tabs from "@mui/material/Tabs";
@@ -13,65 +14,40 @@ import { flightPlansAtom, systemAtom, timeSettingsAtom } from "../../App";
 
 const emptyProps: OrbitDisplayProps[] = [];
 
-function bodyPlotProps(trajectories: Trajectory[], names: string[], colors: IColor[], system: SolarSystem, date: number): OrbitDisplayProps {
-    const orbits = [...trajectories.map((traj) => traj.orbits.slice()).flat()];
-    const body = system.bodyFromId(orbits[0].orbiting);
-
-    const trajectoryIcons = trajectories.map(trajectory => {
-        const maneuver: [number, string][] = [];
-        const soi: [number, string][] =[];
-
-        for(let i=0; i<trajectory.maneuvers.length; i++) {
-            maneuver.push([i, "Maneuver Node"])
-        }
-        if(Number.isFinite(trajectory.intersectTimes[0])) {
-            soi.push([0, "SoI Change"])
-        }
-        if(Number.isFinite(trajectory.intersectTimes[trajectory.intersectTimes.length-1])) {
-            soi.push([trajectory.intersectTimes.length-1, "SoI Change"])
-        }
-
-        return {maneuver, soi};
-    })
-
+function bodyPlotProps(body: CelestialBody, flightPlans: FlightPlan[], system: SolarSystem, date: number): OrbitDisplayProps {
     return {
-        index:              0,
+        index:              body.id,
         label:              body.name + ' System',
         centralBody:        body,
         system,
-        trajectories,
-        trajectoryNames:    names,
-        trajectoryColors:   colors,
+        flightPlans,
         startDate:          Number.isFinite(date) ? date : 0,
         endDate:            Number.isFinite(date) ? date : 0,
         slider:             false,
-        trajectoryIcons,
     };
 }
 
 export function prepareAllDisplayProps(flightPlans: FlightPlan[], system: SolarSystem): OrbitDisplayProps[] {
-    const bodyTrajectories = new Map<number, [Trajectory[], string[], IColor[], number[]]>();
+    const bodies = new Map<number, {body: CelestialBody, startDate: number}>();
     for(let i=0; i<flightPlans.length; i++) {
         const fp = flightPlans[i];
-        const name = fp.name;
-        const color = fp.color || {r: 150, g: 150, b: 150};
         for(let j=0; j<fp.trajectories.length; j++) {
-            const date = fp.trajectories[j].maneuvers.length > 0 ? fp.trajectories[j].maneuvers[0].preState.date : fp.trajectories[j].intersectTimes[0];
+            const startDate = fp.trajectories[j].maneuvers.length > 0 ? fp.trajectories[j].maneuvers[0].preState.date : fp.trajectories[j].intersectTimes[0];
             const bodyIdx = fp.trajectories[j].orbits[0].orbiting;
-            if(bodyTrajectories.has(bodyIdx)) {
-                const bdTrajs = bodyTrajectories.get(bodyIdx) as [Trajectory[], string[], IColor[], number[]];
-                bdTrajs[0].push(fp.trajectories[j]);
-                bdTrajs[1].push(name);
-                bdTrajs[2].push(color);
-                bdTrajs[3][0] = Math.min(date, bdTrajs[3][0]);
+            if(bodies.has(bodyIdx)) {
+                const bd = bodies.get(bodyIdx) as {body: CelestialBody, startDate: number};
+                bd.startDate = Math.min(startDate, bd.startDate);
             } else {
-                bodyTrajectories.set(bodyIdx, [[fp.trajectories[j]], [name], [color], [date]]);
+                const body = system.bodyFromId(bodyIdx);
+                bodies.set(bodyIdx, {body, startDate});
             }
         }
     }
-
-    const bodyIdxs = [...bodyTrajectories.keys()]
-    return bodyIdxs.map(idx => { const [trajectories, names, colors, date] = bodyTrajectories.get(idx) as [Trajectory[], string[], IColor[], number[]]; return bodyPlotProps(trajectories, names, colors, system, date[0]) })
+    const bodyIdxs = [...bodies.keys()]
+    return bodyIdxs.map(idx => {
+        const {body, startDate} = bodies.get(idx) as {body: CelestialBody, startDate: number};
+        return bodyPlotProps(body, flightPlans, system, startDate);
+    });
 } 
 
 const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, props, infoItem, setInfoItem}: {value: number, index: number, props: OrbitDisplayProps, infoItem: InfoItem, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>}) {
@@ -121,7 +97,6 @@ function OrbitDisplayTabs() {
                 label:              system.sun.name + ' System',
                 centralBody:        system.sun,
                 system,
-                trajectories:       [],
                 startDate:          0,
                 endDate:            0,
                 slider:             false,

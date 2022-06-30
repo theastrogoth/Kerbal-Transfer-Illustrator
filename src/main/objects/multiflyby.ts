@@ -92,6 +92,62 @@ class MultiFlyby implements IMultiFlyby {
             patchTimeError:         this.patchTimeError,
         }
     }
+
+    public get flightPlan(): FlightPlan {
+        const name = 'Transfer';
+        const color = {r: 255, g: 255, b: 255};
+        const trajectories: Trajectory[] = [];
+
+        for(let i=0; i<this.ejections.length; i++) {
+            const orbits: IOrbit[] = [...this.ejections[i].orbits];
+            const maneuvers: Maneuver[] = [...this.ejections[i].maneuvers];
+            const intersectTimes: number[] = [...this.ejections[i].intersectTimes];
+            if(i===0) {
+                orbits.unshift(this.startOrbit.data);
+                intersectTimes.unshift(-Infinity);
+            } else {
+                maneuvers.splice(0,1);
+            }
+            trajectories.push({orbits, maneuvers, intersectTimes});
+        }
+        for(let i=0; i<this.transfers.length; i++) {
+            const orbits: IOrbit[] = [...this.transfers[i].orbits];
+            const maneuvers: Maneuver[] = [...this.transfers[i].maneuvers];
+            const intersectTimes: number[] = [...this.transfers[i].intersectTimes];
+            if(i===0 && this.ejections.length===0) {
+                orbits.unshift(this.startOrbit.data);
+                intersectTimes.unshift(-Infinity);
+            } else {
+                maneuvers.splice(0,1);
+            }
+            if(i===this.transfers.length-1 && this.insertions.length===0) {
+                orbits.push(this.endOrbit.data);
+                intersectTimes.push(Infinity);
+            } else {
+                maneuvers.pop();
+            }
+            trajectories.push({orbits, maneuvers, intersectTimes});
+
+            if(i < this.transfers.length - 1) {
+                trajectories.push(this.flybys[i]);
+            }
+        }
+        for(let i=0; i<this.insertions.length; i++) {
+            const orbits: IOrbit[] = [...this.insertions[i].orbits];
+            const maneuvers: Maneuver[] = [...this.insertions[i].maneuvers];
+            const intersectTimes: number[] = [...this.insertions[i].intersectTimes];
+            if(i===this.insertions.length-1) {
+                orbits.push(this.endOrbit.data);
+                intersectTimes.push(Infinity);
+            } else {
+                maneuvers.pop();
+            }
+            trajectories.push({orbits, maneuvers, intersectTimes});
+        }
+
+        return {name, color, trajectories, maneuverContexts: this.maneuverContexts};
+    }
+
 }
 
 export default MultiFlyby;

@@ -21,7 +21,7 @@ import BodyConfigControls from "../components/SystemEditor/BodyConfigControls";
 import TimeSettingsControls from "../components/TimeSettingsControls";
 import BodyConfigUploadButton from "../components/SystemEditor/BodyConfigUploadButton";
 import SunConfigUploadButton from "../components/SystemEditor/SunConfigUploadButton";
-import OrbitDisplay from "../components/OrbitDisplay2";
+import OrbitDisplay from "../components/Display/OrbitDisplay";
 import SelectProvidedConfigs from "../components/SystemEditor/SelectProvidedConfigs";
 import GetLinkButton from "../components/SystemEditor/GetLinkButton";
 

@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { useFrame, ThreeEvent } from '@react-three/fiber';
 import { Line } from '@react-three/drei'
 
 import Orbit from '../../main/objects/orbit';
 import Color from '../../main/objects/color';
 import DepartArrive from '../../main/libs/departarrive';
 import Kepler from '../../main/libs/kepler';
-import { TWO_PI, div3, wrapAngle, linspace } from '../../main/libs/math';
+import { TWO_PI, div3, wrapAngle, linspace, vec3, add3 } from '../../main/libs/math';
 
 import periapsisIcon from '../../assets/icons/periapsis.png';
 import apoapsisIcon from '../../assets/icons/apoapsis.png';
@@ -47,33 +48,32 @@ function getColorsAtDate(date: number, orbit: IOrbit, gradientColors: [number, n
 function getTrueAnomalyRange(orbit: Orbit, minDate: number = -Infinity, maxDate: number = Infinity) {
     let min: number = Kepler.dateToOrbitTrueAnomaly(minDate, orbit);
     let max: number = Kepler.dateToOrbitTrueAnomaly(maxDate, orbit);
-    if(isNaN(min + max)) {
-        let tempMin: number = 0;
-        let tempMax: number = TWO_PI;
+    if(isNaN(min) && isNaN(max)) {
+        min = 0;
+        max = TWO_PI;
+    } else if(isNaN(max) && !isNaN(min)) {
         if(orbit.eccentricity > 1 || (orbit.apoapsis > (orbit.attractorSoi || Infinity))) {
-            tempMin = DepartArrive.insertionTrueAnomaly(orbit, orbit.attractorSoi as number);
-            tempMax = DepartArrive.ejectionTrueAnomaly(orbit, orbit.attractorSoi as number);
-        }
-        if(Number.isFinite(maxDate)) {
-            min = wrapAngle(Math.min(tempMin, max - TWO_PI), max - TWO_PI + 1e-4);
+            max = DepartArrive.ejectionTrueAnomaly(orbit, orbit.attractorSoi as number);
         } else {
-            min = tempMin;
+            max = min + TWO_PI;
         }
-        if(Number.isFinite(minDate)) {
-            max = wrapAngle(Math.max(tempMax, min + TWO_PI), min + 1e-4);
+    } else if(isNaN(min) && !isNaN(max)) {
+        if(orbit.eccentricity > 1 || (orbit.apoapsis > (orbit.attractorSoi || Infinity))) {
+            min = DepartArrive.insertionTrueAnomaly(orbit, orbit.attractorSoi as number);
         } else {
-            max = tempMax;
+            min = max - TWO_PI;
         }
-    } else {
-        max = wrapAngle(max, min)
+    }
+    if(min >= max) {
+        max += TWO_PI;
     }
     return {min, max}
 }
 
-function getPoints(orbit: Orbit, plotSize: number, nus: number[]) {
+function getPoints(orbit: Orbit, plotSize: number, nus: number[], centeredAt: Vector3) {
     const points: THREE.Vector3[] = [];
     for(let i=0; i<nus.length; i++) {
-        const pt = div3(Kepler.positionAtTrueAnomaly(orbit, nus[i]), plotSize);
+        const pt = div3(add3(Kepler.positionAtTrueAnomaly(orbit, nus[i]), centeredAt), plotSize);
         points.push(new THREE.Vector3(-pt.x, pt.z, pt.y));
     }
     return points;
@@ -109,42 +109,43 @@ function getApoapsisIcon(orbit: Orbit, plotSize: number, nus: number[], color: s
     }
 }
 
-function OrbitLine({orbit, date, plotSize, minDate = -Infinity, maxDate = Infinity, color = {r: 200, g: 200, b: 200}, periapsis=false, apoapsis=false}: {orbit: Orbit, date: number, plotSize: number, minDate?: number, maxDate?: number, color?: IColor, periapsis?: boolean, apoapsis?: boolean}) {
+function OrbitLine({orbit, date, plotSize, minDate = -Infinity, maxDate = Infinity, centeredAt = vec3(0,0,0), depth=0,  name = "Orbit", color = {r: 200, g: 200, b: 200}, periapsis=false, apoapsis=false, setInfoItem}: {orbit: Orbit, date: number, plotSize: number, minDate?: number, maxDate?: number, centeredAt?: Vector3, depth?: number, name?: string, color?: IColor, periapsis?: boolean, apoapsis?: boolean, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>}) {
+    const range = useRef(getTrueAnomalyRange(orbit, minDate, maxDate));
+    const nus = useRef(linspace(range.current.min, range.current.max, 501));
+    const gradientColors = useRef(getGradientColors(color));
+    const colorString = useRef(new Color(color).toString());
 
-    const [range, setRange] = useState(getTrueAnomalyRange(orbit, minDate, maxDate));
-    const [nus, setNus] = useState(linspace(range.min, range.max, 501));
-    const [points, setPoints] = useState(getPoints(orbit, plotSize, nus));
-    const [gradientColors, setGradientColors] = useState(getGradientColors(color));
-    const [colors, setColors] = useState(getColorsAtDate(date, orbit, gradientColors, nus, minDate, maxDate));
-
-    const [colorString, setColorString] = useState(new Color(color).toString());
-    const [periapsisIcon, setPeriapsisIcon] = useState(getPeriapsisIcon(orbit, plotSize, nus, colorString));
-    const [apoapsisIcon, setApoapsisIcon] = useState(getApoapsisIcon(orbit, plotSize, nus, colorString));
-
+    const points = getPoints(orbit, plotSize, nus.current, centeredAt);
+    const colors = getColorsAtDate(date, orbit, gradientColors.current, nus.current, minDate, maxDate);
+    const periapsisIcon = getPeriapsisIcon(orbit, plotSize, nus.current, colorString.current);
+    const apoapsisIcon = getApoapsisIcon(orbit, plotSize, nus.current, colorString.current);
 
     useEffect(() => {
         const newRange = getTrueAnomalyRange(orbit, minDate, maxDate);
-        setRange(newRange);
+        range.current = newRange;
         const newNus = linspace(newRange.min, newRange.max, 501);
-        setNus(newNus);
-        const newPoints = getPoints(orbit, plotSize, newNus)
-        setPoints(newPoints);
-        setPeriapsisIcon(getPeriapsisIcon(orbit, plotSize, newNus, colorString));
-        setApoapsisIcon(getApoapsisIcon(orbit, plotSize, newNus, colorString));
+        nus.current = newNus;
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [orbit, minDate, maxDate, plotSize])
     useEffect(() => {
-        setColorString(new Color(color).toString());
-        setGradientColors(getGradientColors(color));
+        colorString.current = new Color(color).toString();
+        gradientColors.current = getGradientColors(color);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [color])
-    useEffect(() => {
-        setColors(getColorsAtDate(date, orbit, gradientColors, nus, minDate, maxDate));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [date, gradientColors])
 
-    // const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-    // lineGeometry.setAttribute('color', new THREE.BufferAttribute(colors,3))
+    const normalizedCenter = div3(centeredAt, plotSize);
+    const orbitWorldCenter = new THREE.Vector3(-normalizedCenter.x, normalizedCenter.z, normalizedCenter.y);
+    const [visible, setVisible] = useState(true);
+    useFrame((state) => {
+        setVisible(depth === 0 ? true : state.camera.position.distanceTo(orbitWorldCenter) < 10 * (orbit.attractorSoi || Infinity) / plotSize);
+    })
+
+    const handleClick = (e: ThreeEvent<MouseEvent>) => {
+        if(visible) {
+            e.stopPropagation();
+            setInfoItem({...orbit.data, color, name});
+        }
+    }
     return (
         <>
             <Line 
@@ -152,6 +153,8 @@ function OrbitLine({orbit, date, plotSize, minDate = -Infinity, maxDate = Infini
                 color='white'
                 vertexColors={colors}
                 lineWidth={2}
+                onClick={handleClick}
+                visible={visible}
             />
             {periapsis && periapsisIcon}
             {apoapsis && apoapsisIcon}
@@ -159,4 +162,4 @@ function OrbitLine({orbit, date, plotSize, minDate = -Infinity, maxDate = Infini
     );
 }
   
-  export default OrbitLine
+  export default React.memo(OrbitLine);

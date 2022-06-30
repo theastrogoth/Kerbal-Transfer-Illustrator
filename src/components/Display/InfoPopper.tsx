@@ -30,7 +30,7 @@ const getTitle = (info: InfoItem) => {
     if(info === null) {
         return "";
     }else if(info.hasOwnProperty('name')) {
-        return (info as IVessel | ICelestialBody | IOrbitingBody | SoiChangeInfo | ManeuverInfo).name;
+        return (info as IVessel | ICelestialBody | IOrbitingBody | OrbitInfo | SoiChangeInfo | ManeuverInfo).name;
     } else {
         return "";
     }
@@ -60,6 +60,13 @@ const getContent = (info: InfoItem, timeSettings: TimeSettings) => {
         return <Table>
             <TableBody>
                 <OrbitInfoRow name='Orbit' orbit={vesselInfo.orbit} />
+            </TableBody>
+        </Table>;
+    } else if(info.hasOwnProperty('eccentricity')) {
+        const orbitInfo = info as OrbitInfo;
+        return <Table>
+            <TableBody>
+                <OrbitInfoRow name='Orbit' orbit={orbitInfo} />
             </TableBody>
         </Table>;
     } else if(info.hasOwnProperty('orbiting')) {
@@ -97,7 +104,7 @@ function InfoPopper({info, setInfo, parentRef, color=defaultColor}: {info: InfoI
         if(info !== null) {
             setTitle(getTitle(info));
             setContent(getContent(info, timeSettings));
-            const newColor: IColor = (info.hasOwnProperty('color')) ? (info as ICelestialBody | IOrbitingBody | IVessel | ManeuverInfo | SoiChangeInfo).color || defaultColor : defaultColor; 
+            const newColor: IColor = (info.hasOwnProperty('color')) ? (info as ICelestialBody | IOrbitingBody | IVessel | OrbitInfo | ManeuverInfo | SoiChangeInfo).color || defaultColor : defaultColor; 
             setClearColor(getClearColor(newColor)); 
         }
     }, [info, timeSettings])

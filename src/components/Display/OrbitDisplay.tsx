@@ -1,52 +1,40 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
+import Typography from '@mui/material/Typography';
 import Slider from '@mui/material/Slider';
-import DateField from './DateField';
+import DateField from '../DateField';
 
 import { Canvas } from '@react-three/fiber';
-import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
-import SystemDisplay from './Display/SystemDisplay';
 
-import CelestialBody from '../main/objects/body';
-import SolarSystem from '../main/objects/system';
+import CelestialBody from '../../main/objects/body';
+import SolarSystem from '../../main/objects/system';
 
-import { calendarDateToString, timeToCalendarDate } from '../main/libs/math';
-import { makeDateFields, timeFromDateFieldState } from '../utils';
+import { calendarDateToString, timeToCalendarDate } from '../../main/libs/math';
+import { makeDateFields, timeFromDateFieldState } from '../../utils';
 
 import { atom, useAtom } from 'jotai';
-import { timeSettingsAtom } from '../App';
-import TrajectoryDisplay from './Display/TrajectoryDisplay';
+import { timeSettingsAtom } from '../../App';
+import OrbitPlot from './OrbitPlot';
 
 export type OrbitDisplayProps = {
   label:              string,
   index:              number,
   centralBody:        CelestialBody,
   system:             SolarSystem,
+  flightPlans?:       FlightPlan[],
   startDate?:         number,
   endDate?:           number,
-  trajectories?:      Trajectory[],
-  trajectoryNames?:   string[],
-  trajectoryColors?:  IColor[],
-  trajectoryIcons?:   TrajectoryIconInfo[],
   slider?:            boolean,
   marks?:             {value: number, label: string}[],
 }
 
-interface OrbitDisplayPropsWithSetInfo extends OrbitDisplayProps {
+interface OrbitDisplayPropsWithInfo extends OrbitDisplayProps {
   infoItem:     InfoItem,
   setInfoItem:  React.Dispatch<React.SetStateAction<InfoItem>>,
 }
 
-function getPlotSize(centralBody: CelestialBody) {
-  return((centralBody.soi === undefined || centralBody.soi === null || centralBody.soi === Infinity) ? 
-            centralBody.orbiters.length === 0 ? 
-              centralBody.radius * 2 as number :
-            2 * centralBody.furtherstOrbiterDistance as number :
-          centralBody.soi as number);
-}
-
-function OrbitDisplay({centralBody, system, startDate=0, endDate=startDate + 9201600, trajectories=[], trajectoryNames=[], trajectoryColors=[], trajectoryIcons=[], slider=false, marks=[], infoItem, setInfoItem}: OrbitDisplayPropsWithSetInfo) {
+function OrbitDisplay({centralBody, system, flightPlans=[], startDate=0, endDate=startDate + 9201600, slider=false, marks=[], setInfoItem}: OrbitDisplayPropsWithInfo) {
   
   const [timeSettings] = useAtom(timeSettingsAtom);
   const timeSettingsRef = useRef(timeSettings);
@@ -57,8 +45,6 @@ function OrbitDisplay({centralBody, system, startDate=0, endDate=startDate + 920
   const [dateField, setDateField] = useAtom(dateFieldAtom);
   const dateFieldRef = useRef(dateField);
   const [updateFields, setUpdateFields] = useState(false);
-
-  const [plotSize, setPlotSize] = useState(getPlotSize(centralBody) / 10);
 
   useEffect(() => {
     if((timeSettings === timeSettingsRef.current)) {
@@ -71,9 +57,8 @@ function OrbitDisplay({centralBody, system, startDate=0, endDate=startDate + 920
           dateFieldRef.current = calendarDate;
         }
     }
-    setPlotSize(getPlotSize(centralBody));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startDate, centralBody, timeSettings]);
+  }, [startDate, timeSettings]);
 
   useEffect(() => {
       if(dateField !== dateFieldRef.current) {
@@ -94,27 +79,17 @@ function OrbitDisplay({centralBody, system, startDate=0, endDate=startDate + 920
   }, [date, dateField, updateFields, timeSettings]);
   
   return (
-    <Stack sx={{my: 1, mx: 1}} spacing={4} display="flex" alignItems="center" justifyContent="center">
-      <Canvas style={{height: '500px'}} >
-        <color attach="background" args={[0.07, 0.07, 0.07]} />
-        <PerspectiveCamera makeDefault={true} position={[0,1,0]} zoom={1} near={1e-3} />
-        <SystemDisplay centralBody={centralBody} system={system} plotSize={plotSize} date={date} isSun={centralBody.name === system.sun.name} setInfoItem={setInfoItem}/>
-        {trajectories.map((traj, index) => 
-          <TrajectoryDisplay 
-            key={index} 
-            trajectory={traj} 
-            system={system}
-            date={date}
-            plotSize={plotSize}
-            name={trajectoryNames[index]}
-            color={trajectoryColors[index]}
-            icons={trajectoryIcons[index]}
-            infoItem={infoItem}
-            setInfoItem={setInfoItem}
-          />)}
-        <OrbitControls rotateSpeed={0.5} />
+    <Stack sx={{my: 1, mx: 1}} spacing={1} display="flex" alignItems="center" justifyContent="center">
+      <Canvas style={{height: '500px'}} gl={{logarithmicDepthBuffer: true}} frameloop={'always'}>
+        <OrbitPlot 
+          centralBody={centralBody} 
+          system={system} 
+          date={date} 
+          flightPlans={flightPlans}
+          setInfoItem={setInfoItem}
+        />
       </Canvas>
-
+      <Typography>Click object for detailed info. Double-click to focus view.</Typography>
       { slider ? <Slider
         sx={{ width: "60%" }}
         valueLabelDisplay="auto"
@@ -128,6 +103,7 @@ function OrbitDisplay({centralBody, system, startDate=0, endDate=startDate + 920
         onChange={(event) => setDate(Number(event.target.value)) }
         onChangeCommitted={() => { setUpdateFields(true) }}
       /> : <></> }
+      <br/>
       <Box component="div" display="flex" alignItems="center" justifyContent="center" maxWidth="700px">
           <DateField id={'plot-date'} label={'Date'} calendarDateAtom={dateFieldAtom} correctFormat={true} variant="all"/>
       </Box>
