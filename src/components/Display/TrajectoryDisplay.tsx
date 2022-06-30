@@ -151,6 +151,7 @@ function TrajectoryDisplay({trajectory, system, date, plotSize, centeredAt=vec3(
         if(timer.current === null) {
             timer.current = setTimeout(() => {
                 setInfoItem(vessel);
+                timer.current = null;
             }, 300)
         }
     }

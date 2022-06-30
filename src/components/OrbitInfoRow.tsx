@@ -16,7 +16,7 @@ import { useAtom } from "jotai";
 import { copiedOrbitAtom, systemAtom, timeSettingsAtom } from "../App";
 import Orbit from "../main/objects/orbit";
 
-export function OrbitTable({orbit}: {orbit: IOrbit}) {
+export function OrbitTable({orbit, color = undefined}: {orbit: IOrbit, color?: string}) {
     const [system] = useAtom(systemAtom);
     const [timeSettings] = useAtom(timeSettingsAtom);
     const attractor = system.bodyFromId(orbit.orbiting);
@@ -26,57 +26,57 @@ export function OrbitTable({orbit}: {orbit: IOrbit}) {
         <Table size="small">
             <TableBody>
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>Orbiting:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{attractor.name}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Orbiting:</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{attractor.name}</TableCell>
                 </TableRow>
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>Periapsis:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{String(Math.round(fullOrbit.periapsis * 100) / 100).concat("m")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Periapsis:</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(Math.round(fullOrbit.periapsis * 100) / 100).concat("m")}</TableCell>
                 </TableRow>
                 { Number.isFinite(fullOrbit.apoapsis) && 
                     <TableRow>
-                        <TableCell sx={{ borderBottom: 0 }}>Apoapsis:</TableCell>
-                        <TableCell sx={{ borderBottom: 0 }}>{String(Math.round(fullOrbit.apoapsis * 100) / 100).concat("m")}</TableCell>
+                        <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Apoapsis:</TableCell>
+                        <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(Math.round(fullOrbit.apoapsis * 100) / 100).concat("m")}</TableCell>
                     </TableRow>
                 }
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>Sidereal Period:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{dateString}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Sidereal Period:</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{dateString}</TableCell>
                 </TableRow>
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>Semi-major axis:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{String(orbit.semiMajorAxis).concat("m")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Semi-major axis:</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(orbit.semiMajorAxis).concat("m")}</TableCell>
                 </TableRow>
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>Eccentricity:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{String(orbit.eccentricity)}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Eccentricity:</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(orbit.eccentricity)}</TableCell>
                 </TableRow>
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>Inclination:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{String(radToDeg(orbit.inclination)).concat("°")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Inclination:</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(radToDeg(orbit.inclination)).concat("°")}</TableCell>
                 </TableRow>
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>Argument of the periapsis:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{String(radToDeg(orbit.argOfPeriapsis)).concat("°")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Argument of the periapsis:</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(radToDeg(orbit.argOfPeriapsis)).concat("°")}</TableCell>
                 </TableRow>
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>Longitude of the Ascending Node:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{String(radToDeg(orbit.ascNodeLongitude)).concat("°")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Longitude of the Ascending Node:</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(radToDeg(orbit.ascNodeLongitude)).concat("°")}</TableCell>
                 </TableRow>
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>Mean anomaly at Epoch:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{String(orbit.meanAnomalyEpoch).concat(" rad")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Mean anomaly at Epoch:</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(orbit.meanAnomalyEpoch).concat(" rad")}</TableCell>
                 </TableRow>
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>Epoch:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{String(orbit.epoch).concat("s")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Epoch:</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(orbit.epoch).concat("s")}</TableCell>
                 </TableRow>
             </TableBody>
         </Table>
     )
 }
 
-function OrbitInfoRow({name, orbit}: {name: string, orbit: IOrbit}) {
+function OrbitInfoRow({name, color = undefined, orbit}: {name: string, color?: string, orbit: IOrbit}) {
     const [copiedOrbit, setCopiedOrbit] = useAtom(copiedOrbitAtom);
 
     const [open, setOpen] = useState(false);
@@ -88,24 +88,24 @@ function OrbitInfoRow({name, orbit}: {name: string, orbit: IOrbit}) {
     return (
     <>
         <TableRow >
-            <TableCell sx={{ borderBottom: 0 }}>
+            <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>
                 <IconButton
                     size="small"
                     onClick={ handleToggle }
                 >
-                    {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+                    {open ? <ArrowDropUpIcon style={{color: color}}/> : <ArrowDropDownIcon style={{color: color}}/>}
                 </IconButton>
             </TableCell>
-            <TableCell sx={{ borderBottom: 0}}>{name}</TableCell>
-            <TableCell sx={{ borderBottom: 0}}>
+            <TableCell style={{color: color}} sx={{ borderBottom: 0}}>{name}</TableCell>
+            <TableCell style={{color: color}} sx={{ borderBottom: 0}}>
                 <CopyButton obj={orbit} copiedObj={copiedOrbit} setCopiedObj={setCopiedOrbit} />
             </TableCell>
         </TableRow>
         <TableRow>
-            <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={3} sx={{ borderBottom: 0 }}>
+            <TableCell style={{ paddingBottom: 0, paddingTop: 0, color: color }} colSpan={3} sx={{ borderBottom: 0 }}>
                 <Collapse in={open} timeout="auto" unmountOnExit>
                     <Box component="div" sx={{ margin: 1 }}>
-                        <OrbitTable orbit={orbit} />
+                        <OrbitTable orbit={orbit} color={color} />
                     </Box>
                 </Collapse>
             </TableCell>

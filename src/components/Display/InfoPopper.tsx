@@ -42,7 +42,7 @@ const getContent = (info: InfoItem, timeSettings: TimeSettings) => {
     } else if(info.hasOwnProperty('preState')) {
         return <Table>
             <TableBody>
-                <ManeuverInfoRow maneuver={info as Maneuver} />
+                <ManeuverInfoRow maneuver={info as Maneuver} color={'white'} />
             </TableBody>
         </Table>;
     } else if(info.hasOwnProperty('pos')) {
@@ -50,8 +50,8 @@ const getContent = (info: InfoItem, timeSettings: TimeSettings) => {
         return <Table>
             <TableBody>
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>Date:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{dateString}</TableCell>
+                    <TableCell style={{color: 'white'}} sx={{ borderBottom: 0 }}>Date:</TableCell>
+                    <TableCell style={{color: 'white'}} sx={{ borderBottom: 0 }}>{dateString}</TableCell>
                 </TableRow>
             </TableBody>
         </Table>;
@@ -59,28 +59,28 @@ const getContent = (info: InfoItem, timeSettings: TimeSettings) => {
         const vesselInfo = info as IVessel;
         return <Table>
             <TableBody>
-                <OrbitInfoRow name='Orbit' orbit={vesselInfo.orbit} />
+                <OrbitInfoRow name='Orbit' color="white" orbit={vesselInfo.orbit} />
             </TableBody>
         </Table>;
     } else if(info.hasOwnProperty('eccentricity')) {
         const orbitInfo = info as OrbitInfo;
         return <Table>
             <TableBody>
-                <OrbitInfoRow name='Orbit' orbit={orbitInfo} />
+                <OrbitInfoRow name='Orbit' color="white" orbit={orbitInfo} />
             </TableBody>
         </Table>;
     } else if(info.hasOwnProperty('orbiting')) {
         const orbitingBodyInfo = info as IOrbitingBody;
         return <Table>
             <TableBody>
-                <BodyInfoRow body={new CelestialBody(orbitingBodyInfo)} />
-                <OrbitInfoRow name='Orbit' orbit={orbitingBodyInfo.orbit} />
+                <BodyInfoRow color="white" body={new CelestialBody(orbitingBodyInfo)} />
+                <OrbitInfoRow name='Orbit' color="white" orbit={orbitingBodyInfo.orbit} />
             </TableBody>
         </Table>;
     } else if(info.hasOwnProperty('radius')) {
         return <Table>
             <TableBody>
-                <BodyInfoRow body={new CelestialBody(info as ICelestialBody)} />
+                <BodyInfoRow color="white" body={new CelestialBody(info as ICelestialBody)} />
             </TableBody>
         </Table>;
     } else {
@@ -135,14 +135,14 @@ function InfoPopper({info, setInfo, parentRef, color=defaultColor}: {info: InfoI
                 <Stack ref={ref} sx={{ p: 1, bgcolor: clearColor, borderRadius: 10, width: maxWidth, maxHeight: maxHeight, overflowY: 'auto', overflowX: 'clip' }}>
                     <Stack direction="row">
                         <Box component="div" sx={{ p: 1 }}>
-                        <Typography variant="body1">
+                        <Typography variant="body1" style={{color: 'white'}}>
                             {title}
                         </Typography>
                         </Box>
                         <Box component="div" flexGrow={1} />
                         <Box component="div" sx={{float: "right"}}>
                             <IconButton size="small" onClick={() => setInfo(null)}>
-                                <CloseIcon />
+                                <CloseIcon style={{color: 'white'}}/>
                             </IconButton>
                         </Box>
                     </Stack>

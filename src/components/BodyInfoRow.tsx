@@ -11,36 +11,36 @@ import Box from "@mui/system/Box";
 
 import CelestialBody from "../main/objects/body";
 
-export function BodyTable({body}: {body: CelestialBody}) {
+export function BodyTable({body, color = undefined}: {body: CelestialBody, color?: string}) {
     return (
         <Table size="small">
             <TableBody>
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>Radius:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{String(body.radius).concat("m")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Radius:</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(body.radius).concat("m")}</TableCell>
                 </TableRow>
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>Mass:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{String(body.mass).concat("kg")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Mass:</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(body.mass).concat("kg")}</TableCell>
                 </TableRow>
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>Rotation Period:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{String(body.rotationPeriod).concat("s")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Rotation Period:</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(body.rotationPeriod).concat("s")}</TableCell>
                 </TableRow>
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>Surface Gravity:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{String(body.geeASL).concat(" gees")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Surface Gravity:</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(body.geeASL).concat(" gees")}</TableCell>
                 </TableRow>
                 { body.soi && 
                     <TableRow>
-                        <TableCell sx={{ borderBottom: 0 }}>Sphere of Influence:</TableCell>
-                        <TableCell sx={{ borderBottom: 0 }}>{String(body.soi as number).concat("m")}</TableCell>
+                        <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Sphere of Influence:</TableCell>
+                        <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(body.soi as number).concat("m")}</TableCell>
                     </TableRow>
                 }
                 { body.atmosphereHeight > 0 &&
                     <TableRow>
-                        <TableCell sx={{ borderBottom: 0 }}>Atmosphere Height:</TableCell>
-                        <TableCell sx={{ borderBottom: 0 }}>{String(body.atmosphereHeight).concat("m")}</TableCell>
+                        <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Atmosphere Height:</TableCell>
+                        <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(body.atmosphereHeight).concat("m")}</TableCell>
                     </TableRow>
                 }
             </TableBody>
@@ -48,7 +48,7 @@ export function BodyTable({body}: {body: CelestialBody}) {
     )
 }
 
-function BodyInfoRow({name = 'Physical Characteristics', body}: {name?: string, body: CelestialBody}) {
+function BodyInfoRow({name = 'Physical Characteristics', color = undefined, body}: {name?: string, color?: string, body: CelestialBody}) {
     const [open, setOpen] = useState(false);
 
     const handleToggle = () => {
@@ -58,21 +58,21 @@ function BodyInfoRow({name = 'Physical Characteristics', body}: {name?: string, 
     return (
     <>
         <TableRow >
-            <TableCell sx={{ borderBottom: 0 }}>
+            <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>
                 <IconButton
                     size="small"
                     onClick={ handleToggle }
                 >
-                    {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+                    {open ? <ArrowDropUpIcon style={{color: color}} /> : <ArrowDropDownIcon style={{color: color}} />}
                 </IconButton>
             </TableCell>
-            <TableCell sx={{ borderBottom: 0}}>{name}</TableCell>
+            <TableCell style={{color: color}} sx={{ borderBottom: 0}}>{name}</TableCell>
         </TableRow>
         <TableRow>
-            <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={3} sx={{ borderBottom: 0 }}>
+            <TableCell style={{ paddingBottom: 0, paddingTop: 0, color: color}} colSpan={3} sx={{ borderBottom: 0 }}>
                 <Collapse in={open} timeout="auto" unmountOnExit>
                     <Box component="div" sx={{ margin: 1 }}>
-                        <BodyTable body={body} />
+                        <BodyTable body={body} color={color} />
                     </Box>
                 </Collapse>
             </TableCell>

@@ -17,33 +17,33 @@ import { timeToCalendarDate, calendarDateToString } from "../main/libs/math";
 import { copiedManeuverAtom, timeSettingsAtom } from "../App";
 
 
-export function ManeuverTable({maneuver}: {maneuver: Maneuver}) {
+export function ManeuverTable({maneuver, color=undefined}: {maneuver: Maneuver, color?: string}) {
     const maneuverComponents: ManeuverComponents = Kepler.maneuverToComponents(maneuver);
     return (
         <Table size="small">
             <TableBody>
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>Prograde:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{String(maneuverComponents.prograde).concat(" m/s")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Prograde:</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(maneuverComponents.prograde).concat(" m/s")}</TableCell>
                 </TableRow>
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>Normal:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{String(maneuverComponents.normal).concat(" m/s")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Normal:</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(maneuverComponents.normal).concat(" m/s")}</TableCell>
                 </TableRow>
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>Radial:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{String(maneuverComponents.radial).concat(" m/s")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Radial:</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(maneuverComponents.radial).concat(" m/s")}</TableCell>
                 </TableRow>
                 <TableRow>
-                    <TableCell sx={{ borderBottom: 0 }}>UT:</TableCell>
-                    <TableCell sx={{ borderBottom: 0 }}>{String(maneuverComponents.date).concat("s")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>UT:</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(maneuverComponents.date).concat("s")}</TableCell>
                 </TableRow>
             </TableBody>
         </Table>
     )
 }
 
-function ManeuverInfoRow({name = undefined, maneuver}: {name?: String, maneuver: Maneuver}) {
+function ManeuverInfoRow({name = undefined, color = undefined, maneuver}: {name?: String, color?: string, maneuver: Maneuver}) {
     const [open, setOpen] = useState(false);
     const [copiedManeuver, setCopiedManeuver] = useAtom(copiedManeuverAtom);
     const [timeSettings] = useAtom(timeSettingsAtom);
@@ -55,26 +55,27 @@ function ManeuverInfoRow({name = undefined, maneuver}: {name?: String, maneuver:
     return (
     <>
         <TableRow>
-            <TableCell sx={{ borderBottom: 0 }}>
+            <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>
                 <IconButton
                     size="small"
                     onClick={ handleToggle }
+                    style={{color: color}}
                 >
                     {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
                 </IconButton>
             </TableCell>
             {name &&
-                <TableCell sx={{ borderBottom: 0 }}>
+                <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>
                     {name}
                 </TableCell>
             }
-            <TableCell sx={{ borderBottom: 0 }}>
+            <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>
                 {String(Math.round(maneuver.deltaVMag * 100) / 100).concat( " m/s")}
             </TableCell>
-            <TableCell sx={{ borderBottom: 0 }}>
+            <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>
                 {calendarDateToString(timeToCalendarDate(maneuver.preState.date, timeSettings, 1, 1))}
             </TableCell>
-            <TableCell sx={{ borderBottom: 0 }}>
+            <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>
                 <CopyButton obj={Kepler.maneuverToComponents(maneuver)} copiedObj={copiedManeuver} setCopiedObj={setCopiedManeuver}/>
             </TableCell>
         </TableRow>
@@ -82,7 +83,7 @@ function ManeuverInfoRow({name = undefined, maneuver}: {name?: String, maneuver:
             <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={4} sx={{ borderBottom: 0 }}>
                 <Collapse in={open} timeout="auto">
                     <Box component="div" sx={{ margin: 1 }}>
-                        <ManeuverTable maneuver={maneuver} />
+                        <ManeuverTable maneuver={maneuver} color={color}/>
                     </Box>
                 </Collapse>
             </TableCell>
