@@ -1,6 +1,6 @@
-import React, { /* Suspense, */ useRef, useEffect, useState } from 'react';
+import React, { Suspense, useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
-import { ThreeEvent, useFrame, /* useLoader */ } from '@react-three/fiber';
+import { ThreeEvent, useFrame, useLoader } from '@react-three/fiber';
 import textures from '../../textureData';
 
 import SolarSystem from '../../main/objects/system';
@@ -8,7 +8,7 @@ import CelestialBody, { OrbitingBody } from '../../main/objects/body';
 import Color from '../../main/objects/color';
 
 import Kepler from '../../main/libs/kepler';
-import { /* TWO_PI, degToRad, */ linspace, wrapAngle, vec3, sub3, div3, hexFromColorString } from '../../main/libs/math';
+import { TWO_PI, degToRad, linspace, wrapAngle, vec3, sub3, div3, hexFromColorString } from '../../main/libs/math';
 
 import sphereIcon from '../../assets/icons/sphere.png';
 const sphereTexture = new THREE.TextureLoader().load(sphereIcon);
@@ -60,7 +60,7 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
 
     const hasTexture = useRef(textures.get(body.name) !== undefined);
     const textureURL= useRef(textures.get(body.name) || textures.get("blank") as string);
-    // const texture = useLoader(THREE.TextureLoader, textureURL.current);
+    const texture = useLoader(THREE.TextureLoader, textureURL.current);
 
     const timer = useRef<NodeJS.Timeout | null>(null);
 
@@ -108,23 +108,24 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
         <>    
         <mesh 
             position={position}
+            rotation={[0, degToRad(body.initialRotation || 0) + TWO_PI * ((date % (body.rotationPeriod || Infinity)) / (body.rotationPeriod || Infinity)), 0]} 
             onClick={handleClick(closeVisible)}
             onDoubleClick={handleDoubleClick(closeVisible)}
             visible={closeVisible}
         >
             <sphereGeometry args={[body.radius / plotSize, 32, 32]} />
-            {/* <Suspense
-            fallback={isSun ? <meshBasicMaterial color={color.current} />
-                            : <meshLambertMaterial color={color.current} />
-                    }
+            <Suspense
+                fallback={isSun ? <meshBasicMaterial color={color.current} />
+                                : <meshLambertMaterial color={color.current} />
+                        }
             >
                 {isSun ? <meshBasicMaterial color={hasTexture.current ? 'white' : color.current} map={texture} />
                     : <meshLambertMaterial color={hasTexture.current ? 'white' : color.current} map={texture} />
                 }
-            </Suspense> */}
-            {isSun ? <meshBasicMaterial color={color.current} />
+            </Suspense>
+            {/* {isSun ? <meshBasicMaterial color={color.current} />
                             : <meshLambertMaterial color={color.current} />
-            }
+            } */}
         </mesh>
         {body.atmosphereHeight > 0 &&
             <mesh position={position} visible={closeVisible}>
