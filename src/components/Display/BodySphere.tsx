@@ -1,6 +1,7 @@
 import React, { Suspense, useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
-import { ThreeEvent, useFrame, useLoader } from '@react-three/fiber';
+import { ThreeEvent, useFrame } from '@react-three/fiber';
+import { useTexture } from '@react-three/drei';
 import textures from '../../textureData';
 
 import SolarSystem from '../../main/objects/system';
@@ -53,6 +54,14 @@ function getCentralBodyOrbit(body: OrbitingBody, date: number, plotSize: number)
     )
 }
 
+function BodyTexture({textureURL, isSun = false, hasTexture = true, color = 'white'}: {textureURL: string, isSun?: boolean, hasTexture?: boolean, color?: string}) {
+    const texture = useTexture(textureURL);
+    return (
+    isSun   ? <meshBasicMaterial color={hasTexture ? 'white' : color} map={texture} />
+            : <meshLambertMaterial color={hasTexture ? 'white' : color} map={texture} />       
+    )
+}
+
 function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, centeredAt = vec3(0,0,0), setInfoItem, setTarget}: BodySphereProps) {
     const color = useRef(hexFromColorString(body.color.toString()));
     const soiColor= useRef(hexFromColorString(body.color.rescale(0.5).toString()));
@@ -60,7 +69,7 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
 
     const hasTexture = useRef(textures.get(body.name) !== undefined);
     const textureURL= useRef(textures.get(body.name) || textures.get("blank") as string);
-    const texture = useLoader(THREE.TextureLoader, textureURL.current);
+    // const texture = useTexture(textureURL.current);
 
     const timer = useRef<NodeJS.Timeout | null>(null);
 
@@ -119,13 +128,8 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
                                 : <meshLambertMaterial color={color.current} />
                         }
             >
-                {isSun ? <meshBasicMaterial color={hasTexture.current ? 'white' : color.current} map={texture} />
-                    : <meshLambertMaterial color={hasTexture.current ? 'white' : color.current} map={texture} />
-                }
+                <BodyTexture textureURL={textureURL.current} isSun={isSun} hasTexture={hasTexture.current} color={color.current}/>
             </Suspense>
-            {/* {isSun ? <meshBasicMaterial color={color.current} />
-                            : <meshLambertMaterial color={color.current} />
-            } */}
         </mesh>
         {body.atmosphereHeight > 0 &&
             <mesh position={position} visible={closeVisible}>

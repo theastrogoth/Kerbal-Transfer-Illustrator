@@ -36,7 +36,7 @@ function getColorsAtDate(date: number, orbit: IOrbit, gradientColors: [number, n
     const shiftLength = nus.length - shiftIndex + 1;
     const firstHalf: [number, number, number][] = gradientColors.slice(shiftLength);
     let secondHalf: [number, number, number][];
-    if((Math.abs(nus[nus.length-1] - nus[0])%TWO_PI) > 1e-3) {
+    if((Math.abs(nus[nus.length-1] - nus[0] + 1e-6)%TWO_PI) > 1e-3) {
         secondHalf = Array(shiftLength).fill(gradientColors[10]);
     } else {
         secondHalf = gradientColors.slice(0, shiftLength);
