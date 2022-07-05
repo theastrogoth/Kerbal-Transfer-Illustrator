@@ -15,6 +15,7 @@ type NumberFieldProps = {
     error?:     boolean,
     onChange?:  (event: React.ChangeEvent<HTMLInputElement>) => void,
     sx?:        any,
+    disabled?:  boolean,
 }
 
 type IncrementButtonProps = {
@@ -25,9 +26,10 @@ type IncrementButtonProps = {
     min?:       number,
     text?:      string,
     style?:     any,
+    disabled?:  boolean,
 }
 
-function IncrementButton({value, setValue, step = 1, max = Infinity, min = -Infinity, text="+", style={}}: IncrementButtonProps) {
+function IncrementButton({value, setValue, step = 1, max = Infinity, min = -Infinity, text="+", disabled = false, style={}}: IncrementButtonProps) {
     const counterRef = useRef(0);
     const intervalRef = useRef<null | NodeJS.Timer>(null);
 
@@ -86,6 +88,7 @@ function IncrementButton({value, setValue, step = 1, max = Infinity, min = -Infi
             onTouchStart={startIncrement}
             onTouchEnd={stopIncrement}
             // onTouchMove={stopIncrement}
+            disabled={disabled}
             style={{    
                     mx: 0,
                     my: 0,
@@ -100,7 +103,7 @@ function IncrementButton({value, setValue, step = 1, max = Infinity, min = -Infi
     )
 }
 
-const RequiredNumberField = React.memo(function WrappedRequiredNumberField({label, value, setValue, step = 1, max = Infinity, min = -Infinity, error = false, onChange = (e) => {}, sx = {}}: NumberFieldProps) {
+const RequiredNumberField = React.memo(function WrappedRequiredNumberField({label, value, setValue, step = 1, max = Infinity, min = -Infinity, error = false, onChange = (e) => {}, disabled = false, sx = {}}: NumberFieldProps) {
     const numValue = Number(value);
     return (
     <Stack direction='row' spacing={0} sx={{marginBottom: 1}}>
@@ -112,6 +115,7 @@ const RequiredNumberField = React.memo(function WrappedRequiredNumberField({labe
             max={max}
             text="-"
             style={{borderRadius: "8px 0 0 8px"}} 
+            disabled={disabled}
         />
         <TextField
             type="text"
@@ -122,6 +126,7 @@ const RequiredNumberField = React.memo(function WrappedRequiredNumberField({labe
             error={isNaN(numValue) || numValue < min || numValue > max || error}
             onChange={onChange}
             sx={sx}
+            disabled={disabled}
         />
         <IncrementButton 
             value={value} 
@@ -131,13 +136,14 @@ const RequiredNumberField = React.memo(function WrappedRequiredNumberField({labe
             max={max}
             text="+"
             style={{borderRadius: "0 8px 8px 0", marginRight: "8px" }} 
+            disabled={disabled}
         />
     </Stack>
 
     )
-}, (prevProps, nextProps) => prevProps.value === nextProps.value && prevProps.error === nextProps.error);
+}, (prevProps, nextProps) => prevProps.value === nextProps.value && prevProps.error === nextProps.error && prevProps.disabled === nextProps.disabled);
 
-export const NumberField = React.memo(function WrappedNumberField({label, value, setValue, step = 1, max = Infinity, min = -Infinity, error = false, onChange = (e) => {}, sx = {}}: NumberFieldProps) {
+export const NumberField = React.memo(function WrappedNumberField({label, value, setValue, step = 1, max = Infinity, min = -Infinity, error = false, onChange = (e) => {}, disabled=false, sx = {}}: NumberFieldProps) {
     const numValue = Number(value);
     return (
         <Stack direction='row' spacing={0} sx={{marginBottom: 1}}>
@@ -149,8 +155,8 @@ export const NumberField = React.memo(function WrappedNumberField({label, value,
                 min={min}
                 max={max}
                 text="-"
-                style={{borderRadius: "8px 0 0 8px"}
-            } 
+                style={{borderRadius: "8px 0 0 8px"}}
+                disabled={disabled}
             />
             <TextField
                 type="text"
@@ -161,6 +167,7 @@ export const NumberField = React.memo(function WrappedNumberField({label, value,
                 error={isNaN(numValue) || numValue < min || numValue > max || error}
                 onChange={onChange}
                 sx={sx}
+                disabled={disabled}
             />
             <IncrementButton 
                 key={label + "+"}
@@ -171,9 +178,10 @@ export const NumberField = React.memo(function WrappedNumberField({label, value,
                 max={max}
                 text="+"
                 style={{borderRadius: "0 8px 8px 0", marginRight: "8px" }} 
+                disabled={disabled}
             />
         </Stack>
     )
-}, (prevProps, nextProps) => prevProps.value === nextProps.value && prevProps.error === nextProps.error);
+}, (prevProps, nextProps) => prevProps.value === nextProps.value && prevProps.error === nextProps.error && prevProps.disabled === nextProps.disabled);
 
 export default RequiredNumberField; 

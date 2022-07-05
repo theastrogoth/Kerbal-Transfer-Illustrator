@@ -14,7 +14,7 @@ import { Canvas } from '@react-three/fiber';
 import CelestialBody from '../../main/objects/body';
 import SolarSystem from '../../main/objects/system';
 
-import { calendarDateToString, clamp, timeToCalendarDate } from '../../main/libs/math';
+import { calendarDateToString, calendarDateToTime, clamp, timeToCalendarDate } from '../../main/libs/math';
 import { makeDateFields, timeFromDateFieldState } from '../../utils';
 
 import { atom, useAtom } from 'jotai';
@@ -65,19 +65,21 @@ function OrbitDisplay({tabValue = 0, centralBody, system, flightPlans=[], startD
   const speedRef = useRef(speed);
   const intervalRef = useRef<null | NodeJS.Timer>(null);
   const counterRef = useRef(0);
-  const frameRate = useRef(30).current;                   // per second
+  const frameRate = useRef(60).current;                   // per second
   const frameDuration = useRef(1000/frameRate).current;   // ms
+  const realTime = useRef(Date.now());
+  const [dateFieldDisabled, setDateFieldDisabled] = useState(false);
 
   const handleWarp = () => {
-      setDate((prevDate) => {
+      setDateField((prevDateField) => {
+        const currentTime = Date.now();
+        const interval = currentTime - realTime.current;
+        realTime.current = currentTime;
         counterRef.current = counterRef.current + 1;
-        const newDate = prevDate + speedRef.current / frameRate;
-        if(counterRef.current % Math.ceil(frameRate / 10) === 0) {
-          const calendarDate = timeToCalendarDate(newDate, timeSettings, 1, 1);
-          setDateField(calendarDate);
-          dateFieldRef.current = calendarDate;
-        }
-        return newDate;
+        const prevDate = calendarDateToTime(prevDateField, timeSettings, 1, 1);
+        const newDate = prevDate + speedRef.current * interval / 1000;
+        const newDateField = timeToCalendarDate(newDate, timeSettings, 1, 1)
+        return newDateField;
       });
   }
 
@@ -86,14 +88,16 @@ function OrbitDisplay({tabValue = 0, centralBody, system, flightPlans=[], startD
       intervalRef.current = setInterval(() => {
           handleWarp();
       }, frameDuration);
+      setDateFieldDisabled(true);
   };
 
   const stopWarp = () => {
       if (intervalRef.current) {
           clearInterval(intervalRef.current);
-          intervalRef.current = null;
-          counterRef.current = 0;
       }
+      intervalRef.current = null;
+      counterRef.current = 0;
+      setDateFieldDisabled(false);
   };
 
   useEffect(() => {
@@ -160,13 +164,14 @@ function OrbitDisplay({tabValue = 0, centralBody, system, flightPlans=[], startD
         max={Math.floor(eDate)}
         step={Math.max((eDate-sDate)/1000, 1)}
         marks={marks}
+        disabled={dateFieldDisabled}
         /* @ts-ignore */
         onChange={(event) => setDate(Number(event.target.value)) }
         onChangeCommitted={() => { setUpdateFields(true) }}
       /> : <></> }
       <br/>
       <Box component="div" display="flex" alignItems="center" justifyContent="center" maxWidth="700px">
-          <DateField id={'plot-date'} label={'Date'} calendarDateAtom={dateFieldAtom} correctFormat={true} variant="all"/>
+          <DateField id={'plot-date'} label={'Date'} calendarDateAtom={dateFieldAtom} correctFormat={true} variant="all" disabled={dateFieldDisabled}/>
       </Box>
       <Button 
           variant="text" 

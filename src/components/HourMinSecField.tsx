@@ -9,7 +9,7 @@ const toHHMMSS = (hours: string, minutes: string, seconds: string) => {
     // .replace(/^0/, "");
 };
 
-type HourMinSecState = {
+type HourMinSecProps = {
   hour:       string,
   setHour:    React.Dispatch<React.SetStateAction<string>>,
   minute:     string,
@@ -17,9 +17,10 @@ type HourMinSecState = {
   second:     string,
   setSecond:  React.Dispatch<React.SetStateAction<string>>,
   error:      boolean,
+  disabled?:  boolean,
 }
 
-function HourMinSecField({hour, setHour, minute, setMinute, second, setSecond, error = false}: HourMinSecState) {
+function HourMinSecField({hour, setHour, minute, setMinute, second, setSecond, error = false, disabled}: HourMinSecProps) {
   const [value, setValue] = React.useState(toHHMMSS(hour, minute, second));
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,7 +54,9 @@ function HourMinSecField({hour, setHour, minute, setMinute, second, setSecond, e
       onChange={onChange} 
       onBlur={onBlur}
       error={error} 
-      value={value} />
+      value={value} 
+      disabled={disabled}
+    />
   )
 }
 

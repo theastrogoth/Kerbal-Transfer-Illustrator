@@ -10,11 +10,12 @@ import { Typography } from "@mui/material";
 type DateFieldProps = {
     id:                 string,
     label:              string,
-    calendarDateAtom:  PrimitiveAtom<CalendarDate>,
+    calendarDateAtom:   PrimitiveAtom<CalendarDate>,
     required?:          boolean,
     error?:             boolean,
     correctFormat?:     boolean,
     variant?:           "hour" | "hhmmss" | "all",
+    disabled?:          boolean,
 }
 
 function handleChange(setFunction: Function) {
@@ -25,7 +26,7 @@ function handleChange(setFunction: Function) {
     )
 }
 
-function DateField({id, label, calendarDateAtom, required = false, error = false, correctFormat = false, variant = "hour"}: DateFieldProps) {
+function DateField({id, label, calendarDateAtom, required = false, error = false, correctFormat = false, variant = "hour", disabled = false}: DateFieldProps) {
     const [calendarDate, setCalendarDate] = useAtom(calendarDateAtom);
     const calendarDateRef = useRef(calendarDate);
 
@@ -49,6 +50,7 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                                     second={second}
                                     setSecond={setSecond}
                                     error={error} 
+                                    disabled={disabled}
                                 /> :
                          variant === "hour" ? <NumField
                                     label='Hour'
@@ -57,6 +59,7 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                                     error={error}    
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHour(e.target.value)} 
                                     sx={{minWidth: "60px", maxWidth: "65px"}}
+                                    disabled={disabled}
                                 /> :
                         [
                             <NumField
@@ -67,6 +70,7 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                                 error={error}    
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHour(e.target.value)}
                                 sx={{minWidth: "60px", maxWidth: "65px"}}
+                                disabled={disabled}
                             />,
                             <NumField
                                 key='min'
@@ -76,6 +80,7 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                                 error={error}    
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMinute(e.target.value)} 
                                 sx={{minWidth: "60px", maxWidth: "65px"}}
+                                disabled={disabled}
                             />,
                             <NumField
                                 key='sec'
@@ -85,6 +90,7 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                                 error={error}    
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSecond(e.target.value)} 
                                 sx={{minWidth: "60px", maxWidth: "78px"}}
+                                disabled={disabled}
                             />,
                         ];
 
@@ -239,6 +245,7 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                     error={error}    
                     onChange={handleChange(setYear)} 
                     sx={{minWidth: "60px", maxWidth: "65px"}}
+                    disabled={disabled}
                 />      
                 <NumField
                     label='Day'
@@ -247,6 +254,7 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                     error={error}    
                     onChange={handleChange(setDay)} 
                     sx={{minWidth: "60px", maxWidth: "65px"}}
+                    disabled={disabled}
                 />            
                 {HourField}
             </Stack>
