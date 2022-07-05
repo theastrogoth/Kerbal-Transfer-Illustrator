@@ -73,7 +73,9 @@ function OrbitDisplay({tabValue = 0, centralBody, system, flightPlans=[], startD
         counterRef.current = counterRef.current + 1;
         const newDate = prevDate + speedRef.current / frameRate;
         if(counterRef.current % Math.ceil(frameRate / 10) === 0) {
-          setUpdateFields(true);
+          const calendarDate = timeToCalendarDate(newDate, timeSettings, 1, 1);
+          setDateField(calendarDate);
+          dateFieldRef.current = calendarDate;
         }
         return newDate;
       });
@@ -91,7 +93,6 @@ function OrbitDisplay({tabValue = 0, centralBody, system, flightPlans=[], startD
           clearInterval(intervalRef.current);
           intervalRef.current = null;
           counterRef.current = 0;
-          setUpdateFields(true);
       }
   };
 
