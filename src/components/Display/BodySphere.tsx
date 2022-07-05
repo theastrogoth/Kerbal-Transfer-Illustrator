@@ -119,7 +119,6 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
         }
     }
 
-    console.log(body.name, displayOptions.bodyNames && farVisible)
     return (
         <>    
         {displayOptions.bodies && 

@@ -361,13 +361,14 @@ class TransferCalculator {
         this._soiPatchPositions = this.calculateSoiPatches();
     }
 
-    private soiPatchPositionError() {
+    private soiPatchPositionErrors() {
         const soiPatchPositions = this.calculateSoiPatches();
-        let err = 0.0;
-        for(let i=0; i<this._soiPatchPositions.length; i++) {
-            err += mag3(sub3(this._soiPatchPositions[i], soiPatchPositions[i]));
-        }
-        return err;
+        return soiPatchPositions.map((pos, i) => mag3(sub3(this._soiPatchPositions[i], pos)));
+    }
+
+    private soiPatchPositionError() {
+        const errors = this.soiPatchPositionErrors();
+        return errors.reduce((p,c) => p + c);
     }
 
     private soiPatchUpTimeErrors() {
@@ -456,14 +457,15 @@ class TransferCalculator {
     }
 
     private initialPositionAndAnglePoints() {
-        const initialPoints: number[][] = [[this._startDate, this._flightTime, ...this.patchPositionsToAngles()],                                                                                           // current start and end dates
-                                           [this._startDate + randomSign() * Math.random() * this._transferTrajectory.orbits[0].siderealPeriod / 4, this._flightTime, ...this.patchPositionsToAngles()],    // perturb start date
-                                           [this._startDate, this._flightTime + randomSign() * Math.random() * this._transferTrajectory.orbits[0].siderealPeriod / 4, ...this.patchPositionsToAngles()]];   // perturb end date
-        for(let i = 1; i <= this._soiPatchBodies.length; i++) {                                                                                                                                             // perturb each SoI angle                  
+        const initialPoints: number[][] = [[this._startDate, this._flightTime, ...this.patchPositionsToAngles()],   // current dates and positions
+                                           [this._startDate + randomSign() * 10 * this.soiPatchTimeError(), this._flightTime, ...this.patchPositionsToAngles()],  // perturb start date
+                                           [this._startDate, this._flightTime + randomSign() * 10 * this.soiPatchTimeError(), ...this.patchPositionsToAngles()]]; // perturb end date
+        const posErrors = this.soiPatchPositionErrors();
+        for(let i = 1; i <= this._soiPatchBodies.length; i++) { // perturb each SoI angle                  
             const newPoint1 = initialPoints[0].slice();
             const newPoint2 = initialPoints[0].slice();
-            newPoint1[2 * i]     += randomSign() * (Math.random() * Math.PI / 24);
-            newPoint2[2 * i + 1] += randomSign() * (Math.random() * Math.PI / 12);
+            newPoint1[2 * i]     += randomSign() * Math.min(Math.PI / 24, 1e6 * posErrors[i-1] / this._soiPatchBodies[i-1].soi);
+            newPoint2[2 * i + 1] += randomSign() * Math.min(Math.PI / 12, 1e6 * posErrors[i-1] / this._soiPatchBodies[i-1].soi);
             initialPoints.push(newPoint1);
             initialPoints.push(newPoint2);
         }
@@ -478,6 +480,10 @@ class TransferCalculator {
         if(mag3(this._soiPatchPositions[0]) === 0) {
             this.setSoiPatchPositions();
         }
+        const originalDeltaV = this._deltaV;
+        const summedSoIs = this._soiPatchBodies.reduce((p,c) => p + c.soi, 0.0);
+        const summedDurations = this._ejections.map(ejection => ejection.intersectTimes[ejection.intersectTimes.length-1] - ejection.intersectTimes[0]).reduce((p,c) => p + c) + 
+                                this._insertions.map(insertion => insertion.intersectTimes[insertion.intersectTimes.length-1] - insertion.intersectTimes[0]).reduce((p,c) => p + c);
         const objective = (x: number[]): number => {
             // the first two elements of x are the transfer start date and transfer end date
             // the remaining elements of x contain alternating theta and phi positions for each patch position
@@ -486,7 +492,8 @@ class TransferCalculator {
             this._endDate = x[0] + x[1];
             this.setPatchPositionsFromAngles(x.slice(2,x.length));
             this.computeTransfer();
-            const error =  this.soiPatchPositionError() + 10 * this.soiPatchTimeError() + 1000 * this._deltaV;   // mixed units, so the coefficients here are arbitrary
+            // const error =  this.soiPatchPositionError() + 10 * this.soiPatchTimeError() + 1000 * this._deltaV;   // mixed units, so the coefficients here are arbitrary
+            const error =  this.soiPatchPositionError() / summedSoIs + this.soiPatchTimeError() / summedDurations + (this._deltaV / originalDeltaV - 1); // dimensionless values
             return isNaN(error) ? Number.MAX_VALUE : error;
         }
 
@@ -497,6 +504,9 @@ class TransferCalculator {
         // console.log(this._soiPatchPositions)
         // console.log(this.calculateSoiPatches())
         // console.log(optimizedPointObj)
+        console.log(summedDurations, this._flightTime / 4)
+        console.log(this.soiPatchPositionError(), 10 * this.soiPatchTimeError(), this.deltaV * 1000)
+        console.log(this.soiPatchPositionError() / summedSoIs, this.soiPatchTimeError() / summedDurations, 1 - this._deltaV / originalDeltaV)
     }
 
     public optimizeSoiPatches() {

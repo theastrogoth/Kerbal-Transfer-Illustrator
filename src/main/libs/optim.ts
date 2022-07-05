@@ -302,7 +302,7 @@ function sortNMpoints(p1: NMpoint, p2: NMpoint) : number {
 export function nelderMeadMinimize(
     initialPoints:  number[][],
     objective:      (x: number[]) => number,
-    tol:            number = 1.0,   // Non-standard approach to termination, since my objective functions have an assumed minimum (0.0)
+    rtol:           number = 1e-9,  // relative tolerance
     maxIt:          number = initialPoints[0].length * 250,
     alpha:          number = 1.0,
     gamma:          number = 2.0,
@@ -324,17 +324,17 @@ export function nelderMeadMinimize(
     }
 
     // iterate until termination
-    let err = tol + 1;
+
     for(let it = 0; it < maxIt; it++) {
         // sort the simplex by objective function value
         simplex.sort(sortNMpoints);
-        err = simplex[0].objx;
-        if(err < tol) {
+        const max = simplex[simplex.length-1].objx;
+        const min = simplex[0].objx;
+        if(Math.abs((max - min) / min) < rtol) {
+            // console.log("terminated early: " + String(it) + " / " + String(maxIt), max, min)
             break
         }
-
-        // TODO: add convergence test for general case
-
+        
         // calculate the centroid of the simplex
         for(let i = 0; i <= n; i++) {
             centroid[i] = 0.0;
