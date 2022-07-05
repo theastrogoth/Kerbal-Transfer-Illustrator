@@ -10,6 +10,9 @@ import CelestialBody, { OrbitingBody } from '../../main/objects/body';
 import Kepler from '../../main/libs/kepler';
 import { sub3, normalize3, vec3, add3 } from '../../main/libs/math';
 
+import { useAtom } from 'jotai';
+import { displayOptionsAtom } from '../../App';
+
 type SystemDisplayProps = {centralBody: CelestialBody,
     system:         SolarSystem,
     plotSize:       number,
@@ -85,38 +88,83 @@ function getSunLight(centralBody: CelestialBody, system: SolarSystem, date: numb
 }
 
 function SystemDisplay({centralBody, system, plotSize, date, isSun = true, depth = 0, centeredAt = vec3(0,0,0), flightPlans = [], setInfoItem, setTarget}: SystemDisplayProps) {
+    const [displayOptions] = useAtom(displayOptionsAtom);
+    
     const sunLight = useRef(getSunLight(centralBody, system, date, depth));
 
-    const bodyFlightPlans = useRef(flightPlans.map((flightPlan) => flightPlan.trajectories.map((trajectory, trajIndex) => {return {trajectory, index: trajIndex}}).filter(traj => traj.trajectory.orbits[0].orbiting === centralBody.id)));
-    const iconInfos = useRef(bodyFlightPlans.current.map((trajectories, index) => trajectories.map(trajectory => getTrajectoryIcons(trajectory.trajectory, trajectory.index, flightPlans[index], centralBody, system))));
+    const bodyFlightPlans = flightPlans.map((flightPlan) => flightPlan.trajectories.map((trajectory, trajIndex) => {return {trajectory, index: trajIndex}}).filter(traj => traj.trajectory.orbits[0].orbiting === centralBody.id));
+    const iconInfos = bodyFlightPlans.map((trajectories, index) => trajectories.map(trajectory => getTrajectoryIcons(trajectory.trajectory, trajectory.index, flightPlans[index], centralBody, system)));
 
     useEffect(() => {
         sunLight.current = getSunLight(centralBody, system, date, depth);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [centralBody, system, date, depth])
 
-    useEffect(() => {
-        bodyFlightPlans.current = flightPlans.map((flightPlan) => flightPlan.trajectories.map((trajectory, trajIndex) => {return {trajectory, index: trajIndex}}).filter(traj => traj.trajectory.orbits[0].orbiting === centralBody.id));
-        iconInfos.current = bodyFlightPlans.current.map((trajectories, index) => trajectories.map(trajectory => getTrajectoryIcons(trajectory.trajectory, trajectory.index, flightPlans[index], centralBody, system)));
-            // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [flightPlans, centralBody, system])
-
     return (
         <>
             <mesh>
                 {sunLight.current}
             </mesh>
-            <BodySphere key={centralBody.name} body={centralBody} system={system} date={date} plotSize={plotSize} isSun={isSun} depth={depth} centeredAt={centeredAt} setInfoItem={setInfoItem} setTarget={setTarget} />
+            <BodySphere 
+                key={centralBody.name}
+                body={centralBody}
+                system={system}
+                date={date}
+                plotSize={plotSize}
+                isSun={isSun}
+                depth={depth}
+                centeredAt={centeredAt}
+                setInfoItem={setInfoItem}
+                setTarget={setTarget}
+            />
             {centralBody.orbiters.map((orbiter, index) => {
                 const orbiterPosition = add3(Kepler.orbitToPositionAtDate(orbiter.orbit, date), centeredAt)
                 return <>
-                    <OrbitLine key={centralBody.name + 'orbit' + String(index)} orbit={orbiter.orbit} date={date} plotSize={plotSize} centeredAt={centeredAt} depth={depth} name={orbiter.name} color={orbiter.color} setInfoItem={setInfoItem}/>
-                    <SystemDisplay key={orbiter.name + 'system'} centralBody={orbiter} system={system} plotSize={plotSize} date={date} isSun={false} depth={depth+1} centeredAt={orbiterPosition} flightPlans={flightPlans} setInfoItem={setInfoItem} setTarget={setTarget} />    
+                    <OrbitLine 
+                        key={centralBody.name + 'orbit' + String(index)}
+                        orbit={orbiter.orbit}
+                        date={date}
+                        plotSize={plotSize}
+                        centeredAt={centeredAt}
+                        depth={depth}
+                        name={orbiter.name}
+                        color={orbiter.color}
+                        setInfoItem={setInfoItem}
+                        displayOptions={{
+                            orbits: displayOptions.bodyOrbits,
+                            apses:  displayOptions.bodyApses,
+                            nodes:  displayOptions.bodyNodes,
+                        }}
+                    />
+                    <SystemDisplay key={orbiter.name + 'system'}
+                        centralBody={orbiter}
+                        system={system}
+                        plotSize={plotSize}
+                        date={date}
+                        isSun={false}
+                        depth={depth+1}
+                        centeredAt={orbiterPosition}
+                        flightPlans={flightPlans}
+                        setInfoItem={setInfoItem}
+                        setTarget={setTarget}
+                    />    
                 </>
             })}
-            {bodyFlightPlans.current.map((trajectories, fpindex) => 
+            {bodyFlightPlans.map((trajectories, fpindex) => 
                 trajectories.map((trajectory, tindex) => 
-                    <TrajectoryDisplay key={centralBody.name + String(fpindex) + String(tindex)} trajectory={trajectory.trajectory} system={system} date={date} plotSize={plotSize} centeredAt={centeredAt} depth={depth} icons={iconInfos.current[fpindex][tindex]} flightPlan={flightPlans[fpindex]} setInfoItem={setInfoItem} setTarget={setTarget} />
+                    <TrajectoryDisplay key={centralBody.name + String(fpindex) + String(tindex)}
+                        trajectory={trajectory.trajectory}
+                        system={system}
+                        date={date}
+                        plotSize={plotSize}
+                        centeredAt={centeredAt}
+                        depth={depth}
+                        icons={iconInfos[fpindex][tindex]}
+                        flightPlan={flightPlans[fpindex]}
+                        setInfoItem={setInfoItem}
+                        setTarget={setTarget}
+                        displayOptions={displayOptions}
+                    />
                 ).flat()
             )}
         </>

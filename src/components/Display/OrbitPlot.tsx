@@ -62,12 +62,10 @@ function getTargetPosition(target: ICelestialBody | IOrbitingBody | IVessel | IO
         const flightPlan = target as FlightPlan;
         const activeTrajIndex = flightPlan.trajectories.findIndex((traj, index) => date >= traj.intersectTimes[0] && date < traj.intersectTimes[traj.intersectTimes.length - 1]);
         if(activeTrajIndex === -1) {
-            console.log("no trajectory has good time range.", flightPlan, date)
             return vec3(0,0,0);
         }
         const activeOrbitIndex = flightPlan.trajectories[activeTrajIndex].intersectTimes.slice(0,-1).findIndex((time, index) => date >= time && date < flightPlan.trajectories[activeTrajIndex].intersectTimes[index+1])
         if(activeOrbitIndex === -1) {
-            console.log("no orbit has good time range")
             return vec3(0,0,0);
         }
         orbit = flightPlan.trajectories[activeTrajIndex].orbits[activeOrbitIndex];
@@ -101,8 +99,17 @@ function OrbitPlot({centralBody, system, date, flightPlans=[], setInfoItem}: Orb
     return (
         <>
             <color attach="background" args={[0.07, 0.07, 0.07]} />
-            <PerspectiveCamera makeDefault={true} position={[0,1,0]} zoom={1} near={1e-6} />
-            <SystemDisplay centralBody={centralBody} system={system} flightPlans={flightPlans} plotSize={plotSize} date={date} isSun={centralBody.name === system.sun.name} setInfoItem={setInfoItem} setTarget={setTargetObject} />
+            <PerspectiveCamera makeDefault={true} position={[0,1,0]} zoom={1} near={1e-7} />
+            <SystemDisplay 
+                centralBody={centralBody}
+                system={system}
+                flightPlans={flightPlans}
+                plotSize={plotSize}
+                date={date}
+                isSun={centralBody.name === system.sun.name}
+                setInfoItem={setInfoItem}
+                setTarget={setTargetObject}
+            />
             <OrbitControls enablePan={false} rotateSpeed={0.5} zoomSpeed={1} target={targetPosition.current} />
         </>
     )

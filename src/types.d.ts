@@ -100,7 +100,7 @@ interface IMultiFlyby {
     readonly transferBody:          ICelestialBody,
     readonly flybyIdSequence:       number[],
     readonly ejections:             Trajectory[],
-    readonly insertions:            TrajcetoryInfo[],
+    readonly insertions:            Trajectory[],
     readonly transfers:             Trajectory[],
     readonly flybys:                Trajectory[],
     readonly maneuvers:             Maneuver[],
@@ -478,4 +478,29 @@ type PorkchopPlotData = {
     bestTransfer:       ITransfer,
     transferStartDay:   number,
     transferFlightDay:  number,
+}
+
+type OrbitDisplayOptions = {
+    orbits:         boolean,
+    apses:          boolean,
+    nodes:          boolean,
+}
+
+type DisplayOptions = {
+    bodies:         boolean,
+    bodySprites:    boolean,
+    atmospheres:    boolean,
+    sois:           boolean,
+    bodyNames:      boolean,
+    bodyOrbits:     boolean,
+    bodyApses:      boolean,
+    bodyNodes:      boolean,
+    crafts:         boolean,
+    maneuvers:      boolean,
+    soiChanges:     boolean,
+    craftNames:     boolean,
+    craftOrbits:    boolean,
+    craftApses:     boolean,
+    craftNodes:     boolean,
+    referenceLine:  boolean,
 }

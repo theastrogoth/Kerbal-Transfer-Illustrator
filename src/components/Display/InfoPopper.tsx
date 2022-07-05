@@ -109,7 +109,7 @@ function InfoPopper({info, setInfo, parentRef, color=defaultColor}: {info: InfoI
         }
     }, [info, timeSettings])
 
-    const maxWidth = parentDimensions.width * 0.4;
+    const maxWidth = parentDimensions.width * 0.5;
     const maxHeight = 400;
 
     return (

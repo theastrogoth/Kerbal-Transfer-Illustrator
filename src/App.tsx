@@ -100,6 +100,25 @@ export const copiedFlightPlanAtom = atom(blankFlightPlan);
 
 export const customSystemAtom = atom(kspSystem);
 
+export const displayOptionsAtom = atom<DisplayOptions>({
+  bodies:         true,
+  bodySprites:    true,
+  atmospheres:    true,
+  sois:           true,
+  bodyNames:      false,
+  bodyOrbits:     true,
+  bodyApses:      false,
+  bodyNodes:      false,
+  crafts:         true,
+  maneuvers:      true,
+  soiChanges:     true,
+  craftNames:     false,
+  craftOrbits:    true,
+  craftApses:     false,
+  craftNodes:     false,
+  referenceLine:  false,
+});
+
 // transfer planner state (atoms)
 export const transferStartOrbitAtom = atom(defaultOrbit(kspSystem, 1) as OrbitalElements);
 export const transferEndOrbitAtom = atom(defaultOrbit(kspSystem, 6) as OrbitalElements);

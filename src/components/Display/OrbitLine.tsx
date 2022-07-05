@@ -11,10 +11,29 @@ import { TWO_PI, div3, wrapAngle, linspace, vec3, add3 } from '../../main/libs/m
 
 import periapsisIcon from '../../assets/icons/periapsis.png';
 import apoapsisIcon from '../../assets/icons/apoapsis.png';
+import ascendingNodeIcon from '../../assets/icons/ascnode.png';
+import descendingNodeIcon from '../../assets/icons/descnode.png';
 
 const textureLoader = new THREE.TextureLoader();
 const periapsisTexture = textureLoader.load(periapsisIcon);
 const apoapsisTexture = textureLoader.load(apoapsisIcon);
+const ascendingNodeTexture = textureLoader.load(ascendingNodeIcon);
+const descendingNodeTexture = textureLoader.load(descendingNodeIcon);
+
+
+type OrbitLineProps = {
+    orbit:          Orbit,
+    date:           number,
+    plotSize:       number,
+    minDate?:       number,
+    maxDate?:       number,
+    centeredAt?:    Vector3,
+    depth?:         number,
+    name?:          string,
+    color?:         IColor,
+    setInfoItem:    React.Dispatch<React.SetStateAction<InfoItem>>,
+    displayOptions: OrbitDisplayOptions,
+}
 
 function getGradientColors(color:IColor) {
     const fullColor = new Color(color);
@@ -79,13 +98,14 @@ function getPoints(orbit: Orbit, plotSize: number, nus: number[], centeredAt: Ve
     return points;
 }
 
-function getPeriapsisIcon(orbit: Orbit, plotSize: number, nus: number[], color: string = 'white') {
-    if(wrapAngle(0, nus[0] - 1e-3) < nus[nus.length-1]) {
-        const pos = div3(Kepler.positionAtTrueAnomaly(orbit, 0), plotSize);
+function getPeriapsisIcon(orbit: Orbit, plotSize: number, nus: number[], centeredAt: Vector3, handleClick: ((e: ThreeEvent<MouseEvent>) => void), color: string = 'white') {
+    if((wrapAngle(0, nus[0] - 1e-3) < nus[nus.length-1]) && (orbit.eccentricity !== 0)) {
+        const pos = div3(add3(Kepler.positionAtTrueAnomaly(orbit, 0), centeredAt), plotSize);
         const position = new THREE.Vector3(-pos.x, pos.z, pos.y);
         return <sprite
             scale={[0.075,0.075,0.075]} 
             position={position}
+            onClick={handleClick}
         >
             <spriteMaterial map={periapsisTexture} sizeAttenuation={false} color={color} depthTest={false} />
         </sprite>
@@ -94,13 +114,14 @@ function getPeriapsisIcon(orbit: Orbit, plotSize: number, nus: number[], color: 
     }
 }
 
-function getApoapsisIcon(orbit: Orbit, plotSize: number, nus: number[], color: string = 'white') {
-    if((wrapAngle(Math.PI, nus[0] - 1e-3) < nus[nus.length-1]) && Number.isFinite(orbit.apoapsis) && (orbit.apoapsis < (orbit.attractorSoi || Infinity))) {
-        const pos = div3(Kepler.positionAtTrueAnomaly(orbit, Math.PI), plotSize);
+function getApoapsisIcon(orbit: Orbit, plotSize: number, nus: number[], centeredAt: Vector3, handleClick: ((e: ThreeEvent<MouseEvent>) => void), color: string = 'white') {
+    if((wrapAngle(Math.PI, nus[0] - 1e-3) < nus[nus.length-1]) && Number.isFinite(orbit.apoapsis) && (orbit.apoapsis < (orbit.attractorSoi || Infinity)) && (orbit.eccentricity !== 0)) {
+        const pos = div3(add3(Kepler.positionAtTrueAnomaly(orbit, Math.PI), centeredAt), plotSize);
         const position = new THREE.Vector3(-pos.x, pos.z, pos.y);
         return <sprite
             scale={[0.075,0.075,0.075]} 
             position={position}
+            onClick={handleClick}
         >
             <spriteMaterial map={apoapsisTexture} sizeAttenuation={false} color={color} depthTest={false} />
         </sprite>
@@ -109,27 +130,73 @@ function getApoapsisIcon(orbit: Orbit, plotSize: number, nus: number[], color: s
     }
 }
 
-function OrbitLine({orbit, date, plotSize, minDate = -Infinity, maxDate = Infinity, centeredAt = vec3(0,0,0), depth=0,  name = "Orbit", color = {r: 200, g: 200, b: 200}, periapsis=false, apoapsis=false, setInfoItem}: {orbit: Orbit, date: number, plotSize: number, minDate?: number, maxDate?: number, centeredAt?: Vector3, depth?: number, name?: string, color?: IColor, periapsis?: boolean, apoapsis?: boolean, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>}) {
+function getAscendingNodeIcon(orbit: Orbit, plotSize: number, nus: number[], centeredAt: Vector3, handleClick: ((e: ThreeEvent<MouseEvent>) => void), color: string = 'white') {
+    if((wrapAngle(-orbit.argOfPeriapsis, nus[0] - 1e-3) < nus[nus.length-1]) && (orbit.inclination !== 0) && (orbit.inclination !== Math.PI)) {
+        const pos = div3(add3(Kepler.positionAtTrueAnomaly(orbit, -orbit.argOfPeriapsis), centeredAt), plotSize);
+        const position = new THREE.Vector3(-pos.x, pos.z, pos.y);
+        return <sprite
+            scale={[0.075,0.075,0.075]} 
+            position={position}
+            onClick={handleClick}
+        >
+            <spriteMaterial map={ascendingNodeTexture} sizeAttenuation={false} color={color} depthTest={false} />
+        </sprite>
+    } else {
+        return <></>
+    }
+}
+
+function getDescendingNodeIcon(orbit: Orbit, plotSize: number, nus: number[], centeredAt: Vector3, handleClick: ((e: ThreeEvent<MouseEvent>) => void), color: string = 'white') {
+    const descendingNodeTrueAnomaly = Math.PI - orbit.argOfPeriapsis;
+    if((wrapAngle(descendingNodeTrueAnomaly, nus[0] - 1e-3) < nus[nus.length-1]) && (orbit.inclination !== 0) && (orbit.inclination !== Math.PI)) {
+        const pos = div3(add3(Kepler.positionAtTrueAnomaly(orbit, descendingNodeTrueAnomaly), centeredAt), plotSize);
+        const position = new THREE.Vector3(-pos.x, pos.z, pos.y);
+        return <sprite
+            scale={[0.075,0.075,0.075]} 
+            position={position}
+            onClick={handleClick}
+        >
+            <spriteMaterial map={descendingNodeTexture} sizeAttenuation={false} color={color} depthTest={false} />
+        </sprite>
+    } else {
+        return <></>
+    }
+}
+
+function OrbitLine({orbit, date, plotSize, minDate = -Infinity, maxDate = Infinity, centeredAt = vec3(0,0,0), depth=0,  name = "Orbit", color = {r: 200, g: 200, b: 200}, setInfoItem, displayOptions}: OrbitLineProps) {
     const range = useRef(getTrueAnomalyRange(orbit, minDate, maxDate));
     const nus = useRef(linspace(range.current.min, range.current.max, 501));
     const gradientColors = useRef(getGradientColors(color));
     const colorString = useRef(new Color(color).toString());
 
+    const handleClick = (e: ThreeEvent<MouseEvent>) => {
+        if(visible) {
+            e.stopPropagation();
+            setInfoItem({...orbit.data, color, name});
+        }
+    }
+
     const points = getPoints(orbit, plotSize, nus.current, centeredAt);
     const colors = getColorsAtDate(date, orbit, gradientColors.current, nus.current, minDate, maxDate);
-    const periapsisIcon = getPeriapsisIcon(orbit, plotSize, nus.current, colorString.current);
-    const apoapsisIcon = getApoapsisIcon(orbit, plotSize, nus.current, colorString.current);
+    const periapsisIcon = getPeriapsisIcon(orbit, plotSize, nus.current, centeredAt, handleClick, colorString.current);
+    const apoapsisIcon = getApoapsisIcon(orbit, plotSize, nus.current, centeredAt, handleClick, colorString.current);
+    const ascendingNodeIcon = getAscendingNodeIcon(orbit, plotSize, nus.current, centeredAt, handleClick, colorString.current);
+    const descendingNodeIcon = getDescendingNodeIcon(orbit, plotSize, nus.current, centeredAt, handleClick, colorString.current);
+
+    const [updateCounter, setUpdateCounter] = useState(0);
 
     useEffect(() => {
         const newRange = getTrueAnomalyRange(orbit, minDate, maxDate);
         range.current = newRange;
         const newNus = linspace(newRange.min, newRange.max, 501);
         nus.current = newNus;
+        setUpdateCounter(updateCounter + 1)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [orbit, minDate, maxDate, plotSize])
     useEffect(() => {
         colorString.current = new Color(color).toString();
         gradientColors.current = getGradientColors(color);
+        setUpdateCounter(updateCounter + 1)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [color])
 
@@ -140,24 +207,26 @@ function OrbitLine({orbit, date, plotSize, minDate = -Infinity, maxDate = Infini
         setVisible(depth === 0 ? true : state.camera.position.distanceTo(orbitWorldCenter) < 10 * (orbit.attractorSoi || Infinity) / plotSize);
     })
 
-    const handleClick = (e: ThreeEvent<MouseEvent>) => {
-        if(visible) {
-            e.stopPropagation();
-            setInfoItem({...orbit.data, color, name});
-        }
-    }
     return (
         <>
-            <Line 
-                points={points}
-                color='white'
-                vertexColors={colors}
-                lineWidth={2}
-                onClick={handleClick}
-                visible={visible}
-            />
-            {periapsis && periapsisIcon}
-            {apoapsis && apoapsisIcon}
+            {displayOptions.orbits &&
+                <Line 
+                    points={points}
+                    color='white'
+                    vertexColors={colors}
+                    lineWidth={2}
+                    onClick={handleClick}
+                    visible={visible}
+                />
+            }
+            {(displayOptions.apses && visible) && [
+                periapsisIcon,
+                apoapsisIcon
+            ]}
+            {(displayOptions.nodes && visible) && [
+                ascendingNodeIcon,
+                descendingNodeIcon
+            ]}
         </>
     );
 }
