@@ -10,6 +10,7 @@ import SolarSystem from '../../main/objects/system';
 
 import { vec3, div3, add3 } from '../../main/libs/math';
 import Kepler from '../../main/libs/kepler';
+import ReferenceLine from './ReferenceLine';
 
 export type OrbitPlotProps = {
     centralBody:        CelestialBody,
@@ -110,6 +111,7 @@ function OrbitPlot({centralBody, system, date, flightPlans=[], setInfoItem}: Orb
                 setInfoItem={setInfoItem}
                 setTarget={setTargetObject}
             />
+            <ReferenceLine />
             <OrbitControls enablePan={false} rotateSpeed={0.5} zoomSpeed={1} target={targetPosition.current} />
         </>
     )

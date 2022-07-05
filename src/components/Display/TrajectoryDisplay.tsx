@@ -13,6 +13,7 @@ import escapeIcon from '../../assets/icons/escape.png';
 import encounterIcon from '../../assets/icons/encounter.png'; 
 import podIcon from '../../assets/icons/pod.png';
 import Color from '../../main/objects/color';
+import { Html } from '@react-three/drei';
 
 const textureLoader = new THREE.TextureLoader();
 const maneuverTexture = textureLoader.load(maneuverIcon);
@@ -116,20 +117,22 @@ function getSoiSprites(trajectory: Trajectory, icons: TrajectoryIconInfo, plotSi
 
 function getCraftSprite(trajectory: Trajectory, date: number, plotSize: number, centeredAt: Vector3, flightPlan: FlightPlan, handleClick: (v: IVessel) => (e: ThreeEvent<MouseEvent>) => void, handleDoubleClick: (e: ThreeEvent<MouseEvent>) => void, visible: boolean) {
     const activeOrbitIndex = trajectory.intersectTimes.slice(0,-1).findIndex((time, index) => date >= time && date < trajectory.intersectTimes[index+1])
-    if(activeOrbitIndex === -1) {
-        return <></>
+    if(activeOrbitIndex === -1 || !visible) {
+        return {craftSprite: <></>, nameLabel: <></>}
     }
     const vessel: IVessel = {name: flightPlan.name, color: flightPlan.color, orbit: trajectory.orbits[activeOrbitIndex], maneuvers: []};
     const pos = activeOrbitIndex === -1 ? vec3(0,0,0) : div3(add3(Kepler.orbitToPositionAtDate(trajectory.orbits[activeOrbitIndex], date), centeredAt), plotSize);
     const position = new THREE.Vector3(-pos.x, pos.z, pos.y);
+    const colorstring = hexFromColorString(new Color(flightPlan.color || defaultColor).toString());
     const craftSprite = 
         <sprite 
             scale={[0.05,0.05,0.05]} 
             position={position}
             onClick={visible ? handleClick(vessel) : ((e) => {})}
             onDoubleClick={visible ? handleDoubleClick : ((e) => {})}
+            visible={visible}
         >
-            <spriteMaterial map={podTexture} sizeAttenuation={false} color={hexFromColorString(new Color(flightPlan.color || defaultColor).toString())} depthTest={false} visible={visible}/>
+            <spriteMaterial map={podTexture} sizeAttenuation={false} color={colorstring} depthTest={false} visible={visible}/>
         </sprite>
     // if(infoItemRef.current !== null) {
     //     if(infoItemRef.current.hasOwnProperty('maneuvers') && infoItemRef.current.name === name) {
@@ -138,7 +141,15 @@ function getCraftSprite(trajectory: Trajectory, date: number, plotSize: number, 
     //         }
     //     }
     // }
-    return craftSprite;
+    const nameLabel = 
+        <Html 
+            position={position} 
+            visible={visible}
+            style={{fontSize: '1rem', transform: 'translate3d(-50%, -150%, 0)', color: colorstring}}
+        >
+            <div>{flightPlan.name}</div> 
+        </Html>
+    return {craftSprite, nameLabel};
 }
 
 function TrajectoryDisplay({trajectory, system, date, plotSize, centeredAt=vec3(0,0,0), depth=0, flightPlan, icons = {maneuver: [], soi: []}, setInfoItem, setTarget, displayOptions}: TrajectoryDisplayProps) {
@@ -167,7 +178,7 @@ function TrajectoryDisplay({trajectory, system, date, plotSize, centeredAt=vec3(
     }
     
     const trajectoryOrbits = getOrbits(trajectory, system, date, plotSize, centeredAt, depth, flightPlan, setInfoItem, displayOptions);
-    const craftSprite = getCraftSprite(trajectory, date, plotSize, centeredAt, flightPlan, handleClick, handleDoubleClick, visible);
+    const {craftSprite, nameLabel} = getCraftSprite(trajectory, date, plotSize, centeredAt, flightPlan, handleClick, handleDoubleClick, visible);
 
     const maneuverSprites = getManeuverSprites(trajectory, icons, plotSize, centeredAt, flightPlan.color || defaultColor, setInfoItem, visible);
     const soiSprites = getSoiSprites(trajectory, icons, plotSize, centeredAt, flightPlan.color || defaultColor, setInfoItem, visible);
@@ -191,6 +202,7 @@ function TrajectoryDisplay({trajectory, system, date, plotSize, centeredAt=vec3(
             {displayOptions.maneuvers && maneuverSprites}
             {displayOptions.soiChanges && soiSprites}
             {displayOptions.crafts && craftSprite}
+            {displayOptions.craftNames && nameLabel}
         </>
     );
 }

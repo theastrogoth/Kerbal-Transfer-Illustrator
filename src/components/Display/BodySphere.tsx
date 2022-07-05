@@ -1,7 +1,7 @@
 import React, { Suspense, useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
-import { useTexture } from '@react-three/drei';
+import { useTexture, Html } from '@react-three/drei';
 import textures from '../../textureData';
 
 import SolarSystem from '../../main/objects/system';
@@ -97,6 +97,8 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
         setCloseVisible(depth === 0 ? true : state.camera.position.distanceTo(position) < 10 * (body.soi as number) / plotSize);
     })
 
+    useEffect(() => {}, [closeVisible, farVisible])
+
     const handleClick = (visible: boolean) => (e: ThreeEvent<MouseEvent>) => {
         if(visible) {
             e.stopPropagation();
@@ -117,14 +119,15 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
         }
     }
 
+    console.log(body.name, displayOptions.bodyNames && farVisible)
     return (
         <>    
         {displayOptions.bodies && 
             <mesh 
                 position={position}
                 rotation={[0, degToRad(body.initialRotation || 0) + TWO_PI * ((date % (body.rotationPeriod || Infinity)) / (body.rotationPeriod || Infinity)), 0]} 
-                onClick={handleClick(closeVisible)}
-                onDoubleClick={handleDoubleClick(closeVisible)}
+                onClick={handleClick(farVisible)}
+                onDoubleClick={handleDoubleClick(farVisible)}
                 visible={farVisible}
             >
                 <sphereGeometry args={[body.radius / plotSize, 32, 32]} />
@@ -162,6 +165,15 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
         }
         {(displayOptions.bodyOrbits && !isSun && depth === 0) &&
             getCentralBodyOrbit(body as OrbitingBody, date, plotSize)
+        }
+        {(displayOptions.bodyNames && farVisible) &&
+            <Html 
+                position={position} 
+                visible={farVisible}
+                style={{fontSize: '1rem', transform: 'translate3d(-50%, -150%, 0)', color: color.current}}
+            >
+                <div>{body.name}</div> 
+            </Html>
         }
         </>
     )
