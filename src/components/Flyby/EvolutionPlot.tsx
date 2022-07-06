@@ -36,13 +36,7 @@ function EvolutionPlot({inputs, buttonPresses, setCalculating}: EvolutionPlotPro
                         .postMessage(event.data)
                 } else {
                     console.log("...trajectory search completed.")
-                    let bestIdx = -1;
-                    for(let i=0; i<event.data.population.length; i++) {
-                        if(event.data.fitnesses[i] === event.data.bestY[event.data.bestY.length - 1]) {
-                            bestIdx = i; 
-                            break
-                        }
-                    }
+                    const bestIdx = event.data.fitnesses.findIndex(fitness => fitness === lastBestY);
                     const mfInputs = FlybyCalcs.multiFlybyInputsFromAgent(event.data.population[bestIdx], event.data.inputs);
                     const calculator = new MultiFlybyCalculator(mfInputs);
                     calculator.computeFullTrajectory();

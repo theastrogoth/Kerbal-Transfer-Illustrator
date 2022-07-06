@@ -1,8 +1,9 @@
 import Kepler from "./kepler";
 import Trajectories from "./trajectories";
 import Transfer from "../objects/transfer";
-import { sub3, vec3, mag3, sphericalToCartesian, cartesianToSpherical, randomSign} from "./math";
+import { sub3, vec3, mag3, sphericalToCartesian, cartesianToSpherical, randomSign, lerp, clamp} from "./math";
 import { nelderMeadMinimize } from "./optim";
+import DifferentialEvolution from "./evolution";
 
 class TransferCalculator {
     private readonly _system:           ISolarSystem;
@@ -26,6 +27,9 @@ class TransferCalculator {
 
     private _soiPatchPositions:         Vector3[];
     private _soiPatchBodies:            IOrbitingBody[];
+    private _summedSoIs?:               number;
+    private _summedPeriods?:            number;
+    private _patchOptimizationBounds?:  number[][];
 
     private _ejectionInsertionType:     "fastdirect" | "direct" | "fastoberth" | "oberth";
 
@@ -120,8 +124,8 @@ class TransferCalculator {
             flightTime:             this._flightTime,
             endDate:                this._endDate,
             transferTrajectory:     this._transferTrajectory,
-            ejections:   this._ejections,
-            insertions:  this._insertions,
+            ejections:              this._ejections,
+            insertions:             this._insertions,
             maneuvers:              this._maneuvers,
             maneuverContexts:       this._maneuverContexts,
             deltaV:                 this._deltaV,
@@ -131,8 +135,8 @@ class TransferCalculator {
             matchStartMo:           this._matchStartMo,
             matchEndMo:             this._matchEndMo,
             noInsertionBurn:        this._noInsertionBurn,
-            patchPositionError:     this.soiPatchPositionError(),
-            patchTimeError:         this.soiPatchTimeError(),
+            patchPositionError:     this.soiPatchPositionError,
+            patchTimeError:         this.soiPatchTimeError,
         }
     }
 
@@ -341,6 +345,8 @@ class TransferCalculator {
 
     ///// SoI patch optimization /////
 
+    // patch calcualtion based on current trajectories //
+
     private calculateSoiPatches() {
         const soiPatchPositions: Vector3[] = [];
         for(let i=0; i<this._ejections.length; i++) {
@@ -361,15 +367,19 @@ class TransferCalculator {
         this._soiPatchPositions = this.calculateSoiPatches();
     }
 
-    private soiPatchPositionErrors() {
+    // spatical SoI patch error //
+
+    private get soiPatchPositionErrors() {
         const soiPatchPositions = this.calculateSoiPatches();
         return soiPatchPositions.map((pos, i) => mag3(sub3(this._soiPatchPositions[i], pos)));
     }
 
-    private soiPatchPositionError() {
-        const errors = this.soiPatchPositionErrors();
+    public get soiPatchPositionError() {
+        const errors = this.soiPatchPositionErrors;
         return errors.reduce((p,c) => p + c);
     }
+
+    // temporal SoI patch error //
 
     private soiPatchUpTimeErrors() {
         let errs: number[] = [];
@@ -398,7 +408,7 @@ class TransferCalculator {
         return errs;
     }
 
-    private soiPatchTimeError() {
+    public get soiPatchTimeError() {
         let err = 0.0;
         const upErrs = this.soiPatchUpTimeErrors();
         for(let i=0; i<upErrs.length; i++) {
@@ -410,6 +420,8 @@ class TransferCalculator {
         }
         return err;
     }
+
+    // represent SoI patch positions using spherical coordinates //
 
     private patchPositionsToAngles(positions: Vector3[] = this._soiPatchPositions): number[] {
         // angles are returned in a single vector, [theta_1, phi_1, theta_2, phi_2, ...]
@@ -428,95 +440,178 @@ class TransferCalculator {
         }
     }
 
-    public optimizeSoiPatchPositions(tol: number = 0.001, maxit: number = this._soiPatchPositions.length * 100) {
-        console.log("\tOptimizing transfer SoI patch positions only.")
-        if(this._soiPatchPositions.length === 0) {
-            return
+    // fitness function for SoI patch optimization
+    private get summedPeriods() {
+        if(this._summedPeriods === undefined) {
+            // we only care about the starting and target orbits if 1) they involve an ejection/insertion and 2) we care about matching their mean anomaly
+            let summedPeriods = (this._ejections.length > 0 && this._matchStartMo) ? this._startOrbit.siderealPeriod : 0;
+            summedPeriods += (this._insertions.length > 0 && this._matchEndMo) ? this._endOrbit.siderealPeriod : 0;
+            // we need to worry about every intermediate starting/target orbit for all of the intermediate ejections/insertions
+            for(let i=1; i<this._ejections.length; i++) {
+                summedPeriods += (this.bodyFromId(this._ejections[i-1].orbits[0].orbiting) as IOrbitingBody).orbit.siderealPeriod;
+            }
+            for(let i=0; i<this._insertions.length - 1; i++) {
+                summedPeriods += (this.bodyFromId(this._insertions[i+1].orbits[0].orbiting) as IOrbitingBody).orbit.siderealPeriod;
+            }
+            this._summedPeriods = summedPeriods;
         }
-        if(mag3(this._soiPatchPositions[0]) === 0) {
+        return this._summedPeriods;
+    }
+
+    private get summedSoIs() {
+        if(this._summedSoIs === undefined) {
+            this._summedSoIs = this._soiPatchBodies.reduce((p,c) => p + c.soi, 0);
+        }
+        return this._summedSoIs;
+    }
+
+    private get soiPatchFitness() {
+        return ( this.soiPatchPositionError / this.summedSoIs + this.soiPatchTimeError / this.summedPeriods ) * this._deltaV;
+    }
+
+    // naive iterative approach to optimization //
+
+    public iterateSoiPatches(rtol: number = 1e-6, maxIt: number = 100) {
+        let fitness = Infinity;
+        for(let i=0; i<maxIt; i++) {
+            const prevFitness = fitness;
+            const lastEj = this._ejections[this._ejections.length - 1];
+            const lastEjLength = lastEj.orbits.length;
+            const nextStartDate = lastEj.intersectTimes[lastEjLength];
+            const nextEndDate = this._insertions[0].intersectTimes[0];
+            const nextFlightTime = nextEndDate - nextStartDate;
+    
             this.setSoiPatchPositions();
-        }
-        const objective = (x: number[]): number => {
-            // x contains alternating theta and phi positions for each patch position
-            this.setPatchPositionsFromAngles(x);
+            this._startDate = nextStartDate;
+            this._flightTime = nextFlightTime;
+            this._endDate = nextEndDate;
             this.computeTransfer();
-            return this.soiPatchPositionError() + 1000 * this._deltaV;
+            fitness = this.soiPatchFitness;
+            if( 2 * (prevFitness - fitness) / (prevFitness + fitness) < rtol) {break;}
         }
-        const initialPoints: number[][] = [this.patchPositionsToAngles()];
-        for(let i = 0; i < this._soiPatchBodies.length; i++) {
-            const newPoint1 = initialPoints[0].slice();
-            const newPoint2 = initialPoints[0].slice();
-            newPoint1[2 * i]     += randomSign() * (Math.random() * Math.PI / 24);
-            newPoint2[2 * i + 1] += randomSign() * (Math.random() * Math.PI / 12);
-            initialPoints.push(newPoint1);
-            initialPoints.push(newPoint2);
-        }
-        const optimizedPoint = nelderMeadMinimize(initialPoints, objective, tol, maxit);
-        this.setPatchPositionsFromAngles(optimizedPoint);
+        return this.soiPatchFitness;
+    }
+
+    // Differential Evolution global optimization //
+
+    public get patchOptimizationBounds(): number[][] {
+        // the spherical coordinates describing SoI patches are bounded
+        const minTheta = 0;         // angle in the x-y plane
+        const maxTheta = Math.PI;
+        const minPhi = 0;           // angle from the +z axis
+        const maxPhi = 2 * Math.PI;
+
+        // the patch time error should always be less than the summed periods of the starting/target orbits for the ejections/insertions      
+        const minStartDate = this._startDate - this.summedPeriods;
+        const maxStartDate = this._startDate + this.summedPeriods;
+        const minFlightTime = this._flightTime - this.summedPeriods;
+        const maxFlightTime = this._flightTime + this.summedPeriods;
+
+        return [[minStartDate, maxStartDate], [minFlightTime, maxFlightTime], ...this._soiPatchPositions.map(() => [[minTheta, maxTheta], [minPhi, maxPhi]]).flat()];
+    }
+
+    private setPatchOptimizationBounds() {
+        this._patchOptimizationBounds = this.patchOptimizationBounds;
+    }
+
+    public setFromAgent(agent: Agent) {
+        if(this._patchOptimizationBounds === undefined) this.setPatchOptimizationBounds();
+        const bounds = this._patchOptimizationBounds as number[][];
+        const vals = bounds.map((bnds, i) => lerp(bnds[0], bnds[1], agent[i]));
+        this._startDate = vals[0];
+        this._flightTime = vals[1];
+        this._endDate = vals[0] + vals[1];
+        this.setPatchPositionsFromAngles(vals.slice(2));
+    }
+
+    private currentTransferToAgent() {
+        if(this._patchOptimizationBounds === undefined) this.setPatchOptimizationBounds();
+        const bounds = this._patchOptimizationBounds as number[][];
+        const agent: Agent = [
+            (this._startDate - bounds[0][0]) / (bounds[0][1] - bounds[0][0]),
+            (this._flightTime - bounds[1][0]) / (bounds[1][1] - bounds[1][0]),
+            ...this.patchPositionsToAngles().map(
+                (angle, i) => ((angle - bounds[i + 2][0]) / (bounds[i + 2][1] - bounds[i + 2][0]))
+            )
+        ];
+        return agent;
+    }
+
+    public evaluateAgentFitness(agent: Agent): number {
+        this.setFromAgent(agent);
         this.computeTransfer();
+        return this.soiPatchFitness;
     }
 
-    private initialPositionAndAnglePoints() {
-        const initialPoints: number[][] = [[this._startDate, this._flightTime, ...this.patchPositionsToAngles()],   // current dates and positions
-                                           [this._startDate + randomSign() * 10 * this.soiPatchTimeError(), this._flightTime, ...this.patchPositionsToAngles()],  // perturb start date
-                                           [this._startDate, this._flightTime + randomSign() * 10 * this.soiPatchTimeError(), ...this.patchPositionsToAngles()]]; // perturb end date
-        const posErrors = this.soiPatchPositionErrors();
-        for(let i = 1; i <= this._soiPatchBodies.length; i++) { // perturb each SoI angle                  
-            const newPoint1 = initialPoints[0].slice();
-            const newPoint2 = initialPoints[0].slice();
-            newPoint1[2 * i]     += randomSign() * Math.min(Math.PI / 24, 1e6 * posErrors[i-1] / this._soiPatchBodies[i-1].soi);
-            newPoint2[2 * i + 1] += randomSign() * Math.min(Math.PI / 12, 1e6 * posErrors[i-1] / this._soiPatchBodies[i-1].soi);
-            initialPoints.push(newPoint1);
-            initialPoints.push(newPoint2);
+    public optimizeDE(popSize = 50 + 50 * this._soiPatchBodies.length, maxGenerations = 500, rtol = 0.01) {
+        // if there aren't any SoI patches, no need to continue
+        if(this._soiPatchPositions.length === 0) {
+            return
         }
-        return initialPoints;
+        // make sure that SoI positions for the intial trajectories have been cached before starting
+        if(mag3(this._soiPatchPositions[0]) === 0) {
+            this.setSoiPatchPositions();
+        }
+        // bound the fitness function to this
+        const fitnessFun = this.evaluateAgentFitness.bind(this);
+        // initialize the population, keeping the current parameters in the first agent.
+        if(this._patchOptimizationBounds === undefined) this.setPatchOptimizationBounds();
+        const bounds = this._patchOptimizationBounds as number[][];
+        const agentDim = bounds.length;
+        const initialAgent = this.currentTransferToAgent();
+        const initialFitness = this.evaluateAgentFitness(initialAgent);
+        let population = DifferentialEvolution.createRandomPopulation(popSize, agentDim);
+        let fitnesses = DifferentialEvolution.evaluatePopulationFitness(population, fitnessFun);
+        population[0] = initialAgent;
+        fitnesses[0] = initialFitness;
+        // run DE
+        let bestFitness: number = Math.min(...(fitnesses.filter(value => !isNaN(value))));
+        let meanFitness: number = fitnesses.reduce((p,c) => p + (isNaN(c) ? 0 : c), 0) / fitnesses.length;
+        for(let i=0; i<maxGenerations; i++) {
+            if((meanFitness - bestFitness) / bestFitness < rtol) break;
+            const res = DifferentialEvolution.evolvePopulation(population, fitnesses, fitnessFun);
+            population = res.pop;
+            fitnesses  = res.fit;
+            bestFitness = Math.min(...(fitnesses.filter(value => !isNaN(value))));
+            meanFitness = fitnesses.reduce((p,c) => p + (isNaN(c) ? 0 : c), 0) / fitnesses.length;
+        }
+
+        // set the flight times and patch positions from the DE result
+        const bestIdx = fitnesses.findIndex(fitness => fitness === bestFitness)
+        let optimizedFitness = this.evaluateAgentFitness(population[bestIdx]);
+        if(initialFitness < optimizedFitness) {
+            optimizedFitness = this.evaluateAgentFitness(initialAgent);
+        }
     }
 
-    public optimizeSoiPatchPositionsAndTimes(tol: number = 0.001, maxit = (this._soiPatchPositions.length + 2) * 100) {
-        console.log("\tOptimizing transfer SoI patch positions and times.")
+
+    // Nelder-Mead local optimization
+
+    private initialSimplex(step = 0.1) {
+        const currentAgent = this.currentTransferToAgent();
+        // make new agents, with each having a perturbed parameter by the step size
+        const initialPopulation: Agent[] = [currentAgent];
+        for(let i = 0; i < 2 + 2 * this._soiPatchPositions.length; i++) { 
+            const newAgent = [...currentAgent];
+            newAgent[i] = clamp(newAgent[i] + randomSign() * step, 0, 1);
+            initialPopulation.push(newAgent);
+        }
+        return initialPopulation;
+    }
+
+    public optimizeNM(step = 0.1, tol: number = 1e-9, maxit = (this._soiPatchPositions.length + 2) * 200) {
         if(this._soiPatchPositions.length === 0) {
             return
         }
         if(mag3(this._soiPatchPositions[0]) === 0) {
             this.setSoiPatchPositions();
         }
-        const originalDeltaV = this._deltaV;
-        const summedSoIs = this._soiPatchBodies.reduce((p,c) => p + c.soi, 0.0);
-        const summedDurations = this._ejections.map(ejection => ejection.intersectTimes[ejection.intersectTimes.length-1] - ejection.intersectTimes[0]).reduce((p,c) => p + c) + 
-                                this._insertions.map(insertion => insertion.intersectTimes[insertion.intersectTimes.length-1] - insertion.intersectTimes[0]).reduce((p,c) => p + c);
-        const objective = (x: number[]): number => {
-            // the first two elements of x are the transfer start date and transfer end date
-            // the remaining elements of x contain alternating theta and phi positions for each patch position
-            this._startDate = x[0];
-            this._flightTime = x[1];
-            this._endDate = x[0] + x[1];
-            this.setPatchPositionsFromAngles(x.slice(2,x.length));
-            this.computeTransfer();
-            // const error =  this.soiPatchPositionError() + 10 * this.soiPatchTimeError() + 1000 * this._deltaV;   // mixed units, so the coefficients here are arbitrary
-            const error =  this.soiPatchPositionError() / summedSoIs + this.soiPatchTimeError() / summedDurations + (this._deltaV / originalDeltaV - 1); // dimensionless values
-            return isNaN(error) ? Number.MAX_VALUE : error;
-        }
-
-        const initialPoints = this.initialPositionAndAnglePoints();
-        const optimizedPoint = nelderMeadMinimize(initialPoints, objective, tol, maxit);
-        objective(optimizedPoint);
-        // const optimizedPointObj = objective(optimizedPoint);
-        // console.log(this._soiPatchPositions)
-        // console.log(this.calculateSoiPatches())
-        // console.log(optimizedPointObj)
-        console.log(summedDurations, this._flightTime / 4)
-        console.log(this.soiPatchPositionError(), 10 * this.soiPatchTimeError(), this.deltaV * 1000)
-        console.log(this.soiPatchPositionError() / summedSoIs, this.soiPatchTimeError() / summedDurations, 1 - this._deltaV / originalDeltaV)
-    }
-
-    public optimizeSoiPatches() {
-        if(this._soiPatchPositions.length === 0) {
-            console.log("\tThere are no SoI patches to optimize.")
-        } else if((this._ejections.length === 0 || (this._ejections.length === 1 && !this._matchStartMo)) &&
-                  (this._insertions.length === 0 || (this._insertions.length === 1 && !this._matchEndMo))) {
-            this.optimizeSoiPatchPositions();
-        } else {
-            this.optimizeSoiPatchPositionsAndTimes();
+        const initialPopulation = this.initialSimplex(step);
+        const optimizedAgent = nelderMeadMinimize(initialPopulation, this.evaluateAgentFitness.bind(this), tol, maxit);
+        const initialFitness = this.evaluateAgentFitness(initialPopulation[0]);
+        let optimizedFitness = this.evaluateAgentFitness(optimizedAgent);
+        if(initialFitness < optimizedFitness) {
+            optimizedFitness = this.evaluateAgentFitness(initialPopulation[0]);
         }
     }
 }

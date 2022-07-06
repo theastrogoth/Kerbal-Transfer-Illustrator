@@ -84,7 +84,7 @@ export class Transfer implements ITransfer {
         }
     }
 
-    public optimizeSoiPatches() {
+    public optimizeDE() {
         const inputs: TransferInputs = {
             system:             this.system,
             startOrbit:         this.startOrbit,
@@ -98,7 +98,25 @@ export class Transfer implements ITransfer {
             noInsertionBurn:    this.noInsertionBurn,
         }
         const transferCalculator = new TransferCalculator(inputs);
-        transferCalculator.optimizeSoiPatches();
+        transferCalculator.optimizeDE();
+        return transferCalculator.transfer;
+    }
+
+    public optimizeNM() {
+        const inputs: TransferInputs = {
+            system:             this.system,
+            startOrbit:         this.startOrbit,
+            endOrbit:           this.endOrbit,
+            startDate:          this.startDate,
+            flightTime:         this.flightTime,
+            soiPatchPositions:  this.soiPatchPositions,
+            planeChange:        this.planeChange,
+            matchStartMo:       this.matchStartMo, 
+            matchEndMo:         this.matchEndMo,
+            noInsertionBurn:    this.noInsertionBurn,
+        }
+        const transferCalculator = new TransferCalculator(inputs);
+        transferCalculator.optimizeNM();
         return transferCalculator.transfer;
     }
 
