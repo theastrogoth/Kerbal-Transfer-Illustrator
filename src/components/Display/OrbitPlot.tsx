@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import * as THREE from 'three';
 
 import { useThree } from '@react-three/fiber';
 import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
 import SystemDisplay from './SystemDisplay';
+import SkyBox from './SkyBox';
 
 import CelestialBody from '../../main/objects/body';
 import SolarSystem from '../../main/objects/system';
@@ -99,7 +100,10 @@ function OrbitPlot({centralBody, system, date, flightPlans=[], setInfoItem}: Orb
 
     return (
         <>
-            <color attach="background" args={[0.07, 0.07, 0.07]} />
+            {/* <color attach="background" args={[0.02, 0.02, 0.02]} /> */}
+            <Suspense fallback={state.scene.background = new THREE.Color(0.07, 0.07, 0.07)}>
+                <SkyBox />
+            </Suspense>
             <PerspectiveCamera makeDefault={true} position={[0,1,0]} zoom={1} near={1e-7} />
             <SystemDisplay 
                 centralBody={centralBody}

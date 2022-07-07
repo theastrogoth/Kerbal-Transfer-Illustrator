@@ -61,7 +61,7 @@ function BodyTexture({textureURL, isSun = false, hasTexture = true, color = 'whi
     const texture = useTexture(textureURL);
     return (
     isSun   ? <meshBasicMaterial color={hasTexture ? 'white' : color} map={texture} />
-            : <meshLambertMaterial color={hasTexture ? 'white' : color} map={texture} />       
+            : <meshStandardMaterial color={hasTexture ? 'white' : color} map={texture} roughness={0.75} metalness={0.1} />       
     )
 }
 

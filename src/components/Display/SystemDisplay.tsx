@@ -67,7 +67,7 @@ function getSunLight(centralBody: CelestialBody, system: SolarSystem, date: numb
         if(centralBody.name === system.sun.name) {
             return <>
                 <ambientLight key={'ambient'} intensity={0.1} />
-                <pointLight key={'sun'} position={[0, 0, 0] } intensity={1.5} />
+                <pointLight key={'sun'} castShadow={true} position={[0, 0, 0] } intensity={1.5} />
             </>
         } else {
             const pathToSun = system.sequenceToSun(centralBody.id);
@@ -79,7 +79,7 @@ function getSunLight(centralBody: CelestialBody, system: SolarSystem, date: numb
             sunDirection = normalize3(sunDirection);
             return <>
                 <ambientLight key={'ambient'} intensity={0.1} />
-                <directionalLight key={'sun'} position={new THREE.Vector3(-sunDirection.x, sunDirection.z, sunDirection.y)} intensity={1.5} />
+                <directionalLight key={'sun'} castShadow={true} position={new THREE.Vector3(-sunDirection.x, sunDirection.z, sunDirection.y)} intensity={1.5} />
             </>
         }
     } else {
