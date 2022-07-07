@@ -32,8 +32,10 @@ export function prepareAllDisplayProps(flightPlans: FlightPlan[], system: SolarS
     for(let i=0; i<flightPlans.length; i++) {
         const fp = flightPlans[i];
         for(let j=0; j<fp.trajectories.length; j++) {
-            const startDate = fp.trajectories[j].intersectTimes[0];
-            const endDate = fp.trajectories[j].intersectTimes[fp.trajectories[j].intersectTimes.length - 1];
+            let startDate = fp.trajectories[j].intersectTimes[0];
+            startDate = Number.isFinite(startDate) && !isNaN(startDate) ? startDate : fp.trajectories[j].intersectTimes[1];
+            let endDate = fp.trajectories[j].intersectTimes[fp.trajectories[j].intersectTimes.length - 1];
+            endDate = Number.isFinite(endDate) && !isNaN(endDate) ? endDate : fp.trajectories[j].intersectTimes[fp.trajectories[j].intersectTimes.length - 2];
             const bodyIdx = fp.trajectories[j].orbits[0].orbiting;
             if(bodies.has(bodyIdx)) {
                 const bd = bodies.get(bodyIdx) as {body: CelestialBody, startDate: number, endDate: number};

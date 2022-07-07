@@ -233,7 +233,6 @@ function OrbitDisplayTabs() {
             timeSettingsRef.current = timeSettings;
         } else {
             console.log('Updating Orbit plots with a new multi-flyby')
-            console.log(multiFlyby)
             if(value < -multiFlyby.ejections.length || value > multiFlyby.flybys.length + multiFlyby.insertions.length) {
                 setValue(0);
             }

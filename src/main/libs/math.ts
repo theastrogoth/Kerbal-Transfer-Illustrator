@@ -193,8 +193,8 @@ export function zxz(v: Vector3, a1: number, a2: number, a3: number) : Vector3 {
 
 export function cartesianToSpherical(p: Vector3): Spherical {
     const r = mag3(p);
-    const theta = Math.atan2(Math.sqrt(p.x * p.x + p.y * p.y), p.z);
-    const phi = Math.atan2(p.y, p.x);
+    const theta = wrapAngle(Math.atan2(Math.sqrt(p.x * p.x + p.y * p.y), p.z), 0);
+    const phi = wrapAngle(Math.atan2(p.y, p.x), 0);
     return {r, theta, phi};
 }
 
