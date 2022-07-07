@@ -27,7 +27,6 @@ class TransferCalculator {
 
     private _soiPatchPositions:         Vector3[];
     private _soiPatchBodies:            IOrbitingBody[];
-    private _summedSoIs?:               number;
     private _summedPeriods?:            number;
     private _patchOptimizationBounds?:  number[][];
 
@@ -345,7 +344,7 @@ class TransferCalculator {
 
     ///// SoI patch optimization /////
 
-    // patch calcualtion based on current trajectories //
+    /// patch calcualtion based on current trajectories ///
 
     private calculateSoiPatches() {
         const soiPatchPositions: Vector3[] = [];
@@ -367,7 +366,7 @@ class TransferCalculator {
         this._soiPatchPositions = this.calculateSoiPatches();
     }
 
-    // spatical SoI patch error //
+    /// spatical SoI patch error ///
 
     private get soiPatchPositionErrors() {
         const soiPatchPositions = this.calculateSoiPatches();
@@ -379,9 +378,9 @@ class TransferCalculator {
         return errors.reduce((p,c) => p + c);
     }
 
-    // temporal SoI patch error //
+    /// temporal SoI patch error ///
 
-    private soiPatchUpTimeErrors() {
+    private get soiPatchUpTimeErrors() {
         let errs: number[] = [];
         const lastEjIdx = this._ejections.length - 1;
         for(let i=0; i<=lastEjIdx; i++) {
@@ -395,7 +394,7 @@ class TransferCalculator {
         return errs;
     }
 
-    private soiPatchDownTimeErrors() {
+    private get soiPatchDownTimeErrors() {
         let errs: number[] = [];
         for(let i=0; i<this._insertions.length; i++) {
             if(i === 0 ) {
@@ -410,18 +409,17 @@ class TransferCalculator {
 
     public get soiPatchTimeError() {
         let err = 0.0;
-        const upErrs = this.soiPatchUpTimeErrors();
+        const upErrs = this.soiPatchUpTimeErrors;
         for(let i=0; i<upErrs.length; i++) {
             err += Math.abs(upErrs[i]);
         }
-        const downErrs = this.soiPatchDownTimeErrors();
+        const downErrs = this.soiPatchDownTimeErrors;
         for(let i=0; i<downErrs.length; i++) {
             err += Math.abs(downErrs[i])
         }
         return err;
     }
 
-    // represent SoI patch positions using spherical coordinates //
 
     private patchPositionsToAngles(positions: Vector3[] = this._soiPatchPositions): number[] {
         // angles are returned in a single vector, [theta_1, phi_1, theta_2, phi_2, ...]
@@ -440,7 +438,8 @@ class TransferCalculator {
         }
     }
 
-    // fitness function for SoI patch optimization
+    /// fitness function for SoI patch optimization ///
+
     private get summedPeriods() {
         if(this._summedPeriods === undefined) {
             // we only care about the starting and target orbits if 1) they involve an ejection/insertion and 2) we care about matching their mean anomaly
@@ -458,41 +457,39 @@ class TransferCalculator {
         return this._summedPeriods;
     }
 
-    private get summedSoIs() {
-        if(this._summedSoIs === undefined) {
-            this._summedSoIs = this._soiPatchBodies.reduce((p,c) => p + c.soi, 0);
-        }
-        return this._summedSoIs;
-    }
-
     private get soiPatchFitness() {
-        return ( this.soiPatchPositionError / this.summedSoIs + this.soiPatchTimeError / this.summedPeriods ) * this._deltaV;
+        return ( this.soiPatchPositionErrors.reduce((p,c,i) => p + 0.5 * c / this._soiPatchBodies[i].soi, 0) / this._soiPatchBodies.length + this.soiPatchTimeError / this.summedPeriods ) * this._deltaV;
     }
 
-    // naive iterative approach to optimization //
+    /// naive iterative approach to optimization ///
 
     public iterateSoiPatches(rtol: number = 1e-6, maxIt: number = 100) {
         let fitness = Infinity;
         for(let i=0; i<maxIt; i++) {
             const prevFitness = fitness;
+            // the new start date is set to the escape time of the last ejection
             const lastEj = this._ejections[this._ejections.length - 1];
             const lastEjLength = lastEj.orbits.length;
             const nextStartDate = lastEj.intersectTimes[lastEjLength];
+            // the new end date is set to the encounter time of the first insertion
             const nextEndDate = this._insertions[0].intersectTimes[0];
+            // the new flight time is the difference between the end and start dates
             const nextFlightTime = nextEndDate - nextStartDate;
-    
+            // the SoI patch positions are set based on the previously calculated ejection and insertion orbits
             this.setSoiPatchPositions();
             this._startDate = nextStartDate;
             this._flightTime = nextFlightTime;
             this._endDate = nextEndDate;
+            // the trajectories are all recomputed with the new parameters
             this.computeTransfer();
+            // stop iterating if the change in fitness does not exceed the relative tolerance
             fitness = this.soiPatchFitness;
             if( 2 * (prevFitness - fitness) / (prevFitness + fitness) < rtol) {break;}
         }
         return this.soiPatchFitness;
     }
 
-    // Differential Evolution global optimization //
+    /// Differential Evolution global optimization ///
 
     public get patchOptimizationBounds(): number[][] {
         // the spherical coordinates describing SoI patches are bounded
@@ -543,7 +540,7 @@ class TransferCalculator {
         return this.soiPatchFitness;
     }
 
-    public optimizeDE(popSize = 50 + 50 * this._soiPatchBodies.length, maxGenerations = 500, rtol = 0.01) {
+    public optimizeDE(popSize = 25 + 25 * this._soiPatchBodies.length, maxGenerations = 500, rtol = 0.01) {
         // if there aren't any SoI patches, no need to continue
         if(this._soiPatchPositions.length === 0) {
             return
@@ -585,7 +582,7 @@ class TransferCalculator {
     }
 
 
-    // Nelder-Mead local optimization
+    /// Nelder-Mead local optimization ///
 
     private initialSimplex(step = 0.1) {
         const currentAgent = this.currentTransferToAgent();
