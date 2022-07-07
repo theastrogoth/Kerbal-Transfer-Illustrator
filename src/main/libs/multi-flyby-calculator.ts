@@ -2,7 +2,7 @@ import MultiFlyby from "../objects/multiflyby";
 import Trajectories from "./trajectories";
 import FlybyCalcs from "./flybycalcs";
 import Kepler from "./kepler";
-import { sub3, mag3, vec3, randomSign, cartesianToSpherical, sphericalToCartesian, mult3 ,lerp } from "./math";
+import { sub3, mag3, vec3, randomSign, cartesianToSpherical, sphericalToCartesian, mult3, lerp, clamp } from "./math";
 import { nelderMeadMinimize } from "./optim";
 import DifferentialEvolution from "./evolution";
 // import DepartArrive from "./departarrive";
@@ -106,7 +106,7 @@ class MultiFlybyCalculator {
 
         let sumDurations = 0.0;
         if(!inputs.flybyDurations) {
-            this._flybyDurations = this._flybyIdSequence.map((id, index) => {return {inTime: 0.0, outTime: 0.0, total: 0.0}});
+            this._flybyDurations = this._flybyIdSequence.map(() => {return {inTime: 0.0, outTime: 0.0, total: 0.0}});
         } else {
             this._flybyDurations = inputs.flybyDurations;
             for(let i=0; i<inputs.flybyDurations.length; i++) {
@@ -183,6 +183,10 @@ class MultiFlybyCalculator {
         this._maneuvers             = [];
         this._maneuverContexts      = [];
     }
+
+    // private clearFlybyDurations() {
+    //     this._flybyDurations = this._flybyIdSequence.map(() => {return {inTime: 0.0, outTime: 0.0, total: 0.0}});
+    // }
 
     private bodyFromId(id: number) {
         if(id === 0) {
@@ -506,7 +510,7 @@ class MultiFlybyCalculator {
         this._soiPatchPositions = this.calculateSoiPatches();
     }
 
-    /// spatical SoI patch error ///
+    /// spatial SoI patch error ///
 
     private get soiPatchPositionErrors() {
         const soiPatchPositions = this.calculateSoiPatches();
@@ -619,8 +623,11 @@ class MultiFlybyCalculator {
         return this._summedPeriods;
     }
 
-    private get soiPatchFitness() {
-        return ( this.soiPatchPositionErrors.reduce((p,c,i) => p + 0.5 * c / this._soiPatchBodies[i].soi, 0) / this._soiPatchBodies.length + this.soiPatchTimeError / this.summedPeriods ) * this._deltaV;
+    public get soiPatchFitness() {
+        return ( 
+            this.soiPatchPositionErrors.reduce((p,c,i) => p + 0.5 * c / this._soiPatchBodies[i].soi, 0) / this._soiPatchBodies.length // averaged position error, each normalized by the max possible error
+          + this.soiPatchTimeError / this.summedPeriods     // time error, normalized by the max possible in-SoI error
+        ) * this._deltaV;   // summed position and time error scaled by the delta v
     }
 
     /// naive iterative approach to optimization ///
@@ -635,12 +642,20 @@ class MultiFlybyCalculator {
             const nextStartDate = lastEj.intersectTimes[lastEjLength];
             // the new end date is set to the encounter time of the first insertion
             const nextEndDate = this._insertions[0].intersectTimes[0];
-            // the new flight times will set based on the new start date, new end date, and the flyby durations
-            const nextFlightTimes = [this._flybyEncounterDates[0] - nextStartDate - this._flybyDurations[0].inTime];
-            for(let i=1; i<this._flybyDurations.length; i++) {
-                nextFlightTimes.push(this._flightTimes[1] - this._flybyDurations[i - 1].outTime - this._flybyDurations[i].inTime)
+            // the new flight times for the first and last legs need to be adjusted based on the new start and end dates
+            // the idea is to keep the flyby encounter dates the same
+            const nextFlightTimes = [...this._flightTimes];
+            nextFlightTimes[0] += this._startDate - nextStartDate;
+            nextFlightTimes[nextFlightTimes.length-1] += nextEndDate - this._endDate;
+            // the flight times need to be adjusted based on changes to the flyby durations
+            const prevFlybyDurations = [...this._flybyDurations];
+            this.setFlybyDurations();
+            nextFlightTimes[0] += prevFlybyDurations[0].inTime - this._flybyDurations[0].inTime;   
+            for(let i=1; i<this._flightTimes.length-1; i++) {
+                nextFlightTimes[i] += (prevFlybyDurations[i].inTime - this._flybyDurations[i].inTime) + (prevFlybyDurations[i-1].outTime - this._flybyDurations[i-1].outTime);
             }
-            nextFlightTimes.push(nextEndDate - nextFlightTimes.reduce((p,c) => p + c) - nextStartDate);
+            nextFlightTimes[nextFlightTimes.length-1] += prevFlybyDurations[prevFlybyDurations.length-1].outTime - this._flybyDurations[this._flybyDurations.length-1].outTime;
+
             // the SoI patch positions are set based on the previously calculated ejection and insertion orbits
             this.setSoiPatchPositions();
             this._startDate = nextStartDate;
@@ -648,7 +663,7 @@ class MultiFlybyCalculator {
             this._endDate = nextEndDate;
             this.computeFullTrajectory();
             fitness = this.soiPatchFitness;
-            if( 2 * (prevFitness - fitness) / (prevFitness + fitness) < rtol) {break;}
+            if( (i > 1) && (2 * Math.abs((prevFitness - fitness) / (prevFitness + fitness)) < rtol) ) {break;}
         }
         return this.soiPatchFitness;
     }
@@ -686,7 +701,7 @@ class MultiFlybyCalculator {
         this.setPatchPositionsFromAngles(vals.slice(this._flightTimes.length + 1));
     }
 
-    private currentTransferToAgent() {
+    private currentTrajectoryToAgent() {
         if(this._patchOptimizationBounds === undefined) this.setPatchOptimizationBounds();
         const bounds = this._patchOptimizationBounds as number[][];
         const flightTimesLength = this._flightTimes.length;
@@ -701,8 +716,15 @@ class MultiFlybyCalculator {
     }
 
     public evaluateAgentFitness(agent: Agent): number {
+        // set the patch positions, start date, and flight times
         this.setFromAgent(agent);
+        // update the flyby durations
+        this.computeMinimalTrajectory();
+        this.computeFlybyOrbits();
+        this.setFlybyDurations();
+        // compute the full trajectory with the new flyby durations
         this.computeFullTrajectory();
+        // return the fitness of trajectory
         return this.soiPatchFitness;
     }
 
@@ -717,11 +739,12 @@ class MultiFlybyCalculator {
         }
         // bound the fitness function to this
         const fitnessFun = this.evaluateAgentFitness.bind(this);
-        // initialize the population, keeping the current parameters in the first agent.
+        // initialize the population, keeping the current parameters in the first agent
         if(this._patchOptimizationBounds === undefined) this.setPatchOptimizationBounds();
         const bounds = this._patchOptimizationBounds as number[][];
         const agentDim = bounds.length;
-        const initialAgent = this.currentTransferToAgent();
+        const initialAgent = this.currentTrajectoryToAgent();
+        const originalDurations = [...this._flybyDurations];
         const initialFitness = this.evaluateAgentFitness(initialAgent);
         let population = DifferentialEvolution.createRandomPopulation(popSize, agentDim);
         let fitnesses = DifferentialEvolution.evaluatePopulationFitness(population, fitnessFun);
@@ -743,58 +766,45 @@ class MultiFlybyCalculator {
         const bestIdx = fitnesses.findIndex(fitness => fitness === bestFitness)
         let optimizedFitness = this.evaluateAgentFitness(population[bestIdx]);
         if(initialFitness < optimizedFitness) {
+            this._flybyDurations = originalDurations;
             optimizedFitness = this.evaluateAgentFitness(initialAgent);
+            this._flybyDurations = originalDurations;
         }
     }
 
 
-    public optimizeSoiPatches(tol: number = 0.001, maxit: number = this._soiPatchPositions.length * 100) {
+    /// Nelder-Mead local optimization ///
+
+    private initialSimplex(step = 0.1) {
+        const currentAgent = this.currentTrajectoryToAgent();
+        // make new agents, with each having a perturbed parameter by the step size
+        const initialPopulation: Agent[] = [currentAgent];
+        for(let i = 0; i < 1 + this._flightTimes.length + 2 * this._soiPatchPositions.length; i++) { 
+            const newAgent = [...currentAgent];
+            newAgent[i] = clamp(newAgent[i] + randomSign() * step, 0, 1);
+            initialPopulation.push(newAgent);
+        }
+        return initialPopulation;
+    }
+
+    public optimizeNM(step = 0.1, tol: number = 1e-9, maxit = (this._soiPatchPositions.length + 2) * 200) {
+        if(this._soiPatchPositions.length === 0) {
+            return
+        }
         if(mag3(this._soiPatchPositions[0]) === 0) {
             this.setSoiPatchPositions();
-            this.setFlybyDurations();
         }
-        const objective = (x: number[]): number => {
-            // x contains alternating theta and phi positions for each patch position
-            const patchLen = this._soiPatchPositions.length;
-            this.setPatchPositionsFromAngles(x.slice(0, 2*patchLen));
-            this._startDate = x[2*patchLen];
-            this._flightTimes = x.slice(2*patchLen + 1);
-            this.computeMinimalTrajectory();
-            this.computeFlybyOrbits();
-            this.setFlybyDurations();
-            this.computeFullTrajectory();
-            const error = this.soiPatchPositionError + 10 * this.soiPatchTimeError + 5000 * this._deltaV
-            return isNaN(error) ? Number.MAX_VALUE : error;
+        const originalDurations = [...this._flybyDurations];
+        const initialPopulation = this.initialSimplex(step);
+        const initialFitness = this.evaluateAgentFitness(initialPopulation[0]);
+        const optimizedAgent = nelderMeadMinimize(initialPopulation, this.evaluateAgentFitness.bind(this), tol, maxit);
+        let optimizedFitness = this.evaluateAgentFitness(optimizedAgent);
+        if(initialFitness < optimizedFitness) {
+            this._flybyDurations = originalDurations;
+            optimizedFitness = this.evaluateAgentFitness(initialPopulation[0]);
+            this._flybyDurations = originalDurations;
         }
-        const initialPoints: number[][] = [[...this.patchPositionsToAngles(), this._startDate, ...this._flightTimes]];
-        const numPatches = this._soiPatchBodies.length;
-        for(let i = 0; i < numPatches; i++) {
-            const newPoint1 = initialPoints[0].slice();
-            const newPoint2 = initialPoints[0].slice();
-            newPoint1[2 * i]     += randomSign() * (Math.random() * Math.PI / 24);
-            newPoint2[2 * i + 1] += randomSign() * (Math.random() * Math.PI / 12);
-            initialPoints.push(newPoint1);
-            initialPoints.push(newPoint2);
-        }
-
-        const newPoint = initialPoints[0].slice();
-        newPoint[2 * numPatches] += randomSign() * Math.random() * this._transfers[0].orbits[0].siderealPeriod / 4;
-        initialPoints.push(newPoint);
-
-        const ftStartIdx = 2 * numPatches + 1;
-        for(let i = 0; i < this._transfers.length; i++) {
-            const newPoint = initialPoints[0].slice();
-            newPoint[ftStartIdx + i] += Math.max(1, randomSign() * Math.random() * this._transfers[i].orbits[0].siderealPeriod / 4);
-            initialPoints.push(newPoint)
-        }
-
-        const optimizedPoint = nelderMeadMinimize(initialPoints, objective, tol, maxit);
-        objective(optimizedPoint)
-        // const score = objective(optimizedPoint)
-        // console.log(this._soiPatchPositions)
-        // console.log(this.calculateSoiPatches())
-        // console.log(score)
-    };
+    }
 }
 
 export default MultiFlybyCalculator;

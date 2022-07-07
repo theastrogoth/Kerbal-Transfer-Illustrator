@@ -366,7 +366,7 @@ class TransferCalculator {
         this._soiPatchPositions = this.calculateSoiPatches();
     }
 
-    /// spatical SoI patch error ///
+    /// spatial SoI patch error ///
 
     private get soiPatchPositionErrors() {
         const soiPatchPositions = this.calculateSoiPatches();
@@ -457,7 +457,7 @@ class TransferCalculator {
         return this._summedPeriods;
     }
 
-    private get soiPatchFitness() {
+    public get soiPatchFitness() {
         return ( this.soiPatchPositionErrors.reduce((p,c,i) => p + 0.5 * c / this._soiPatchBodies[i].soi, 0) / this._soiPatchBodies.length + this.soiPatchTimeError / this.summedPeriods ) * this._deltaV;
     }
 
@@ -484,7 +484,7 @@ class TransferCalculator {
             this.computeTransfer();
             // stop iterating if the change in fitness does not exceed the relative tolerance
             fitness = this.soiPatchFitness;
-            if( 2 * (prevFitness - fitness) / (prevFitness + fitness) < rtol) {break;}
+            if( (i > 1) && (2 * Math.abs((prevFitness - fitness) / (prevFitness + fitness)) < rtol) ) {break;}
         }
         return this.soiPatchFitness;
     }
@@ -604,8 +604,8 @@ class TransferCalculator {
             this.setSoiPatchPositions();
         }
         const initialPopulation = this.initialSimplex(step);
+        const initialFitness = this.evaluateAgentFitness(initialPopulation[0])
         const optimizedAgent = nelderMeadMinimize(initialPopulation, this.evaluateAgentFitness.bind(this), tol, maxit);
-        const initialFitness = this.evaluateAgentFitness(initialPopulation[0]);
         let optimizedFitness = this.evaluateAgentFitness(optimizedAgent);
         if(initialFitness < optimizedFitness) {
             optimizedFitness = this.evaluateAgentFitness(initialPopulation[0]);
