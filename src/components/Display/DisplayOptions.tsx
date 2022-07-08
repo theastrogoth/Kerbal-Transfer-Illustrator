@@ -16,7 +16,6 @@ function handleCheckboxChange(setOpts: React.Dispatch<React.SetStateAction<Displ
             // @ts-ignore
             newOpts[property] = event.target.checked;
             setOpts(newOpts);
-            console.log(newOpts === oldOpts)
         }
     )
 }
@@ -30,6 +29,9 @@ function DisplayOptions() {
                     <FormControl>
                         <FormLabel>Bodies</FormLabel>
                         <FormControlLabel control={<Checkbox checked={opts.bodies} onChange={handleCheckboxChange(setOpts, "bodies", opts)}/>} label="Body Surfaces" />
+                        <FormControlLabel control={<Checkbox checked={opts.textures} onChange={handleCheckboxChange(setOpts, "textures", opts)}/>} label="Body Textures" />
+                        <FormControlLabel control={<Checkbox checked={opts.shadows} onChange={handleCheckboxChange(setOpts, "shadows", opts)}/>} label="Shadows" />
+                        <FormControlLabel control={<Checkbox checked={opts.wireframe} onChange={handleCheckboxChange(setOpts, "wireframe", opts)}/>} label="Wireframe Bodies" />
                         <FormControlLabel control={<Checkbox checked={opts.bodySprites} onChange={handleCheckboxChange(setOpts, "bodySprites", opts)}/>} label="Body Sprites" />
                         <FormControlLabel control={<Checkbox checked={opts.atmospheres} onChange={handleCheckboxChange(setOpts, "atmospheres", opts)}/>} label="Atmospheres" />         
                         <FormControlLabel control={<Checkbox checked={opts.sois} onChange={handleCheckboxChange(setOpts, "sois", opts)}/>} label="Spheres of Influence" />    
@@ -56,6 +58,7 @@ function DisplayOptions() {
                 <FormControl>
                     <FormLabel>Other</FormLabel>
                     <FormControlLabel control={<Checkbox checked={opts.referenceLine} onChange={handleCheckboxChange(setOpts, "referenceLine", opts)}/>} label="Reference Line" />
+                    <FormControlLabel control={<Checkbox checked={opts.skyBox} onChange={handleCheckboxChange(setOpts, "skyBox", opts)}/>} label="Galaxy Background" />
                 </FormControl>
             </FormGroup>
         </Stack>

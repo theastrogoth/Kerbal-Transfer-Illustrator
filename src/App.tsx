@@ -102,6 +102,9 @@ export const customSystemAtom = atom(kspSystem);
 
 export const displayOptionsAtom = atom<DisplayOptions>({
   bodies:         true,
+  textures:       true,
+  shadows:        true,
+  wireframe:      false,
   bodySprites:    true,
   atmospheres:    true,
   sois:           true,
@@ -117,6 +120,7 @@ export const displayOptionsAtom = atom<DisplayOptions>({
   craftApses:     false,
   craftNodes:     false,
   referenceLine:  false,
+  skyBox:         false,
 });
 
 // transfer planner state (atoms)

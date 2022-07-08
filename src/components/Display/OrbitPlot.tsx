@@ -1,17 +1,22 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
-import * as THREE from 'three';
 
+import * as THREE from 'three';
 import { useThree } from '@react-three/fiber';
 import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
+
 import SystemDisplay from './SystemDisplay';
 import SkyBox from './SkyBox';
 
-import CelestialBody from '../../main/objects/body';
+import CelestialBody, { OrbitingBody } from '../../main/objects/body';
 import SolarSystem from '../../main/objects/system';
 
 import { vec3, div3, add3 } from '../../main/libs/math';
 import Kepler from '../../main/libs/kepler';
 import ReferenceLine from './ReferenceLine';
+
+import { useAtom } from 'jotai';
+import { displayOptionsAtom } from '../../App';
+import ParentBodies from './ParentBodies';
 
 export type OrbitPlotProps = {
     centralBody:        CelestialBody,
@@ -78,6 +83,7 @@ function getTargetPosition(target: ICelestialBody | IOrbitingBody | IVessel | IO
 }
 
 function OrbitPlot({centralBody, system, date, flightPlans=[], setInfoItem}: OrbitPlotProps) {
+    const [displayOptions] = useAtom(displayOptionsAtom);
     const [plotSize, setPlotSize] = useState(getPlotSize(centralBody));
     const state = useThree();
     
@@ -92,29 +98,41 @@ function OrbitPlot({centralBody, system, date, flightPlans=[], setInfoItem}: Orb
     state.camera.position.add(move);
     state.camera.updateProjectionMatrix();
 
+    const isSun = centralBody.name === system.sun.name;
+
     useEffect(() => {
         setPlotSize(getPlotSize(centralBody));
         setTargetObject(centralBody);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [centralBody.id, centralBody.radius, centralBody.name, centralBody.stdGravParam]);
 
+    const bgColor = <color attach="background" args={[0.07, 0.07, 0.07]} />;
     return (
         <>
-            {/* <color attach="background" args={[0.02, 0.02, 0.02]} /> */}
-            <Suspense fallback={state.scene.background = new THREE.Color(0.07, 0.07, 0.07)}>
-                <SkyBox />
+            <Suspense fallback={bgColor} >
+                { displayOptions.skyBox ? <SkyBox /> : bgColor }
             </Suspense>
-            <PerspectiveCamera makeDefault={true} position={[0,1,0]} zoom={1} near={1e-7} />
+            <PerspectiveCamera makeDefault={true} position={[0,1,0]} zoom={1} near={1e-7} far={1e9} />
             <SystemDisplay 
                 centralBody={centralBody}
                 system={system}
                 flightPlans={flightPlans}
                 plotSize={plotSize}
                 date={date}
-                isSun={centralBody.name === system.sun.name}
+                isSun={isSun}
                 setInfoItem={setInfoItem}
                 setTarget={setTargetObject}
             />
+            { !isSun ?
+                <ParentBodies 
+                    centralBody={centralBody as OrbitingBody}
+                    system={system}
+                    date={date}
+                    plotSize={plotSize}
+                    setInfoItem={setInfoItem}
+                /> :
+                <></>
+            }
             <ReferenceLine />
             <OrbitControls enablePan={false} rotateSpeed={0.5} zoomSpeed={1} target={targetPosition.current} />
         </>
