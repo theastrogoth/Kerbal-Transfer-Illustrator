@@ -144,7 +144,7 @@ function OrbitDisplay({tabValue = 0, centralBody, system, flightPlans=[], startD
   
   return (
     <Stack sx={{my: 1, mx: 1}} spacing={1} display="flex" alignItems="center" justifyContent="center">
-      <Canvas style={{height: '500px'}} gl={{logarithmicDepthBuffer: true}} frameloop={'always'}>
+      <Canvas style={{height: '500px'}} gl={{logarithmicDepthBuffer: true}} frameloop={'always'} shadows={true} >
         <OrbitPlot 
           centralBody={centralBody} 
           system={system} 

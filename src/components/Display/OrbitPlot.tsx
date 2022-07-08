@@ -123,16 +123,14 @@ function OrbitPlot({centralBody, system, date, flightPlans=[], setInfoItem}: Orb
                 setInfoItem={setInfoItem}
                 setTarget={setTargetObject}
             />
-            { !isSun ?
-                <ParentBodies 
-                    centralBody={centralBody as OrbitingBody}
-                    system={system}
-                    date={date}
-                    plotSize={plotSize}
-                    setInfoItem={setInfoItem}
-                /> :
-                <></>
-            }
+            <ParentBodies 
+                centralBody={centralBody as OrbitingBody}
+                system={system}
+                date={date}
+                plotSize={plotSize}
+                setInfoItem={setInfoItem}
+            /> 
+            <ambientLight key={'ambient'} intensity={0.1} />
             <ReferenceLine />
             <OrbitControls enablePan={false} rotateSpeed={0.5} zoomSpeed={1} target={targetPosition.current} />
         </>
