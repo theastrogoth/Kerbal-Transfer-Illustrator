@@ -61,41 +61,14 @@ function getTrajectoryIcons(trajectory: Trajectory, index: number, flightPlan: F
     return {maneuver, soi};
 }
 
-// function getSunLight(centralBody: CelestialBody, system: SolarSystem, date: number, depth: number) {
-//     if(depth === 0) {
-//         if(centralBody.name === system.sun.name) {
-//             return <>
-//                 <pointLight key={'sun'} castShadow={true} position={[0, 0, 0] } intensity={1.5} />
-//             </>
-//         } else {
-//             const pathToSun = system.sequenceToSun(centralBody.id);
-//             let sunDirection = vec3(0,0,0);
-//             for(let i=0; i<pathToSun.length-1; i++) {
-//                 const body = system.bodyFromId(pathToSun[i]) as OrbitingBody;
-//                 sunDirection = sub3(sunDirection, Kepler.orbitToPositionAtDate(body.orbit, date));
-//             }
-//             sunDirection = normalize3(sunDirection);
-//             console.log(sunDirection, centralBody.name)
-//             return <>
-//                 <directionalLight key={'sun'} castShadow={true} position={new THREE.Vector3(-sunDirection.x, sunDirection.z, sunDirection.y)} intensity={1.5} />
-//             </>
-//         }
-//     } else {
-//         return <></>
-//     }
-// }
-
 function SystemDisplay({centralBody, system, plotSize, date, isSun = true, depth = 0, centeredAt = vec3(0,0,0), flightPlans = [], setInfoItem, setTarget}: SystemDisplayProps) {
     const [displayOptions] = useAtom(displayOptionsAtom);
     
-    // const sunLight = useRef(getSunLight(centralBody, system, date, depth));
-
     const bodyFlightPlans = flightPlans.map((flightPlan) => flightPlan.trajectories.map((trajectory, trajIndex) => {return {trajectory, index: trajIndex}}).filter(traj => traj.trajectory.orbits[0].orbiting === centralBody.id));
     const iconInfos = bodyFlightPlans.map((trajectories, index) => trajectories.map(trajectory => getTrajectoryIcons(trajectory.trajectory, trajectory.index, flightPlans[index], centralBody, system)));
 
     return (
         <>
-            {/* {sunLight.current} */}
             <BodySphere 
                 key={centralBody.name}
                 body={centralBody}

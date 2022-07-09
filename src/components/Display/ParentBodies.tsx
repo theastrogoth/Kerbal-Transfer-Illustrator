@@ -6,6 +6,9 @@ import Kepler from '../../main/libs/kepler';
 import { mult3, sub3, vec3, normalize3 } from '../../main/libs/math';
 import BodySphere from './BodySphere';
 
+// import { useShadowHelper } from '../../utils';
+
+
 function getParentPositions(parentBodies: CelestialBody[], system: SolarSystem, date: number) {
     const positions: Vector3[] = [];
     for(let i=0; i<parentBodies.length-1; i++) {
@@ -29,10 +32,13 @@ function ParentBodies({centralBody, system, date, plotSize, setInfoItem}: {centr
     const parentPositions = getParentPositions(parentBodies, system, date);
     const relativePositions = getRelativePositions(bodyPosition, parentPositions);
     const sunPosition = normalize3(relativePositions[relativePositions.length-1]);
-    const lightDistance = (parentBodies.length >= 2 ? parentBodies[0].soi as number : centralBody.soi || plotSize) * 2 / plotSize;
+    const lightDistance = (parentBodies.length >= 2 ? (centralBody as OrbitingBody).orbit.semiMajorAxis as number : centralBody.furtherstOrbiterDistance || plotSize) * 2 / plotSize;
     const lightPosition = mult3(sunPosition, lightDistance);
-    console.log(lightPosition)
-    
+    const shadowCamWidth = centralBody.radius * 1.5 / plotSize;
+
+    // const lightRef = useRef()
+    // useShadowHelper(lightRef)
+
     useEffect(() => {
         parentIdxs.current = system.sequenceToSun(centralBody.id).slice(1);
         setParentBodies(parentIdxs.current.map(idx => system.bodyFromId(idx)));
@@ -59,8 +65,18 @@ function ParentBodies({centralBody, system, date, plotSize, setInfoItem}: {centr
                 intensity={1.5} 
                 shadow-camera-near={0.1}
                 shadow-camera-far={2.1 * lightDistance}
+                shadow-camera-right={shadowCamWidth}
+                shadow-camera-left={-shadowCamWidth}
+                shadow-camera-top={shadowCamWidth}
+                shadow-camera-bottom={-shadowCamWidth}
             /> :
-            <pointLight castShadow={true} position={[0, 0, 0] } intensity={1.5} shadow-camera-near={1e-3} shadow-camera-far={2.1} />
+            <pointLight 
+                position={[0, 0, 0] } 
+                intensity={1.5} 
+                // castShadow={true}
+                // shadow-camera-near={0.01} 
+                // shadow-camera-far={2.1} 
+            />
         }
     </>
     )

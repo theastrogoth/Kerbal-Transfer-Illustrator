@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 import Orbit from './main/objects/orbit';
 import { OrbitingBody } from './main/objects/body';
@@ -9,6 +9,9 @@ import FlybyCalcs from './main/libs/flybycalcs';
 
 import { ControlsOptionsState } from './components/ControlsOptions';
 import { clamp, calendarDateToTime } from './main/libs/math';
+
+import { useFrame, useThree } from '@react-three/fiber';
+import { CameraHelper, Light } from 'three';
 
 // for re-used components
 export function dateFieldIsEmpty(calendarDate: CalendarDate): boolean {
@@ -283,3 +286,32 @@ export const useContainerDimensions = (myRef: React.RefObject<any>) => {
     }, [myRef, myRef.current]);
     return dimensions;
 };
+
+export function useShadowHelper(
+    ref: React.MutableRefObject<Light | undefined>
+  ) {
+    const helper = useRef<CameraHelper>();
+    const scene = useThree((state) => state.scene);
+  
+    React.useEffect(() => {
+      if (!ref.current) return;
+  
+      helper.current = new CameraHelper(ref.current?.shadow.camera);
+      if (helper.current) {
+        scene.add(helper.current);
+      }
+  
+      return () => {
+        if (helper.current) {
+          scene.remove(helper.current);
+        }
+      };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [helper.current?.uuid, ref.current]);
+  
+    useFrame(() => {
+      if (helper.current?.update) {
+        helper.current.update();
+      }
+    });
+  }

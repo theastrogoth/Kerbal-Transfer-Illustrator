@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 import * as THREE from 'three';
 import { useThree } from '@react-three/fiber';
@@ -109,9 +109,7 @@ function OrbitPlot({centralBody, system, date, flightPlans=[], setInfoItem}: Orb
     const bgColor = <color attach="background" args={[0.07, 0.07, 0.07]} />;
     return (
         <>
-            <Suspense fallback={bgColor} >
-                { displayOptions.skyBox ? <SkyBox /> : bgColor }
-            </Suspense>
+            { displayOptions.skyBox ? <SkyBox /> : bgColor }
             <PerspectiveCamera makeDefault={true} position={[0,1,0]} zoom={1} near={1e-7} far={1e9} />
             <SystemDisplay 
                 centralBody={centralBody}

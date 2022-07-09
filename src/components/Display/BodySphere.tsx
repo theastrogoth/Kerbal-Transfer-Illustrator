@@ -79,7 +79,6 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
 
     const timer = useRef<NodeJS.Timeout | null>(null);
     const shadows = !isSun && displayOptions.shadows;
-    console.log(body.name, shadows)
 
     useEffect(() => {
         color.current = hexFromColorString(body.color.toString());
