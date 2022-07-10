@@ -488,6 +488,9 @@ type OrbitDisplayOptions = {
 
 type DisplayOptions = {
     bodies:         boolean,
+    textures:       boolean,
+    shadows:        boolean,
+    wireframe:      boolean,
     bodySprites:    boolean,
     atmospheres:    boolean,
     sois:           boolean,
@@ -503,4 +506,5 @@ type DisplayOptions = {
     craftApses:     boolean,
     craftNodes:     boolean,
     referenceLine:  boolean,
+    skyBox:         boolean,
 }

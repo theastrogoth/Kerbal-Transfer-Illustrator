@@ -72,9 +72,9 @@ function OrbitDisplay({tabValue = 0, centralBody, system, flightPlans=[], startD
 
   const handleWarp = () => {
       setDateField((prevDateField) => {
-        const currentTime = Date.now();
-        const interval = currentTime - realTime.current;
-        realTime.current = currentTime;
+        const dateNow = Date.now();
+        const interval = dateNow - realTime.current;
+        realTime.current = dateNow;
         counterRef.current = counterRef.current + 1;
         const prevDate = calendarDateToTime(prevDateField, timeSettings, 1, 1);
         const newDate = prevDate + speedRef.current * interval / 1000;
@@ -85,6 +85,7 @@ function OrbitDisplay({tabValue = 0, centralBody, system, flightPlans=[], startD
 
   const startWarp = () => {
       if (intervalRef.current) return;
+      realTime.current = Date.now();
       intervalRef.current = setInterval(() => {
           handleWarp();
       }, frameDuration);
@@ -144,7 +145,7 @@ function OrbitDisplay({tabValue = 0, centralBody, system, flightPlans=[], startD
   
   return (
     <Stack sx={{my: 1, mx: 1}} spacing={1} display="flex" alignItems="center" justifyContent="center">
-      <Canvas style={{height: '500px'}} gl={{logarithmicDepthBuffer: true}} frameloop={'always'}>
+      <Canvas style={{height: '500px'}} gl={{logarithmicDepthBuffer: true}} frameloop={'always'} shadows={true} >
         <OrbitPlot 
           centralBody={centralBody} 
           system={system} 

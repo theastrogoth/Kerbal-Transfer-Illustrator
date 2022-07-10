@@ -26,7 +26,7 @@ type BodySphereProps = {
     depth?:         number,
     centeredAt?:    Vector3,
     setInfoItem:    React.Dispatch<React.SetStateAction<InfoItem>>,
-    setTarget:      React.Dispatch<React.SetStateAction<TargetObject>>,
+    setTarget:      React.Dispatch<React.SetStateAction<TargetObject>> | ((body: CelestialBody) => void),
 }
 
 function getCentralBodyOrbit(body: OrbitingBody, date: number, plotSize: number) {
@@ -57,11 +57,13 @@ function getCentralBodyOrbit(body: OrbitingBody, date: number, plotSize: number)
     )
 }
 
-function BodyTexture({textureURL, isSun = false, hasTexture = true, color = 'white'}: {textureURL: string, isSun?: boolean, hasTexture?: boolean, color?: string}) {
+function BodyTexture({textureURL, isSun = false, hasTexture = true, color = 'white', shadows = false, wireframe = false}: {textureURL: string, isSun?: boolean, hasTexture?: boolean, color?: string, shadows?: boolean, wireframe?: boolean}) {
     const texture = useTexture(textureURL);
     return (
-    isSun   ? <meshBasicMaterial color={hasTexture ? 'white' : color} map={texture} />
-            : <meshLambertMaterial color={hasTexture ? 'white' : color} map={texture} />       
+        (isSun || !shadows) ? <meshBasicMaterial color={hasTexture ? 'white' : color} wireframe={wireframe} map={texture} /> : (
+            wireframe       ? <meshLambertMaterial color={hasTexture ? 'white' : color} wireframe={true} map={texture} /> :
+                              <meshStandardMaterial color={hasTexture ? 'white' : color} wireframe={false} map={texture} roughness={0.75} metalness={0.1} />
+        )             
     )
 }
 
@@ -72,20 +74,21 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
     const soiColor= useRef(hexFromColorString(body.color.rescale(0.5).toString()));
     const attractorSoi = useRef(depth < 2 ? Infinity : system.bodyFromId((body as OrbitingBody).orbiting).soi as number);
 
-    const hasTexture = useRef(textures.get(body.name) !== undefined);
-    const textureURL= useRef(textures.get(body.name) || textures.get("blank") as string);
+    const hasTexture = useRef((textures.get(body.name) !== undefined) && displayOptions.textures);
+    const [textureURL, setTextureURL] = useState(( hasTexture.current ? textures.get(body.name) : textures.get("blank") ) as string);
 
     const timer = useRef<NodeJS.Timeout | null>(null);
+    const shadows = !isSun && displayOptions.shadows;
 
     useEffect(() => {
         color.current = hexFromColorString(body.color.toString());
         soiColor.current = hexFromColorString(body.color.rescale(0.5).toString());
         const newTextureURL = textures.get(body.name);
-        hasTexture.current = newTextureURL !== undefined;
-        textureURL.current = newTextureURL || textures.get("blank") as string;
+        hasTexture.current = (newTextureURL !== undefined) && displayOptions.textures;
+        setTextureURL(( hasTexture.current ? newTextureURL : textures.get("blank") ) as string);
         attractorSoi.current = depth < 2 ? Infinity : system.bodyFromId((body as OrbitingBody).orbiting).soi as number;
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [body])
+    }, [body, displayOptions])
     
     const pos = div3(centeredAt, plotSize);
     const position = new THREE.Vector3(-pos.x, pos.z, pos.y);
@@ -94,7 +97,7 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
     const [farVisible, setFarVisible] = useState(true);
     useFrame((state) => {
         setFarVisible(depth <= 1 ? true : state.camera.position.distanceTo(position) < 10 * attractorSoi.current / plotSize);
-        setCloseVisible(depth === 0 ? true : state.camera.position.distanceTo(position) < 10 * (body.soi as number) / plotSize);
+        setCloseVisible(depth <= 0 ? true : state.camera.position.distanceTo(position) < 10 * (body.soi as number) / plotSize);
     })
 
     useEffect(() => {}, [closeVisible, farVisible])
@@ -121,45 +124,50 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
 
     return (
         <>    
-        {displayOptions.bodies && 
+        {displayOptions.bodies &&
             <mesh 
                 position={position}
                 rotation={[0, degToRad(body.initialRotation || 0) + TWO_PI * ((date % (body.rotationPeriod || Infinity)) / (body.rotationPeriod || Infinity)), 0]} 
                 onClick={handleClick(farVisible)}
                 onDoubleClick={handleDoubleClick(farVisible)}
                 visible={farVisible}
+                castShadow={shadows}
+                receiveShadow={shadows}
             >
                 <sphereGeometry args={[body.radius / plotSize, 32, 32]} />
                 <Suspense
-                    fallback={isSun ? <meshBasicMaterial color={color.current} />
-                                    : <meshLambertMaterial color={color.current} />
+                    fallback={(isSun || !displayOptions.shadows) ? <meshBasicMaterial color={color.current} wireframe={displayOptions.wireframe} />
+                                    : <meshLambertMaterial color={color.current} wireframe={displayOptions.wireframe} />
                             }
                 >
-                    <BodyTexture textureURL={textureURL.current} isSun={isSun} hasTexture={hasTexture.current} color={color.current}/>
+                    <BodyTexture textureURL={textureURL} isSun={isSun} hasTexture={hasTexture.current} color={color.current} shadows={displayOptions.shadows} wireframe={displayOptions.wireframe}/>
                 </Suspense>
             </mesh>
         }
         {(displayOptions.atmospheres && body.atmosphereHeight > 0) &&
-            <mesh position={position} visible={closeVisible}>
+            <mesh position={position} visible={closeVisible} castShadow={false} receiveShadow={shadows}>
                 <sphereGeometry args={[(body.radius + body.atmosphereHeight) / plotSize, 32, 32]} />
                 <meshLambertMaterial color={color.current} transparent={true} opacity={0.05} />
+                
             </mesh> 
         }
         {(displayOptions.sois && depth > 0 && body.soi) &&
-            <mesh position={position} visible={farVisible}>
+            <mesh position={position} visible={farVisible} castShadow={false} receiveShadow={false}>
                 <sphereGeometry args={[body.soi as number / plotSize, 32, 32]} />
                 <meshBasicMaterial transparent={true} opacity={0.25} color={soiColor.current}/>
             </mesh>
         }
-        {displayOptions.bodySprites && 
+        {(displayOptions.bodySprites && depth >= 0) && 
             <sprite 
                 scale={[0.05,0.05,0.05]} 
                 position={position}
                 onClick={handleClick(farVisible)}
                 onDoubleClick={handleDoubleClick(farVisible)}
                 visible={farVisible}
+                castShadow={false}
+                receiveShadow={false}
             >
-                <spriteMaterial map={sphereTexture} sizeAttenuation={false} color={color.current} depthTest={depth === 0} />
+                <spriteMaterial map={sphereTexture} sizeAttenuation={false} color={color.current} depthTest={depth <= 0} />
             </sprite>
         }
         {(displayOptions.bodyOrbits && !isSun && depth === 0) &&
@@ -168,8 +176,10 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
         {(displayOptions.bodyNames && farVisible) &&
             <Html 
                 position={position} 
-                visible={farVisible}
+                visible={farVisible && displayOptions.bodyNames}
                 style={{fontSize: '1rem', transform: 'translate3d(-50%, -150%, 0)', color: color.current}}
+                castShadow={false}
+                receiveShadow={false}
             >
                 <div>{body.name}</div> 
             </Html>
