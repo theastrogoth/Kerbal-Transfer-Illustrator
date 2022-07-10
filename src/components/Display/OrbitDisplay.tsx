@@ -42,12 +42,10 @@ interface OrbitDisplayPropsWithInfo extends OrbitDisplayProps {
 }
 
 function OrbitDisplay({tabValue = 0, centralBody, system, flightPlans=[], startDate=0, endDate=startDate + 9201600, slider=false, marks=[], setInfoItem}: OrbitDisplayPropsWithInfo) {
-  const sDate = slider ? Number.isFinite(startDate) && !isNaN(startDate) ? startDate : (
-                          Number.isFinite(endDate) && !isNaN(endDate) ? endDate : 0)
-                        : startDate; 
-  const eDate = slider ? Number.isFinite(endDate) && !isNaN(endDate) ? endDate : (
-                          Number.isFinite(startDate) && !isNaN(startDate) ? startDate : 0)
-                        : endDate;
+  const sDate = Number.isFinite(startDate) && !isNaN(startDate) ? startDate : (
+                Number.isFinite(endDate) && !isNaN(endDate) ? endDate : 0);
+  const eDate = Number.isFinite(endDate) && !isNaN(endDate) ? endDate : (
+                Number.isFinite(startDate) && !isNaN(startDate) ? startDate : 0);
 
   const [timeSettings] = useAtom(timeSettingsAtom);
   const timeSettingsRef = useRef(timeSettings);

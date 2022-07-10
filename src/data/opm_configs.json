@@ -397,6 +397,7 @@
 		"eccentricity": 0.0034,
 		"inclination": 2.3,
 		"ascNodeLongitude": 55,
+		"referenceBody":"Sarnus",
 		"templateName": "Eeloo"
 	},
 	{

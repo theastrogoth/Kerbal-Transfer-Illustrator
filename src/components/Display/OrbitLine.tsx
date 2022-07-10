@@ -69,7 +69,6 @@ function getPointsAndColors(orbit: Orbit, date: number, nuAtDate: number, nus: n
     }
     // account for the newly added points
     const colors = [...firstHalf, gradientColors[gradientColors.length-1], gradientColors[gradientColors.length-1], ...secondHalf];
-    console.log(points.length, colors.length)
     return {points, colors};
 }
 
