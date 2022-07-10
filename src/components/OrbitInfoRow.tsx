@@ -31,12 +31,12 @@ export function OrbitTable({orbit, color = undefined}: {orbit: IOrbit, color?: s
                 </TableRow>
                 <TableRow>
                     <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Periapsis:</TableCell>
-                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(Math.round(fullOrbit.periapsis * 100) / 100).concat("m")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(Math.round((fullOrbit.periapsis - attractor.radius) * 100) / 100).concat("m")}</TableCell>
                 </TableRow>
                 { Number.isFinite(fullOrbit.apoapsis) && 
                     <TableRow>
                         <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Apoapsis:</TableCell>
-                        <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(Math.round(fullOrbit.apoapsis * 100) / 100).concat("m")}</TableCell>
+                        <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(Math.round((fullOrbit.apoapsis - attractor.radius) * 100) / 100).concat("m")}</TableCell>
                     </TableRow>
                 }
                 <TableRow>

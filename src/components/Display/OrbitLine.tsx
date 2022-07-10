@@ -7,7 +7,7 @@ import Orbit from '../../main/objects/orbit';
 import Color from '../../main/objects/color';
 import DepartArrive from '../../main/libs/departarrive';
 import Kepler from '../../main/libs/kepler';
-import { TWO_PI, div3, wrapAngle, linspace, vec3, add3 } from '../../main/libs/math';
+import { TWO_PI, div3, wrapAngle, linspace, vec3, add3, clamp } from '../../main/libs/math';
 
 import periapsisIcon from '../../assets/icons/periapsis.png';
 import apoapsisIcon from '../../assets/icons/apoapsis.png';
@@ -20,6 +20,7 @@ const apoapsisTexture = textureLoader.load(apoapsisIcon);
 const ascendingNodeTexture = textureLoader.load(ascendingNodeIcon);
 const descendingNodeTexture = textureLoader.load(descendingNodeIcon);
 
+const numPoints = 200;
 
 type OrbitLineProps = {
     orbit:          Orbit,
@@ -37,7 +38,7 @@ type OrbitLineProps = {
 
 function getGradientColors(color:IColor) {
     const fullColor = new Color(color);
-    const colorScales = linspace(0.05, 0.4, 501);
+    const colorScales = linspace(0.05, 0.4, numPoints);
     const gradientColors: [number, number, number][] = [];
     for(let i=0; i<colorScales.length; i++) {
         const pointColor = fullColor.rescale(colorScales[i])
@@ -46,13 +47,19 @@ function getGradientColors(color:IColor) {
     return gradientColors;
 }
 
-function getColorsAtDate(date: number, orbit: IOrbit, gradientColors: [number, number, number][], nus: number[], minDate: number =  -Infinity, maxDate: number = Infinity): [number, number, number][] {
+function getPointsAndColors(orbit: Orbit, date: number, nuAtDate: number, nus: number[], fixedPoints: THREE.Vector3[], gradientColors: [number, number, number][], centeredAt: Vector3, plotSize: number, minDate: number =  -Infinity): {points: THREE.Vector3[], colors: [number, number, number][]} {
+    // if the current date is less than the minimum date, the orbit will show as dim
     if(date < minDate) {
-        return Array(gradientColors.length-1).fill(gradientColors[10])
+        const colors = Array(gradientColors.length-1).fill(gradientColors[10]);
+        return {points: fixedPoints, colors}
     } 
-    const nuAtDate = wrapAngle(Kepler.dateToOrbitTrueAnomaly(Math.min(date, maxDate), orbit), nus[0]);
-    const shiftIndex = nus.findIndex(nu => nu > nuAtDate);
+    // get the position to add the orbit's current position
+    const progressFraction = clamp((nuAtDate - nus[0]) / (nus[nus.length-1] - nus[0]), 0, 1 - 1e-8);    
+    const shiftIndex = Math.ceil(progressFraction * (nus.length - 1));
     const shiftLength = nus.length - shiftIndex + 1;
+    // add the current position (twice, so that the color change from bright to dim is sudden)
+    const points = [...fixedPoints.slice(0, shiftIndex), getPoint(orbit, plotSize, nuAtDate, centeredAt), getPoint(orbit, plotSize, nuAtDate, centeredAt), ...fixedPoints.slice(shiftIndex)];
+    // rearrange the colors so that the max color brightness occurs at the current position
     const firstHalf: [number, number, number][] = gradientColors.slice(shiftLength);
     let secondHalf: [number, number, number][];
     if((Math.abs(nus[nus.length-1] - nus[0] + 1e-6)%TWO_PI) > 1e-3) {
@@ -60,8 +67,10 @@ function getColorsAtDate(date: number, orbit: IOrbit, gradientColors: [number, n
     } else {
         secondHalf = gradientColors.slice(0, shiftLength);
     }
-    const shiftedColors = [...firstHalf, ...secondHalf];
-    return shiftedColors;
+    // account for the newly added points
+    const colors = [...firstHalf, gradientColors[gradientColors.length-1], gradientColors[gradientColors.length-1], ...secondHalf];
+    console.log(points.length, colors.length)
+    return {points, colors};
 }
 
 function getTrueAnomalyRange(orbit: Orbit, minDate: number = -Infinity, maxDate: number = Infinity) {
@@ -89,13 +98,13 @@ function getTrueAnomalyRange(orbit: Orbit, minDate: number = -Infinity, maxDate:
     return {min, max}
 }
 
-function getPoints(orbit: Orbit, plotSize: number, nus: number[], centeredAt: Vector3) {
-    const points: THREE.Vector3[] = [];
-    for(let i=0; i<nus.length; i++) {
-        const pt = div3(add3(Kepler.positionAtTrueAnomaly(orbit, nus[i]), centeredAt), plotSize);
-        points.push(new THREE.Vector3(-pt.x, pt.z, pt.y));
-    }
-    return points;
+function getPoint(orbit: Orbit, plotSize: number, nu: number, centeredAt: Vector3) {
+    const pt = div3(add3(Kepler.positionAtTrueAnomaly(orbit, nu), centeredAt), plotSize);
+    return new THREE.Vector3(-pt.x, pt.z, pt.y);
+}
+
+function getFixedPoints(orbit: Orbit, plotSize: number, nus: number[], centeredAt: Vector3) {
+    return nus.map(nu => getPoint(orbit, plotSize, nu, centeredAt));
 }
 
 function getPeriapsisIcon(orbit: Orbit, plotSize: number, nus: number[], centeredAt: Vector3, handleClick: ((e: ThreeEvent<MouseEvent>) => void), color: string = 'white') {
@@ -165,7 +174,7 @@ function getDescendingNodeIcon(orbit: Orbit, plotSize: number, nus: number[], ce
 
 function OrbitLine({orbit, date, plotSize, minDate = -Infinity, maxDate = Infinity, centeredAt = vec3(0,0,0), depth=0,  name = "Orbit", color = {r: 200, g: 200, b: 200}, setInfoItem, displayOptions}: OrbitLineProps) {
     const range = useRef(getTrueAnomalyRange(orbit, minDate, maxDate));
-    const nus = useRef(linspace(range.current.min, range.current.max, 501));
+    const nus = useRef(linspace(range.current.min, range.current.max, numPoints));
     const gradientColors = useRef(getGradientColors(color));
     const colorString = useRef(new Color(color).toString());
 
@@ -176,8 +185,9 @@ function OrbitLine({orbit, date, plotSize, minDate = -Infinity, maxDate = Infini
         }
     }
 
-    const points = getPoints(orbit, plotSize, nus.current, centeredAt);
-    const colors = getColorsAtDate(date, orbit, gradientColors.current, nus.current, minDate, maxDate);
+    const nuAtDate = wrapAngle(Kepler.dateToOrbitTrueAnomaly(Math.min(date, maxDate), orbit), nus.current[0]);
+    const fixedPoints = getFixedPoints(orbit, plotSize, nus.current, centeredAt);
+    const {points, colors} = getPointsAndColors(orbit, date, nuAtDate, nus.current, fixedPoints, gradientColors.current, centeredAt, plotSize, minDate);
     const periapsisIcon = getPeriapsisIcon(orbit, plotSize, nus.current, centeredAt, handleClick, colorString.current);
     const apoapsisIcon = getApoapsisIcon(orbit, plotSize, nus.current, centeredAt, handleClick, colorString.current);
     const ascendingNodeIcon = getAscendingNodeIcon(orbit, plotSize, nus.current, centeredAt, handleClick, colorString.current);
@@ -188,7 +198,7 @@ function OrbitLine({orbit, date, plotSize, minDate = -Infinity, maxDate = Infini
     useEffect(() => {
         const newRange = getTrueAnomalyRange(orbit, minDate, maxDate);
         range.current = newRange;
-        const newNus = linspace(newRange.min, newRange.max, 501);
+        const newNus = linspace(newRange.min, newRange.max, numPoints);
         nus.current = newNus;
         setUpdateCounter(updateCounter + 1)
         // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -88,7 +88,7 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
         setTextureURL(( hasTexture.current ? newTextureURL : textures.get("blank") ) as string);
         attractorSoi.current = depth < 2 ? Infinity : system.bodyFromId((body as OrbitingBody).orbiting).soi as number;
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [body, displayOptions.textures])
+    }, [body, displayOptions])
     
     const pos = div3(centeredAt, plotSize);
     const position = new THREE.Vector3(-pos.x, pos.z, pos.y);
@@ -176,7 +176,7 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
         {(displayOptions.bodyNames && farVisible) &&
             <Html 
                 position={position} 
-                visible={farVisible}
+                visible={farVisible && displayOptions.bodyNames}
                 style={{fontSize: '1rem', transform: 'translate3d(-50%, -150%, 0)', color: color.current}}
                 castShadow={false}
                 receiveShadow={false}
