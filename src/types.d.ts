@@ -492,6 +492,7 @@ type OrbitDisplayOptions = {
 type DisplayOptions = {
     bodies:         boolean,
     textures:       boolean,
+    textureType:    'Color' | 'Biome' | 'Height',
     shadows:        boolean,
     wireframe:      boolean,
     bodySprites:    boolean,

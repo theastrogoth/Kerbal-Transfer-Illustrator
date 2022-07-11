@@ -103,6 +103,7 @@ export const customSystemAtom = atom(kspSystem);
 export const displayOptionsAtom = atom<DisplayOptions>({
   bodies:         true,
   textures:       true,
+  textureType:    'Color',
   shadows:        true,
   wireframe:      false,
   bodySprites:    true,
