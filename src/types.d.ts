@@ -20,9 +20,10 @@ interface ICelestialBody {
 }
 
 interface IOrbitingBody extends Omit<ICelestialBody, 'soi'> {
-    readonly orbiting:      number;
-    readonly orbit:         IOrbit;
-    readonly soi:           number;
+    readonly orbiting:          number;
+    readonly orbit:             IOrbit;
+    readonly soi:               number;
+    readonly tidallyLocked?:    boolean;
 }
 
 interface IOrbit {
@@ -187,6 +188,7 @@ type OrbitingBodyInputs = {
     readonly soi?:              number;
     readonly color?:            IColor;
     readonly orbit:             OrbitalElements;
+    readonly tidallyLocked?:    boolean;
     readonly rotationPeriod?:   number;
     readonly initialRotation?:  number;
 }
@@ -225,6 +227,7 @@ type OrbitingBodyConfig = {
     color?:                string;
     referenceBody?:        string;
     templateName?:         string;
+    tidallyLocked?:        string;
     rotationPeriod?:       string;
     initialRotation?:      string;
 }

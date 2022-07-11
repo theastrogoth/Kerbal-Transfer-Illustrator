@@ -44,6 +44,7 @@ export function fileToBodyConfig(configFile: string): OrbitingBodyConfig {
     const mass = bodyData.Properties.mass;
     const soi = bodyData.Properties.sphereOfInfluence;
 
+    const tidallyLocked = bodyData.Properties.tidallyLocked;
     const rotationPeriod = bodyData.Properties.rotationPeriod;
     const initialRotation = bodyData.Properties.initialRotation;
 
@@ -69,6 +70,7 @@ export function fileToBodyConfig(configFile: string): OrbitingBodyConfig {
         mass,
         stdGravParam,
         soi,
+        tidallyLocked,
         rotationPeriod,
         initialRotation,
         semiMajorAxis,
@@ -91,11 +93,11 @@ export function sunToConfig(sun: ICelestialBody): SunConfig {
         name:                   String(sun.name),
         radius:                 String(sun.radius),
         atmosphereHeight:       sun.atmosphereHeight ? String(sun.atmosphereHeight) : undefined,
-        geeASL:                 sun.geeASL ? String(sun.geeASL) : undefined,
-        mass:                   sun.mass ? String(sun.mass) : undefined,
+        // geeASL:                 sun.geeASL ? String(sun.geeASL) : undefined,
+        // mass:                   sun.mass ? String(sun.mass) : undefined,
         stdGravParam:           String(sun.stdGravParam),
         rotationPeriod:         sun.rotationPeriod ? String(sun.rotationPeriod) : undefined,
-        initialRotation:        sun.initialRotation ? String(sun.initialRotation) : undefined,
+        initialRotation:        sun.initialRotation !== undefined ? String(sun.initialRotation) : undefined,
         color:                  (new Color(sun.color)).toString(),
         templateName:           sun.name,
     }
@@ -108,12 +110,13 @@ export function bodyToConfig(body: IOrbitingBody, system: SolarSystem): Orbiting
         radius:                 String(body.radius),
         maxTerrainHeight:       body.maxTerrainHeight ? String(body.maxTerrainHeight) : undefined,
         atmosphereHeight:       body.atmosphereHeight ? String(body.atmosphereHeight) : undefined,
-        geeASL:                 body.geeASL ? String(body.geeASL) : undefined,
-        mass:                   body.mass ? String(body.mass) : undefined,
+        // geeASL:                 body.geeASL ? String(body.geeASL) : undefined,
+        // mass:                   body.mass ? String(body.mass) : undefined,
         stdGravParam:           String(body.stdGravParam),
         soi:                    String(body.soi),
+        tidallyLocked:          body.tidallyLocked ? String(body.tidallyLocked) : undefined,
         rotationPeriod:         body.rotationPeriod ? String(body.rotationPeriod) : undefined,
-        initialRotation:        body.initialRotation ? String(body.initialRotation) : undefined,
+        initialRotation:        body.initialRotation !== undefined ? String(body.initialRotation) : undefined,
         semiMajorAxis:          String(body.orbit.semiMajorAxis),
         eccentricity:           String(body.orbit.eccentricity),
         inclination:            String(radToDeg(body.orbit.inclination)),
@@ -300,6 +303,7 @@ function bodyConfigToSystemInputs(data: OrbitingBodyConfig, id: number, parentId
         geeASL:             allGravityMissing ? template!.geeASL : (data.geeASL ? Number(data.geeASL) : undefined),
         stdGravParam:       allGravityMissing ? template!.stdGravParam : (data.stdGravParam ? Number(data.stdGravParam) : stdGravParam),
         soi:                data.soi ? Number(data.soi) : undefined,
+        tidallyLocked:      data.tidallyLocked ? (data.tidallyLocked === "True" || data.tidallyLocked === "true") : false,
         rotationPeriod:     data.rotationPeriod ? Number(data.rotationPeriod) : template!.rotationPeriod,
         initialRotation:    data.initialRotation ? Number(data.initialRotation) : template!.initialRotation,
         color:              data.color ? colorFromRGBA(data.color) : {r: 200, g: 200, b:200} as IColor,

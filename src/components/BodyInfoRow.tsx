@@ -10,8 +10,14 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import Box from "@mui/system/Box";
 
 import CelestialBody from "../main/objects/body";
+import { calendarDateToDurationString, timeToCalendarDate } from "../main/libs/math";
+
+import { useAtom } from "jotai";
+import { timeSettingsAtom } from "../App";
+
 
 export function BodyTable({body, color = undefined}: {body: CelestialBody, color?: string}) {
+    const [timeSettings] = useAtom(timeSettingsAtom);
     return (
         <Table size="small">
             <TableBody>
@@ -25,7 +31,7 @@ export function BodyTable({body, color = undefined}: {body: CelestialBody, color
                 </TableRow>
                 <TableRow>
                     <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Rotation Period:</TableCell>
-                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(body.rotationPeriod).concat("s")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{calendarDateToDurationString(timeToCalendarDate(body.rotationPeriod, timeSettings, 0, 0)).concat("s")}</TableCell>
                 </TableRow>
                 <TableRow>
                     <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Surface Gravity:</TableCell>
