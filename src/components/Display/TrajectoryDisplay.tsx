@@ -8,18 +8,14 @@ import SolarSystem from '../../main/objects/system';
 import Kepler from '../../main/libs/kepler';
 import { div3, hexFromColorString, vec3, add3 } from '../../main/libs/math';
 
-import maneuverIcon from '../../assets/icons/maneuver.png'; 
-import escapeIcon from '../../assets/icons/escape.png'; 
-import encounterIcon from '../../assets/icons/encounter.png'; 
-import podIcon from '../../assets/icons/pod.png';
 import Color from '../../main/objects/color';
 import { Html } from '@react-three/drei';
 
 const textureLoader = new THREE.TextureLoader();
-const maneuverTexture = textureLoader.load(maneuverIcon);
-const escapeTexture = textureLoader.load(escapeIcon);
-const encounterTexture = textureLoader.load(encounterIcon);
-const podTexture = textureLoader.load(podIcon);
+const maneuverTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/main/public/assets/icons/maneuver.png");
+const escapeTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/main/public/assets/icons/escape.png");
+const encounterTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/main/public/assets/icons/encounter.png");
+const podTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/main/public/assets/icons/pod.png");
 
 const defaultColor: IColor = {r:255, g:255, b:255};
 

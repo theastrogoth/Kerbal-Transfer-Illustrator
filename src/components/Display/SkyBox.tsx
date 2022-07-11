@@ -1,15 +1,16 @@
 import { useThree } from "@react-three/fiber";
 import { useCubeTexture } from "@react-three/drei";
-import negativeX from "../../assets/skybox/NegativeX.png";
-import negativeY from "../../assets/skybox/NegativeY.png";
-import negativeZ from "../../assets/skybox/NegativeZ.png";
-import positiveX from "../../assets/skybox/PositiveX.png";
-import positiveY from "../../assets/skybox/PositiveY.png";
-import positiveZ from "../../assets/skybox/PositiveZ.png";
 
 function SkyBox() {
   const { scene } = useThree();
-  const texture = useCubeTexture([positiveX, negativeX, positiveY, negativeY, positiveZ, negativeZ], { path: ""})
+  const texture = useCubeTexture([
+    "https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/main/public/assets/skybox/PositiveX.png", 
+    "https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/main/public/assets/skybox/NegativeX.png",
+    "https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/main/public/assets/skybox/PositiveY.png",
+    "https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/main/public/assets/skybox/NegativeY.png",
+    "https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/main/public/assets/skybox/PositiveZ.png",
+    "https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/main/public/assets/skybox/NegativeZ.png",
+  ], { path: ""})
   scene.background = texture;
   return null;
 }
