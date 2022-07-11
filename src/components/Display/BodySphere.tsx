@@ -14,8 +14,7 @@ import { TWO_PI, degToRad, linspace, wrapAngle, vec3, sub3, div3, hexFromColorSt
 import { useAtom } from 'jotai';
 import { displayOptionsAtom } from '../../App';
 
-import sphereIcon from '../../assets/icons/sphere.png';
-const sphereTexture = new THREE.TextureLoader().load(sphereIcon);
+const sphereTexture = new THREE.TextureLoader().load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/sphere.png");
 
 type BodySphereProps = {
     body:           CelestialBody,
