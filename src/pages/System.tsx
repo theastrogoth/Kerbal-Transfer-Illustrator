@@ -26,10 +26,9 @@ import SelectProvidedConfigs from "../components/SystemEditor/SelectProvidedConf
 import GetLinkButton from "../components/SystemEditor/GetLinkButton";
 
 import SolarSystem from "../main/objects/system";
-// import Draw from "../main/libs/draw";
 
 import { useAtom } from "jotai";
-import { customSystemAtom, configTreeAtom, /* timeSettingsAtom, */ bodyConfigsAtom, editorSelectedNameAtom, systemScaleAtom } from "../App";
+import { customSystemAtom, configTreeAtom, bodyConfigsAtom, editorSelectedNameAtom, systemScaleAtom } from "../App";
 import InfoPopper from "../components/Display/InfoPopper";
 
 
@@ -42,7 +41,6 @@ function createBodyItems(system: SolarSystem) {
   return options;
 }
 
-// const newWorker = () => new Worker(new URL("../workers/system.worker.ts", import.meta.url));
 const systemLoaderWorker = new Worker(new URL("../workers/system.worker.ts", import.meta.url));
 
 ////////// App Content //////////
@@ -52,18 +50,16 @@ function SolarSystemAppContent() {
   const [customSystem, setCustomSystem] = useAtom(customSystemAtom);
   const [, setEditorSelectedName] = useAtom(editorSelectedNameAtom);
   const [systemScale, setSystemScale] = useAtom(systemScaleAtom);
-  // const [timeSettings] = useAtom(timeSettingsAtom);
 
   const [bodyOptions, setBodyOptions] = useState(createBodyItems(customSystem));
-  const [centralBodyName, setCentralBodyName] = useState(customSystem.sun.name);
+  const centralBodyName = useRef(customSystem.sun.name);
   const [centralBody, setCentralBody] = useState(customSystem.sun);
   const [showHelp, setShowHelp] = useState(false);
 
-  const centralBodyNameRef = useRef(centralBodyName);
-  const [deleteBodiesTrigger, setDeleteBodiesTrigger] = useState(false);
-
   const [infoItem, setInfoItem] = useState<InfoItem>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
+
+  const [deleteBodiesTrigger, setDeleteBodiesTrigger] = useState(0);
 
   useEffect(() => {
     systemLoaderWorker.onmessage = (event: MessageEvent<ISolarSystem>) => {
@@ -71,12 +67,12 @@ function SolarSystemAppContent() {
           const newSystem = new SolarSystem(event.data.sun, event.data.orbiters);
           setCustomSystem(newSystem);
           setBodyOptions(createBodyItems(newSystem));
-          let newCentralBody = newSystem.bodies.find(bd => bd.name === centralBodyNameRef.current);
+          let newCentralBody = newSystem.bodies.find(bd => bd.name === centralBodyName.current);
           if(!newCentralBody) {
-            newCentralBody = newSystem.bodyFromId(centralBody.id)
+            newCentralBody = newSystem.sun;
           }
           setCentralBody(newCentralBody);
-          setCentralBodyName(newCentralBody.name);
+          centralBodyName.current = newCentralBody.name;
         }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -89,16 +85,10 @@ function SolarSystemAppContent() {
   }, [configTree, systemScale]);
 
   useEffect(() => {
-    centralBodyNameRef.current = centralBodyName;
-    const newCentralBody = customSystem.bodyFromName(centralBodyName);
-    setCentralBody(newCentralBody);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [centralBodyName])
-
-  useEffect(() => {
-    if(deleteBodiesTrigger) {
-      setBodyConfigs([bodyConfigs[0]]);
-      setDeleteBodiesTrigger(false);
+    if(deleteBodiesTrigger > 0) {
+      // setTimeout( () => {
+        setBodyConfigs([bodyConfigs[0]]);
+      // }, 100)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deleteBodiesTrigger])
@@ -146,8 +136,10 @@ function SolarSystemAppContent() {
                     component="span"
                     startIcon={<ClearIcon />}
                     onClick={() => {
-                      setEditorSelectedName(bodyConfigs[0].name || bodyConfigs[0].templateName as string);
-                      setDeleteBodiesTrigger(true);
+                      setEditorSelectedName(customSystem.sun.name);
+                      setCentralBody(customSystem.sun);
+                      centralBodyName.current = customSystem.sun.name;
+                      setDeleteBodiesTrigger(deleteBodiesTrigger + 1);
                     }}
                   >
                     Clear Bodies
@@ -194,8 +186,11 @@ function SolarSystemAppContent() {
                       labelId={"body-select-label"}
                       label='Central Body'
                       id={'central-body'}
-                      value={centralBodyName}
-                      onChange={(e) => setCentralBodyName(e.target.value)}
+                      value={centralBodyName.current}
+                      onChange={(e) => {
+                        centralBodyName.current = e.target.value;
+                        setCentralBody(customSystem.bodyFromName(e.target.value));
+                      }}
                   >
                       {bodyOptions}
                   </Select>

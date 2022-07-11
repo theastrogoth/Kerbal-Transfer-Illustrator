@@ -12,18 +12,22 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Collapse from "@mui/material/Collapse";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import Divider from '@mui/material/Divider';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import AddIcon from '@mui/icons-material/Add';
 import ClearIcon from '@mui/icons-material/Clear';
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+
 
 import { colorFromString, hexFromColorString } from "../../main/libs/math";
 
 import { useAtom } from "jotai";
 import { kspSystem, bodyConfigsAtom, editorSelectedNameAtom } from "../../App";
-import { TextField, Typography } from "@mui/material";
 import { configReferenceBodyName } from "../../main/utilities/loadPlanetConfig";
 
 
@@ -69,6 +73,10 @@ function BodyConfigControls() {
     const [stdGravParam, setStdGravParam] = useState(bodyConfigs[idx].stdGravParam || '');
     const [mass, setMass] = useState(bodyConfigs[idx].stdGravParam || '');
     const [soi, setSoi] = useState((bodyConfigs[idx] as OrbitingBodyConfig).soi || '');
+
+    const [rotationPeriod, setRotationPeriod] = useState(bodyConfigs[idx].rotationPeriod || '');
+    const [initialRotation, setInitialRotation] = useState(bodyConfigs[idx].initialRotation || '');
+    const [tidallyLocked, setTidallyLocked] = useState((bodyConfigs[idx] as OrbitingBodyConfig).tidallyLocked || '');
 
     const [semiMajorAxis, setSemiMajorAxis] = useState((bodyConfigs[idx] as OrbitingBodyConfig).semiMajorAxis || '');
     const [eccentricity, setEccentricity] = useState((bodyConfigs[idx] as OrbitingBodyConfig).eccentricity || '');
@@ -169,6 +177,10 @@ function BodyConfigControls() {
             setStdGravParam(bodyConfigs[newIdx].stdGravParam || '');
             setMass(bodyConfigs[newIdx].mass || '');
             setSoi((bodyConfigs[newIdx] as OrbitingBodyConfig).soi || '');
+
+            setRotationPeriod(bodyConfigs[newIdx].rotationPeriod || '');
+            setInitialRotation(bodyConfigs[newIdx].initialRotation || '');
+            setTidallyLocked((bodyConfigs[newIdx] as OrbitingBodyConfig).tidallyLocked || '');
         
             setSemiMajorAxis((bodyConfigs[newIdx] as OrbitingBodyConfig).semiMajorAxis || '');
             setEccentricity((bodyConfigs[newIdx] as OrbitingBodyConfig).eccentricity || '');
@@ -232,6 +244,23 @@ function BodyConfigControls() {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [soi])
+
+    useEffect(() => {
+        if(!isNaN(Number(rotationPeriod)) || rotationPeriod === '') {
+            setValue("rotationPeriod")(rotationPeriod);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [rotationPeriod])
+    useEffect(() => {
+        if(!isNaN(Number(initialRotation)) || initialRotation === '') {
+            setValue("initialRotation")(initialRotation);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialRotation])
+    useEffect(() => {
+        setValue("tidallyLocked")(tidallyLocked);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tidallyLocked])
 
     useEffect(() => {
         if(!isNaN(Number(semiMajorAxis)) || semiMajorAxis === '') {
@@ -417,6 +446,23 @@ function BodyConfigControls() {
                                 onChange={(e) => setSoi(e.target.value)}
                                 error={soi !== '' ? (Number(soi) <= 0) : false}
                             />
+                        }
+                        <NumberField
+                            label='Rotation Period (s)' 
+                            value={rotationPeriod}
+                            setValue={setRotationPeriod}
+                            onChange={(e) => setRotationPeriod(e.target.value)}
+                            error={rotationPeriod !== '' ? (Number(rotationPeriod) <= 0) : false}
+                            disabled={tidallyLocked === 'True' || tidallyLocked === 'true'}
+                        />
+                        <NumberField
+                            label={'Initial Rotation (\u00B0)'}
+                            value={initialRotation}
+                            setValue={setInitialRotation}
+                            onChange={(e) => setInitialRotation(e.target.value)}
+                        />
+                        {idx !==0 &&
+                            <FormControlLabel control={<Checkbox checked={tidallyLocked === 'True' || tidallyLocked === 'true'} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTidallyLocked(e.target.checked ? 'true' : '')}/>} label="Tidally Locked" />
                         }
                     </Stack>
                 </Collapse>

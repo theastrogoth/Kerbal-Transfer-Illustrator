@@ -90,15 +90,17 @@ export class CelestialBody implements ICelestialBody {
 export class OrbitingBody extends CelestialBody implements IOrbitingBody {
     readonly orbit!:            Orbit;
     readonly orbiting!:         number;
+    readonly tidallyLocked!:    boolean;
     //@ts-ignore
     readonly soi!:              number;
 
     constructor(data: IOrbitingBody, public readonly attractor: CelestialBody, anglesToRad: boolean = false) {
         super(data);
         
-        this.orbit        = new Orbit(data.orbit, this.attractor, anglesToRad);
-        this.orbiting     = data.orbiting;
-        this.soi          = data.soi;
+        this.orbit          = new Orbit(data.orbit, this.attractor, anglesToRad);
+        this.orbiting       = data.orbiting;
+        this.soi            = data.soi;
+        this.tidallyLocked  = data.tidallyLocked || false;
     }
 
     public get data(): IOrbitingBody {
@@ -125,7 +127,7 @@ export class OrbitingBody extends CelestialBody implements IOrbitingBody {
             geeASL:             this.geeASL,
             stdGravParam:       newGravParam,
             soi:                newSoi,
-            rotationPeriod:     this.rotationPeriod,
+            rotationPeriod:     this.tidallyLocked ? newOrbit.siderealPeriod : this.rotationPeriod,
             initialRotation:    this.initialRotation,
             color:              this.color,
             orbit:              newOrbit.data,

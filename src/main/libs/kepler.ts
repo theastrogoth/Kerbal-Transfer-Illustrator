@@ -396,6 +396,8 @@ namespace Kepler {
         const maxTerrainHeight = inputs.maxTerrainHeight ? inputs.maxTerrainHeight : 0;
         const atmosphereHeight = inputs.atmosphereHeight ? inputs.atmosphereHeight : 0;
 
+        const rotationPeriod = inputs.tidallyLocked === true ? orbit.siderealPeriod : inputs.rotationPeriod;
+
         let stdGravParam = inputs.stdGravParam;
         let mass = inputs.mass;
         let geeASL = inputs.geeASL;
@@ -421,7 +423,8 @@ namespace Kepler {
             geeASL,
             stdGravParam,
             soi,
-            rotationPeriod: inputs.rotationPeriod,
+            tidallyLocked: inputs.tidallyLocked || false,
+            rotationPeriod,
             initialRotation: inputs.initialRotation,
             color,
             orbit,

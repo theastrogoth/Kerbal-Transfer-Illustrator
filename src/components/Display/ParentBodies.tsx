@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React from 'react';
 import * as THREE from "three";
 import CelestialBody, { OrbitingBody } from '../../main/objects/body';
 import SolarSystem from '../../main/objects/system';
@@ -26,8 +26,8 @@ function getRelativePositions(bodyPosition: Vector3, parentPositions: Vector3[])
 }
 
 function ParentBodies({centralBody, system, date, plotSize, setInfoItem}: {centralBody: CelestialBody, system: SolarSystem, date: number, plotSize: number, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>}) {
-    const parentIdxs = useRef(system.sequenceToSun(centralBody.id).slice(1));
-    const [parentBodies, setParentBodies] = useState(parentIdxs.current.map(idx => system.bodyFromId(idx)));
+    const parentIdxs = system.sequenceToSun(centralBody.id).slice(1);
+    const parentBodies = parentIdxs.map(idx => system.bodyFromId(idx));
     const bodyPosition = centralBody.hasOwnProperty("orbit") ? Kepler.orbitToPositionAtDate((centralBody as OrbitingBody).orbit, date) : vec3(0,0,0);
     const parentPositions = getParentPositions(parentBodies, system, date);
     const relativePositions = getRelativePositions(bodyPosition, parentPositions);
@@ -39,10 +39,13 @@ function ParentBodies({centralBody, system, date, plotSize, setInfoItem}: {centr
     // const lightRef = useRef()
     // useShadowHelper(lightRef)
 
-    useEffect(() => {
-        parentIdxs.current = system.sequenceToSun(centralBody.id).slice(1);
-        setParentBodies(parentIdxs.current.map(idx => system.bodyFromId(idx)));
-    }, [centralBody, system])
+    // useEffect(() => {
+    //     const newParentIdxs = system.sequenceToSun(centralBody.id).slice(1);
+    //     setParentIdxs(newParentIdxs);
+    //     setParentBodies(newParentIdxs.map(idx => system.bodyFromId(idx)));
+    //     // console.log(centralBody.name)
+    // }, [centralBody, system])
+
     return ( 
     <>
         { parentBodies.map((bd, i) =>
