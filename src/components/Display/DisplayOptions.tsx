@@ -5,10 +5,22 @@ import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
+import RadioGroup from "@mui/material/RadioGroup";
+import Radio from "@mui/material/Radio";
 
 import { useAtom } from "jotai";
 import { displayOptionsAtom } from "../../App";
 
+function handleChange(setOpts: React.Dispatch<React.SetStateAction<DisplayOptions>>, property: string, oldOpts: DisplayOptions) {
+    return (
+        (event: React.ChangeEvent<HTMLInputElement>): void => {
+            const newOpts = {...oldOpts} as DisplayOptions;
+            // @ts-ignore
+            newOpts[property] = (event.target.value);
+            setOpts(newOpts);
+        }
+    )
+}
 function handleCheckboxChange(setOpts: React.Dispatch<React.SetStateAction<DisplayOptions>>, property: string, oldOpts: DisplayOptions) {
     return (
         (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -40,6 +52,17 @@ function DisplayOptions() {
                     <FormControlLabel control={<Checkbox checked={opts.bodyNodes} onChange={handleCheckboxChange(setOpts, "bodyNodes", opts)}/>} label="Ascending/Descending Nodes" />      
                     <br/>
                 </FormControl>
+                <FormControl>
+                <FormLabel>Texture Type</FormLabel>
+                <RadioGroup
+                    defaultValue={'Color'}
+                    onChange={handleChange(setOpts, "textureType", opts)}
+                >
+                    <FormControlLabel value={'Color'} control={<Radio />} label="Surface Color" />
+                    <FormControlLabel value={'Biome'}  control={<Radio />} label="Biome Map" />
+                    <FormControlLabel value={'Height'}  control={<Radio />} label="Height Map" />
+                </RadioGroup>
+            </FormControl>
             </FormGroup>
             <FormGroup>
                 <FormControl>

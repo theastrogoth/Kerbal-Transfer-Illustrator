@@ -73,8 +73,8 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
     const soiColor= useRef(hexFromColorString(body.color.rescale(0.5).toString()));
     const attractorSoi = useRef(depth < 2 ? Infinity : system.bodyFromId((body as OrbitingBody).orbiting).soi as number);
 
-    const hasTexture = useRef((textures.get(body.name) !== undefined) && displayOptions.textures);
-    const [textureURL, setTextureURL] = useState(( hasTexture.current ? textures.get(body.name) : textures.get("blank") ) as string);
+    const hasTexture = useRef((textures.get(body.name + displayOptions.textureType) !== undefined) && displayOptions.textures);
+    const [textureURL, setTextureURL] = useState(( hasTexture.current ? textures.get(body.name + displayOptions.textureType) : textures.get("blank") ) as string);
 
     const timer = useRef<NodeJS.Timeout | null>(null);
     const shadows = !isSun && displayOptions.shadows;
@@ -82,7 +82,7 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
     useEffect(() => {
         color.current = hexFromColorString(body.color.toString());
         soiColor.current = hexFromColorString(body.color.rescale(0.5).toString());
-        const newTextureURL = textures.get(body.name);
+        const newTextureURL = textures.get(body.name + displayOptions.textureType);
         hasTexture.current = (newTextureURL !== undefined) && displayOptions.textures;
         setTextureURL(( hasTexture.current ? newTextureURL : textures.get("blank") ) as string);
         attractorSoi.current = depth < 2 ? Infinity : system.bodyFromId((body as OrbitingBody).orbiting).soi as number;

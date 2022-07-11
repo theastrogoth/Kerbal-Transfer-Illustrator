@@ -253,7 +253,7 @@ type FlybyParams = {
 }
 
 type TransferInputs = {
-    readonly system:                    SolarSystem;
+    readonly system:                    ISolarSystem;
     readonly startOrbit:                IOrbit;
     readonly endOrbit:                  IOrbit;
     readonly startDate:                 number;
@@ -272,7 +272,7 @@ type TransferInputs = {
 }
 
 type PorkchopInputs = {
-    readonly system:                    SolarSystem;
+    readonly system:                    ISolarSystem;
     readonly startOrbit:                IOrbit;
     readonly endOrbit:                  IOrbit;
     startDateMin:                       number;
@@ -288,7 +288,7 @@ type PorkchopInputs = {
 }
 
 type MultiFlybyInputs = {
-    readonly system:                    SolarSystem;
+    readonly system:                    ISolarSystem;
     readonly startOrbit:                IOrbit;
     readonly endOrbit:                  IOrbit;
     readonly flybyIdSequence:           number[];
@@ -304,7 +304,7 @@ type MultiFlybyInputs = {
 }
 
 type MultiFlybySearchInputs = {
-    readonly system:                    SolarSystem;
+    readonly system:                    ISolarSystem;
     readonly startOrbit:                IOrbit;
     readonly endOrbit:                  IOrbit;
     readonly flybyIdSequence:           number[];
@@ -492,6 +492,7 @@ type OrbitDisplayOptions = {
 type DisplayOptions = {
     bodies:         boolean,
     textures:       boolean,
+    textureType:    'Color' | 'Biome' | 'Height',
     shadows:        boolean,
     wireframe:      boolean,
     bodySprites:    boolean,

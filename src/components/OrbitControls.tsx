@@ -107,13 +107,6 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
         }
     }
 
-    function setOrbitAndFields(newOrbit: OrbitalElements, newAlt: number | undefined = undefined) {
-        setOrbit(newOrbit)
-        orbitRef.current = newOrbit;
-
-        setFields(newOrbit, newAlt);
-    }
-
     useEffect(() => {
         // detect a system change, and reset the orbit to the default for the new body
         if(system !== systemRef.current) {
@@ -125,14 +118,15 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
             } else {
                 const newBody = system.bodyFromId(bodyId);
                 const orb = defaultOrbit(system, bodyId);
-                setOrbitAndFields(orb, orb.semiMajorAxis - newBody.radius);
+                setFields(orb, orb.semiMajorAxis - newBody.radius);
             }
         // detect a change in selection of the loaded vessels from the savefile, and change the orbit to match
         } else if(vesselId !== vesselIdRef.current || vessels !== vesselsRef.current) {
             vesselIdRef.current = vesselId;
             vesselsRef.current = vessels;
             if(vesselId >= 0) {
-                setOrbitAndFields(vessels[vesselId].orbit);
+                console.log(vessels[vesselId].orbit);
+                setFields(vessels[vesselId].orbit);
             }
         // detect a change in the selection of a body, and change the orbit to the default one
         } else if(bodyId !== bodyIdRef.current) {
@@ -140,7 +134,7 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
             const newBody = system.bodyFromId(bodyId);
             setBody(newBody);
             const orb = defaultOrbit(system, bodyId);
-            setOrbitAndFields(orb, orb.semiMajorAxis - newBody.radius);
+            setFields(orb, orb.semiMajorAxis - newBody.radius);
         // detect a change in the altitude, and change the SMA to match
         } else if(alt !== altRef.current) {
             altRef.current = alt;
@@ -280,12 +274,12 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
                 >
                     Advanced Options
                 </Button>
-                <PasteButton setObj={(o: IOrbit) => setOrbitAndFields(o)} copiedObj={copiedOrbit}/>
+                <PasteButton setObj={(o: IOrbit) => setFields(o)} copiedObj={copiedOrbit}/>
                 <IconButton 
                     size="small"
                     color="inherit"
                     // @ts-ignore
-                    onClick={() => { setOrbitAndFields(defaultOrbit(system, bodyId)); setVesselId(-1) }}
+                    onClick={() => { setFields(defaultOrbit(system, bodyId)); setVesselId(-1) }}
                 >
                     <ClearIcon />
                 </IconButton>

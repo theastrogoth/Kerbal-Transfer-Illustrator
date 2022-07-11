@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {Routes, Route } from 'react-router-dom';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme } from '@mui/material/styles';
@@ -103,6 +103,7 @@ export const customSystemAtom = atom(kspSystem);
 export const displayOptionsAtom = atom<DisplayOptions>({
   bodies:         true,
   textures:       true,
+  textureType:    'Color',
   shadows:        true,
   wireframe:      false,
   bodySprites:    true,

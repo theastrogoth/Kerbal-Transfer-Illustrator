@@ -17,7 +17,7 @@ function vesselDataToVessel(vesselObject: any, system: ISolarSystem): IVessel {
 
     const orbiting = parseInt(vesselObject.ORBIT.REF);
     const body = orbiting === 0 ? system.sun : (system.orbiterIds.get(orbiting) as IOrbitingBody);
-
+    
     const elements: OrbitalElements = {
         semiMajorAxis: sma,
         eccentricity: ecc,
@@ -83,9 +83,7 @@ function saveDataToVessels(saveData: any, system: ISolarSystem): Vessel[] {
 
 function saveFileToVessels(saveFile: string, system: ISolarSystem): Vessel[] {
     const saveData = parseConfigNodes(saveFile);
-    console.log(saveData)
     const vessels = saveDataToVessels(saveData, system);
-    console.log(vessels)
     return vessels;
 }
 
