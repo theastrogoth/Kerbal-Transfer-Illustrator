@@ -10,10 +10,10 @@ import Kepler from '../../main/libs/kepler';
 import { TWO_PI, div3, wrapAngle, linspace, vec3, add3, clamp } from '../../main/libs/math';
 
 const textureLoader = new THREE.TextureLoader();
-const periapsisTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/main/public/assets/icons/periapsis.png");
-const apoapsisTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/main/public/assets/icons/apoapsis.png");
-const ascendingNodeTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/main/public/assets/icons/ascnode.png");
-const descendingNodeTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/main/public/assets/icons/descnode.png");
+const periapsisTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/periapsis.png");
+const apoapsisTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/apoapsis.png");
+const ascendingNodeTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/ascnode.png");
+const descendingNodeTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/descnode.png");
 
 const numPoints = 200;
 

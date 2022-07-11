@@ -12,10 +12,10 @@ import Color from '../../main/objects/color';
 import { Html } from '@react-three/drei';
 
 const textureLoader = new THREE.TextureLoader();
-const maneuverTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/main/public/assets/icons/maneuver.png");
-const escapeTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/main/public/assets/icons/escape.png");
-const encounterTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/main/public/assets/icons/encounter.png");
-const podTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/main/public/assets/icons/pod.png");
+const maneuverTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/maneuver.png");
+const escapeTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/escape.png");
+const encounterTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/encounter.png");
+const podTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/pod.png");
 
 const defaultColor: IColor = {r:255, g:255, b:255};
 
