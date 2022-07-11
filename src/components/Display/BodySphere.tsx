@@ -126,7 +126,7 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
         {displayOptions.bodies &&
             <mesh 
                 position={position}
-                rotation={[0, degToRad(body.initialRotation || 0) + TWO_PI * ((date % (body.rotationPeriod || Infinity)) / (body.rotationPeriod || Infinity)), 0]} 
+                rotation={[0, degToRad(body.initialRotation || 0) + Math.PI + TWO_PI * ((date % (body.rotationPeriod || Infinity)) / (body.rotationPeriod || Infinity)), 0]} 
                 onClick={handleClick(farVisible)}
                 onDoubleClick={handleDoubleClick(farVisible)}
                 visible={farVisible}
