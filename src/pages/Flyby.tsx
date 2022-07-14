@@ -36,6 +36,7 @@ export function blankMultiFlyby(system: SolarSystem): MultiFlyby {
     startOrbit:             orbit,
     endOrbit:               orbit,
     flybyIdSequence:        [],
+    DSMparams:              [],
     transferBody:           system.sun,
     startDate:              0,
     flightTimes:            [],

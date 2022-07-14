@@ -9,6 +9,8 @@ import InfoPopper from "../Display/InfoPopper";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
 import LoadingButton from "@mui/lab/LoadingButton";
 import CalculateIcon from '@mui/icons-material/Calculate';
 import TableContainer from "@mui/material/TableContainer";
@@ -19,7 +21,7 @@ import TableCell from '@mui/material/TableCell';
 import Grid from "@mui/material/Grid";
 
 import { useAtom } from "jotai";
-import { transferAtom, timeSettingsAtom } from "../../App";
+import { transferAtom, timeSettingsAtom, unrefinedTransferAtom } from "../../App";
 
 
 const emptyProps: OrbitDisplayProps[] = [];
@@ -167,6 +169,7 @@ const transferOptWorker = new Worker(new URL("../../workers/transfer-optimizer.w
 
 function OrbitDisplayTabs() {
     const [transfer, setTransfer] = useAtom(transferAtom);
+    const [unrefinedTransfer] = useAtom(unrefinedTransferAtom);
 
     const [timeSettings] = useAtom(timeSettingsAtom);
     const timeSettingsRef = useRef(timeSettings);
@@ -201,6 +204,12 @@ function OrbitDisplayTabs() {
             .postMessage(transfer);   
     }
 
+    function handleUndoRefineButtonPress() {
+        console.log('Reset to unrefined trajectory')
+        setTransfer(unrefinedTransfer);
+    }
+
+
     useEffect(() => {
         if(value !== valueRef.current) {
             valueRef.current = value;
@@ -233,16 +242,27 @@ function OrbitDisplayTabs() {
             <InfoPopper info={infoItem} setInfo={setInfoItem} parentRef={displayRef} />
             {transfer.deltaV > 0 &&
                 <Box component="div" textAlign='center'>
-                    <LoadingButton 
-                        variant="contained" 
-                        loadingPosition="end"
-                        endIcon={<CalculateIcon />}
-                        loading={calculating}
-                        onClick={() => handleRefineButtonPress()}
-                        sx={{ mx: 'auto', my: 4 }}
-                    >
-                        Refine Transfer
-                    </LoadingButton>
+                    <Stack direction="row" spacing={2} textAlign='center' justifyContent='center' alignItems='center' sx={{ mx: 'auto', my: 4 }}>
+                        <LoadingButton 
+                            variant="contained" 
+                            loadingPosition="end"
+                            endIcon={<CalculateIcon />}
+                            loading={calculating}
+                            onClick={handleRefineButtonPress}
+                        >
+                            Refine Transfer
+                        </LoadingButton>
+                        { refined &&
+                            <Button
+                                variant="contained"
+                                onClick={handleUndoRefineButtonPress}
+                                disabled={calculating || transfer === unrefinedTransfer}
+                            >
+                                Revert to Original
+                            </Button>
+                        }
+                    </Stack>
+
                     {refined && 
                         <Grid container justifyContent='center'>
                             <Grid item xs={12} sm={10} md={8}>

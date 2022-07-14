@@ -7,6 +7,8 @@ import OrbitDisplay, { OrbitDisplayProps } from "../Display/OrbitDisplay";
 import InfoPopper from "../Display/InfoPopper";
 
 import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
 import LoadingButton from "@mui/lab/LoadingButton";
 import CalculateIcon from '@mui/icons-material/Calculate';
 import Tabs from "@mui/material/Tabs";
@@ -19,7 +21,7 @@ import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 
 import { useAtom } from "jotai";
-import { multiFlybyAtom, timeSettingsAtom } from "../../App";
+import { multiFlybyAtom, timeSettingsAtom, unrefinedMultiFlybyAtom } from "../../App";
 
 const emptyProps: OrbitDisplayProps[] = [];
 
@@ -193,6 +195,7 @@ const multiFlybyOptWorker = new Worker(new URL("../../workers/multi-flyby-optimi
 
 function OrbitDisplayTabs() {
     const [multiFlyby, setMultiFlyby] = useAtom(multiFlybyAtom);
+    const [unrefinedMultiFlyby] = useAtom(unrefinedMultiFlybyAtom);
 
     const [timeSettings] = useAtom(timeSettingsAtom);
     const timeSettingsRef = useRef(timeSettings);
@@ -224,6 +227,11 @@ function OrbitDisplayTabs() {
         setCalculating(true);
         multiFlybyOptWorker
             .postMessage(multiFlyby);   
+    }
+
+    function handleUndoRefineButtonPress() {
+        console.log('Reset to unrefined trajectory')
+        setMultiFlyby(unrefinedMultiFlyby);
     }
 
     useEffect(() => {
@@ -259,16 +267,26 @@ function OrbitDisplayTabs() {
 
             {multiFlyby.deltaV > 0 &&
             <Box component="div" textAlign='center'>
-                <LoadingButton 
-                    variant="contained" 
-                    loadingPosition="end"
-                    endIcon={<CalculateIcon />}
-                    loading={calculating}
-                    onClick={() => handleRefineButtonPress()}
-                    sx={{ mx: 'auto', my: 4 }}
-                >
-                    Refine Trajectory
-                </LoadingButton>
+                <Stack direction="row" spacing={2} textAlign='center' justifyContent='center' alignItems='center' sx={{ mx: 'auto', my: 4 }}>
+                    <LoadingButton 
+                        variant="contained" 
+                        loadingPosition="end"
+                        endIcon={<CalculateIcon />}
+                        loading={calculating}
+                        onClick={() => handleRefineButtonPress()}
+                    >
+                        Refine Trajectory
+                    </LoadingButton>
+                    { refined && 
+                        <Button
+                            variant="contained" 
+                            onClick={() => handleUndoRefineButtonPress()}
+                            disabled={calculating || unrefinedMultiFlyby === multiFlyby}
+                        >
+                            Revert to Original
+                        </Button>
+                    }
+                </Stack>
                 {refined &&
                 <Grid container justifyContent='center'>
                     <Grid item xs={12} sm={10} md={8}>

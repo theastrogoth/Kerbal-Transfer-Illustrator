@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Plot from "react-plotly.js";
 
 import { useAtom } from "jotai";
-import { multiFlybyAtom, evolutionPlotDataAtom } from "../../App";
+import { multiFlybyAtom, unrefinedMultiFlybyAtom, evolutionPlotDataAtom } from "../../App";
 
 export type EvolutionPlotData = {
     x:              number[],
@@ -26,7 +26,10 @@ const getFitnessFun = (inputs: MultiFlybySearchInputs) => (agent: Agent) => {
 };
 
 const bestFitness = (fitnesses: number[]) => Math.min(...(fitnesses.filter(value => !isNaN(value))));
-const meanFitness = (fitnesses: number[]) => fitnesses.reduce((p,c) => p + (isNaN(c) ? 0 : c), 0) / fitnesses.length;
+const meanFitness = (fitnesses: number[]) => {
+    const validFitnesses = fitnesses.filter(value => !isNaN(value));
+    return validFitnesses.reduce((p,c) => p + c, 0) / validFitnesses.length;
+}
 
 function shuffleArraysTogether(array1: any[], array2: any[]) {
     // if the arrays aren't the same length, shuffle only the shared indices
@@ -54,11 +57,12 @@ const getChunks = (population: Agent[], fitnesses: number[]) => {
 }
 
 const maxWorkers = Math.min(Math.floor(navigator.hardwareConcurrency - 1), 4);
-console.log(maxWorkers)
-const maxGenerations = 500;
+const maxGenerations = 1000;
+const agentsPerDim = 250;
 const rtol = 0.01;
 const CR = 0.9;
 const F = 0.3;
+const timeoutAfter = 120000;    // two minutes
 
 function createWorkers(numWorker: number) {
     const workers: Worker[] = [];
@@ -84,32 +88,37 @@ const workers = createWorkers(maxWorkers);
 
 function EvolutionPlot({inputs, buttonPresses, setCalculating}: EvolutionPlotProps) {
     const [, setMultiFlyby] = useAtom(multiFlybyAtom);
+    const [, setUnrefinedMultiFlyby] = useAtom(unrefinedMultiFlybyAtom);
     const [plotData, setPlotData] = useAtom(evolutionPlotDataAtom);
     const [generation, setGeneration] = useState<number | null>(null);
     const population = useRef<Agent[]>([]);
     const fitnesses = useRef<number[]>([]);
     const fitnessFun = useRef(getFitnessFun(inputs));
+    const timer = useRef<NodeJS.Timeout | null>(null);
+    const timeIsUp = useRef(false);
 
     useEffect(() => {
         if(buttonPresses > 0) {
             console.log('Starting trajectory search...');
             setCalculating(true);
             const numLegs = inputs.flybyIdSequence.length + 1;
-            const numDSNs = inputs.DSNperLeg.reduce((p,c) => p + c);
-            const agentDim = 1 + numLegs + 4 * numDSNs;
-            const popSize = 200 * agentDim;
+            const numDSMs = inputs.DSMperLeg.reduce((p,c) => p + c);
+            const agentDim = 1 + numLegs + 4 * numDSMs;
+            const popSize = agentsPerDim * agentDim;
             fitnessFun.current = getFitnessFun(inputs);
             population.current = DifferentialEvolution.createRandomPopulation(popSize, agentDim);
             fitnesses.current = DifferentialEvolution.evaluatePopulationFitness(population.current, fitnessFun.current); 
             setPlotData({ x: [0], bestY: [bestFitness(fitnesses.current)], meanY: [meanFitness(fitnesses.current)] })
             setGeneration(0);
+            timer.current = setTimeout(() => timeIsUp.current = true, timeoutAfter);
+            timeIsUp.current = false;
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inputs])
 
     useEffect(() => {
         if(generation !== null) {
-            if(generation < maxGenerations) {
+            if(generation < maxGenerations && !timeIsUp.current) {
                 evolvePopulation(workers, population.current, fitnesses.current, inputs, CR, F)
                 .then((newChunks) => {
                     if(newChunks) {
@@ -134,11 +143,14 @@ function EvolutionPlot({inputs, buttonPresses, setCalculating}: EvolutionPlotPro
             } else {
                 setCalculating(false);
                 setGeneration(null);
+                timer.current = null;
                 const bestIdx = fitnesses.current.findIndex(fitness => fitness === bestFitness(fitnesses.current));
                 const mfInputs = FlybyCalcs.multiFlybyInputsFromAgent(population.current[bestIdx], inputs);
                 const calculator = new MultiFlybyCalculator(mfInputs);
                 calculator.computeFullTrajectory();
-                setMultiFlyby(calculator.multiFlyby)
+                const newMultiFlyby = calculator.multiFlyby;
+                setMultiFlyby(newMultiFlyby)
+                setUnrefinedMultiFlyby(newMultiFlyby);
                 console.log('...trajectory search completed.');
             }
         }

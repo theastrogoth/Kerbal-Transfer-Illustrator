@@ -49,10 +49,10 @@ function OrbitDisplay({tabValue = 0, centralBody, system, flightPlans=[], startD
 
   const [timeSettings] = useAtom(timeSettingsAtom);
   const timeSettingsRef = useRef(timeSettings);
-  const [date, setDate] = useState(sDate);
+  const [date, setDate] = useState(Math.ceil(sDate));
   const dateRef = useRef(date);
   const startDateRef = useRef(startDate);
-  const dateFieldAtom = useRef(atom(makeDateFields(...Object.values(timeToCalendarDate(sDate, timeSettings, 1, 1))))).current;
+  const dateFieldAtom = useRef(atom(makeDateFields(...Object.values(timeToCalendarDate(Math.ceil(sDate), timeSettings, 1, 1))))).current;
   const [dateField, setDateField] = useAtom(dateFieldAtom);
   const dateFieldRef = useRef(dateField);
   const [updateFields, setUpdateFields] = useState(false);
@@ -102,8 +102,12 @@ function OrbitDisplay({tabValue = 0, centralBody, system, flightPlans=[], startD
   useEffect(() => {
     if((timeSettings === timeSettingsRef.current)) {
         if(startDate !== startDateRef.current) {
+          const sDate = Number.isFinite(startDate) && !isNaN(startDate) ? startDate : (
+                        Number.isFinite(endDate) && !isNaN(endDate) ? endDate : 0);
+          const eDate = Number.isFinite(endDate) && !isNaN(endDate) ? endDate : (
+                        Number.isFinite(startDate) && !isNaN(startDate) ? startDate : 0);
           startDateRef.current = startDate;
-          const newDate = clamp(date, sDate, eDate)
+          const newDate = Math.ceil(clamp(date, sDate, eDate))
           setDate(newDate);
           dateRef.current = newDate;
           const calendarDate = timeToCalendarDate(newDate, timeSettings, 1, 1);
@@ -112,7 +116,7 @@ function OrbitDisplay({tabValue = 0, centralBody, system, flightPlans=[], startD
         }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startDate, timeSettings]);
+  }, [startDate, endDate, timeSettings]);
 
   useEffect(() => {
       if(dateField !== dateFieldRef.current) {

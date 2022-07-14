@@ -132,6 +132,7 @@ export const transferLateStartDateAtom = atom(makeDateFields());
 export const transferShortFlightTimeAtom = atom(makeDateFields());
 export const transferLongFlightTimeAtom = atom(makeDateFields()); 
 export const transferAtom = atom(blankInitialTransfer);
+export const unrefinedTransferAtom = atom(blankInitialTransfer);
 export const porkchopInputsAtom = atom(initialPorkchopInputs);
 export const porkchopPlotDataAtom = atom(initialPorkchopPlotData);
 export const transferControlsOptionsAtom = atom({
@@ -154,6 +155,7 @@ export const multiFlybyFlightTimesAtom = atom<CalendarDate[]>(
 );
 export const multiFlybyDSNperLegAtom = atom<number[]>([0, 0, 0]);
 export const multiFlybyAtom = atom(blankMultiFlyby(kspSystem));
+export const unrefinedMultiFlybyAtom = atom(blankMultiFlyby(kspSystem));
 export const evolutionPlotDataAtom = atom({x: [], bestY: [], meanY: []} as EvolutionPlotData);
 export const multiFlybyControlsOptionsAtom = atom({
   planeChange:        false,

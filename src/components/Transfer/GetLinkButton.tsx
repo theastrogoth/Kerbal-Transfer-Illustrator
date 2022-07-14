@@ -5,7 +5,7 @@ import Transfer from "../../main/objects/transfer";
 
 import { useAtom } from "jotai";
 import { atomWithHash } from "jotai/utils";
-import { transferAtom } from "../../App";
+import { transferAtom, unrefinedTransferAtom } from "../../App";
 
 import CJSON from "../../main/utilities/cjson";
 import{ compress, decompress } from "../../main/utilities/shrinkString"; 
@@ -40,6 +40,7 @@ const usingIE = userAgent.indexOf("Trident") > -1;
 
 function GetLinkButton() {
     const [transfer, setTransfer] = useAtom(transferAtom);
+    const [, setUnrefinedTransfer] = useAtom(unrefinedTransferAtom);
     const [transferHash, setTransferHash] = useAtom(transferHashAtom);
     const transferRef = useRef(transfer);
 
@@ -49,6 +50,7 @@ function GetLinkButton() {
         if(transferHash !== null && transferRef.current !== transferHash) {
             const newTransfer = new Transfer(transferHash)
             setTransfer(newTransfer);
+            setUnrefinedTransfer(newTransfer);
             transferRef.current = newTransfer;
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps

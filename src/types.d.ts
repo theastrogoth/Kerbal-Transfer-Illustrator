@@ -100,6 +100,7 @@ interface IMultiFlyby {
     readonly endDate:               number,
     readonly transferBody:          ICelestialBody,
     readonly flybyIdSequence:       number[],
+    readonly DSMparams:             DeepSpaceManeuverParams[],
     readonly ejections:             Trajectory[],
     readonly insertions:            Trajectory[],
     readonly transfers:             Trajectory[],
@@ -307,7 +308,7 @@ type MultiFlybyInputs = {
     readonly flybyIdSequence:           number[];
     readonly startDate:                 number;
     readonly flightTimes:               number[];
-    readonly DSNparams?:                DeepSpaceManeuverParams[];
+    readonly DSMparams?:                DeepSpaceManeuverParams[];
     readonly soiPatchPositions?:        Vector3[];
     readonly flybyDurations?:           {inTime: number, outTime: number, total: number}[],
     readonly ejectionInsertionType?:    "fastdirect" | "direct" | "fastoberth" | "oberth",
@@ -326,7 +327,7 @@ type MultiFlybySearchInputs = {
     readonly startDateMax:              number;
     readonly flightTimesMin:            number[];
     readonly flightTimesMax:            number[];
-    readonly DSNperLeg:                 number[];
+    readonly DSMperLeg:                 number[];
     readonly ejectionInsertionType?:    "fastdirect" | "direct" | "fastoberth" | "oberth",
     readonly planeChange?:              boolean;
     readonly matchStartMo?:             boolean;

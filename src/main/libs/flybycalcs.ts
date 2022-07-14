@@ -20,6 +20,10 @@ namespace FlybyCalcs {
     }
 
     export function legDurationBounds(orb1: IOrbit, orb2: IOrbit, attractor: ICelestialBody) {
+        // const isResonant = Kepler.orbitsAreEqual(orb1, orb2);
+        // if(isResonant) {
+        //     return {lb: orb1.siderealPeriod, ub: orb1.siderealPeriod * 2}
+        // }
         const meanSMA = 0.5 * (orb1.semiMajorAxis + orb2.semiMajorAxis);
         const midPeriod = Kepler.siderealPeriod(meanSMA, attractor.stdGravParam);
         return {lb: midPeriod / 25, ub: midPeriod * 2}
@@ -137,28 +141,28 @@ namespace FlybyCalcs {
         return trajectory;
     }
 
-    export function multiFlybyInputsFromAgent(agent: Agent, inputs: MultiFlybySearchInputs, numDSNs?: number | undefined, firstDSNindex?: number | undefined): MultiFlybyInputs {
-        numDSNs = numDSNs || inputs.DSNperLeg.reduce((p,c) => p + c);
-        firstDSNindex = firstDSNindex || (agent.length - 4 * numDSNs);
+    export function multiFlybyInputsFromAgent(agent: Agent, inputs: MultiFlybySearchInputs, numDSMs?: number | undefined, firstDSMindex?: number | undefined): MultiFlybyInputs {
+        numDSMs = numDSMs || inputs.DSMperLeg.reduce((p,c) => p + c);
+        firstDSMindex = firstDSMindex || (agent.length - 4 * numDSMs);
         const startDate = lerp(inputs.startDateMin, inputs.startDateMax, agent[0]);
         const flightTimes: number[] = [];
-        for(let j=1; j<firstDSNindex; j++) {
+        for(let j=1; j<firstDSMindex; j++) {
             let ft = lerp(inputs.flightTimesMax[j-1], inputs.flightTimesMin[j-1], agent[j]);
             flightTimes.push(ft);
         }
-        const DSNparams: DeepSpaceManeuverParams[] = [];
-        let agentIndex = firstDSNindex;
-        if (numDSNs > 0 && inputs.DSNperLeg) {
+        const DSMparams: DeepSpaceManeuverParams[] = [];
+        let agentIndex = firstDSMindex;
+        if (numDSMs > 0 && inputs.DSMperLeg) {
             for (let i=0; i<flightTimes.length; i++) {
-                for (let j=0; j<inputs.DSNperLeg.length; j++) {
-                    DSNparams.push({
+                for (let j=0; j<inputs.DSMperLeg[i]; j++) {
+                    DSMparams.push({
                         leg:    i,
                         alpha:  agent[agentIndex],
                         phi:    agent[agentIndex+1],
                         theta:  agent[agentIndex+2],
                         radius: agent[agentIndex+3],
                     })
-                    agentIndex++;
+                    agentIndex+=4;
                 }
             }
         }
@@ -169,7 +173,7 @@ namespace FlybyCalcs {
             flybyIdSequence:        inputs.flybyIdSequence,
             startDate,
             flightTimes,
-            DSNparams,
+            DSMparams,
             ejectionInsertionType:  inputs.ejectionInsertionType,
             planeChange:            inputs.planeChange,
             matchStartMo:           inputs.matchStartMo,

@@ -5,7 +5,7 @@ import MultiFlyby from "../../main/objects/multiflyby";
 
 import { useAtom } from "jotai";
 import { atomWithHash } from "jotai/utils";
-import { multiFlybyAtom } from "../../App";
+import { multiFlybyAtom, unrefinedMultiFlybyAtom } from "../../App";
 
 import CJSON from "../../main/utilities/cjson";
 import{ compress, decompress } from "../../main/utilities/shrinkString"; 
@@ -40,6 +40,7 @@ const usingIE = userAgent.indexOf("Trident") > -1;
 
 function GetLinkButton() {
     const [multiFlyby, setMultiFlyby] = useAtom(multiFlybyAtom);
+    const [, setUnrefinedMultiFlyby] = useAtom(unrefinedMultiFlybyAtom);
     const [multiFlybyHash, setMultiFlybyHash] = useAtom(multiFlybyHashAtom);
     const multiFlybyRef = useRef(multiFlyby);
     const multiFlybyHashRef = useRef(multiFlyby.data);
@@ -51,6 +52,7 @@ function GetLinkButton() {
             multiFlybyHashRef.current = multiFlybyHash;
             const newMultiFlyby = new MultiFlyby(multiFlybyHash)
             setMultiFlyby(newMultiFlyby);
+            setUnrefinedMultiFlyby(newMultiFlyby);
             multiFlybyRef.current = newMultiFlyby;
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps

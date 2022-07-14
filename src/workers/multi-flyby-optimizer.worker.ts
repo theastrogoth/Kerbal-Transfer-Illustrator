@@ -19,19 +19,21 @@ self.onmessage = (event: MessageEvent<IMultiFlyby>) => {
     console.log("\t\tInitial fitness score: ", bestFitness);
 
     // naive iterative approach
-    console.log("\tPerforming naive iteration...")
-    calculator.iterateSoiPatches();
-    if(calculator.soiPatchFitness < bestFitness) {
-        bestFitness = calculator.soiPatchFitness;
-        bestData = calculator.data;
-        posErr = calculator.soiPatchPositionError;
-        timeErr = calculator.soiPatchTimeError;
-        dv = calculator.deltaV;
-        console.log("\t\terrors: ", posErr, timeErr)
-        console.log("\t\tdelta v: ", dv);
-        console.log("\t\tfitness score: ", bestFitness);
-    } else {
-        console.log("\t\tNaive iteration failed to improve the SoI patch fitness.")
+    if(multiFlyby.DSMparams.length === 0) {
+        console.log("\tPerforming naive iteration...")
+        calculator.iterateSoiPatches();
+        if(calculator.soiPatchFitness < bestFitness) {
+            bestFitness = calculator.soiPatchFitness;
+            bestData = calculator.data;
+            posErr = calculator.soiPatchPositionError;
+            timeErr = calculator.soiPatchTimeError;
+            dv = calculator.deltaV;
+            console.log("\t\terrors: ", posErr, timeErr)
+            console.log("\t\tdelta v: ", dv);
+            console.log("\t\tfitness score: ", bestFitness);
+        } else {
+            console.log("\t\tNaive iteration failed to improve the SoI patch fitness.")
+        }
     }
 
     // global optimization with Differential Evolution (only do this if the error is sufficiently bad)
