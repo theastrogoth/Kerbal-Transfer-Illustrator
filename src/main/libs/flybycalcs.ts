@@ -137,12 +137,30 @@ namespace FlybyCalcs {
         return trajectory;
     }
 
-    export function multiFlybyInputsFromAgent(agent: Agent, inputs: MultiFlybySearchInputs): MultiFlybyInputs {
+    export function multiFlybyInputsFromAgent(agent: Agent, inputs: MultiFlybySearchInputs, numDSNs?: number | undefined, firstDSNindex?: number | undefined): MultiFlybyInputs {
+        numDSNs = numDSNs || inputs.DSNperLeg.reduce((p,c) => p + c);
+        firstDSNindex = firstDSNindex || (agent.length - 4 * numDSNs);
         const startDate = lerp(inputs.startDateMin, inputs.startDateMax, agent[0]);
         const flightTimes: number[] = [];
-        for(let j=0; j<agent.length-1; j++) {
-            let ft = lerp(inputs.flightTimesMax[j], inputs.flightTimesMin[j], agent[j+1]);
+        for(let j=1; j<firstDSNindex; j++) {
+            let ft = lerp(inputs.flightTimesMax[j-1], inputs.flightTimesMin[j-1], agent[j]);
             flightTimes.push(ft);
+        }
+        const DSNparams: DeepSpaceManeuverParams[] = [];
+        let agentIndex = firstDSNindex;
+        if (numDSNs > 0 && inputs.DSNperLeg) {
+            for (let i=0; i<flightTimes.length; i++) {
+                for (let j=0; j<inputs.DSNperLeg.length; j++) {
+                    DSNparams.push({
+                        leg:    i,
+                        alpha:  agent[agentIndex],
+                        phi:    agent[agentIndex+1],
+                        theta:  agent[agentIndex+2],
+                        radius: agent[agentIndex+3],
+                    })
+                    agentIndex++;
+                }
+            }
         }
         return  {
             system:                 inputs.system,
@@ -151,6 +169,7 @@ namespace FlybyCalcs {
             flybyIdSequence:        inputs.flybyIdSequence,
             startDate,
             flightTimes,
+            DSNparams,
             ejectionInsertionType:  inputs.ejectionInsertionType,
             planeChange:            inputs.planeChange,
             matchStartMo:           inputs.matchStartMo,

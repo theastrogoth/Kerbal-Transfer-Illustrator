@@ -16,6 +16,7 @@
     "@types/react-dom": "^18.0.5",
     "@types/react-plotly.js": "^2.5.1",
     "@types/three": "^0.141.0",
+    "@types/workerpool": "^6.1.0",
     "buffer": "^6.0.3",
     "jotai": "^1.7.2",
     "pako": "^2.0.4",

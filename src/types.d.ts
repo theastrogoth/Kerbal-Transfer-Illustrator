@@ -129,6 +129,11 @@ type Spherical = {r: number, theta: number, phi: number};
 
 type Agent = number[];
 
+type PopChunk = {
+    pop:    Agent[],
+    fit:    number[],
+}
+
 type OrbitalState = {
     date:            number,
     readonly pos:    Vector3,
@@ -252,6 +257,14 @@ type FlybyParams = {
     readonly time:              number;
 }
 
+type DeepSpaceManeuverParams = {
+    readonly leg:       number;
+    readonly alpha:     number;
+    readonly phi:       number;
+    readonly theta:     number;
+    readonly radius:    number;
+}
+
 type TransferInputs = {
     readonly system:                    ISolarSystem;
     readonly startOrbit:                IOrbit;
@@ -294,6 +307,7 @@ type MultiFlybyInputs = {
     readonly flybyIdSequence:           number[];
     readonly startDate:                 number;
     readonly flightTimes:               number[];
+    readonly DSNparams?:                DeepSpaceManeuverParams[];
     readonly soiPatchPositions?:        Vector3[];
     readonly flybyDurations?:           {inTime: number, outTime: number, total: number}[],
     readonly ejectionInsertionType?:    "fastdirect" | "direct" | "fastoberth" | "oberth",
@@ -312,6 +326,7 @@ type MultiFlybySearchInputs = {
     readonly startDateMax:              number;
     readonly flightTimesMin:            number[];
     readonly flightTimesMax:            number[];
+    readonly DSNperLeg:                 number[];
     readonly ejectionInsertionType?:    "fastdirect" | "direct" | "fastoberth" | "oberth",
     readonly planeChange?:              boolean;
     readonly matchStartMo?:             boolean;
