@@ -216,8 +216,8 @@ function flightTimesBounds(system: SolarSystem, startOrbit: Orbit, endOrbit: Orb
     return {flightTimesMin: ftBounds.map(b => b.lb), flightTimesMax: ftBounds.map(b => b.ub)}
 }
 
-export function searchInputsFromUI(system: SolarSystem, startOrbitElements: OrbitalElements, endOrbitElements: OrbitalElements, flybyIdSequence: number[],  
-                                   earlyStartDate: CalendarDate, lateStartDate: CalendarDate, flightTimes: CalendarDate[], controlsOptionsState: ControlsOptionsState, timeSettings: TimeSettings): MultiFlybySearchInputs {
+export function searchInputsFromUI(system: SolarSystem, startOrbitElements: OrbitalElements, endOrbitElements: OrbitalElements, flybyIdSequence: number[], earlyStartDate: CalendarDate, lateStartDate: CalendarDate, 
+                                   flightTimes: CalendarDate[], DSMperLeg: number[], controlsOptionsState: ControlsOptionsState, timeSettings: TimeSettings): MultiFlybySearchInputs {
                                        
     const startOrbit        = orbitFromElementsAndSystem(system, startOrbitElements);
     const endOrbit          = orbitFromElementsAndSystem(system, endOrbitElements);
@@ -249,6 +249,7 @@ export function searchInputsFromUI(system: SolarSystem, startOrbitElements: Orbi
         startDateMax,
         flightTimesMin,
         flightTimesMax,
+        DSMperLeg,
         planeChange:            controlsOptionsState.planeChange,
         matchStartMo:           controlsOptionsState.matchStartMo,
         matchEndMo:             controlsOptionsState.matchEndMo,

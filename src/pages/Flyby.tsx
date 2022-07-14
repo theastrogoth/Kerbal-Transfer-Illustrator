@@ -27,7 +27,7 @@ import Collapse from '@mui/material/Collapse';
 import Fade from '@mui/material/Fade';
 
 import { useAtom } from 'jotai';
-import { multiFlybyAtom, multiFlybyEndOrbitAtom, multiFlybyStartOrbitAtom, flybyIdSequenceAtom, systemAtom, timeSettingsAtom, multiFlybyEarlyStartDateAtom, multiFlybyLateStartDateAtom, multiFlybyFlightTimesAtom, multiFlybyControlsOptionsAtom} from '../App';
+import { multiFlybyAtom, multiFlybyEndOrbitAtom, multiFlybyStartOrbitAtom, flybyIdSequenceAtom, systemAtom, timeSettingsAtom, multiFlybyEarlyStartDateAtom, multiFlybyLateStartDateAtom, multiFlybyFlightTimesAtom, multiFlybyControlsOptionsAtom, multiFlybyDSNperLegAtom} from '../App';
 
 export function blankMultiFlyby(system: SolarSystem): MultiFlyby {
   const orbit = (system.bodyFromId(1) as OrbitingBody).orbit;
@@ -36,6 +36,7 @@ export function blankMultiFlyby(system: SolarSystem): MultiFlyby {
     startOrbit:             orbit,
     endOrbit:               orbit,
     flybyIdSequence:        [],
+    DSMparams:              [],
     transferBody:           system.sun,
     startDate:              0,
     flightTimes:            [],
@@ -71,6 +72,7 @@ function FlybyAppContent() {
   const [earlyStartDate] = useAtom(multiFlybyEarlyStartDateAtom);
   const [lateStartDate] = useAtom(multiFlybyLateStartDateAtom);
   const [flightTimes] = useAtom(multiFlybyFlightTimesAtom);
+  const [DSNperLeg] = useAtom(multiFlybyDSNperLegAtom);
   const [controlsOptionsState] = useAtom(multiFlybyControlsOptionsAtom);
 
   const [mfSearchInputs, setMfSearchInputs] = useState<MultiFlybySearchInputs | null>(null);
@@ -79,25 +81,6 @@ function FlybyAppContent() {
   const [calculating, setCalculating] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
-  // TODO: Implement system editor with custom system, store custom system in URL hash
-  // const [customSystem, setCustomSystem] = useAtom(customSystemAtom);
-  // const customSystemRef = useRef(customSystem);
-  // const customSystemHashAtom = useRef(atomWithHash("customSystem", customSystem)).current;
-  // const [customSystemHash, setSystemHash] = useAtom(customSystemHashAtom)
-
-  // useEffect(() => {
-  //   if(customSystem !== customSystemRef.current){
-  //     customSystemRef.current = customSystemHash;
-  //     setSystemHash(customSystem);
-  //   }
-  // }, [customSystem])
-
-  // useEffect(() => {
-  //   if(customSystemHash !== customSystemRef.current) {
-  //     customSystemRef.current = customSystemHash;
-  //     setCustomSystem(customSystemHash);
-  //   }
-  // }, [customSystemHash])
 
   function handleButtonPress() {
     // update orbits
@@ -119,14 +102,14 @@ function FlybyAppContent() {
 
     // TODO: make sure that the time settings (flight times, departure times) are valid
 
-    // display a warning and do not calculate a Porkchop if the inputs are invalid
+    // display a warning and do not search for a trajectory if the inputs are invalid
     setInvalidInput(invalid);
     if(invalid) {
       setInvalidInput(true);
       return
     }
 
-    const newMfSearchInputs = searchInputsFromUI(system, startOrbit, endOrbit, flybyIdSequence, earlyStartDate, lateStartDate, flightTimes, controlsOptionsState, timeSettings);
+    const newMfSearchInputs = searchInputsFromUI(system, startOrbit, endOrbit, flybyIdSequence, earlyStartDate, lateStartDate, flightTimes, DSNperLeg, controlsOptionsState, timeSettings);
     setMfSearchInputs(newMfSearchInputs);
     setButtonPresses(buttonPresses + 1);
 

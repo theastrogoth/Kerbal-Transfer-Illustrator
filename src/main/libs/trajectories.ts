@@ -1,7 +1,7 @@
 import Kepler from './kepler';
 import Lambert from './lambert';
 import DepartArrive from './departarrive';
-import { vec3, add3, sub3, mag3, normalize3, cross3, dot3, roderigues, wrapAngle, acosClamped, HALF_PI, Z_DIR, magSq3 } from './math';
+import { vec3, add3, sub3, mag3, mult3, normalize3, cross3, dot3, roderigues, wrapAngle, lerp, acosClamped, HALF_PI, Z_DIR, magSq3, TWO_PI, counterClockwiseAngleInPlane } from './math';
 import FlybyCalcs from './flybycalcs';
 
 namespace Trajectories {
@@ -19,14 +19,13 @@ namespace Trajectories {
             planeEndPos = Kepler.rotateToInertialFromPerifocal(vec3(planeEndPos.x, planeEndPos.y, 0.0), startOrbit);
 
             const {v1} = Lambert.solve(startPos, planeEndPos, flightTime, transferBody);
-            const transferOrbit1 = Kepler.stateToOrbit(
-                {
-                    date: startDate,
-                    pos:  startPos,
-                    vel:  v1
-                },
-                transferBody
-            );
+            // state at the beginning of the transfer
+            const departState: OrbitalState = {
+                date: startDate,
+                pos:  startPos,
+                vel:  v1,
+            }
+            const transferOrbit1 = Kepler.stateToOrbit(departState, transferBody);
             
             // identify the true anomaly and date at the plane change (use PI/2 prior to target encounter)
             const startNu = Kepler.angleInOrbitPlane(startPos, transferOrbit1);
@@ -61,14 +60,9 @@ namespace Trajectories {
                 pos: planeChangePreState.pos, 
                 vel: newVel,
             };
-            const transferOrbit2 = Kepler.stateToOrbit(planeChangePostState,transferBody);
+            const transferOrbit2 = Kepler.stateToOrbit(planeChangePostState, transferBody);
 
-            // prepare maneuvers at beginning and end of transfer
-            const departState: OrbitalState = {
-                date: startDate,
-                pos:  startPos,
-                vel:  v1,
-            }
+            // state at end of transfer
             let arriveState = Kepler.orbitToStateAtDate(transferOrbit2, transferBody, endDate);
             if(isNaN(arriveState.pos.x)) {  // in case Newton root solving fails for the inverse Kepler equation (near parabolic orbits?)
                 const arriveNu = Kepler.angleInOrbitPlane(endPos, transferOrbit2);
@@ -78,7 +72,7 @@ namespace Trajectories {
                     vel:  Kepler.velocityAtTrueAnomaly(transferOrbit2, transferBody.stdGravParam, arriveNu),
                 };
             }
-
+            // prepare maneuvers
             const departManeuver = Kepler.maneuverFromOrbitalStates(startState, departState);
             const arriveManeuver = Kepler.maneuverFromOrbitalStates(arriveState, endState);
             const planeManeuver  = Kepler.maneuverFromOrbitalStates(planeChangePreState, planeChangePostState)
@@ -106,10 +100,101 @@ namespace Trajectories {
             const departManeuver = Kepler.maneuverFromOrbitalStates(startState, departState);
             const arriveManeuver = Kepler.maneuverFromOrbitalStates(arriveState, endState);
 
-            const trajectory = {orbits:         [Kepler.stateToOrbit({ date: startDate, pos: startPos, vel: v1}, transferBody)],
+            const trajectory = {orbits:         [Kepler.stateToOrbit(departState, transferBody)],
                                 intersectTimes: [startDate, endDate],
                                 maneuvers:      [departManeuver, arriveManeuver]};
             return trajectory;
+        }
+    }
+
+    export function transferWithDSMs(startOrbit: IOrbit, endOrbit: IOrbit, transferBody: ICelestialBody, startDate: number, flightTime: number, endDate: number, 
+                                     DSMparams: DeepSpaceManeuverParams[], startPatchPosition: Vector3 = vec3(0,0,0), endPatchPosition: Vector3 = vec3(0,0,0)): Trajectory {
+        const isResonant = Kepler.orbitsAreEqual(startOrbit, endOrbit);
+        const startState = Kepler.orbitToStateAtDate(startOrbit, transferBody, startDate);
+        const endState   = Kepler.orbitToStateAtDate(endOrbit,   transferBody, endDate); 
+        const startPos = add3(startState.pos, startPatchPosition);
+        const endPos   = add3(endState.pos,   endPatchPosition);
+
+        // // get preliminary transfer leg without considering the DSMs
+        // const {v1, v2} = Lambert.solve(startPos, endPos, flightTime, transferBody);
+        // const firstPassOrbit = Kepler.stateToOrbit({pos: startPos, vel: v1, date: startDate}, transferBody);
+        // const deltaNu = wrapAngle(Kepler.dateToOrbitTrueAnomaly(endDate, firstPassOrbit) - Kepler.dateToOrbitTrueAnomaly(startDate, firstPassOrbit));
+
+        // get plane defined by start and end points
+        const firstDirection = normalize3(startPos)
+        let normalDirection = normalize3(cross3(startPos, endPos));
+        if (normalDirection.z < 0) {
+            normalDirection = mult3(normalDirection, -1);
+        }
+        const secondDirection = normalize3(cross3(normalDirection, firstDirection));
+
+        // get range of position radii
+        const startMag = mag3(startPos);
+        const endMag = mag3(endPos);
+        const minRadius = 0.75 * Math.min(startMag, endMag);
+        const maxRadius = 1.25 * Math.max(startMag, endMag);
+
+        // get range of position angles
+        const minPhi = 0;
+        const maxPhi = isResonant ? TWO_PI : counterClockwiseAngleInPlane(startPos, endPos, normalDirection);
+        const minInclination = HALF_PI * (-0.5);
+        const maxInclination = HALF_PI * (0.5);
+        
+        // get DSM positions and times
+        DSMparams.sort((a,b) => a.alpha - b.alpha) // ensure that the DSMs are in chronological order
+        const positions: Vector3[] = [startPos];
+        const intersectTimes: number[] = [startDate];
+        for (let i=0; i<DSMparams.length; i++) {
+            intersectTimes.push(startDate + DSMparams[i].alpha * flightTime)
+            const inclination = lerp(minInclination, maxInclination, DSMparams[i].theta);
+            const phi = lerp(minPhi, maxPhi, DSMparams[i].phi);
+            let DSMposition = normalize3(startPos);
+            DSMposition = roderigues(DSMposition, secondDirection, inclination) // rotate around "y-axis" to match out-of-plane angle
+            DSMposition = roderigues(DSMposition, normalDirection, phi)         // rotate around "z-axis" to match in-plane angle
+            DSMposition = mult3(DSMposition, lerp(minRadius, maxRadius, DSMparams[i].radius))
+            positions.push(DSMposition);
+        }
+        positions.push(endPos)
+        intersectTimes.push(endDate)
+
+        // compute each lambert arc
+        const sStates: OrbitalState[] = [];
+        const eStates: OrbitalState[] = [];
+        const orbits: IOrbit[] = [];
+        for (let i=0; i<positions.length-1; i++) {
+            const sDate = intersectTimes[i]
+            const eDate = intersectTimes[i+1]
+            const fTime = eDate - sDate;
+            const sPos = positions[i];
+            const ePos = positions[i+1];
+
+            const {v1, v2} = Lambert.solve(sPos, ePos, fTime, transferBody)
+
+            // prepare states at beginning and end of the arc
+            const arcState: OrbitalState = {date: sDate, pos:  sPos, vel:  v1};
+            sStates.push(arcState);
+            eStates.push({date: eDate, pos:  ePos, vel:  v2});
+
+            // get orbit from state at the beginning of the arc
+            orbits.push(Kepler.stateToOrbit(arcState, transferBody));
+        }
+
+        // get maneuvers based on Lambert solution velocities
+        const maneuvers: Maneuver[] = [];
+        for (let i=0; i<=sStates.length; i++) {
+            if(i === 0) {
+                maneuvers.push(Kepler.maneuverFromOrbitalStates(startState, sStates[i]));
+            } else if(i === sStates.length) {
+                maneuvers.push(Kepler.maneuverFromOrbitalStates(eStates[i-1], endState));
+            } else {
+                maneuvers.push(Kepler.maneuverFromOrbitalStates(eStates[i-1], sStates[i]));
+            }
+        }
+        // return trajectory
+        return {
+            orbits,
+            maneuvers,
+            intersectTimes,
         }
     }
 

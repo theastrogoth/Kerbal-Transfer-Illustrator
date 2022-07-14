@@ -125,16 +125,16 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
             vesselIdRef.current = vesselId;
             vesselsRef.current = vessels;
             if(vesselId >= 0) {
-                console.log(vessels[vesselId].orbit);
                 setFields(vessels[vesselId].orbit);
             }
         // detect a change in the selection of a body, and change the orbit to the default one
         } else if(bodyId !== bodyIdRef.current) {
             bodyIdRef.current = bodyId;
             const newBody = system.bodyFromId(bodyId);
-            setBody(newBody);
             const orb = defaultOrbit(system, bodyId);
-            setFields(orb, orb.semiMajorAxis - newBody.radius);
+            const newAlt = orb.semiMajorAxis - newBody.radius;
+            altRef.current = String(newAlt);
+            setFields(orb, newAlt);
         // detect a change in the altitude, and change the SMA to match
         } else if(alt !== altRef.current) {
             altRef.current = alt;

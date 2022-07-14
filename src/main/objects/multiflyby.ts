@@ -11,6 +11,7 @@ class MultiFlyby implements IMultiFlyby {
     readonly endDate:                number;
     readonly transferBody:           CelestialBody;
     readonly flybyIdSequence:        number[];
+    readonly DSMparams:              DeepSpaceManeuverParams[];      
     readonly ejections:              Trajectory[];
     readonly insertions:             Trajectory[];
     readonly transfers:              Trajectory[];
@@ -40,6 +41,7 @@ class MultiFlyby implements IMultiFlyby {
         } else {
             this.endDate = inputs.startDate + inputs.flightTimes.reduce((p,c) => p + c);
         };
+        this.DSMparams              = inputs.DSMparams;
         this.transferBody           = this.system.bodyFromId(inputs.transferBody.id);
         this.flybyIdSequence        = inputs.flybyIdSequence;
         this.transfers              = inputs.transfers;
@@ -73,6 +75,7 @@ class MultiFlyby implements IMultiFlyby {
             startDate:              this.startDate,
             flightTimes:            this.flightTimes,
             endDate:                this.endDate,
+            DSMparams:              this.DSMparams,
             transferBody:           this.transferBody.data,
             ejections:              this.ejections,
             insertions:             this.insertions,

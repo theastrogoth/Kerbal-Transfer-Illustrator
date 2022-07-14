@@ -132,6 +132,7 @@ export const transferLateStartDateAtom = atom(makeDateFields());
 export const transferShortFlightTimeAtom = atom(makeDateFields());
 export const transferLongFlightTimeAtom = atom(makeDateFields()); 
 export const transferAtom = atom(blankInitialTransfer);
+export const unrefinedTransferAtom = atom(blankInitialTransfer);
 export const porkchopInputsAtom = atom(initialPorkchopInputs);
 export const porkchopPlotDataAtom = atom(initialPorkchopPlotData);
 export const transferControlsOptionsAtom = atom({
@@ -145,14 +146,16 @@ export const transferControlsOptionsAtom = atom({
 // flyby planner state (atoms)
 export const multiFlybyStartOrbitAtom = atom(defaultOrbit(kspSystem, 1) as OrbitalElements);
 export const multiFlybyEndOrbitAtom = atom(defaultOrbit(kspSystem, 16) as OrbitalElements);
-export const flybyIdSequenceAtom = atom([5, 8]);
+export const flybyIdSequenceAtom = atom<number[]>([5, 8]);
 export const multiFlybyEarlyStartDateAtom = atom(makeDateFields(1,1,0));
 export const multiFlybyLateStartDateAtom = atom(makeDateFields());
 export const multiFlybyFlightTimesAtomsAtom = atom<PrimitiveAtom<CalendarDate>[]>([atom(makeDateFields()), atom(makeDateFields()), atom(makeDateFields()), atom(makeDateFields()), atom(makeDateFields()), atom(makeDateFields())]);
 export const multiFlybyFlightTimesAtom = atom<CalendarDate[]>(
   (get) => get(multiFlybyFlightTimesAtomsAtom).map(a => get(a))
 );
+export const multiFlybyDSNperLegAtom = atom<number[]>([0, 0, 0]);
 export const multiFlybyAtom = atom(blankMultiFlyby(kspSystem));
+export const unrefinedMultiFlybyAtom = atom(blankMultiFlyby(kspSystem));
 export const evolutionPlotDataAtom = atom({x: [], bestY: [], meanY: []} as EvolutionPlotData);
 export const multiFlybyControlsOptionsAtom = atom({
   planeChange:        false,

@@ -5,7 +5,6 @@ import Kepler from "./kepler";
 import { sub3, mag3, vec3, randomSign, cartesianToSpherical, sphericalToCartesian, mult3, lerp, clamp } from "./math";
 import { nelderMeadMinimize } from "./optim";
 import DifferentialEvolution from "./evolution";
-// import DepartArrive from "./departarrive";
 
 class MultiFlybyCalculator {
     private readonly _system!:          ISolarSystem;
@@ -19,6 +18,8 @@ class MultiFlybyCalculator {
     private _flightTimes:               number[];
     private _flybyEncounterDates:       number[];
     private _endDate:                   number;
+
+    private _DSMparams:                 DeepSpaceManeuverParams[];
 
     private _startBody:                 ICelestialBody;
     private _endBody:                   ICelestialBody;
@@ -62,15 +63,17 @@ class MultiFlybyCalculator {
         this._startDate         = inputs.startDate;
         this._flightTimes       = inputs.flightTimes;
 
+        this._DSMparams         = inputs.DSMparams || [];
+
         this._startBody         = this.bodyFromId(this._startOrbit.orbiting);
         this._endBody           = this.bodyFromId(this._endOrbit.orbiting);
         this._transferBody      = this.bodyFromId(this.commonAttractorId(this._startBody.id, this._endBody.id));
 
-        this._ejectionInsertionType = inputs.ejectionInsertionType === undefined ? "fastdirect" : inputs.ejectionInsertionType;
-        this._planeChange       = inputs.planeChange     === undefined ? false : inputs.planeChange;    
-        this._matchStartMo      = inputs.matchStartMo    === undefined ? true  : inputs.matchStartMo;
-        this._matchEndMo        = inputs.matchEndMo      === undefined ? false : inputs.matchEndMo;     
-        this._noInsertionBurn   = inputs.noInsertionBurn === undefined ? false : inputs.noInsertionBurn;
+        this._ejectionInsertionType = inputs.ejectionInsertionType || "fastdirect";
+        this._planeChange       = inputs.planeChange || false;    
+        this._matchStartMo      = inputs.matchStartMo || true;
+        this._matchEndMo        = inputs.matchEndMo || false;     
+        this._noInsertionBurn   = inputs.noInsertionBurn || false;
     
         this._flybyEncounterDates = [];
         this._flybyParams         = [];
@@ -129,6 +132,7 @@ class MultiFlybyCalculator {
             endDate:                this._endDate,
             transferBody:           this._transferBody,
             flybyIdSequence:        this._flybyIdSequence,
+            DSMparams:              this._DSMparams,
             ejections:              this._ejections,
             insertions:             this._insertions,
             transfers:              this._transfers,
@@ -259,6 +263,8 @@ class MultiFlybyCalculator {
                 this._flybyEncounterDates.push(eDate)
             }
 
+            const DSMparams = this._DSMparams.filter(params => params.leg === i);
+
             const sBody = this._sequenceUp.length === 0 ? this._transferBody : i === 0 ? this.bodyFromId(this._sequenceUp[this._sequenceUp.length === 1 ? 0 : this._sequenceUp.length -  2])    : this._flybyBodySequence[i -1];
             const eBody = i === this._flightTimes.length - 1 ? this.bodyFromId(this._sequenceDown[this._sequenceDown.length === 1 ? 0 : 1]) : this._flybyBodySequence[i];
             const sOrb  = i === 0 && this._startBody === this._transferBody ? this._startOrbit : (sBody as IOrbitingBody).orbit;
@@ -268,7 +274,8 @@ class MultiFlybyCalculator {
             const ePatchPosition = sPatchIdx + 1 >= this._soiPatchPositions.length ? vec3(0,0,0) : this._soiPatchPositions[sPatchIdx + 1];
             sPatchIdx += 2;
 
-            const trajectory = Trajectories.transferTrajectory(sOrb, eOrb, this._transferBody, sDate, fTime, eDate, this._planeChange, sPatchPosition, ePatchPosition)
+            const trajectory = DSMparams.length === 0   ? Trajectories.transferTrajectory(sOrb, eOrb, this._transferBody, sDate, fTime, eDate, this._planeChange, sPatchPosition, ePatchPosition)
+                                                        : Trajectories.transferWithDSMs(sOrb, eOrb, this._transferBody, sDate, fTime, eDate, DSMparams, sPatchPosition, ePatchPosition)
             this._transfers.push(trajectory);
             const manLen = trajectory.maneuvers.length;
             this._transferVelocities.push({
@@ -332,9 +339,10 @@ class MultiFlybyCalculator {
             deltaV += mag3(this._transferVelocities[0].velOut);
         }
 
-        if(this._planeChange) {
-            for(let i=0; i<this._transfers.length; i++) {
-                deltaV += this._transfers[i].maneuvers[1].deltaVMag;
+
+        for(let i=0; i<this._transfers.length; i++) {
+            for(let j=1; j<this._transfers[i].maneuvers.length-1; j++) {
+                deltaV += this._transfers[i].maneuvers[j].deltaVMag;
             }
         }
         
@@ -412,7 +420,7 @@ class MultiFlybyCalculator {
             const tferManeuvers = this._transfers[i].maneuvers.slice(1,-1)
             const tferContexts: string[] = [];
             for(let j=0; j<tferManeuvers.length; j++) {
-                tferContexts.push("Plane Change Burn");
+                tferContexts.push("Deep Space Maneuver");
             }
             this._maneuvers.push(...tferManeuvers);
             this._maneuverContexts.push(...tferContexts)
@@ -651,16 +659,34 @@ class MultiFlybyCalculator {
             const prevFlybyDurations = [...this._flybyDurations];
             this.setFlybyDurations();
             nextFlightTimes[0] += prevFlybyDurations[0].inTime - this._flybyDurations[0].inTime;   
-            for(let i=1; i<this._flightTimes.length-1; i++) {
-                nextFlightTimes[i] += (prevFlybyDurations[i].inTime - this._flybyDurations[i].inTime) + (prevFlybyDurations[i-1].outTime - this._flybyDurations[i-1].outTime);
+            for(let j=1; j<this._flightTimes.length-1; j++) {
+                nextFlightTimes[j] += (prevFlybyDurations[j].inTime - this._flybyDurations[j].inTime) + (prevFlybyDurations[j-1].outTime - this._flybyDurations[j-1].outTime);
             }
             nextFlightTimes[nextFlightTimes.length-1] += prevFlybyDurations[prevFlybyDurations.length-1].outTime - this._flybyDurations[this._flybyDurations.length-1].outTime;
-
+            // // the Deep Space Maneuver params need are adjusted to keep the maneuver times the same
+            // const nextFlybyEncounterDates: number[] = [nextStartDate + nextFlightTimes[0]];
+            // for(let j=1; j<nextFlightTimes.length-1; j++) {
+            //     nextFlybyEncounterDates.push(nextFlybyEncounterDates[j-1] + prevFlybyDurations[j-1].total + nextFlightTimes[j])
+            // }
+            // const DSMdates = this._DSMparams.map((dsm) => {
+            //     const sDate = dsm.leg > 0 ? this._flybyEncounterDates[dsm.leg - 1] : this._startDate;
+            //     const eDate = sDate + this._flightTimes[dsm.leg];
+            //     return lerp(sDate, eDate, dsm.alpha);
+            // });
+            // const nextAlphas = this._DSMparams.map((dsm, index) => (DSMdates[index] - (dsm.leg > 0 ? nextFlybyEncounterDates[dsm.leg-1] : nextStartDate)) / nextFlightTimes[dsm.leg])
+            // const nextDSMparams: DeepSpaceManeuverParams[] = this._DSMparams.map((dsm, index) => { return {
+            //     leg:    dsm.leg,
+            //     alpha:  (dsm.alpha + nextAlphas[index]) / 2,
+            //     theta:  dsm.theta,
+            //     phi:    dsm.phi,
+            //     radius: dsm.radius,
+            // }})
             // the SoI patch positions are set based on the previously calculated ejection and insertion orbits
             this.setSoiPatchPositions();
             this._startDate = nextStartDate;
             this._flightTimes = nextFlightTimes;
             this._endDate = nextEndDate;
+            // this._DSMparams = nextDSMparams;
             this.computeFullTrajectory();
             fitness = this.soiPatchFitness;
             if( (i > 1) && (2 * Math.abs((prevFitness - fitness) / (prevFitness + fitness)) < rtol) ) {break;}

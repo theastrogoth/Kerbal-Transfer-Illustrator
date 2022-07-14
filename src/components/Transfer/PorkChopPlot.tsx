@@ -7,7 +7,7 @@ import TransferCalculator from "../../main/libs/transfer-calculator";
 import Transfer from "../../main/objects/transfer"
 
 import { useAtom } from "jotai";
-import { timeSettingsAtom, porkchopInputsAtom, porkchopPlotDataAtom, transferAtom } from '../../App';
+import { timeSettingsAtom, porkchopInputsAtom, porkchopPlotDataAtom, transferAtom, unrefinedTransferAtom } from '../../App';
 
 type PorkchopPlotProps = {
     plotCount:      number, 
@@ -21,13 +21,16 @@ function PorkchopPlot({plotCount, setCalculating}: PorkchopPlotProps) {
     const [inputs] = useAtom(porkchopInputsAtom);
     const [plotData, setPlotData] = useAtom(porkchopPlotDataAtom);
     const [, setTransfer] = useAtom(transferAtom);
+    const [, setUnrefinedTransfer] = useAtom(unrefinedTransferAtom);
 
     useEffect(() => {
         porkchopWorker.onmessage = (event: MessageEvent<PorkchopPlotData>) => {
             if (event && event.data) {
                 console.log("...Porkchop worker returned new plot data with best transfer.")
                 setPlotData(event.data)
-                setTransfer(new Transfer(event.data.bestTransfer))
+                const newTransfer = new Transfer(event.data.bestTransfer);
+                setTransfer(newTransfer)
+                setUnrefinedTransfer(newTransfer)
                 setCalculating(false);
             }
         }
@@ -143,7 +146,9 @@ function PorkchopPlot({plotCount, setCalculating}: PorkchopPlotProps) {
                         })
                         newPlotData.bestTransfer = transferCalculator.data;
                         console.log('Recalculated transfer after Porkchop click.')
-                        setTransfer(transferCalculator.transfer);
+                        const newTransfer = transferCalculator.transfer
+                        setTransfer(newTransfer);
+                        setUnrefinedTransfer(newTransfer);
                         setPlotData(newPlotData);
                         }
                     }

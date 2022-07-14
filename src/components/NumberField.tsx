@@ -141,7 +141,7 @@ const RequiredNumberField = React.memo(function WrappedRequiredNumberField({labe
     </Stack>
 
     )
-}, (prevProps, nextProps) => prevProps.value === nextProps.value && prevProps.error === nextProps.error && prevProps.disabled === nextProps.disabled);
+}, (prevProps, nextProps) => prevProps.value === nextProps.value && prevProps.error === nextProps.error && prevProps.disabled === nextProps.disabled && prevProps.label === nextProps.label);
 
 export const NumberField = React.memo(function WrappedNumberField({label, value, setValue, step = 1, max = Infinity, min = -Infinity, error = false, onChange = (e) => {}, disabled=false, sx = {}}: NumberFieldProps) {
     const numValue = Number(value);
@@ -182,6 +182,6 @@ export const NumberField = React.memo(function WrappedNumberField({label, value,
             />
         </Stack>
     )
-}, (prevProps, nextProps) => prevProps.value === nextProps.value && prevProps.error === nextProps.error && prevProps.disabled === nextProps.disabled);
+}, (prevProps, nextProps) => prevProps.value === nextProps.value && prevProps.error === nextProps.error && prevProps.disabled === nextProps.disabled && prevProps.label === nextProps.label);
 
 export default RequiredNumberField; 

@@ -78,26 +78,6 @@ function TransferAppContent() {
   const [plotCount, setPlotCount] = useState(0);
   const [showHelp, setShowHelp] = useState(false);
 
-  // TODO: Implement system editor with custom system, store custom system in URL hash
-  // const [customSystem, setCustomSystem] = useAtom(customSystemAtom);
-  // const customSystemRef = useRef(customSystem);
-  // const customSystemHashAtom = useRef(atomWithHash("customSystem", customSystem)).current;
-  // const [customSystemHash, setSystemHash] = useAtom(customSystemHashAtom)
-
-  // useEffect(() => {
-  //   if(customSystem !== customSystemRef.current){
-  //     customSystemRef.current = customSystemHash;
-  //     setSystemHash(customSystem);
-  //   }
-  // }, [customSystem])
-
-  // useEffect(() => {
-  //   if(customSystemHash !== customSystemRef.current) {
-  //     customSystemRef.current = customSystemHash;
-  //     setCustomSystem(customSystemHash);
-  //   }
-  // }, [customSystemHash])
-
   function handlePlotButtonPress() {
     // ensure there are no invalid orbit inputs
     let invalidFlag = isInvalidOrbitInput(startOrbit);
