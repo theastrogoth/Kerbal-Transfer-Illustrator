@@ -626,7 +626,7 @@ class MultiFlybyCalculator {
             for(let i=0; i<this._flybyDurations.length; i++) {
                 summedPeriods += this._flybyDurations[i].total;
             }
-            this._summedPeriods = summedPeriods;
+            this._summedPeriods = summedPeriods || 1;
         }
         return this._summedPeriods;
     }
@@ -645,11 +645,14 @@ class MultiFlybyCalculator {
         for(let i=0; i<maxIt; i++) {
             const prevFitness = fitness;
             // the new start date is set to the escape time of the last ejection
-            const lastEj = this._ejections[this._ejections.length - 1];
-            const lastEjLength = lastEj.orbits.length;
-            const nextStartDate = lastEj.intersectTimes[lastEjLength];
+            let nextStartDate = this._startDate;
+            if(this._ejections.length > 0){
+                const lastEj = this._ejections[this._ejections.length - 1];
+                const lastEjLength = lastEj.orbits.length;
+                nextStartDate = lastEj.intersectTimes[lastEjLength];
+            }
             // the new end date is set to the encounter time of the first insertion
-            const nextEndDate = this._insertions[0].intersectTimes[0];
+            const nextEndDate = this._insertions.length > 0 ? this._insertions[0].intersectTimes[0] : this._endDate;
             // the new flight times for the first and last legs need to be adjusted based on the new start and end dates
             // the idea is to keep the flyby encounter dates the same
             const nextFlightTimes = [...this._flightTimes];

@@ -452,7 +452,7 @@ class TransferCalculator {
             for(let i=0; i<this._insertions.length - 1; i++) {
                 summedPeriods += (this.bodyFromId(this._insertions[i+1].orbits[0].orbiting) as IOrbitingBody).orbit.siderealPeriod;
             }
-            this._summedPeriods = summedPeriods;
+            this._summedPeriods = summedPeriods || 1;
         }
         return this._summedPeriods;
     }
@@ -468,11 +468,14 @@ class TransferCalculator {
         for(let i=0; i<maxIt; i++) {
             const prevFitness = fitness;
             // the new start date is set to the escape time of the last ejection
-            const lastEj = this._ejections[this._ejections.length - 1];
-            const lastEjLength = lastEj.orbits.length;
-            const nextStartDate = lastEj.intersectTimes[lastEjLength];
+            let nextStartDate = this._startDate;
+            if (this._ejections.length > 0) {
+                const lastEj = this._ejections[this._ejections.length - 1];
+                const lastEjLength = lastEj.orbits.length;
+                nextStartDate = lastEj.intersectTimes[lastEjLength];
+            } 
             // the new end date is set to the encounter time of the first insertion
-            const nextEndDate = this._insertions[0].intersectTimes[0];
+            const nextEndDate = this._insertions.length > 0 ? this._insertions[0].intersectTimes[0] : this._endDate;
             // the new flight time is the difference between the end and start dates
             const nextFlightTime = nextEndDate - nextStartDate;
             // the SoI patch positions are set based on the previously calculated ejection and insertion orbits
