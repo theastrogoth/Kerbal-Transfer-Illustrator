@@ -117,31 +117,32 @@ function getSoiSprites(trajectory: Trajectory, icons: TrajectoryIconInfo, plotSi
 
 function getCraftSprite(trajectory: Trajectory, flightPlan: FlightPlan, date: number, plotSize: number, centeredAt: Vector3, handleClick: (fpi: FlightPlanInfo) => (e: ThreeEvent<MouseEvent>) => void, handleDoubleClick: (e: ThreeEvent<MouseEvent>) => void, visible: boolean, infoItem: InfoItem, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>, index: number, tabValue: number) {
     const orbit = Trajectories.currentOrbitForTrajectory(trajectory, date);
-    if(orbit === null) {
-        return {craftSprite: <></>, nameLabel: <></>}
-    }
-    const pos = div3(add3(Kepler.orbitToPositionAtDate(orbit, date), centeredAt), plotSize);
-    const position = new THREE.Vector3(-pos.x, pos.z, pos.y);
-    const colorstring = hexFromColorString(new Color(flightPlan.color || defaultColor).toString());
+    let craftSprite = <></>;
+    let nameLabel = <></>;
     const fpi = {...flightPlan, date};
-    const craftSprite = 
-        <sprite 
-            scale={[0.05,0.05,0.05]} 
-            position={position}
-            onClick={visible ? handleClick(fpi) : ((e) => {})}
-            onDoubleClick={visible ? handleDoubleClick : ((e) => {})}
-            visible={visible}
-        >
-            <spriteMaterial map={podTexture} sizeAttenuation={false} color={colorstring} depthTest={false} visible={visible}/>
-        </sprite>
-    const nameLabel = 
-        <Html 
-            position={position} 
-            visible={visible}
-            style={{fontSize: '1rem', transform: 'translate3d(-50%, -150%, 0)', color: colorstring}}
-        >
-            <div>{flightPlan.name}</div> 
-        </Html>
+    if(orbit !== null) {
+        const pos = div3(add3(Kepler.orbitToPositionAtDate(orbit, date), centeredAt), plotSize);
+        const position = new THREE.Vector3(-pos.x, pos.z, pos.y);
+        const colorstring = hexFromColorString(new Color(flightPlan.color || defaultColor).toString());
+        craftSprite = 
+            <sprite 
+                scale={[0.05,0.05,0.05]} 
+                position={position}
+                onClick={visible ? handleClick(fpi) : (() => {})}
+                onDoubleClick={visible ? handleDoubleClick : (() => {})}
+                visible={visible}
+            >
+                <spriteMaterial map={podTexture} sizeAttenuation={false} color={colorstring} depthTest={false} visible={visible}/>
+            </sprite>
+        nameLabel = 
+            <Html 
+                position={position} 
+                visible={visible}
+                style={{fontSize: '1rem', transform: 'translate3d(-50%, -150%, 0)', color: colorstring}}
+            >
+                <div>{flightPlan.name}</div> 
+            </Html>
+    }
     if(index === tabValue) {
         if(infoItem !== null) {
             if(infoItem.hasOwnProperty('trajectories') && infoItem.name === flightPlan.name) {

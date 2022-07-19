@@ -14,9 +14,9 @@ import { flightPlansAtom, systemAtom, timeSettingsAtom } from "../../App";
 
 const emptyProps: OrbitDisplayProps[] = [];
 
-function bodyPlotProps(centralBody: CelestialBody, flightPlans: FlightPlan[], system: SolarSystem, startDate: number, endDate: number): OrbitDisplayProps {
+function bodyPlotProps(centralBody: CelestialBody, idx: number, flightPlans: FlightPlan[], system: SolarSystem, startDate: number, endDate: number): OrbitDisplayProps {
     return {
-        index:              centralBody.id,
+        index:              idx,
         label:              centralBody.name + ' System',
         centralBody,
         system,
@@ -48,9 +48,9 @@ export function prepareAllDisplayProps(flightPlans: FlightPlan[], system: SolarS
         }
     }
     const bodyIdxs = [...bodies.keys()]
-    return bodyIdxs.map(idx => {
+    return bodyIdxs.map((idx, i) => {
         const {body, startDate, endDate} = bodies.get(idx) as {body: CelestialBody, startDate: number, endDate: number};
-        return bodyPlotProps(body, flightPlans, system, startDate, endDate);
+        return bodyPlotProps(body, i, flightPlans, system, startDate, endDate);
     });
 } 
 
@@ -88,13 +88,11 @@ function OrbitDisplayTabs() {
 
     const [orbitDisplayProps, setOrbitDisplayProps] = useState(emptyProps);
     const infoItemAtom = useRef(atom<InfoItem>(null)).current;
-    const [, setInfoItem] = useAtom(infoItemAtom);
     const canvasRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         if(value !== valueRef.current) {
             valueRef.current = value;
-            setInfoItem(null);
         } else if(timeSettings !== timeSettingsRef.current) {
             timeSettingsRef.current = timeSettings;
         } else if(flightPlans.length === 0) {
