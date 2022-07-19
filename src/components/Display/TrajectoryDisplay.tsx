@@ -22,6 +22,8 @@ const podTexture = textureLoader.load("https://raw.githubusercontent.com/theastr
 const defaultColor: IColor = {r:255, g:255, b:255};
 
 type TrajectoryDisplayProps = {
+    index:              number,
+    tabValue:           number,
     trajectory:         Trajectory,
     system:             SolarSystem,
     date:               number,
@@ -113,7 +115,7 @@ function getSoiSprites(trajectory: Trajectory, icons: TrajectoryIconInfo, plotSi
     return soiSprites;
 }
 
-function getCraftSprite(trajectory: Trajectory, flightPlan: FlightPlan, date: number, plotSize: number, centeredAt: Vector3, handleClick: (fpi: FlightPlanInfo) => (e: ThreeEvent<MouseEvent>) => void, handleDoubleClick: (e: ThreeEvent<MouseEvent>) => void, visible: boolean, infoItem: InfoItem, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>) {
+function getCraftSprite(trajectory: Trajectory, flightPlan: FlightPlan, date: number, plotSize: number, centeredAt: Vector3, handleClick: (fpi: FlightPlanInfo) => (e: ThreeEvent<MouseEvent>) => void, handleDoubleClick: (e: ThreeEvent<MouseEvent>) => void, visible: boolean, infoItem: InfoItem, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>, index: number, tabValue: number) {
     const orbit = Trajectories.currentOrbitForTrajectory(trajectory, date);
     if(orbit === null) {
         return {craftSprite: <></>, nameLabel: <></>}
@@ -140,17 +142,19 @@ function getCraftSprite(trajectory: Trajectory, flightPlan: FlightPlan, date: nu
         >
             <div>{flightPlan.name}</div> 
         </Html>
-    if(infoItem !== null) {
-        if(infoItem.hasOwnProperty('trajectories') && infoItem.name === flightPlan.name) {
-            if((infoItem as FlightPlanInfo).date !== date) {
-                    setInfoItem(fpi);
+    if(index === tabValue) {
+        if(infoItem !== null) {
+            if(infoItem.hasOwnProperty('trajectories') && infoItem.name === flightPlan.name) {
+                if((infoItem as FlightPlanInfo).date !== date) {
+                        setInfoItem(fpi);
+                }
             }
         }
     }
     return {craftSprite, nameLabel};
 }
 
-function TrajectoryDisplay({trajectory, flightPlan, system, date, plotSize, centeredAt=vec3(0,0,0), depth=0, icons = {maneuver: [], soi: []}, infoItemAtom, setTarget, displayOptions}: TrajectoryDisplayProps) {
+function TrajectoryDisplay({trajectory, flightPlan, system, date, plotSize, centeredAt=vec3(0,0,0), depth=0, icons = {maneuver: [], soi: []}, infoItemAtom, setTarget, displayOptions, index, tabValue}: TrajectoryDisplayProps) {
     const [infoItem, setInfoItem] = useAtom(infoItemAtom);
     const normalizedCenter = div3(centeredAt, plotSize);
     const trajectoryWorldCenter = new THREE.Vector3(-normalizedCenter.x, normalizedCenter.z, normalizedCenter.y);
@@ -177,7 +181,7 @@ function TrajectoryDisplay({trajectory, flightPlan, system, date, plotSize, cent
     }
     
     const trajectoryOrbits = getOrbits(trajectory, flightPlan, system, date, plotSize, centeredAt, depth, infoItemAtom, displayOptions);
-    const {craftSprite, nameLabel} = getCraftSprite(trajectory, flightPlan, date, plotSize, centeredAt, handleClick, handleDoubleClick, visible, infoItem, setInfoItem);
+    const {craftSprite, nameLabel} = getCraftSprite(trajectory, flightPlan, date, plotSize, centeredAt, handleClick, handleDoubleClick, visible, infoItem, setInfoItem, index, tabValue);
 
     const maneuverSprites = getManeuverSprites(trajectory, icons, plotSize, centeredAt, flightPlan.color || defaultColor, setInfoItem, visible);
     const soiSprites = getSoiSprites(trajectory, icons, plotSize, centeredAt, flightPlan.color || defaultColor, setInfoItem, visible);

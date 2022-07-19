@@ -20,6 +20,8 @@ import { displayOptionsAtom } from '../../App';
 import ParentBodies from './ParentBodies';
 
 export type OrbitPlotProps = {
+    index:              number,
+    tabValue:           number,
     centralBody:        CelestialBody,
     system:             SolarSystem,
     date:               number,
@@ -65,7 +67,7 @@ function getTargetPosition(target: ICelestialBody | IOrbitingBody | IVessel | IO
     return orbit === null ? vec3(0,0,0) : getOrbitPosition(orbit, system, centralBody, date);
 }
 
-function OrbitPlot({centralBody, system, date, flightPlans=[], infoItemAtom}: OrbitPlotProps) {
+function OrbitPlot({index, tabValue, centralBody, system, date, flightPlans=[], infoItemAtom}: OrbitPlotProps) {
     const [displayOptions] = useAtom(displayOptionsAtom);
     const [plotSize, setPlotSize] = useState(getPlotSize(centralBody));
     const state = useThree();
@@ -95,6 +97,8 @@ function OrbitPlot({centralBody, system, date, flightPlans=[], infoItemAtom}: Or
             { displayOptions.skyBox ? <SkyBox /> : bgColor }
             <PerspectiveCamera makeDefault={true} position={[0,1,0]} zoom={1} near={1e-7} far={1e9} />
             <SystemDisplay 
+                index={index}
+                tabValue={tabValue}
                 centralBody={centralBody}
                 system={system}
                 flightPlans={flightPlans}

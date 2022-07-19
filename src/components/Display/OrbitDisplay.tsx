@@ -40,7 +40,7 @@ interface OrbitDisplayPropsWithInfo extends OrbitDisplayProps {
   infoItemAtom: PrimitiveAtom<InfoItem>,
 }
 
-function OrbitDisplay({tabValue = 0, centralBody, system, flightPlans=[], startDate=0, endDate=startDate + 9201600, slider=false, marks=[], infoItemAtom}: OrbitDisplayPropsWithInfo) {
+function OrbitDisplay({tabValue = 0, index, centralBody, system, flightPlans=[], startDate=0, endDate=startDate + 9201600, slider=false, marks=[], infoItemAtom}: OrbitDisplayPropsWithInfo) {
   const sDate = Number.isFinite(startDate) && !isNaN(startDate) ? startDate : (
                 Number.isFinite(endDate) && !isNaN(endDate) ? endDate : 0);
   const eDate = Number.isFinite(endDate) && !isNaN(endDate) ? endDate : (
@@ -148,6 +148,8 @@ function OrbitDisplay({tabValue = 0, centralBody, system, flightPlans=[], startD
     <Stack sx={{my: 1, mx: 1}} spacing={1} display="flex" alignItems="center" justifyContent="center">
       <Canvas style={{height: '500px'}} gl={{logarithmicDepthBuffer: true}} frameloop={'always'} shadows={true} >
         <OrbitPlot 
+          index={index}
+          tabValue={tabValue}
           centralBody={centralBody} 
           system={system} 
           date={date} 

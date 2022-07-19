@@ -13,6 +13,8 @@ import { PrimitiveAtom, useAtom } from 'jotai';
 import { displayOptionsAtom } from '../../App';
 
 type SystemDisplayProps = {centralBody: CelestialBody,
+    index:          number,
+    tabValue:       number,
     system:         SolarSystem,
     plotSize:       number,
     date:           number,
@@ -61,7 +63,7 @@ function getTrajectoryIcons(trajectory: Trajectory, index: number, flightPlan: F
     return {maneuver, soi};
 }
 
-function SystemDisplay({centralBody, system, plotSize, date, isSun = true, depth = 0, centeredAt = vec3(0,0,0), flightPlans = [], infoItemAtom, setTarget}: SystemDisplayProps) {
+function SystemDisplay({index, tabValue, centralBody, system, plotSize, date, isSun = true, depth = 0, centeredAt = vec3(0,0,0), flightPlans = [], infoItemAtom, setTarget}: SystemDisplayProps) {
     const [displayOptions] = useAtom(displayOptionsAtom);
     
     const bodyFlightPlans = flightPlans.map((flightPlan) => flightPlan.trajectories.map((trajectory, trajIndex) => {return {trajectory, index: trajIndex}}).filter(traj => traj.trajectory.orbits[0].orbiting === centralBody.id));
@@ -101,6 +103,8 @@ function SystemDisplay({centralBody, system, plotSize, date, isSun = true, depth
                         }}
                     />
                     <SystemDisplay key={orbiter.name + 'system'}
+                        index={index}
+                        tabValue={tabValue}
                         centralBody={orbiter}
                         system={system}
                         plotSize={plotSize}
@@ -117,6 +121,8 @@ function SystemDisplay({centralBody, system, plotSize, date, isSun = true, depth
             {bodyFlightPlans.map((trajectories, fpindex) => 
                 trajectories.map((trajectory, tindex) => 
                     <TrajectoryDisplay key={centralBody.name + String(fpindex) + String(tindex)}
+                        index={index}
+                        tabValue={tabValue}
                         trajectory={trajectory.trajectory}
                         system={system}
                         date={date}

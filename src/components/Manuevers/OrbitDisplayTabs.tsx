@@ -88,11 +88,13 @@ function OrbitDisplayTabs() {
 
     const [orbitDisplayProps, setOrbitDisplayProps] = useState(emptyProps);
     const infoItemAtom = useRef(atom<InfoItem>(null)).current;
+    const [, setInfoItem] = useAtom(infoItemAtom);
     const canvasRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         if(value !== valueRef.current) {
             valueRef.current = value;
+            setInfoItem(null);
         } else if(timeSettings !== timeSettingsRef.current) {
             timeSettingsRef.current = timeSettings;
         } else if(flightPlans.length === 0) {
