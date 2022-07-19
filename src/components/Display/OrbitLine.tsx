@@ -8,6 +8,7 @@ import Color from '../../main/objects/color';
 import DepartArrive from '../../main/libs/departarrive';
 import Kepler from '../../main/libs/kepler';
 import { TWO_PI, div3, wrapAngle, linspace, vec3, add3, clamp } from '../../main/libs/math';
+import { PrimitiveAtom, useAtom } from 'jotai';
 
 const textureLoader = new THREE.TextureLoader();
 const periapsisTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/periapsis.png");
@@ -27,7 +28,7 @@ type OrbitLineProps = {
     depth?:         number,
     name?:          string,
     color?:         IColor,
-    setInfoItem:    React.Dispatch<React.SetStateAction<InfoItem>>,
+    infoItemAtom:   PrimitiveAtom<InfoItem>,
     displayOptions: OrbitDisplayOptions,
 }
 
@@ -166,11 +167,12 @@ function getDescendingNodeIcon(orbit: Orbit, plotSize: number, nus: number[], ce
     }
 }
 
-function OrbitLine({orbit, date, plotSize, minDate = -Infinity, maxDate = Infinity, centeredAt = vec3(0,0,0), depth=0,  name = "Orbit", color = {r: 200, g: 200, b: 200}, setInfoItem, displayOptions}: OrbitLineProps) {
+function OrbitLine({orbit, date, plotSize, minDate = -Infinity, maxDate = Infinity, centeredAt = vec3(0,0,0), depth=0,  name = "Orbit", color = {r: 200, g: 200, b: 200}, infoItemAtom, displayOptions}: OrbitLineProps) {
     const range = useRef(getTrueAnomalyRange(orbit, minDate, maxDate));
     const nus = useRef(linspace(range.current.min, range.current.max, numPoints));
     const gradientColors = useRef(getGradientColors(color));
     const colorString = useRef(new Color(color).toString());
+    const [, setInfoItem] = useAtom(infoItemAtom);
 
     const handleClick = (e: ThreeEvent<MouseEvent>) => {
         if(visible) {

@@ -68,7 +68,7 @@ function TransferInfo() {
                         </TableRow>
                         <TableRow>
                             <TableCell sx={{ fontWeight: 700}}>Total Δv:</TableCell>
-                            <TableCell>{String(Math.round(transfer.deltaV * 100) / 100).concat(" m/s")}</TableCell>
+                            <TableCell>{Number(Math.round(transfer.deltaV * 100) / 100).toLocaleString().concat(" m/s")}</TableCell>
                         </TableRow>
                         <TableRow>
                             <TableCell sx={{ fontWeight: 700}}>Phase Angle:</TableCell>

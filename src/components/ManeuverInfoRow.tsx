@@ -70,7 +70,7 @@ function ManeuverInfoRow({name = undefined, color = undefined, maneuver}: {name?
                 </TableCell>
             }
             <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>
-                {String(Math.round(maneuver.deltaVMag * 100) / 100).concat( " m/s")}
+                {Number(Math.round(maneuver.deltaVMag * 100) / 100).toLocaleString().concat( " m/s")}
             </TableCell>
             <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>
                 {calendarDateToString(timeToCalendarDate(maneuver.preState.date, timeSettings, 1, 1))}

@@ -17,6 +17,7 @@
 		"argOfPeriapsis":"66.90371044151551",
 		"ascNodeLongitude":"10.86541167564728",
 		"meanAnomalyEpoch":"5.553920558995985",
+		"epoch":"-31542641.784",
 		"color":"0.321, 0.317, 0.352, 1.0",
 		"referenceBody":"Sun",
 		"templateName":"Mun"
@@ -34,6 +35,7 @@
 		"argOfPeriapsis":"123.7121294282329",
 		"ascNodeLongitude":"7.981603378781639",
 		"meanAnomalyEpoch":"5.432267392125204",
+		"epoch":"-31542641.784",
 		"color":"0.701, 0.384, 0.16, 1.0",
 		"referenceBody":"Sun",
 		"templateName":"Duna"
@@ -52,6 +54,7 @@
 		"argOfPeriapsis":"102.9720683296131",
 		"ascNodeLongitude":"359.9965004168758",
 		"meanAnomalyEpoch":"6.231885654519576",
+		"epoch":"-31542641.784",
 		"color":"0.0,0.278,0.388,1.0",
 		"referenceBody":"Sun",
 		"templateName":"Kerbin"
@@ -69,6 +72,7 @@
 		"argOfPeriapsis":"199.7640930160823",
 		"ascNodeLongitude":"2.296616161126016",
 		"meanAnomalyEpoch":"3.8868698006324554",
+		"epoch":"-31542641.784",
 		"color":"1.0, 1.0, 1.0, 1.0",
 		"referenceBody":"Earth",
 		"templateName":"Mun"
@@ -85,6 +89,7 @@
 		"argOfPeriapsis":"66.43350812884559",
 		"ascNodeLongitude":"0.443573085524234",
 		"meanAnomalyEpoch":"237.7027941664437",
+		"epoch":"-31542641.784",
 		"color":"1.0, 1.0, 1.0, 1.0",
 		"referenceBody":"Sun",
 		"templateName":"Gilly"
@@ -102,6 +107,7 @@
 		"argOfPeriapsis":"332.1022655295414",
 		"ascNodeLongitude":"3.351911063089117",
 		"meanAnomalyEpoch":"2.9564361325350452",
+		"epoch":"-31542641.784",
 		"color":"0.631, 0.388, 0.192, 1.0",
 		"referenceBody":"Sun",
 		"templateName":"Duna"
@@ -119,6 +125,7 @@
 		"argOfPeriapsis":"357.7759243021914",
 		"ascNodeLongitude":"46.48212553464923",
 		"meanAnomalyEpoch":"0.12540401573484683",
+		"epoch":"-31542641.784",
 		"color":"0.56, 0.454, 0.388, 1.0",
 		"referenceBody":"Mars",
 		"templateName":"Bop"
@@ -136,6 +143,7 @@
 		"argOfPeriapsis":"263.8963868784089",
 		"ascNodeLongitude":"47.51893570799763",
 		"meanAnomalyEpoch":"5.646210530657005",
+		"epoch":"-31542641.784",
 		"color":"0.462, 0.372, 0.313, 1.0",
 		"referenceBody":"Mars",
 		"templateName":"Bop"
@@ -152,6 +160,7 @@
 		"argOfPeriapsis":"236.445369158826",
 		"ascNodeLongitude":"18.1671232653234",
 		"meanAnomalyEpoch":"1.0657102610896119",
+		"epoch":"-31542641.784",
 		"color":"1.0, 1.0, 1.0, 1.0",
 		"referenceBody":"Sun",
 		"templateName":"Eeloo"
@@ -168,6 +177,7 @@
 		"argOfPeriapsis":"129.19102663711",
 		"ascNodeLongitude":"23.4501727740666",
 		"meanAnomalyEpoch":"1.0500332058738224",
+		"epoch":"-31542641.784",
 		"color":"0.5, 0.5, 0.5, 1.0",
 		"referenceBody":"Sun",
 		"templateName":"Moho"
@@ -184,6 +194,7 @@
 		"argOfPeriapsis":"12.78",
 		"ascNodeLongitude":"27.71613321356495",
 		"meanAnomalyEpoch":"1.9378570079563613",
+		"epoch":"-31542641.784",
 		"color":"1.0, 1.0, 1.0, 1.0",
 		"referenceBody":"Sun",
 		"templateName":"Gilly"
@@ -201,6 +212,7 @@
 		"argOfPeriapsis":"10.75642751202877",
 		"ascNodeLongitude":"3.262077289923354",
 		"meanAnomalyEpoch":"5.281038885954535",
+		"epoch":"-31542641.784",
 		"color":"0.749, 0.592, 0.4, 1.0",
 		"referenceBody":"Sun",
 		"templateName":"Jool"
@@ -216,6 +228,7 @@
 		"argOfPeriapsis":"231.2703460977786",
 		"ascNodeLongitude":"358.0466431678460",
 		"meanAnomalyEpoch":"3.4091064061869685",
+		"epoch":"-31542641.784",
 		"color":"0.647, 0.631, 0.364, 1.0",
 		"referenceBody":"Jupiter",
 		"templateName":"Moho"
@@ -231,6 +244,7 @@
 		"argOfPeriapsis":"53.13210737539627",
 		"ascNodeLongitude":"358.9360081847504",
 		"meanAnomalyEpoch":"4.821737415499958",
+		"epoch":"-31542641.784",
 		"color":"0.776, 0.78, 0.678, 1.0",
 		"referenceBody":"Jupiter",
 		"templateName":"Moho"
@@ -246,6 +260,7 @@
 		"argOfPeriapsis":"139.2992571342065",
 		"ascNodeLongitude":"358.0125219248113",
 		"meanAnomalyEpoch":"4.060950472376478",
+		"epoch":"-31542641.784",
 		"color":"0.584, 0.501, 0.396, 1.0",
 		"referenceBody":"Jupiter",
 		"templateName":"Moho"
@@ -261,6 +276,7 @@
 		"argOfPeriapsis":"320.7359683492656",
 		"ascNodeLongitude":"358.5022563372704",
 		"meanAnomalyEpoch":"0.27604372240404196",
+		"epoch":"-31542641.784",
 		"color":"0.407, 0.341, 0.262, 1.0",
 		"referenceBody":"Jupiter",
 		"templateName":"Moho"
@@ -278,6 +294,7 @@
 		"argOfPeriapsis":"85.04661202834268",
 		"ascNodeLongitude":"5.970845343832233",
 		"meanAnomalyEpoch":"1.1775536145636776",
+		"epoch":"-31542641.784",
 		"color":"0.917, 0.847, 0.709, 1.0",
 		"referenceBody":"Sun",
 		"templateName":"Jool"
@@ -295,6 +312,7 @@
 		"argOfPeriapsis":"222.2172789396715",
 		"ascNodeLongitude":"139.7604722490289",
 		"meanAnomalyEpoch":"2.1919760798055545",
+		"epoch":"-31542641.784",
 		"color":"1.0, 1.0, 1.0, 1.0",
 		"referenceBody":"Saturn",
 		"templateName":"Mun"
@@ -312,6 +330,7 @@
 		"argOfPeriapsis":"115.5615886062458",
 		"ascNodeLongitude":"128.4244161601446",
 		"meanAnomalyEpoch":"6.049837363294359",
+		"epoch":"-31542641.784",
 		"color":"1.0, 1.0, 1.0, 1.0",
 		"referenceBody":"Saturn",
 		"templateName":"Mun"
@@ -329,6 +348,7 @@
 		"argOfPeriapsis":"215.9196892523803",
 		"ascNodeLongitude":"119.2518388332899",
 		"meanAnomalyEpoch":"6.105565273654561",
+		"epoch":"-31542641.784",
 		"color":"1.0, 1.0, 1.0, 1.0",
 		"referenceBody":"Saturn",
 		"templateName":"Mun"
@@ -346,6 +366,7 @@
 		"argOfPeriapsis":"123.6717156049260",
 		"ascNodeLongitude":"128.5606071129818",
 		"meanAnomalyEpoch":"2.9308839134421727",
+		"epoch":"-31542641.784",
 		"color":"1.0, 1.0, 1.0, 1.0",
 		"referenceBody":"Saturn",
 		"templateName":"Mun"
@@ -363,6 +384,7 @@
 		"argOfPeriapsis":"172.7367089889645",
 		"ascNodeLongitude":"130.3670574820431",
 		"meanAnomalyEpoch":"0.23542531935505198",
+		"epoch":"-31542641.784",
 		"color":"1.0, 1.0, 1.0, 1.0",
 		"referenceBody":"Saturn",
 		"templateName":"Mun"
@@ -381,6 +403,7 @@
 		"argOfPeriapsis":"182.0886765021483",
 		"ascNodeLongitude":"126.4945233702913",
 		"meanAnomalyEpoch":"1.311809948776336",
+		"epoch":"-31542641.784",
 		"color":"0.7, 0.5, 0.25, 1.0",
 		"referenceBody":"Saturn",
 		"templateName":"Laythe"
@@ -398,6 +421,7 @@
 		"argOfPeriapsis":"314.3819081366686",
 		"ascNodeLongitude":"50.29392880240187",
 		"meanAnomalyEpoch":"2.4359269334587883",
+		"epoch":"-31542641.784",
 		"color":"1.0, 1.0, 1.0, 1.0",
 		"referenceBody":"Saturn",
 		"templateName":"Mun"
@@ -414,6 +438,7 @@
 		"argOfPeriapsis":"188.6163602812658",
 		"ascNodeLongitude":"131.7198903398914",
 		"meanAnomalyEpoch":"5.934119456780721",
+		"epoch":"-31542641.784",
 		"color":"1.0, 1.0, 1.0, 1.0",
 		"referenceBody":"Sun",
 		"templateName":"Gilly"
@@ -431,6 +456,7 @@
 		"argOfPeriapsis":"169.6876790522249",
 		"ascNodeLongitude":"1.846089669223938",
 		"meanAnomalyEpoch":"5.006070925851672",
+		"epoch":"-31542641.784",
 		"color":"0.38, 0.58, 0.78, 1.0",
 		"referenceBody":"Sun",
 		"templateName":"Jool"
@@ -447,6 +473,7 @@
 		"argOfPeriapsis":"326.7575256535064",
 		"ascNodeLongitude":"169.0642120548280",
 		"meanAnomalyEpoch":"4.4156939860723",
+		"epoch":"-31542641.784",
 		"color":"1.0, 1.0, 1.0, 1.0",
 		"referenceBody":"Uranus",
 		"templateName":"Eeloo"
@@ -463,6 +490,7 @@
 		"argOfPeriapsis":"169.9966404991910",
 		"ascNodeLongitude":"166.5671084714081",
 		"meanAnomalyEpoch":"0.810944190678705",
+		"epoch":"-31542641.784",
 		"color":"1.0, 1.0, 1.0, 1.0",
 		"referenceBody":"Uranus",
 		"templateName":"Eeloo"
@@ -479,6 +507,7 @@
 		"argOfPeriapsis":"207.7259222157362",
 		"ascNodeLongitude":"166.5601075193709",
 		"meanAnomalyEpoch":"1.995350222525624",
+		"epoch":"-31542641.784",
 		"color":"1.0, 1.0, 1.0, 1.0",
 		"referenceBody":"Uranus",
 		"templateName":"Eeloo"
@@ -495,6 +524,7 @@
 		"argOfPeriapsis":"165.7455424030838",
 		"ascNodeLongitude":"166.6555214910122",
 		"meanAnomalyEpoch":"3.711534845860309",
+		"epoch":"-31542641.784",
 		"color":"1.0, 1.0, 1.0, 1.0",
 		"referenceBody":"Uranus",
 		"templateName":"Moho"
@@ -511,6 +541,7 @@
 		"argOfPeriapsis":"274.4599570542317",
 		"ascNodeLongitude":"166.6887328903476",
 		"meanAnomalyEpoch":"4.651563202426656",
+		"epoch":"-31542641.784",
 		"color":"1.0, 1.0, 1.0, 1.0",
 		"referenceBody":"Uranus",
 		"templateName":"Eeloo"
@@ -528,6 +559,7 @@
 		"argOfPeriapsis":"29.81485402991322",
 		"ascNodeLongitude":"3.512610711801178",
 		"meanAnomalyEpoch":"2.829170831890268",
+		"epoch":"-31542641.784",
 		"color":"0.19215, 0.33333, 0.56862, 1.0",
 		"referenceBody":"Sun",
 		"templateName":"Jool"
@@ -545,6 +577,7 @@
 		"argOfPeriapsis":"220.4523286895169",
 		"ascNodeLongitude":"197.1953239788069",
 		"meanAnomalyEpoch":"6.25973135910971",
+		"epoch":"-31542641.784",
 		"color":"1.0, 1.0, 1.0, 1.0",
 		"referenceBody":"Neptune",
 		"templateName":"Moho"
@@ -561,6 +594,7 @@
 		"argOfPeriapsis":"184.4945352163909",
 		"ascNodeLongitude":"44.36099836994975",
 		"meanAnomalyEpoch":"5.238251980021541",
+		"epoch":"-31542641.784",
 		"color":"0.678, 0.568, 0.474, 1.0",
 		"referenceBody":"Sun",
 		"templateName":"Mun"
@@ -578,6 +612,7 @@
 		"argOfPeriapsis":"188.4738646852448",
 		"ascNodeLongitude":"222.4053735570010",
 		"meanAnomalyEpoch":"0.5393048609025978",
+		"epoch":"-31542641.784",
 		"color":"0.776, 0.698, 0.647, 1.0",
 		"referenceBody":"Pluto",
 		"templateName":"Mun"

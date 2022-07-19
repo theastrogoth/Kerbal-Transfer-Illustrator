@@ -444,6 +444,22 @@ namespace Trajectories {
         return insertionInfos;
     }
 
+    export function currentOrbitForTrajectory(trajectory: Trajectory, date: number): IOrbit | null {
+        const orb = trajectory.orbits.find((orb, index) => date >= trajectory.intersectTimes[index] && date < trajectory.intersectTimes[index+1]);
+        return orb || null;
+    }
+
+    export function currentTrajectoryForFlightPlan(flightPlan: FlightPlan, date: number): Trajectory | null {
+        const traj = flightPlan.trajectories.find((traj) => date >= traj.intersectTimes[0] && date < traj.intersectTimes[traj.intersectTimes.length - 1]);
+        return traj || null;
+    }
+
+    export function currentOrbitForFlightPlan(flightPlan: FlightPlan, date: number): IOrbit | null {
+        const traj = currentTrajectoryForFlightPlan(flightPlan, date);
+        if(!traj) return null;
+        return currentOrbitForTrajectory(traj, date);
+    }
+
 }
 
 export default Trajectories;

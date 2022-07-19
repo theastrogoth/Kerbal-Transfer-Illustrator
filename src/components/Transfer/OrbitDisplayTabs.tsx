@@ -20,7 +20,7 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import Grid from "@mui/material/Grid";
 
-import { useAtom } from "jotai";
+import { atom, PrimitiveAtom, useAtom } from "jotai";
 import { transferAtom, timeSettingsAtom, unrefinedTransferAtom } from "../../App";
 
 
@@ -142,7 +142,7 @@ export function prepareAllDisplayProps(transfer: Transfer) {
     return orbDisplayProps;
 } 
 
-const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, props, infoItem, setInfoItem}: {value: number, index: number, props: OrbitDisplayProps, infoItem: InfoItem, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>}) {
+const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, props, infoItemAtom}: {value: number, index: number, props: OrbitDisplayProps, infoItemAtom: PrimitiveAtom<InfoItem>}) {
     const [orbitPlotProps, setOrbitPlotProps] = useState(props);
 
     useEffect(() => {
@@ -160,7 +160,7 @@ const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, pr
 
     return (
         <div style={{ display: (value === index ? 'block' : 'none'), width: "100%", height: "100%" }}>
-            <OrbitDisplay {...orbitPlotProps} infoItem={infoItem} setInfoItem={setInfoItem} tabValue={value} />
+            <OrbitDisplay {...orbitPlotProps} infoItemAtom={infoItemAtom} tabValue={value} />
         </div>
     )
 });
@@ -182,7 +182,7 @@ function OrbitDisplayTabs() {
 
     const [calculating, setCalculating] = useState(false);
 
-    const [infoItem, setInfoItem] = useState<InfoItem>(null);
+    const infoItemAtom = useRef(atom<InfoItem>(null)).current;
     const displayRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -237,9 +237,9 @@ function OrbitDisplayTabs() {
                 {orbitDisplayProps.map(props => <Tab key={props.label} value={props.index} label={props.label} ></Tab>)}
             </Tabs>
             <div ref={displayRef}>
-                {orbitDisplayProps.map(props => <OrbitTabPanel key={props.index} value={value} index={props.index} props={props} infoItem={infoItem} setInfoItem={setInfoItem}/>)}
+                {orbitDisplayProps.map(props => <OrbitTabPanel key={props.index} value={value} index={props.index} props={props} infoItemAtom={infoItemAtom} />)}
             </div>
-            <InfoPopper info={infoItem} setInfo={setInfoItem} parentRef={displayRef} />
+            <InfoPopper infoItemAtom={infoItemAtom} parentRef={displayRef} system={transfer.system}/>
             {transfer.deltaV > 0 &&
                 <Box component="div" textAlign='center'>
                     <Stack direction="row" spacing={2} textAlign='center' justifyContent='center' alignItems='center' sx={{ mx: 'auto', my: 4 }}>

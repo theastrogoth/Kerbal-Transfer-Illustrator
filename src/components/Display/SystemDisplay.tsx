@@ -9,7 +9,7 @@ import CelestialBody from '../../main/objects/body';
 import Kepler from '../../main/libs/kepler';
 import { vec3, add3 } from '../../main/libs/math';
 
-import { useAtom } from 'jotai';
+import { PrimitiveAtom, useAtom } from 'jotai';
 import { displayOptionsAtom } from '../../App';
 
 type SystemDisplayProps = {centralBody: CelestialBody,
@@ -20,7 +20,7 @@ type SystemDisplayProps = {centralBody: CelestialBody,
     depth?:         number,
     centeredAt?:    Vector3,
     flightPlans?:   FlightPlan[],
-    setInfoItem:    React.Dispatch<React.SetStateAction<InfoItem>>,
+    infoItemAtom:   PrimitiveAtom<InfoItem>,
     setTarget:      React.Dispatch<React.SetStateAction<TargetObject>>,
 }
 
@@ -61,7 +61,7 @@ function getTrajectoryIcons(trajectory: Trajectory, index: number, flightPlan: F
     return {maneuver, soi};
 }
 
-function SystemDisplay({centralBody, system, plotSize, date, isSun = true, depth = 0, centeredAt = vec3(0,0,0), flightPlans = [], setInfoItem, setTarget}: SystemDisplayProps) {
+function SystemDisplay({centralBody, system, plotSize, date, isSun = true, depth = 0, centeredAt = vec3(0,0,0), flightPlans = [], infoItemAtom, setTarget}: SystemDisplayProps) {
     const [displayOptions] = useAtom(displayOptionsAtom);
     
     const bodyFlightPlans = flightPlans.map((flightPlan) => flightPlan.trajectories.map((trajectory, trajIndex) => {return {trajectory, index: trajIndex}}).filter(traj => traj.trajectory.orbits[0].orbiting === centralBody.id));
@@ -78,7 +78,7 @@ function SystemDisplay({centralBody, system, plotSize, date, isSun = true, depth
                 isSun={isSun}
                 depth={depth}
                 centeredAt={centeredAt}
-                setInfoItem={setInfoItem}
+                infoItemAtom={infoItemAtom}
                 setTarget={setTarget}
             />
             {centralBody.orbiters.map((orbiter, index) => {
@@ -93,7 +93,7 @@ function SystemDisplay({centralBody, system, plotSize, date, isSun = true, depth
                         depth={depth}
                         name={orbiter.name}
                         color={orbiter.color}
-                        setInfoItem={setInfoItem}
+                        infoItemAtom={infoItemAtom}
                         displayOptions={{
                             orbits: displayOptions.bodyOrbits,
                             apses:  displayOptions.bodyApses,
@@ -109,7 +109,7 @@ function SystemDisplay({centralBody, system, plotSize, date, isSun = true, depth
                         depth={depth+1}
                         centeredAt={orbiterPosition}
                         flightPlans={flightPlans}
-                        setInfoItem={setInfoItem}
+                        infoItemAtom={infoItemAtom}
                         setTarget={setTarget}
                     />    
                 </>
@@ -125,7 +125,7 @@ function SystemDisplay({centralBody, system, plotSize, date, isSun = true, depth
                         depth={depth}
                         icons={iconInfos[fpindex][tindex]}
                         flightPlan={flightPlans[fpindex]}
-                        setInfoItem={setInfoItem}
+                        infoItemAtom={infoItemAtom}
                         setTarget={setTarget}
                         displayOptions={displayOptions}
                     />

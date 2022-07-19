@@ -393,7 +393,11 @@ interface OrbitInfo extends IOrbit {
     name:   string,
 }
 
-type InfoItem = ICelestialBody | IOrbitingBody | IVessel | OrbitInfo | ManeuverInfo | SoiChangeInfo | null;
+interface FlightPlanInfo extends FlightPlan {
+    date:  number,
+}
+
+type InfoItem = ICelestialBody | IOrbitingBody | FlightPlanInfo | OrbitInfo | ManeuverInfo | SoiChangeInfo | null;
 type TargetObject = ICelestialBody | IOrbitingBody | FlightPlan | IOrbit;
 
 // type LineOptions = {

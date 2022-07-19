@@ -5,6 +5,7 @@ import SolarSystem from '../../main/objects/system';
 import Kepler from '../../main/libs/kepler';
 import { mult3, sub3, vec3, normalize3 } from '../../main/libs/math';
 import BodySphere from './BodySphere';
+import { PrimitiveAtom } from 'jotai';
 
 // import { useShadowHelper } from '../../utils';
 
@@ -25,7 +26,7 @@ function getRelativePositions(bodyPosition: Vector3, parentPositions: Vector3[])
     return relativePositions;
 }
 
-function ParentBodies({centralBody, system, date, plotSize, setInfoItem}: {centralBody: CelestialBody, system: SolarSystem, date: number, plotSize: number, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>}) {
+function ParentBodies({centralBody, system, date, plotSize, infoItemAtom}: {centralBody: CelestialBody, system: SolarSystem, date: number, plotSize: number, infoItemAtom: PrimitiveAtom<InfoItem>}) {
     const parentIdxs = system.sequenceToSun(centralBody.id).slice(1);
     const parentBodies = parentIdxs.map(idx => system.bodyFromId(idx));
     const bodyPosition = centralBody.hasOwnProperty("orbit") ? Kepler.orbitToPositionAtDate((centralBody as OrbitingBody).orbit, date) : vec3(0,0,0);
@@ -57,7 +58,7 @@ function ParentBodies({centralBody, system, date, plotSize, setInfoItem}: {centr
                 depth={-1}
                 isSun={i === parentBodies.length-1}
                 centeredAt={relativePositions[i]}
-                setInfoItem={setInfoItem}
+                infoItemAtom={infoItemAtom}
                 setTarget={(() => {})}
             />
         )}

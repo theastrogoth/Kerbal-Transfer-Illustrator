@@ -11,7 +11,7 @@ import Color from '../../main/objects/color';
 import Kepler from '../../main/libs/kepler';
 import { TWO_PI, degToRad, linspace, wrapAngle, vec3, sub3, div3, hexFromColorString } from '../../main/libs/math';
 
-import { useAtom } from 'jotai';
+import { PrimitiveAtom, useAtom } from 'jotai';
 import { displayOptionsAtom } from '../../App';
 
 const sphereTexture = new THREE.TextureLoader().load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/sphere.png");
@@ -24,7 +24,7 @@ type BodySphereProps = {
     isSun?:         boolean,
     depth?:         number,
     centeredAt?:    Vector3,
-    setInfoItem:    React.Dispatch<React.SetStateAction<InfoItem>>,
+    infoItemAtom:   PrimitiveAtom<InfoItem>,
     setTarget:      React.Dispatch<React.SetStateAction<TargetObject>> | ((body: CelestialBody) => void),
 }
 
@@ -66,8 +66,9 @@ function BodyTexture({textureURL, isSun = false, hasTexture = true, color = 'whi
     )
 }
 
-function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, centeredAt = vec3(0,0,0), setInfoItem, setTarget}: BodySphereProps) {
+function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, centeredAt = vec3(0,0,0), infoItemAtom, setTarget}: BodySphereProps) {
     const [displayOptions] = useAtom(displayOptionsAtom);
+    const [, setInfoItem] = useAtom(infoItemAtom);
     
     const color = useRef(hexFromColorString(body.color.toString()));
     const soiColor= useRef(hexFromColorString(body.color.rescale(0.5).toString()));

@@ -23,30 +23,30 @@ export function BodyTable({body, color = undefined}: {body: CelestialBody, color
             <TableBody>
                 <TableRow>
                     <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Radius:</TableCell>
-                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(body.radius).concat("m")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{Number(Math.round(body.radius * 100) / 100000).toLocaleString().concat(" km")}</TableCell>
                 </TableRow>
                 <TableRow>
                     <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Mass:</TableCell>
-                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(body.mass).concat("kg")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{(String(body.mass).includes('e') ? String(Math.round(body.mass * 100) / 100) : Number(Math.round(body.mass * 100) / 100).toLocaleString()).concat(" kg")}</TableCell>
                 </TableRow>
                 <TableRow>
                     <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Rotation Period:</TableCell>
-                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{calendarDateToDurationString(timeToCalendarDate(body.rotationPeriod, timeSettings, 0, 0)).concat("s")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{calendarDateToDurationString(timeToCalendarDate(body.rotationPeriod, timeSettings, 0, 0))}</TableCell>
                 </TableRow>
                 <TableRow>
                     <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Surface Gravity:</TableCell>
-                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(body.geeASL).concat(" gees")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{Number(Math.round(body.geeASL * 9.80655 * 1000) / 1000).toLocaleString().concat(" m/s")}</TableCell>
                 </TableRow>
                 { body.soi && 
                     <TableRow>
                         <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Sphere of Influence:</TableCell>
-                        <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(body.soi as number).concat("m")}</TableCell>
+                        <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{Number(Math.round(body.soi as number * 100) / 100000).toLocaleString().concat(" km")}</TableCell>
                     </TableRow>
                 }
                 { body.atmosphereHeight > 0 &&
                     <TableRow>
                         <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Atmosphere Height:</TableCell>
-                        <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(body.atmosphereHeight).concat("m")}</TableCell>
+                        <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{Number(Math.round(body.atmosphereHeight) / 100).toLocaleString().concat(" m")}</TableCell>
                     </TableRow>
                 }
             </TableBody>

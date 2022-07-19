@@ -12,9 +12,10 @@ import SolarSystem from '../../main/objects/system';
 
 import { vec3, div3, add3 } from '../../main/libs/math';
 import Kepler from '../../main/libs/kepler';
+import Trajectories from '../../main/libs/trajectories';
 import ReferenceLine from './ReferenceLine';
 
-import { useAtom } from 'jotai';
+import { PrimitiveAtom, useAtom } from 'jotai';
 import { displayOptionsAtom } from '../../App';
 import ParentBodies from './ParentBodies';
 
@@ -23,7 +24,7 @@ export type OrbitPlotProps = {
     system:             SolarSystem,
     date:               number,
     flightPlans?:       FlightPlan[],
-    setInfoItem:        React.Dispatch<React.SetStateAction<InfoItem>>,
+    infoItemAtom:       PrimitiveAtom<InfoItem>,
 }
 
 function getPlotSize(centralBody: CelestialBody) {
@@ -52,37 +53,19 @@ function getOrbitPosition(orbit: IOrbit, system: SolarSystem, centralBody: ICele
     return pos;
 }
 
-function getTargetPosition(target: ICelestialBody | IOrbitingBody | IVessel | IOrbit | Trajectory | FlightPlan, system: SolarSystem, centralBody: ICelestialBody, date: number) {
-    let orbit: IOrbit;
+function getTargetPosition(target: ICelestialBody | IOrbitingBody | IVessel | IOrbit | FlightPlan, system: SolarSystem, centralBody: ICelestialBody, date: number) {
+    let orbit: IOrbit | null = null;
     if (target.hasOwnProperty('eccentricity')) {
         orbit = target as IOrbit;
     } else if (target.hasOwnProperty('orbit')) {
         orbit = (target as IVessel | IOrbitingBody).orbit;
-    } else if (target.hasOwnProperty('orbits')) {
-        const trajectory = target as Trajectory;
-        const activeOrbitIndex = trajectory.intersectTimes.slice(0,-1).findIndex((time, index) => date >= time && date < trajectory.intersectTimes[index+1])
-        if(activeOrbitIndex === -1) {
-            return vec3(0,0,0);
-        }
-        orbit = trajectory.orbits[activeOrbitIndex];
     } else if(target.hasOwnProperty('trajectories')) {
-        const flightPlan = target as FlightPlan;
-        const activeTrajIndex = flightPlan.trajectories.findIndex((traj, index) => date >= traj.intersectTimes[0] && date < traj.intersectTimes[traj.intersectTimes.length - 1]);
-        if(activeTrajIndex === -1) {
-            return vec3(0,0,0);
-        }
-        const activeOrbitIndex = flightPlan.trajectories[activeTrajIndex].intersectTimes.slice(0,-1).findIndex((time, index) => date >= time && date < flightPlan.trajectories[activeTrajIndex].intersectTimes[index+1])
-        if(activeOrbitIndex === -1) {
-            return vec3(0,0,0);
-        }
-        orbit = flightPlan.trajectories[activeTrajIndex].orbits[activeOrbitIndex];
-    } else {
-        return vec3(0,0,0);
+        orbit = Trajectories.currentOrbitForFlightPlan((target as FlightPlan), date);
     }
-    return getOrbitPosition(orbit, system, centralBody, date);
+    return orbit === null ? vec3(0,0,0) : getOrbitPosition(orbit, system, centralBody, date);
 }
 
-function OrbitPlot({centralBody, system, date, flightPlans=[], setInfoItem}: OrbitPlotProps) {
+function OrbitPlot({centralBody, system, date, flightPlans=[], infoItemAtom}: OrbitPlotProps) {
     const [displayOptions] = useAtom(displayOptionsAtom);
     const [plotSize, setPlotSize] = useState(getPlotSize(centralBody));
     const state = useThree();
@@ -118,7 +101,7 @@ function OrbitPlot({centralBody, system, date, flightPlans=[], setInfoItem}: Orb
                 plotSize={plotSize}
                 date={date}
                 isSun={isSun}
-                setInfoItem={setInfoItem}
+                infoItemAtom={infoItemAtom}
                 setTarget={setTargetObject}
             />
             <ParentBodies 
@@ -126,7 +109,7 @@ function OrbitPlot({centralBody, system, date, flightPlans=[], setInfoItem}: Orb
                 system={system}
                 date={date}
                 plotSize={plotSize}
-                setInfoItem={setInfoItem}
+                infoItemAtom={infoItemAtom}
             /> 
             <ambientLight key={'ambient'} intensity={0.1} />
             <ReferenceLine />

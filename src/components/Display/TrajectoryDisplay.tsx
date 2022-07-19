@@ -6,10 +6,12 @@ import OrbitLine from './OrbitLine';
 
 import SolarSystem from '../../main/objects/system';
 import Kepler from '../../main/libs/kepler';
+import Trajectories from '../../main/libs/trajectories';
 import { div3, hexFromColorString, vec3, add3 } from '../../main/libs/math';
 
 import Color from '../../main/objects/color';
 import { Html } from '@react-three/drei';
+import { PrimitiveAtom, useAtom } from 'jotai';
 
 const textureLoader = new THREE.TextureLoader();
 const maneuverTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/maneuver.png");
@@ -20,20 +22,20 @@ const podTexture = textureLoader.load("https://raw.githubusercontent.com/theastr
 const defaultColor: IColor = {r:255, g:255, b:255};
 
 type TrajectoryDisplayProps = {
-    trajectory:     Trajectory,
-    system:         SolarSystem,
-    date:           number,
-    plotSize:       number,
-    flightPlan:     FlightPlan,
-    centeredAt?:    Vector3,
-    depth?:         number,
-    icons?:         TrajectoryIconInfo,
-    setInfoItem:    React.Dispatch<React.SetStateAction<InfoItem>>,
-    setTarget:      React.Dispatch<React.SetStateAction<TargetObject>>,
-    displayOptions: DisplayOptions,
+    trajectory:         Trajectory,
+    system:             SolarSystem,
+    date:               number,
+    plotSize:           number,
+    flightPlan:         FlightPlan,
+    centeredAt?:        Vector3,
+    depth?:             number,
+    icons?:             TrajectoryIconInfo,
+    infoItemAtom:       PrimitiveAtom<InfoItem>,
+    setTarget:          React.Dispatch<React.SetStateAction<TargetObject>>,
+    displayOptions:     DisplayOptions,
 }
 
-function getOrbits(trajectory: Trajectory, system: SolarSystem, date: number, plotSize: number, centeredAt: Vector3, depth: number, flightPlan: FlightPlan, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>, displayOptions: DisplayOptions) {
+function getOrbits(trajectory: Trajectory, flightPlan: FlightPlan, system: SolarSystem, date: number, plotSize: number, centeredAt: Vector3, depth: number, infoItemAtom: PrimitiveAtom<InfoItem>, displayOptions: DisplayOptions) {
     const trajectoryOrbits = trajectory.orbits.map((orbit, index) =>
         <OrbitLine 
             key={'orbit'+ String(index)}
@@ -46,7 +48,7 @@ function getOrbits(trajectory: Trajectory, system: SolarSystem, date: number, pl
             minDate={trajectory.intersectTimes[index]}
             maxDate={trajectory.intersectTimes[index+1]}
             name={flightPlan.name}
-            setInfoItem={setInfoItem}
+            infoItemAtom={infoItemAtom}
             displayOptions={{
                 orbits: displayOptions.craftOrbits,
                 apses:  displayOptions.craftApses,
@@ -111,32 +113,25 @@ function getSoiSprites(trajectory: Trajectory, icons: TrajectoryIconInfo, plotSi
     return soiSprites;
 }
 
-function getCraftSprite(trajectory: Trajectory, date: number, plotSize: number, centeredAt: Vector3, flightPlan: FlightPlan, handleClick: (v: IVessel) => (e: ThreeEvent<MouseEvent>) => void, handleDoubleClick: (e: ThreeEvent<MouseEvent>) => void, visible: boolean) {
-    const activeOrbitIndex = trajectory.intersectTimes.slice(0,-1).findIndex((time, index) => date >= time && date < trajectory.intersectTimes[index+1])
-    if(activeOrbitIndex === -1 || !visible) {
+function getCraftSprite(trajectory: Trajectory, flightPlan: FlightPlan, date: number, plotSize: number, centeredAt: Vector3, handleClick: (fpi: FlightPlanInfo) => (e: ThreeEvent<MouseEvent>) => void, handleDoubleClick: (e: ThreeEvent<MouseEvent>) => void, visible: boolean, infoItem: InfoItem, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>) {
+    const orbit = Trajectories.currentOrbitForTrajectory(trajectory, date);
+    if(orbit === null) {
         return {craftSprite: <></>, nameLabel: <></>}
     }
-    const vessel: IVessel = {name: flightPlan.name, color: flightPlan.color, orbit: trajectory.orbits[activeOrbitIndex], maneuvers: []};
-    const pos = activeOrbitIndex === -1 ? vec3(0,0,0) : div3(add3(Kepler.orbitToPositionAtDate(trajectory.orbits[activeOrbitIndex], date), centeredAt), plotSize);
+    const pos = div3(add3(Kepler.orbitToPositionAtDate(orbit, date), centeredAt), plotSize);
     const position = new THREE.Vector3(-pos.x, pos.z, pos.y);
     const colorstring = hexFromColorString(new Color(flightPlan.color || defaultColor).toString());
+    const fpi = {...flightPlan, date};
     const craftSprite = 
         <sprite 
             scale={[0.05,0.05,0.05]} 
             position={position}
-            onClick={visible ? handleClick(vessel) : ((e) => {})}
+            onClick={visible ? handleClick(fpi) : ((e) => {})}
             onDoubleClick={visible ? handleDoubleClick : ((e) => {})}
             visible={visible}
         >
             <spriteMaterial map={podTexture} sizeAttenuation={false} color={colorstring} depthTest={false} visible={visible}/>
         </sprite>
-    // if(infoItemRef.current !== null) {
-    //     if(infoItemRef.current.hasOwnProperty('maneuvers') && infoItemRef.current.name === name) {
-    //         if(!Kepler.orbitsAreEqual((infoItemRef.current as IVessel).orbit, vessel.orbit)) {
-    //             setInfoItem(vessel);
-    //         }
-    //     }
-    // }
     const nameLabel = 
         <Html 
             position={position} 
@@ -145,10 +140,18 @@ function getCraftSprite(trajectory: Trajectory, date: number, plotSize: number, 
         >
             <div>{flightPlan.name}</div> 
         </Html>
+    if(infoItem !== null) {
+        if(infoItem.hasOwnProperty('trajectories') && infoItem.name === flightPlan.name) {
+            if((infoItem as FlightPlanInfo).date !== date) {
+                    setInfoItem(fpi);
+            }
+        }
+    }
     return {craftSprite, nameLabel};
 }
 
-function TrajectoryDisplay({trajectory, system, date, plotSize, centeredAt=vec3(0,0,0), depth=0, flightPlan, icons = {maneuver: [], soi: []}, setInfoItem, setTarget, displayOptions}: TrajectoryDisplayProps) {
+function TrajectoryDisplay({trajectory, flightPlan, system, date, plotSize, centeredAt=vec3(0,0,0), depth=0, icons = {maneuver: [], soi: []}, infoItemAtom, setTarget, displayOptions}: TrajectoryDisplayProps) {
+    const [infoItem, setInfoItem] = useAtom(infoItemAtom);
     const normalizedCenter = div3(centeredAt, plotSize);
     const trajectoryWorldCenter = new THREE.Vector3(-normalizedCenter.x, normalizedCenter.z, normalizedCenter.y);
     const [visible, setVisible] = useState(true);
@@ -157,11 +160,11 @@ function TrajectoryDisplay({trajectory, system, date, plotSize, centeredAt=vec3(
     })
 
     const timer = useRef<NodeJS.Timeout | null>(null);
-    const handleClick = (vessel: IVessel) => (e: ThreeEvent<MouseEvent>) => {
+    const handleClick = (fpi: FlightPlanInfo) => (e: ThreeEvent<MouseEvent>) => {
         e.stopPropagation();
         if(timer.current === null) {
             timer.current = setTimeout(() => {
-                setInfoItem(vessel);
+                setInfoItem(fpi);
                 timer.current = null;
             }, 300)
         }
@@ -173,8 +176,8 @@ function TrajectoryDisplay({trajectory, system, date, plotSize, centeredAt=vec3(
         timer.current = null;
     }
     
-    const trajectoryOrbits = getOrbits(trajectory, system, date, plotSize, centeredAt, depth, flightPlan, setInfoItem, displayOptions);
-    const {craftSprite, nameLabel} = getCraftSprite(trajectory, date, plotSize, centeredAt, flightPlan, handleClick, handleDoubleClick, visible);
+    const trajectoryOrbits = getOrbits(trajectory, flightPlan, system, date, plotSize, centeredAt, depth, infoItemAtom, displayOptions);
+    const {craftSprite, nameLabel} = getCraftSprite(trajectory, flightPlan, date, plotSize, centeredAt, handleClick, handleDoubleClick, visible, infoItem, setInfoItem);
 
     const maneuverSprites = getManeuverSprites(trajectory, icons, plotSize, centeredAt, flightPlan.color || defaultColor, setInfoItem, visible);
     const soiSprites = getSoiSprites(trajectory, icons, plotSize, centeredAt, flightPlan.color || defaultColor, setInfoItem, visible);
@@ -203,4 +206,4 @@ function TrajectoryDisplay({trajectory, system, date, plotSize, centeredAt=vec3(
     );
 }
   
-  export default React.memo(TrajectoryDisplay, (p,c) => (p.trajectory === c.trajectory && p.system === c.system && p.date === c.date && p.plotSize === c.plotSize && c.flightPlan === p.flightPlan && p.icons === c.icons && p.displayOptions === c.displayOptions));
+  export default React.memo(TrajectoryDisplay);

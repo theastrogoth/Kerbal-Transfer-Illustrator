@@ -17,7 +17,7 @@ import SolarSystem from '../../main/objects/system';
 import { calendarDateToString, calendarDateToTime, clamp, timeToCalendarDate } from '../../main/libs/math';
 import { makeDateFields, timeFromDateFieldState } from '../../utils';
 
-import { atom, useAtom } from 'jotai';
+import { atom, PrimitiveAtom, useAtom } from 'jotai';
 import { timeSettingsAtom } from '../../App';
 import OrbitPlot from './OrbitPlot';
 import DisplayOptions from './DisplayOptions';
@@ -37,11 +37,10 @@ export type OrbitDisplayProps = {
 
 interface OrbitDisplayPropsWithInfo extends OrbitDisplayProps {
   tabValue?:    number,
-  infoItem:     InfoItem,
-  setInfoItem:  React.Dispatch<React.SetStateAction<InfoItem>>,
+  infoItemAtom: PrimitiveAtom<InfoItem>,
 }
 
-function OrbitDisplay({tabValue = 0, centralBody, system, flightPlans=[], startDate=0, endDate=startDate + 9201600, slider=false, marks=[], setInfoItem}: OrbitDisplayPropsWithInfo) {
+function OrbitDisplay({tabValue = 0, centralBody, system, flightPlans=[], startDate=0, endDate=startDate + 9201600, slider=false, marks=[], infoItemAtom}: OrbitDisplayPropsWithInfo) {
   const sDate = Number.isFinite(startDate) && !isNaN(startDate) ? startDate : (
                 Number.isFinite(endDate) && !isNaN(endDate) ? endDate : 0);
   const eDate = Number.isFinite(endDate) && !isNaN(endDate) ? endDate : (
@@ -153,7 +152,7 @@ function OrbitDisplay({tabValue = 0, centralBody, system, flightPlans=[], startD
           system={system} 
           date={date} 
           flightPlans={flightPlans}
-          setInfoItem={setInfoItem}
+          infoItemAtom={infoItemAtom}
         />
       </Canvas>
       <Typography>Click object for detailed info. Double-click to focus view.</Typography>

@@ -8,7 +8,7 @@ import InfoPopper from "../Display/InfoPopper";
 
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import { useAtom } from "jotai";
+import { atom, PrimitiveAtom, useAtom } from "jotai";
 import { flightPlansAtom, systemAtom, timeSettingsAtom } from "../../App";
 
 
@@ -54,7 +54,7 @@ export function prepareAllDisplayProps(flightPlans: FlightPlan[], system: SolarS
     });
 } 
 
-const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, props, infoItem, setInfoItem}: {value: number, index: number, props: OrbitDisplayProps, infoItem: InfoItem, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>}) {
+const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, props, infoItemAtom}: {value: number, index: number, props: OrbitDisplayProps, infoItemAtom: PrimitiveAtom<InfoItem>}) {
     const [orbitPlotProps, setOrbitPlotProps] = useState(props);
 
     useEffect(() => {
@@ -71,7 +71,7 @@ const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, pr
 
     return (
         <div style={{ display: (value === index ? 'block' : 'none'), width: "100%", height: "100%" }}>
-            <OrbitDisplay {...orbitPlotProps} infoItem={infoItem} setInfoItem={setInfoItem} tabValue={value}/>
+            <OrbitDisplay {...orbitPlotProps} infoItemAtom={infoItemAtom} tabValue={value}/>
         </div>
     )
 });
@@ -87,7 +87,7 @@ function OrbitDisplayTabs() {
     const valueRef = useRef(value);
 
     const [orbitDisplayProps, setOrbitDisplayProps] = useState(emptyProps);
-    const [infoItem, setInfoItem] = useState<InfoItem>(null);
+    const infoItemAtom = useRef(atom<InfoItem>(null)).current;
     const canvasRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -134,9 +134,9 @@ function OrbitDisplayTabs() {
                 {orbitDisplayProps.map((props, index) => <Tab key={index} value={index} label={props.label} ></Tab>)}
             </Tabs>
             <div ref={canvasRef}>
-                {orbitDisplayProps.map((props, index) => <OrbitTabPanel key={index} value={value} index={index} props={props} infoItem={infoItem} setInfoItem={setInfoItem}/>)}
+                {orbitDisplayProps.map((props, index) => <OrbitTabPanel key={index} value={value} index={index} props={props} infoItemAtom={infoItemAtom}/>)}
             </div>
-            <InfoPopper info={infoItem} setInfo={setInfoItem} parentRef={canvasRef} />
+            <InfoPopper infoItemAtom={infoItemAtom} parentRef={canvasRef} system={system} />
         </>
     )
 }

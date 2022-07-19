@@ -92,7 +92,7 @@ function MultiFlybyInfo() {
                         </TableRow>
                         <TableRow>
                             <TableCell sx={{ fontWeight: 700}}>Total Δv:</TableCell>
-                            <TableCell>{String(Math.round(multiFlyby.deltaV * 100) / 100).concat(" m/s")}</TableCell>
+                            <TableCell>{Number(Math.round(multiFlyby.deltaV * 100) / 100).toLocaleString().concat(" m/s")}</TableCell>
                         </TableRow>
                         {multiFlyby.flightTimes.map((ft, idx) => 
                             <TableRow key={idx}>

@@ -17,11 +17,15 @@ import OrbitInfoRow from '../OrbitInfoRow';
 import ManeuverInfoRow from '../ManeuverInfoRow';
 import BodyInfoRow from '../BodyInfoRow';
 
+import SolarSystem from '../../main/objects/system';
 import CelestialBody from '../../main/objects/body';
-import { calendarDateToString, timeToCalendarDate } from '../../main/libs/math';
+import Kepler from '../../main/libs/kepler';
+import Trajectories from '../../main/libs/trajectories';
+import { calendarDateToString, mag3, timeToCalendarDate } from '../../main/libs/math';
 
 import { timeSettingsAtom } from '../../App';
-import { useAtom } from 'jotai';
+import { PrimitiveAtom, useAtom } from 'jotai';
+
 
 const defaultColor: IColor = {r:255,g:255,b:255};
 const getClearColor = (color: IColor) => 'rgba('+String(color.r)+","+String(color.g)+","+String(color.b)+",0.075)";
@@ -36,7 +40,7 @@ const getTitle = (info: InfoItem) => {
     }
 }
 
-const getContent = (info: InfoItem, timeSettings: TimeSettings) => {
+const getContent = (info: InfoItem, timeSettings: TimeSettings, system: SolarSystem) => {
     if(!info) {
         return <></>;
     } else if(info.hasOwnProperty('preState')) {
@@ -55,11 +59,25 @@ const getContent = (info: InfoItem, timeSettings: TimeSettings) => {
                 </TableRow>
             </TableBody>
         </Table>;
-    } else if(info.hasOwnProperty('maneuvers')) {
-        const vesselInfo = info as IVessel;
+    } else if(info.hasOwnProperty('trajectories')) {
+        const flightPlan = info as FlightPlanInfo;
+        const date = flightPlan.date;
+        const orbit = Trajectories.currentOrbitForFlightPlan(flightPlan, date) as IOrbit;
+        const attractor = system.bodyFromId(orbit.orbiting);
+        const state = Kepler.orbitToStateAtDate(orbit, attractor, date);
+        const altitude = mag3(state.pos) - attractor.radius;
+        const speed = mag3(state.vel);
         return <Table>
             <TableBody>
-                <OrbitInfoRow name='Orbit' color="white" orbit={vesselInfo.orbit} />
+                <TableRow>
+                    <TableCell style={{color: 'white'}} sx={{ borderBottom: 0 }}>Altitude:</TableCell>
+                    <TableCell style={{color: 'white'}} sx={{ borderBottom: 0 }}>{Number(altitude / 1000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}).concat(" km")}</TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell style={{color: 'white'}} sx={{ borderBottom: 0 }}>Speed:</TableCell>
+                    <TableCell style={{color: 'white'}} sx={{ borderBottom: 0 }}>{Number(Math.round(speed * 100 )/ 100).toLocaleString().concat(" m/s")}</TableCell>
+                </TableRow>
+                <OrbitInfoRow name='Orbit' color="white" orbit={orbit} />
             </TableBody>
         </Table>;
     } else if(info.hasOwnProperty('eccentricity')) {
@@ -88,26 +106,32 @@ const getContent = (info: InfoItem, timeSettings: TimeSettings) => {
     }
 }
 
-function InfoPopper({info, setInfo, parentRef, color=defaultColor}: {info: InfoItem, setInfo: React.Dispatch<React.SetStateAction<InfoItem>>, parentRef: React.MutableRefObject<null | HTMLElement>, color?: IColor}) {
+function InfoPopper({infoItemAtom, parentRef, system, color=defaultColor}: {infoItemAtom: PrimitiveAtom<InfoItem>, parentRef: React.MutableRefObject<null | HTMLElement>, system: SolarSystem, color?: IColor}) {
+    const [info, setInfo] = useAtom(infoItemAtom);
     const {width, ref} = useResizeDetector();
     const parentDimensions = useContainerDimensions(parentRef);
 
     const [timeSettings] = useAtom(timeSettingsAtom);
 
     const [title, setTitle] = useState(getTitle(info))
-    const [content, setContent] = useState(getContent(info, timeSettings));
+    const [content, setContent] = useState(getContent(info, timeSettings, system));
 
     const [clearColor, setClearColor] = useState(getClearColor(color));
-
 
     useEffect(() => {
         if(info !== null) {
             setTitle(getTitle(info));
-            setContent(getContent(info, timeSettings));
+            setContent(getContent(info, timeSettings, system));
             const newColor: IColor = (info.hasOwnProperty('color')) ? (info as ICelestialBody | IOrbitingBody | IVessel | OrbitInfo | ManeuverInfo | SoiChangeInfo).color || defaultColor : defaultColor; 
             setClearColor(getClearColor(newColor)); 
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [info, timeSettings])
+
+    useEffect(() => {
+        setInfo(null);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [system])
 
     const maxWidth = parentDimensions.width * 0.5;
     const maxHeight = 400;

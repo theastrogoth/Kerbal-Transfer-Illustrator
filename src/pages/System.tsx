@@ -27,7 +27,7 @@ import GetLinkButton from "../components/SystemEditor/GetLinkButton";
 
 import SolarSystem from "../main/objects/system";
 
-import { useAtom } from "jotai";
+import { atom, useAtom } from "jotai";
 import { customSystemAtom, configTreeAtom, bodyConfigsAtom, editorSelectedNameAtom, systemScaleAtom } from "../App";
 import InfoPopper from "../components/Display/InfoPopper";
 
@@ -56,7 +56,7 @@ function SolarSystemAppContent() {
   const [centralBody, setCentralBody] = useState(customSystem.sun);
   const [showHelp, setShowHelp] = useState(false);
 
-  const [infoItem, setInfoItem] = useState<InfoItem>(null);
+  const infoItemAtom = atom<InfoItem>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
 
   const [deleteBodiesTrigger, setDeleteBodiesTrigger] = useState(0);
@@ -204,11 +204,10 @@ function SolarSystemAppContent() {
                     centralBody={centralBody} 
                     startDate={0.0} 
                     system={customSystem}
-                    infoItem={infoItem}
-                    setInfoItem={setInfoItem}
+                    infoItemAtom={infoItemAtom}
                   />
                 </div>
-                <InfoPopper info={infoItem} setInfo={setInfoItem} parentRef={canvasRef} />
+                <InfoPopper infoItemAtom={infoItemAtom} parentRef={canvasRef} system={customSystem} />
               </Box>
               <Box component="div" sx={{mx: 2, my: 2}}>
                 <Typography variant="body1">Time Settings</Typography>

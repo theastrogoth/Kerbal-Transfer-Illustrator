@@ -40,7 +40,7 @@ function FlightPlanInfo({flightPlan}: {flightPlan: FlightPlan}) {
                     <TableBody>
                         <TableRow>
                             <TableCell sx={{ fontWeight: 700}}>Total Δv:</TableCell>
-                            <TableCell>{String(Math.round(deltaV * 100) / 100).concat(" m/s")}</TableCell>
+                            <TableCell>{Number(Math.round(deltaV * 100) / 100).toLocaleString().concat(" m/s")}</TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>

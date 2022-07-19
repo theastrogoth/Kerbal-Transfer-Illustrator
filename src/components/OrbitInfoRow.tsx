@@ -31,12 +31,12 @@ export function OrbitTable({orbit, color = undefined}: {orbit: IOrbit, color?: s
                 </TableRow>
                 <TableRow>
                     <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Periapsis:</TableCell>
-                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(Math.round((fullOrbit.periapsis - attractor.radius) * 100) / 100).concat("m")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{Number(Math.round((fullOrbit.periapsis - attractor.radius) * 100) / 100000).toLocaleString().concat(" km")}</TableCell>
                 </TableRow>
                 { Number.isFinite(fullOrbit.apoapsis) && 
                     <TableRow>
                         <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Apoapsis:</TableCell>
-                        <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(Math.round((fullOrbit.apoapsis - attractor.radius) * 100) / 100).concat("m")}</TableCell>
+                        <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{Number(Math.round((fullOrbit.apoapsis - attractor.radius) * 100) / 100000).toLocaleString().concat(" km")}</TableCell>
                     </TableRow>
                 }
                 <TableRow>
@@ -45,7 +45,7 @@ export function OrbitTable({orbit, color = undefined}: {orbit: IOrbit, color?: s
                 </TableRow>
                 <TableRow>
                     <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Semi-major axis:</TableCell>
-                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(orbit.semiMajorAxis).concat("m")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(orbit.semiMajorAxis).concat(" m")}</TableCell>
                 </TableRow>
                 <TableRow>
                     <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Eccentricity:</TableCell>
@@ -69,7 +69,7 @@ export function OrbitTable({orbit, color = undefined}: {orbit: IOrbit, color?: s
                 </TableRow>
                 <TableRow>
                     <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>Epoch:</TableCell>
-                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(orbit.epoch).concat("s")}</TableCell>
+                    <TableCell style={{color: color}} sx={{ borderBottom: 0 }}>{String(orbit.epoch).concat(" s")}</TableCell>
                 </TableRow>
             </TableBody>
         </Table>
