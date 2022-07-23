@@ -1,4 +1,5 @@
 import React from "react";
+import ReactGA from "react-ga";
 import Button from "@mui/material/Button";
 import saveFileToVessels from "../main/utilities/loadSaveData";
 import UploadFileOutlined from "@mui/icons-material/UploadFileOutlined";
@@ -17,6 +18,10 @@ function SaveFileUploadButton() {
   }
   
   const handleChangeFile = (file: any) => {
+    ReactGA.event({
+      category: "Button",
+      action:   "Upload a save file"
+    })
     console.log("Reading save file...")
     let fileData = new FileReader();
     fileData.onloadend = handleFile;

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import ReactGA from 'react-ga';
 import Button from "@mui/material/Button";
 
 import SolarSystem from "../../main/objects/system";
@@ -74,6 +75,10 @@ function GetLinkButton() {
 
     useEffect(() => {
         if(vesselPlansHash !== null && vesselPlansRef.current !== vesselPlansHash) {
+            ReactGA.event({
+                category: "Hash",
+                action: 'Load flight plan(s) from hash'
+            })
             setVesselPlans(vesselPlansHash);
             vesselPlansRef.current = vesselPlansHash;
         }
@@ -87,6 +92,10 @@ function GetLinkButton() {
     }, [systemName, vesselPlans, customSystem])
 
     const handleClick = () => {
+        ReactGA.event({
+            category: "Button",
+            action: 'Click "Get Link" button for flight plan(s)'
+        })
         setCopied(true);
         setSystemNameHash(systemName);
         setVesselPlansHash(vesselPlans);

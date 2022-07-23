@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
-import {Routes, Route } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import ReactGA from 'react-ga';
+import {Routes, Route, useLocation } from 'react-router-dom';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme } from '@mui/material/styles';
 import { PaletteMode } from '@mui/material';
@@ -221,6 +222,22 @@ function AppBody() {
 }
 
 function App() {
+  const location = useLocation();
+  const [initialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    if (!window.location.href.includes("localhost")) {
+      ReactGA.initialize("UA-180444864-1");
+    }
+    setInitialized(true);
+  }, []);
+
+  useEffect(() => {
+    if (initialized) {
+      ReactGA.pageview(location.pathname);
+    }
+  }, [initialized, location]);
+
   return (
     <AppBody />
   )

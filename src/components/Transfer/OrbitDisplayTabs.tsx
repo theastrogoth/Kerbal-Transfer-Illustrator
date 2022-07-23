@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import ReactGA from 'react-ga';
 
 import { OrbitingBody } from "../../main/objects/body";
 import Transfer from "../../main/objects/transfer";
@@ -198,6 +199,10 @@ function OrbitDisplayTabs() {
     }, [transferOptWorker]);
 
     function handleRefineButtonPress() {
+        ReactGA.event({
+            category: "Button",
+            action: 'Click "Refine Transfer" button'
+        })
         console.log('Optimizing SoI patches')
         setCalculating(true);
         transferOptWorker
@@ -205,6 +210,10 @@ function OrbitDisplayTabs() {
     }
 
     function handleUndoRefineButtonPress() {
+        ReactGA.event({
+            category: "Button",
+            action: 'Click "Revert" button for transfer'
+        })
         console.log('Reset to unrefined trajectory')
         setTransfer(unrefinedTransfer);
     }

@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from "react";
+import ReactGA from "react-ga";
 import Button from "@mui/material/Button";
 import UploadFileOutlined from "@mui/icons-material/UploadFileOutlined";
 import { fileToSunConfig } from "../../main/utilities/loadPlanetConfig";
@@ -25,6 +26,10 @@ function SunConfigUploadButton() {
   }
   
   const handleChangeFile = (file: any) => {
+    ReactGA.event({
+      category: "Button",
+      action:   "Upload sun config file"
+    })
     console.log("Reading sun config...")
     let fileData = new FileReader();
     fileData.onloadend = handleFile;

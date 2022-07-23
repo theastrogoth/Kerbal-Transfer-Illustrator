@@ -1,4 +1,5 @@
 import React, {useState, useEffect, useRef} from "react";
+import ReactGA from 'react-ga';
 
 import MultiFlyby from "../../main/objects/multiflyby";
 import { OrbitingBody } from "../../main/objects/body";
@@ -223,6 +224,10 @@ function OrbitDisplayTabs() {
     }, [multiFlybyOptWorker]);
 
     function handleRefineButtonPress() {
+        ReactGA.event({
+            category: "Button",
+            action: 'Click "Refine Trajectory" button for multi-flyby'
+        })
         console.log('Optimizing SoI patches')
         setCalculating(true);
         multiFlybyOptWorker
@@ -230,6 +235,10 @@ function OrbitDisplayTabs() {
     }
 
     function handleUndoRefineButtonPress() {
+        ReactGA.event({
+            category: "Button",
+            action: 'Click "Revert" button for multi-flyby'
+        })
         console.log('Reset to unrefined trajectory')
         setMultiFlyby(unrefinedMultiFlyby);
     }
