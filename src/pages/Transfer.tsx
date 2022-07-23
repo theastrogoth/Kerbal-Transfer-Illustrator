@@ -60,9 +60,6 @@ export function blankTransfer(system: SolarSystem): Transfer {
 ////////// App Content //////////
 
 function TransferAppContent() { 
-  useEffect(() => {
-    ReactGA.pageview('/');
-  }, [])
 
   const [system] = useAtom(systemAtom);
   const [timeSettings] = useAtom(timeSettingsAtom);

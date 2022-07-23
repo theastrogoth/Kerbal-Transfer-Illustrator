@@ -1,5 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
-import ReactGA from 'react-ga';
+import { useEffect, useRef, useState } from "react";
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
 import Stack from '@mui/material/Stack';
@@ -46,10 +45,6 @@ const systemLoaderWorker = new Worker(new URL("../workers/system.worker.ts", imp
 
 ////////// App Content //////////
 function SolarSystemAppContent() { 
-  useEffect(() => {
-    ReactGA.pageview('/System');
-  }, [])
-
   const [bodyConfigs, setBodyConfigs] = useAtom(bodyConfigsAtom);
   const [configTree] = useAtom(configTreeAtom);
   const [customSystem, setCustomSystem] = useAtom(customSystemAtom);

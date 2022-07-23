@@ -63,9 +63,6 @@ export function blankMultiFlyby(system: SolarSystem): MultiFlyby {
 
 ///// App Content /////
 function FlybyAppContent() {
-  useEffect(() => {
-    ReactGA.pageview('/Flyby');
-  }, [])
   
   const [system] = useAtom(systemAtom);
   const [timeSettings] = useAtom(timeSettingsAtom);
