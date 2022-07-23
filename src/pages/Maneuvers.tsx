@@ -5,6 +5,7 @@ import FlightPlanInfoTabs from '../components/Manuevers/FlightPlanInfoTabs';
 import HelpCollapse from '../components/Manuevers/HelpCollapse';
 
 import React, {useEffect, useState, useRef } from "react";
+import ReactGA from 'react-ga';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
 import Stack from '@mui/material/Stack';
@@ -26,6 +27,10 @@ const propagateWorker = new Worker(new URL("../workers/propagate.worker.ts", imp
 
 ////////// App Content //////////
 function ManeuversAppContent() { 
+  useEffect(() => {
+    ReactGA.pageview('/Maneuvers');
+  }, [])
+
   const [vesselPlans] = useAtom(vesselPlansAtom);
   const vesselPlansRef = useRef<IVessel[]>(vesselPlans);
 

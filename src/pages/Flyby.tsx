@@ -12,6 +12,7 @@ import Navbar from '../components/Navbar';
 import HelpCollapse from '../components/Flyby/HelpCollapse';
 
 import React, { useState, useEffect } from "react";
+import ReactGA from 'react-ga';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
 import Stack from '@mui/material/Stack';
@@ -62,6 +63,9 @@ export function blankMultiFlyby(system: SolarSystem): MultiFlyby {
 
 ///// App Content /////
 function FlybyAppContent() {
+  useEffect(() => {
+    ReactGA.pageview('/Flyby');
+  }, [])
   
   const [system] = useAtom(systemAtom);
   const [timeSettings] = useAtom(timeSettingsAtom);
@@ -83,6 +87,10 @@ function FlybyAppContent() {
 
 
   function handleButtonPress() {
+    ReactGA.event({
+      category: 'Button',
+      action:   'Click "Plot" button for multi-flybys',
+    });
     // update orbits
     let invalid = isInvalidOrbitInput(startOrbit);
     invalid = isInvalidOrbitInput(endOrbit) ? true : invalid;

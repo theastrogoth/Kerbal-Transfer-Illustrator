@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import ReactGA from 'react-ga';
 import Button from "@mui/material/Button";
 
 import MultiFlyby from "../../main/objects/multiflyby";
@@ -49,6 +50,10 @@ function GetLinkButton() {
 
     useEffect(() => {
         if(multiFlybyHash !== null && multiFlybyHashRef.current !== multiFlybyHash) {
+            ReactGA.event({
+                category: "Hash",
+                action: 'Load multi-flyby from hash'
+            })
             multiFlybyHashRef.current = multiFlybyHash;
             const newMultiFlyby = new MultiFlyby(multiFlybyHash)
             setMultiFlyby(newMultiFlyby);
@@ -64,6 +69,10 @@ function GetLinkButton() {
     }, [multiFlyby])
 
     const handleClick = () => {
+        ReactGA.event({
+            category: "Button",
+            action: 'Click "Get Link" button for multi-flyby'
+        })
         setCopied(true);
         setMultiFlybyHash(multiFlyby.data);
         if(!usingIE) {

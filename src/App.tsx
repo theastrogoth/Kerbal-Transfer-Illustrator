@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import ReactGA from 'react-ga';
 import {Routes, Route } from 'react-router-dom';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme } from '@mui/material/styles';
@@ -221,6 +222,9 @@ function AppBody() {
 }
 
 function App() {
+  useEffect(() => {
+    ReactGA.initialize('UA-180444864-1');
+  }, [])
   return (
     <AppBody />
   )

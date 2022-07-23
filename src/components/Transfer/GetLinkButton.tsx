@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import ReactGA from 'react-ga';
 import Button from "@mui/material/Button";
 
 import Transfer from "../../main/objects/transfer";
@@ -48,6 +49,10 @@ function GetLinkButton() {
 
     useEffect(() => {
         if(transferHash !== null && transferRef.current !== transferHash) {
+            ReactGA.event({
+                category: "Hash",
+                action: 'Load transfer from hash'
+            })
             const newTransfer = new Transfer(transferHash)
             setTransfer(newTransfer);
             setUnrefinedTransfer(newTransfer);
@@ -62,6 +67,10 @@ function GetLinkButton() {
     }, [transfer])
 
     const handleClick = () => {
+        ReactGA.event({
+            category: "Button",
+            action: 'Click "Get Link" button for transfer'
+        })
         setCopied(true);
         setTransferHash(transfer.data);
         if(!usingIE) {

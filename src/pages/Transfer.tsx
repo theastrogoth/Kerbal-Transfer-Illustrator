@@ -12,6 +12,7 @@ import Navbar from '../components/Navbar';
 import { isInvalidOrbitInput, porkchopInputsFromUI } from '../utils';
 
 import React, { useState, useEffect } from "react";
+import ReactGA from 'react-ga';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/system/Box';
 import Stack from '@mui/material/Stack';
@@ -59,6 +60,10 @@ export function blankTransfer(system: SolarSystem): Transfer {
 ////////// App Content //////////
 
 function TransferAppContent() { 
+  useEffect(() => {
+    ReactGA.pageview('/');
+  }, [])
+
   const [system] = useAtom(systemAtom);
   const [timeSettings] = useAtom(timeSettingsAtom);
   const [transfer, setTransfer] = useAtom(transferAtom);
@@ -79,6 +84,10 @@ function TransferAppContent() {
   const [showHelp, setShowHelp] = useState(false);
 
   function handlePlotButtonPress() {
+    ReactGA.event({
+      category: 'Button',
+      action:   'Click "Plot" button for transfers',
+    });
     // ensure there are no invalid orbit inputs
     let invalidFlag = isInvalidOrbitInput(startOrbit);
     invalidFlag = isInvalidOrbitInput(endOrbit) ? true : invalidFlag;

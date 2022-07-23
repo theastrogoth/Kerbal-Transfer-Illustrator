@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ReactGA from 'react-ga';
 import Box from '@mui/system/Box';
 import Tab from "@mui/material/Tab"
 import Tabs from "@mui/material/Tabs";
@@ -54,6 +55,10 @@ function VesselTabs() {
     }
 
     const handleAddVessel = () => {
+        ReactGA.event({
+            category: "Button",
+            action:   'Click "Add Flight Plan" button',
+          })
         const newTabValues = [...tabValues];
         let index = 0;
         for(let i=0; i<=newTabValues.length; i++) {

@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from "react";
+import ReactGA from "react-ga";
 import Button from "@mui/material/Button";
 import UploadFileOutlined from "@mui/icons-material/UploadFileOutlined";
 import fileToBodyConfig from "../../main/utilities/loadPlanetConfig";
@@ -32,6 +33,10 @@ function BodyConfigUploadButton() {
   }
   
   const handleChangeFile = (file: any) => {
+    ReactGA.event({
+      category: "Button",
+      action:   "Upload body config file(s)"
+    })
     console.log("Reading body config...")
     let fileData = new FileReader();
     fileData.onloadend = handleFile;

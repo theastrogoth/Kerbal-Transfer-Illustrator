@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import ReactGA from 'react-ga';
 import Button from "@mui/material/Button";
 
 import { useAtom } from "jotai";
@@ -66,6 +67,10 @@ function GetLinkButton() {
 
     useEffect(() => {
         if(bodyConfigsHash !== null && bodyConfigsRef.current !== bodyConfigsHash) {
+            ReactGA.event({
+                category: "Hash",
+                action: 'Load custom system from hash'
+            })
             setBodyConfigs(bodyConfigsHash);
             bodyConfigsRef.current = bodyConfigsHash;
             setSelectedName(bodyConfigsHash[0].name || bodyConfigsHash[0].templateName as string);
@@ -80,6 +85,10 @@ function GetLinkButton() {
     }, [bodyConfigs])
 
     const handleClick = () => {
+        ReactGA.event({
+            category: "Button",
+            action: 'Click "Get Link" button for custom system'
+        })
         setCopied(true);
         setSystemScaleHash(systemScale);
         setBodyConfigsHash(bodyConfigs);
