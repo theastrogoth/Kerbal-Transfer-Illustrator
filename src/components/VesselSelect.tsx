@@ -4,7 +4,7 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 
-function createVesselItems(vessels: IVessel[]) {
+function createVesselItems(vessels: IVessel[] | LandedVessel[]) {
     const options = [<MenuItem key={-1} value={-1}>Select a Craft</MenuItem>];
     for(let i=0; i<vessels.length; i++) {
         options.push(<MenuItem key={i} value={i}>{vessels[i].name}</MenuItem>)
@@ -12,7 +12,7 @@ function createVesselItems(vessels: IVessel[]) {
     return options;
 }
 
-function VesselSelect({vessels, label, vesselId, handleVesselIdChange}: {vessels: IVessel[], label: string, vesselId: number, handleVesselIdChange: ((event: any) => void)}) {
+function VesselSelect({vessels, label, vesselId, handleVesselIdChange}: {vessels: IVessel[] | LandedVessel[], label: string, vesselId: number, handleVesselIdChange: ((event: any) => void)}) {
     const [vesselOptions, setVesselOptions] = useState(createVesselItems(vessels));
 
     useEffect(() => {

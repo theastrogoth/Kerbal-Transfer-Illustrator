@@ -18,6 +18,15 @@ const maneuverTexture = textureLoader.load("https://raw.githubusercontent.com/th
 const escapeTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/escape.png");
 const encounterTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/encounter.png");
 const podTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/pod.png");
+const probeTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/probe.png");
+// const relayTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/relay.png");
+const stationTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/station.png");
+const landerTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/lander.png");
+const asteroidTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/asteroid.png");
+const debrisTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/debris.png");
+const roverTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/rover.png");
+const baseTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/base.png");
+// const flagTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/flag.png");
 
 const defaultColor: IColor = {r:255, g:255, b:255};
 
@@ -115,7 +124,7 @@ function getSoiSprites(trajectory: Trajectory, icons: TrajectoryIconInfo, plotSi
     return soiSprites;
 }
 
-function getCraftSprite(trajectory: Trajectory, flightPlan: FlightPlan, date: number, plotSize: number, centeredAt: Vector3, handleClick: (fpi: FlightPlanInfo) => (e: ThreeEvent<MouseEvent>) => void, handleDoubleClick: (e: ThreeEvent<MouseEvent>) => void, visible: boolean, infoItem: InfoItem, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>, index: number, tabValue: number) {
+function getCraftSprite(trajectory: Trajectory, flightPlan: FlightPlan, date: number, plotSize: number, centeredAt: Vector3, handleClick: (fpi: FlightPlanInfo) => (e: ThreeEvent<MouseEvent>) => void, handleDoubleClick: (e: ThreeEvent<MouseEvent>) => void, visible: boolean, spriteMap: THREE.Texture, infoItem: InfoItem, setInfoItem: React.Dispatch<React.SetStateAction<InfoItem>>, index: number, tabValue: number) {
     const orbit = Trajectories.currentOrbitForTrajectory(trajectory, date);
     let craftSprite = <></>;
     let nameLabel = <></>;
@@ -132,7 +141,7 @@ function getCraftSprite(trajectory: Trajectory, flightPlan: FlightPlan, date: nu
                 onDoubleClick={visible ? handleDoubleClick : (() => {})}
                 visible={visible}
             >
-                <spriteMaterial map={podTexture} sizeAttenuation={false} color={colorstring} depthTest={false} visible={visible}/>
+                <spriteMaterial map={spriteMap} sizeAttenuation={false} color={colorstring} depthTest={false} visible={visible}/>
             </sprite>
         nameLabel = 
             <Html 
@@ -160,6 +169,8 @@ function TrajectoryDisplay({trajectory, flightPlan, system, date, plotSize, cent
     const normalizedCenter = div3(centeredAt, plotSize);
     const trajectoryWorldCenter = new THREE.Vector3(-normalizedCenter.x, normalizedCenter.z, normalizedCenter.y);
     const [visible, setVisible] = useState(true);
+    const [spriteMap, setSpriteMap] = useState(probeTexture);
+
     useFrame((state) => {
         setVisible(depth === 0 ? true : state.camera.position.distanceTo(trajectoryWorldCenter) < 10 * (system.bodyFromId(trajectory.orbits[0].orbiting).soi || Infinity) / plotSize);
     })
@@ -182,7 +193,7 @@ function TrajectoryDisplay({trajectory, flightPlan, system, date, plotSize, cent
     }
     
     const trajectoryOrbits = getOrbits(trajectory, flightPlan, system, date, plotSize, centeredAt, depth, infoItemAtom, displayOptions);
-    const {craftSprite, nameLabel} = getCraftSprite(trajectory, flightPlan, date, plotSize, centeredAt, handleClick, handleDoubleClick, visible, infoItem, setInfoItem, index, tabValue);
+    const {craftSprite, nameLabel} = getCraftSprite(trajectory, flightPlan, date, plotSize, centeredAt, handleClick, handleDoubleClick, visible, spriteMap, infoItem, setInfoItem, index, tabValue);
 
     const maneuverSprites = getManeuverSprites(trajectory, icons, plotSize, centeredAt, flightPlan.color || defaultColor, setInfoItem, visible);
     const soiSprites = getSoiSprites(trajectory, icons, plotSize, centeredAt, flightPlan.color || defaultColor, setInfoItem, visible);
@@ -199,6 +210,35 @@ function TrajectoryDisplay({trajectory, flightPlan, system, date, plotSize, cent
         } 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [trajectory, system, plotSize])
+
+    useEffect(() => {
+        const type = flightPlan.type
+        if(type !== undefined) {
+            if(type === "Ship") {
+                setSpriteMap(podTexture);
+            } else if(type === "Probe") {
+                setSpriteMap(probeTexture);
+            } else if(type === "Relay") {
+                setSpriteMap(probeTexture);
+            } else if(type === "Station") {
+                setSpriteMap(stationTexture);
+            } else if(type === "Base") {
+                setSpriteMap(baseTexture);
+            } else if(type === "Lander") {
+                setSpriteMap(landerTexture);
+            } else if(type === "Rover") {
+                setSpriteMap(roverTexture);
+            } else if(type === "Debris") {
+                setSpriteMap(debrisTexture);
+            } else if(type === "SpaceObject") {
+                setSpriteMap(asteroidTexture);
+            } else{
+                setSpriteMap(podTexture);
+            }
+        } else {
+            setSpriteMap(podTexture);
+        }
+    }, [flightPlan.type])
 
     return (
         <>

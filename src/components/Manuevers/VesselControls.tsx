@@ -3,6 +3,10 @@ import Box from "@mui/system/Box"
 import Typography from '@mui/material/Typography';
 import Stack from "@mui/material/Stack"
 import TextField from "@mui/material/TextField";
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
 import Button from "@mui/material/Button";
 import AddIcon from '@mui/icons-material/Add';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -28,7 +32,6 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
     const [vessels] = useAtom(vesselsAtom);
     const [copiedFlightPlan] = useAtom(copiedFlightPlanAtom);
 
-    const vesselIdAtom = useRef(atom(-1)).current;
     const orbitAtom = useRef(atom({
         semiMajorAxis:      vesselPlans[idx].orbit.semiMajorAxis,
         eccentricity:       vesselPlans[idx].orbit.eccentricity,
@@ -40,11 +43,11 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
         orbiting:           vesselPlans[idx].orbit.orbiting,
     } as OrbitalElements)).current;
 
-    const [plan, setPlan] = useState({name: vesselPlans[idx].name, orbit: vesselPlans[idx].orbit, maneuvers: vesselPlans[idx].maneuvers} as IVessel);
+    const [plan, setPlan] = useState(vesselPlans[idx] as IVessel);
     const [color, setColor] = useState(plan.color ? new Color(plan.color).toString() : 'rgb(200,200,200)');
 
     const [orbit, setOrbit] = useAtom(orbitAtom);
-    const [vesselId, setVesselId] = useAtom(vesselIdAtom);
+    const [vesselId, setVesselId] = useState(-1);
 
     const orbitRef = useRef(orbit);
     const planRef = useRef(plan);
@@ -61,12 +64,8 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
     }
 
     const setManeuvers = (maneuvers: ManeuverComponents[]) => {
-        const newPlan: IVessel = {
-            name:       plan.name,
-            color:      plan.color,
-            orbit:      plan.orbit,
-            maneuvers:  maneuvers.sort((a,b) => a.date - b.date),
-        }
+        const newPlan = {...plan};
+        newPlan.maneuvers = maneuvers.sort((a,b) => a.date - b.date);
         setPlan(newPlan);
     };
 
@@ -78,33 +77,26 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
 
     const handleColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setColor(event.target.value);
+        const newPlan = {...plan};
         if(event.target.value !== ''){
             const color = new Color(colorFromString(event.target.value));
-            const newPlan: IVessel = {
-                name:       plan.name,
-                color:      color.data,
-                orbit:      plan.orbit,
-                maneuvers:  plan.maneuvers,
-            }
+            newPlan.color = color.data;
             setPlan(newPlan);
         } else {
-            const newPlan: IVessel = {
-                name:       plan.name,
-                color:      undefined,
-                orbit:      plan.orbit,
-                maneuvers:  plan.maneuvers,
-            }
+            newPlan.color = undefined;
             setPlan(newPlan);
         }
     }
 
     const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newPlan: IVessel = {
-            name:       event.target.value,
-            color:      plan.color,
-            orbit:      plan.orbit,
-            maneuvers:  plan.maneuvers,
-        };
+        const newPlan = {...plan};
+        newPlan.name = event.target.value;
+        setPlan(newPlan);
+    };
+
+    const handleTypeChange = (event: any) => {
+        const newPlan = {...plan};
+        newPlan.type = event.target.value as VesselType;
         setPlan(newPlan);
     };
 
@@ -143,11 +135,8 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
             orbitRef.current = orbit;
             wasSetFromOrbit.current = true;
             const orb = orbitFromElementsAndSystem(system, orbit);
-            const newPlan: IVessel = {
-                name:       plan.name,
-                orbit:      orb,
-                maneuvers:  plan.maneuvers,
-            };
+            const newPlan = {...plan};
+            newPlan.orbit = orb;
             setPlan(newPlan);
             setVesselId(-1);
         }
@@ -179,7 +168,26 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
                 sx={{ fullWidth: "true" }} 
                 // @ts-ignore
                 inputProps={{ style: {color: color !== '' ? hexFromColorString(color) : 'primary'} }}
-            />      
+            />    
+            <FormControl>
+                <InputLabel id={"type-select-label-"+String(idx)}>Craft Type</InputLabel>
+                <Select 
+                    labelId={"type-select-label-"+String(idx)}
+                    label='Craft Type'
+                    value={plan.type}
+                    onChange={handleTypeChange}
+                >
+                    <MenuItem value={"Ship"}>{"Ship"}</MenuItem>
+                    <MenuItem value={"Probe"}>{"Probe"}</MenuItem>
+                    <MenuItem value={"Relay"}>{"Relay"}</MenuItem>
+                    <MenuItem value={"Station"}>{"Station"}</MenuItem>
+                    <MenuItem value={"Lander"}>{"Lander"}</MenuItem>
+                    <MenuItem value={"Base"}>{"Base"}</MenuItem>
+                    <MenuItem value={"Rover"}>{"Rover"}</MenuItem>
+                    <MenuItem value={"Debris"}>{"Debris"}</MenuItem>
+                    <MenuItem value={"SpaceObject"}>{"Space Object"}</MenuItem>
+                </Select>
+            </FormControl>  
             <Divider />
             <OrbitControls label={"Starting Orbit"} orbitAtom={orbitAtom} vesselSelect={false} />
             <Divider />

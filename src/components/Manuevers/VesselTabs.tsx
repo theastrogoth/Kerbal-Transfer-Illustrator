@@ -67,11 +67,12 @@ function VesselTabs() {
         setValue(index);
 
         const name = "Vessel #" + String(index+1);
+        const type = "Ship";
         const orbit = defaultOrbit(system);
         const maneuvers = [] as ManeuverComponents[];
 
         const newVesselPlans = [...vesselPlans];
-        newVesselPlans.splice(index, 0, {name, orbit, maneuvers});
+        newVesselPlans.splice(index, 0, {name, type, orbit, maneuvers});
         setVesselPlans(newVesselPlans);
     };
 
