@@ -19,7 +19,9 @@ const escapeTexture = textureLoader.load("https://raw.githubusercontent.com/thea
 const encounterTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/encounter.png");
 const podTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/pod.png");
 const probeTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/probe.png");
-// const relayTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/relay.png");
+const relayTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/relay.png");
+const planeTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/plane.png");
+const evaTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/eva.png");
 const stationTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/station.png");
 const landerTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/lander.png");
 const asteroidTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/asteroid.png");
@@ -219,7 +221,7 @@ function TrajectoryDisplay({trajectory, flightPlan, system, date, plotSize, cent
             } else if(type === "Probe") {
                 setSpriteMap(probeTexture);
             } else if(type === "Relay") {
-                setSpriteMap(probeTexture);
+                setSpriteMap(relayTexture);
             } else if(type === "Station") {
                 setSpriteMap(stationTexture);
             } else if(type === "Base") {
@@ -228,6 +230,10 @@ function TrajectoryDisplay({trajectory, flightPlan, system, date, plotSize, cent
                 setSpriteMap(landerTexture);
             } else if(type === "Rover") {
                 setSpriteMap(roverTexture);
+            } else if(type === "Plane") {
+                setSpriteMap(planeTexture);
+            } else if(type === "Eva") {
+                setSpriteMap(evaTexture);
             } else if(type === "Debris") {
                 setSpriteMap(debrisTexture);
             } else if(type === "SpaceObject") {

@@ -180,12 +180,14 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
                     <MenuItem value={"Ship"}>{"Ship"}</MenuItem>
                     <MenuItem value={"Probe"}>{"Probe"}</MenuItem>
                     <MenuItem value={"Relay"}>{"Relay"}</MenuItem>
-                    <MenuItem value={"Station"}>{"Station"}</MenuItem>
+                    <MenuItem value={"Plane"}>{"Plane"}</MenuItem>
                     <MenuItem value={"Lander"}>{"Lander"}</MenuItem>
+                    <MenuItem value={"Station"}>{"Station"}</MenuItem>
                     <MenuItem value={"Base"}>{"Base"}</MenuItem>
                     <MenuItem value={"Rover"}>{"Rover"}</MenuItem>
                     <MenuItem value={"Debris"}>{"Debris"}</MenuItem>
                     <MenuItem value={"SpaceObject"}>{"Space Object"}</MenuItem>
+                    <MenuItem value={"Eva"}>{"EVA"}</MenuItem>
                 </Select>
             </FormControl>  
             <Divider />
