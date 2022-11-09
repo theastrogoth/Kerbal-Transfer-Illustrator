@@ -78,11 +78,26 @@ interface IPorkchop {
     readonly matchEndMo:                boolean;
 }
 
+type VesselType = "Ship" | "Probe" | "Relay" | "Station" | "Lander" | "Rover" | "Plane" | "Eva" | "Base" | "Flag" | "Debris" | "SpaceObject"
+
 interface IVessel {
     readonly name:          string,
     readonly orbit:         IOrbit,
     readonly maneuvers:     ManeuverComponents[],
     readonly color?:        IColor,
+    readonly type?:         VesselType,
+    readonly commDistance?: number,
+}
+
+type LandedVessel = {
+    readonly name:          string,
+    readonly bodyIndex:     number,
+    readonly latitude:      number,
+    readonly longitude:     number,
+    readonly altitude:      number,
+    readonly color?:        IColor,
+    readonly type?:         VesselType,
+    readonly commDistance?: number,
 }
 
 interface IFlyby {
@@ -337,6 +352,7 @@ type MultiFlybySearchInputs = {
 
 type FlightPlan = {
     readonly name:                      string;
+    readonly type?:                     VesselType;
     readonly color?:                    IColor;
     readonly trajectories:              Trajectory[];
     readonly maneuverContexts?:         string[];

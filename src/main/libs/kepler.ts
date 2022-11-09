@@ -60,6 +60,8 @@ namespace Kepler {
         let equal = orbitalElementsAreEqual(ves1.orbit, ves2.orbit);
         equal = equal && ves1.maneuvers.length === ves2.maneuvers.length;
         equal = equal && ves1.name === ves2.name;
+        equal = equal && ves1.type === ves2.type;
+        equal = equal && ves1.commDistance === ves2.commDistance;
         if(ves1.color !== ves2.color) {
             if(ves1.color !== undefined && ves2.color !== undefined) {
                 equal = equal && colorsAreEqual(ves1.color, ves2.color);

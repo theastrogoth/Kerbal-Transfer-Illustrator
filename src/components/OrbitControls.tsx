@@ -1,4 +1,3 @@
-import SolarSystem from "../main/objects/system";
 import Kepler from "../main/libs/kepler";
 
 import RequiredNumberField from "./NumberField";
@@ -6,10 +5,6 @@ import VesselSelect from "./VesselSelect";
 import PasteButton from "./PasteButton";
 
 import React, {useEffect, useState, useRef } from "react";
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
 import Button from '@mui/material/Button';
 import Stack from "@mui/material/Stack";
 import Collapse from "@mui/material/Collapse";
@@ -24,6 +19,7 @@ import { radToDeg } from "../main/libs/math";
 import { PrimitiveAtom, useAtom } from "jotai";
 import { systemAtom, vesselsAtom, copiedOrbitAtom } from "../App";
 import { Typography } from "@mui/material";
+import BodySelect from "./BodySelect";
 
 
 type OrbitControlsProps = {
@@ -31,15 +27,6 @@ type OrbitControlsProps = {
     orbitAtom:      PrimitiveAtom<OrbitalElements>,
     vesselSelect?:  boolean,
 };
-
-function createBodyItems(system: SolarSystem) {
-    const options =[<MenuItem key={system.sun.id} value={system.sun.id}>{system.sun.name}</MenuItem>];
-    const bds = system.orbiting;
-    for (let i = 0; i < bds.length; i++) {
-        options.push(<MenuItem key={bds[i].id} value={bds[i].id}>{bds[i].name}</MenuItem>)
-    }
-    return options;
-}
 
 function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsProps) {
     const [copiedOrbit] = useAtom(copiedOrbitAtom);
@@ -79,7 +66,6 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
     const [epoch, setEpoch] = useState(String(orbit.epoch));
 
     const [optsVisible, setOptsVisible] = useState(false);
-    const [bodyOptions, setBodyOptions] = useState(createBodyItems(system));
 
     function setFields(newOrbit: OrbitalElements, newAlt: number | undefined = undefined) {
         setSma(String(newOrbit.semiMajorAxis));
@@ -111,7 +97,6 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
         // detect a system change, and reset the orbit to the default for the new body
         if(system !== systemRef.current) {
             systemRef.current = system;
-            setBodyOptions(createBodyItems(system))
             if(!system.orbiterIds.has(bodyId)) {
                 const newBodyId = Math.max(...[...system.orbiterIds.keys()])
                 setBodyId(newBodyId);
@@ -195,19 +180,12 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
                                 setVesselId(Number(event.target.value))
                             }} />
                 }
-                <FormControl>
-                    <InputLabel id={"body-select-label-"+label}>Body</InputLabel>
-                    <Select
-                        labelId={"body-select-label-"+label}
-                        label='Body'
-                        id={'body-'+label}
-                        value={bodyId}
-                        onChange={(e) => setBodyId(Number(e.target.value))}
-                        error={isNaN(bodyId) || bodyOptions.find(opt => Number(opt.key) === bodyId) === undefined}
-                    >
-                        {bodyOptions}
-                    </Select>
-                </FormControl>
+                <BodySelect 
+                    label={label}
+                    bodyId={bodyId}
+                    setBodyId={setBodyId}
+                    system={system}
+                />
                 <RequiredNumberField
                     label='Altitude (m)'
                     value={alt}

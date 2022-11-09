@@ -27,8 +27,6 @@ import loadSystemData, { loadSystemFromConfigs } from './main/utilities/loadSyst
 import { defaultManeuverComponents, defaultOrbit, makeDateFields } from './utils';
 import { bodyConfigsToTree, bodyToConfig, sunToConfig } from './main/utilities/loadPlanetConfig';
 
-
-
 import { PrimitiveAtom, atom, useAtom } from 'jotai';
 
 // prepare popular systems
@@ -92,6 +90,7 @@ export const systemAtom = atom<SolarSystem>(
   }
 );
 export const vesselsAtom = atom([] as Vessel[]);
+export const landedVesselsAtom = atom([] as LandedVessel[]);
 export const timeSettingsAtom = atom(kspTimeSettings);
 
 export const copiedOrbitAtom = atom(defaultOrbit(kspSystem) as IOrbit);
@@ -167,7 +166,7 @@ export const multiFlybyControlsOptionsAtom = atom({
 
 // flight planner state (atoms)
 // export const vesselPlansAtom = atom([{name: "Vessel #1", orbit: defaultOrbit(kspSystem), maneuvers: [{prograde: 0, normal: 0, radial: 0, date: 0}]}] as IVessel[]);
-export const vesselPlansAtom = atom([] as IVessel[]);
+export const vesselPlansAtom = atom([] as (IVessel)[]);
 export const flightPlansAtom = atom([] as FlightPlan[]);
 
 // system editor (atoms)

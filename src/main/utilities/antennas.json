@@ -1,0 +1,18 @@
+{
+    "names":[
+        "RelayAntenna50", 
+        "RelayAntenna100",
+        "SurfAntenna",
+        "longAntenna",
+        "HighGainAntenna5",
+        "mediumDishAntenna"
+    ],
+    "distances":[
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ]
+}

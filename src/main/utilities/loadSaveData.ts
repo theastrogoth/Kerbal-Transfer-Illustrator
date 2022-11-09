@@ -2,9 +2,37 @@ import Kepler from "../libs/kepler";
 import Vessel from "../objects/vessel";
 import { degToRad } from "../libs/math";
 import parseConfigNodes from "./parseConfigNodes";
+import antennas from "./antennas.json";
 
-function vesselDataToVessel(vesselObject: any, system: ISolarSystem): IVessel {
+const antennaNames = antennas.names;
+const antennaDistances = antennas.distances;
+
+function dataToCommDistance(vesselObject: any): number {
+    let commDistance = 0;
+    if(vesselObject.PART !== undefined) {
+        if(Array.isArray(vesselObject.PART)) {
+            for(let i=0; i<vesselObject.PART.length; i++) {
+                const nameIdx = antennaNames.findIndex(name => name === vesselObject.PART[i].name);
+                if(nameIdx !== -1) {
+                    commDistance += antennaDistances[nameIdx];
+                }
+            } 
+        } else {
+            const nameIdx = antennaNames.findIndex(name => name === vesselObject.PART.name);
+            if(nameIdx !== -1) {
+                commDistance += antennaDistances[nameIdx];
+            }
+        }
+    }
+    return commDistance;
+}
+
+function dataToVessel(vesselObject: any, system: ISolarSystem): IVessel {
+    // name
     const name  = vesselObject.name;
+
+    // type (for sprite icon/display toggle)
+    const type = vesselObject.type as VesselType;
 
     // orbit
     const sma   = parseFloat(vesselObject.ORBIT.SMA);
@@ -57,34 +85,53 @@ function vesselDataToVessel(vesselObject: any, system: ISolarSystem): IVessel {
         }
     }
 
-    const vessel: IVessel = {name, orbit, maneuvers};
+    // comm distance
+    const commDistance = dataToCommDistance(vesselObject);
+
+    const vessel: IVessel = {name, type, orbit, maneuvers, commDistance};
     return vessel;
 }
 
-function saveDataToVessels(saveData: any, system: ISolarSystem): Vessel[] {
+function dataToLandedVessel(vesselObject: any): LandedVessel {
+    const name  = vesselObject.name;
+    const type = vesselObject.type as VesselType;
+    const bodyIndex = parseInt(vesselObject.ORBIT.REF);
+    const latitude = parseFloat(vesselObject.lat);
+    const longitude = parseFloat(vesselObject.lon);
+    const altitude = parseFloat(vesselObject.alt) + parseFloat(vesselObject.hgt);
+    return {name, type, bodyIndex, latitude, longitude, altitude}
+}
+
+function saveDataToVessels(saveData: any, system: ISolarSystem): {vessels: Vessel[], landedVessels: LandedVessel[]} {
     const vesselObjects = saveData.GAME.FLIGHTSTATE.VESSEL;
-    if(vesselObjects === undefined) {
-        return [];
-    }
     const vessels: Vessel[] = [];
+    const landedVessels: LandedVessel[] = [];
+    if(vesselObjects === undefined) {
+        return {vessels, landedVessels};
+    }
     if(Array.isArray(vesselObjects)) {
         for(let i=0; i<vesselObjects.length; i++) {
             if(vesselObjects[i].landed === "False" && vesselObjects[i].splashed === "False") {
-                vessels.push(new Vessel(vesselDataToVessel(vesselObjects[i], system), system));
+                vessels.push(new Vessel(dataToVessel(vesselObjects[i], system), system));
+            } else {
+                landedVessels.push(dataToLandedVessel(vesselObjects[i]))
             }
         }
     } else {
         if(vesselObjects.landed === "False" && vesselObjects.splashed === "False") {
-            vessels.push(new Vessel(vesselDataToVessel(vesselObjects, system), system));
+            vessels.push(new Vessel(dataToVessel(vesselObjects, system), system));
+        } else {
+            landedVessels.push(dataToLandedVessel(vesselObjects))
         }
     }
-    return vessels;
+    return {vessels, landedVessels};
 }
 
-function saveFileToVessels(saveFile: string, system: ISolarSystem): Vessel[] {
+function saveFileToVessels(saveFile: string, system: ISolarSystem): {vessels: Vessel[], landedVessels: LandedVessel[]} {
     const saveData = parseConfigNodes(saveFile);
-    const vessels = saveDataToVessels(saveData, system);
-    return vessels;
+    const {vessels, landedVessels} = saveDataToVessels(saveData, system);
+    console.log(landedVessels)
+    return {vessels, landedVessels};
 }
 
 export default saveFileToVessels

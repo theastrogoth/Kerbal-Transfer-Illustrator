@@ -4,16 +4,19 @@ import saveFileToVessels from "../main/utilities/loadSaveData";
 import UploadFileOutlined from "@mui/icons-material/UploadFileOutlined";
 
 import { useAtom } from "jotai";
-import { systemAtom, vesselsAtom } from "../App";
+import { systemAtom, vesselsAtom, landedVesselsAtom } from "../App";
 
 function SaveFileUploadButton() {
   const [, setVessels] = useAtom(vesselsAtom);
+  const [, setLandedVessels] = useAtom(landedVesselsAtom);
   const [system] = useAtom(systemAtom);
 
   const handleFile = (e: any) => {
     const content = e.target.result;
-    setVessels(saveFileToVessels(content, system));
-    console.log("...Orbits loaded from save data.")
+    const {vessels, landedVessels} = saveFileToVessels(content, system);
+    setVessels(vessels);
+    setLandedVessels(landedVessels);
+    console.log("...Vessels loaded from save data.")
   }
   
   const handleChangeFile = (file: any) => {
