@@ -86,7 +86,7 @@ interface IVessel {
     readonly maneuvers:     ManeuverComponents[],
     readonly color?:        IColor,
     readonly type?:         VesselType,
-    readonly commDistance?: number,
+    readonly commRange?:    number,
 }
 
 type LandedVessel = {
@@ -97,7 +97,7 @@ type LandedVessel = {
     readonly altitude:      number,
     readonly color?:        IColor,
     readonly type?:         VesselType,
-    readonly commDistance?: number,
+    readonly commRange?:    number,
 }
 
 interface IFlyby {
@@ -356,6 +356,7 @@ type FlightPlan = {
     readonly color?:                    IColor;
     readonly trajectories:              Trajectory[];
     readonly maneuverContexts?:         string[];
+    readonly commRange?:                number;
 }
 
 // Plotting and Display
@@ -545,6 +546,7 @@ type DisplayOptions = {
     craftOrbits:    boolean,
     craftApses:     boolean,
     craftNodes:     boolean,
+    comms:          boolean,
     referenceLine:  boolean,
     skyBox:         boolean,
 }

@@ -7,7 +7,7 @@ class Vessel implements IVessel {
     readonly maneuvers:     ManeuverComponents[];
     readonly color:         Color;
     readonly type:          VesselType;
-    readonly commDistance:  number;
+    readonly commRange:     number;
 
     constructor(data: IVessel, system: ISolarSystem) {
         this.name = data.name;
@@ -16,7 +16,7 @@ class Vessel implements IVessel {
         this.maneuvers = data.maneuvers ? data.maneuvers : [] as ManeuverComponents[];
         this.color = new Color(data.color || {r: 255, g: 255, b: 255});
         this.type = data.type || "Ship";
-        this.commDistance = data.commDistance || 0;
+        this.commRange = data.commRange || 0;
     }
 }
 

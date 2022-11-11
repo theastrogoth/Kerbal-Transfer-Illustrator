@@ -45,6 +45,7 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
 
     const [plan, setPlan] = useState(vesselPlans[idx] as IVessel);
     const [color, setColor] = useState(plan.color ? new Color(plan.color).toString() : 'rgb(200,200,200)');
+    const [commRange, setCommRange] = useState(String(plan.commRange || 0));
 
     const [orbit, setOrbit] = useAtom(orbitAtom);
     const [vesselId, setVesselId] = useState(-1);
@@ -97,6 +98,13 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
     const handleTypeChange = (event: any) => {
         const newPlan = {...plan};
         newPlan.type = event.target.value as VesselType;
+        setPlan(newPlan);
+    };
+
+    const handleCommChange = (event: any) => {
+        setCommRange(event.target.value);
+        const newPlan = {...plan};
+        newPlan.commRange = Number(event.target.value) || 0;
         setPlan(newPlan);
     };
 
@@ -168,6 +176,15 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
                 sx={{ fullWidth: "true" }} 
                 // @ts-ignore
                 inputProps={{ style: {color: color !== '' ? hexFromColorString(color) : 'primary'} }}
+            />    
+            <TextField
+                id={'comm-'+String(idx)}
+                label='Comms Range (m)'
+                spellCheck={false}
+                value={commRange}
+                onChange={handleCommChange}
+                error={Number.isNaN(Number(commRange)) || (Number(commRange) < 0) }
+                sx={{ fullWidth: "true" }} 
             />    
             <FormControl>
                 <InputLabel id={"type-select-label-"+String(idx)}>Craft Type</InputLabel>

@@ -72,6 +72,7 @@ function DisplayOptions() {
                     <FormControlLabel control={<Checkbox checked={opts.maneuvers} onChange={handleCheckboxChange(setOpts, "maneuvers", opts)}/>} label="Maneuver Nodes" />
                     <FormControlLabel control={<Checkbox checked={opts.soiChanges} onChange={handleCheckboxChange(setOpts, "soiChanges", opts)}/>} label="Escapes/Encounters" />         
                     <FormControlLabel control={<Checkbox checked={opts.craftOrbits} onChange={handleCheckboxChange(setOpts, "craftOrbits", opts)}/>} label="Orbits" />      
+                    <FormControlLabel control={<Checkbox checked={opts.comms} onChange={handleCheckboxChange(setOpts, "comms", opts)}/>} label="CommNet" />
                     <FormControlLabel control={<Checkbox checked={opts.craftApses} onChange={handleCheckboxChange(setOpts, "craftApses", opts)}/>} label="Apoapsis/Periapsis" />      
                     <FormControlLabel control={<Checkbox checked={opts.craftNodes} onChange={handleCheckboxChange(setOpts, "craftNodes", opts)}/>} label="Ascending/Descending Nodes" />      
                     <br/>

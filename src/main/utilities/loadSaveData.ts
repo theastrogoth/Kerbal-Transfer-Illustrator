@@ -4,27 +4,32 @@ import { degToRad } from "../libs/math";
 import parseConfigNodes from "./parseConfigNodes";
 import antennas from "./antennas.json";
 
-const antennaNames = antennas.names;
-const antennaDistances = antennas.distances;
-
-function dataToCommDistance(vesselObject: any): number {
-    let commDistance = 0;
+function dataToCommRange(vesselObject: any): number {
+    let bestDistance = 0;
+    let sumDistance = 0;
+    let sumCombinability = 0;
     if(vesselObject.PART !== undefined) {
         if(Array.isArray(vesselObject.PART)) {
             for(let i=0; i<vesselObject.PART.length; i++) {
-                const nameIdx = antennaNames.findIndex(name => name === vesselObject.PART[i].name);
+                const nameIdx = antennas.names.findIndex(name => name === vesselObject.PART[i].name);
                 if(nameIdx !== -1) {
-                    commDistance += antennaDistances[nameIdx];
+                    const dist = antennas.distances[nameIdx];
+                    bestDistance = Math.max(dist, bestDistance);
+                    sumDistance += dist;
+                    sumCombinability += dist * antennas.combinabilities[nameIdx];
                 }
             } 
         } else {
-            const nameIdx = antennaNames.findIndex(name => name === vesselObject.PART.name);
+            const nameIdx = antennas.names.findIndex(name => name === (vesselObject.PART.name as string).split(".")[0]);
             if(nameIdx !== -1) {
-                commDistance += antennaDistances[nameIdx];
+                const dist = antennas.distances[nameIdx];
+                bestDistance = Math.max(dist, bestDistance);
+                sumDistance += dist;
+                sumCombinability += dist * antennas.combinabilities[nameIdx];
             }
         }
     }
-    return commDistance;
+    return bestDistance * ((sumDistance / bestDistance) ** (sumCombinability / sumDistance));
 }
 
 function dataToVessel(vesselObject: any, system: ISolarSystem): IVessel {
@@ -86,9 +91,9 @@ function dataToVessel(vesselObject: any, system: ISolarSystem): IVessel {
     }
 
     // comm distance
-    const commDistance = dataToCommDistance(vesselObject);
+    const commRange = dataToCommRange(vesselObject);
 
-    const vessel: IVessel = {name, type, orbit, maneuvers, commDistance};
+    const vessel: IVessel = {name, type, orbit, maneuvers, commRange};
     return vessel;
 }
 

@@ -1,5 +1,6 @@
 import { TWO_PI, HALF_PI, X_DIR, Z_DIR, copysign, acosClamped, wrapAngle, vec3, magSq3, mag3, sub3, div3, mult3, dot3, cross3, zxz, normalize3, add3, colorsAreEqual } from "./math"
 import { newtonRootSolve } from "./optim"
+import SolarSystemUtils from "./systemutils";
 
 namespace Kepler {
     export const gravitySeaLevelConstant = 9.80665;
@@ -61,7 +62,7 @@ namespace Kepler {
         equal = equal && ves1.maneuvers.length === ves2.maneuvers.length;
         equal = equal && ves1.name === ves2.name;
         equal = equal && ves1.type === ves2.type;
-        equal = equal && ves1.commDistance === ves2.commDistance;
+        equal = equal && ves1.commRange === ves2.commRange;
         if(ves1.color !== ves2.color) {
             if(ves1.color !== undefined && ves2.color !== undefined) {
                 equal = equal && colorsAreEqual(ves1.color, ves2.color);
@@ -388,6 +389,35 @@ namespace Kepler {
             semiLatusRectum:        p,
             siderealPeriod:         T,
         }
+    }
+
+    export function orbitPositionFromCentralBody(orbit: IOrbit, system: ISolarSystem, centralBody: ICelestialBody, date: number) {
+        const commonParentId = SolarSystemUtils.commonAttractorId(system,orbit.orbiting, centralBody.id);
+        if(commonParentId !== centralBody.id) {
+            return vec3(0,0,0);
+        }
+        let pos = orbitToPositionAtDate(orbit, date);
+        let bd = SolarSystemUtils.bodyFromId(system, orbit.orbiting);
+        while(bd.id !== centralBody.id) {
+            if(bd.hasOwnProperty("orbiting")) {
+                pos = add3(pos, orbitToPositionAtDate((bd as IOrbitingBody).orbit, date));
+                bd = SolarSystemUtils.bodyFromId(system, (bd as IOrbitingBody).orbiting);
+            } else {
+                return vec3(0,0,0);
+            }
+        } 
+        return pos;
+    }
+
+    export function vectorDistanceForOrbits(orb1: IOrbit, orb2: IOrbit, date: number, system: ISolarSystem): Vector3 {
+        const commonParent = SolarSystemUtils.bodyFromId(system, SolarSystemUtils.commonAttractorId(system, orb1.orbiting, orb2.orbiting));
+        const pos1 = orbitPositionFromCentralBody(orb1, system, commonParent, date);
+        const pos2 = orbitPositionFromCentralBody(orb2, system, commonParent, date);
+        return sub3(pos2, pos1);
+    }
+
+    export function distanceForOrbits(orb1: IOrbit, orb2: IOrbit, date: number, system: ISolarSystem): number {
+        return mag3(vectorDistanceForOrbits(orb1, orb2, date, system));   
     }
 
     export function inputsToOrbitingBody(inputs: OrbitingBodyInputs, attractor: ICelestialBody): IOrbitingBody {
