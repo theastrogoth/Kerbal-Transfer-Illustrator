@@ -4,7 +4,7 @@ import OrbitLine from './OrbitLine';
 import TrajectoryDisplay from './TrajectoryDisplay';
 
 import SolarSystem from '../../main/objects/system';
-import CelestialBody from '../../main/objects/body';
+import CelestialBody, { OrbitingBody } from '../../main/objects/body';
 
 import Kepler from '../../main/libs/kepler';
 import { vec3, add3 } from '../../main/libs/math';
@@ -12,7 +12,23 @@ import { vec3, add3 } from '../../main/libs/math';
 import { PrimitiveAtom, useAtom } from 'jotai';
 import { displayOptionsAtom } from '../../App';
 
-type SystemDisplayProps = {centralBody: CelestialBody,
+type OrbiterDisplayProps = {
+    body:           OrbitingBody,
+    index:          number,
+    tabValue:       number,
+    system:         SolarSystem,
+    plotSize:       number,
+    date:           number,
+    depth:          number,
+    centeredAt:     Vector3,
+    flightPlans:    FlightPlan[],
+    infoItemAtom:   PrimitiveAtom<InfoItem>,
+    displayOptions: DisplayOptions,
+    setTarget:      React.Dispatch<React.SetStateAction<TargetObject>>,
+}
+
+type SystemDisplayProps = {
+    centralBody:    CelestialBody,
     index:          number,
     tabValue:       number,
     system:         SolarSystem,
@@ -63,6 +79,41 @@ function getTrajectoryIcons(trajectory: Trajectory, index: number, flightPlan: F
     return {maneuver, soi};
 }
 
+function OrbiterDisplay({index, tabValue, body, system, plotSize, date, depth, centeredAt, flightPlans, infoItemAtom, displayOptions, setTarget}: OrbiterDisplayProps) {
+    const position = add3(Kepler.orbitToPositionAtDate(body.orbit, date), centeredAt);
+    return (<> 
+        <OrbitLine 
+            orbit={body.orbit}
+            date={date}
+            plotSize={plotSize}
+            centeredAt={centeredAt}
+            depth={depth}
+            name={body.name}
+            color={body.color}
+            infoItemAtom={infoItemAtom}
+            displayOptions={{
+                orbits: displayOptions.bodyOrbits,
+                apses:  displayOptions.bodyApses,
+                nodes:  displayOptions.bodyNodes,
+            }}
+        />
+        <SystemDisplay 
+            index={index}
+            tabValue={tabValue}
+            centralBody={body}
+            system={system}
+            plotSize={plotSize}
+            date={date}
+            isSun={false}
+            depth={depth+1}
+            centeredAt={position}
+            flightPlans={flightPlans}
+            infoItemAtom={infoItemAtom}
+            setTarget={setTarget}
+        />    
+    </>);
+}
+
 function SystemDisplay({index, tabValue, centralBody, system, plotSize, date, isSun = true, depth = 0, centeredAt = vec3(0,0,0), flightPlans = [], infoItemAtom, setTarget}: SystemDisplayProps) {
     const [displayOptions] = useAtom(displayOptionsAtom);
     
@@ -83,44 +134,27 @@ function SystemDisplay({index, tabValue, centralBody, system, plotSize, date, is
                 infoItemAtom={infoItemAtom}
                 setTarget={setTarget}
             />
-            {centralBody.orbiters.map((orbiter, index) => {
-                const orbiterPosition = add3(Kepler.orbitToPositionAtDate(orbiter.orbit, date), centeredAt)
-                return <>
-                    <OrbitLine 
-                        key={centralBody.name + 'orbit' + String(index)}
-                        orbit={orbiter.orbit}
-                        date={date}
-                        plotSize={plotSize}
-                        centeredAt={centeredAt}
-                        depth={depth}
-                        name={orbiter.name}
-                        color={orbiter.color}
-                        infoItemAtom={infoItemAtom}
-                        displayOptions={{
-                            orbits: displayOptions.bodyOrbits,
-                            apses:  displayOptions.bodyApses,
-                            nodes:  displayOptions.bodyNodes,
-                        }}
-                    />
-                    <SystemDisplay key={orbiter.name + 'system'}
-                        index={index}
-                        tabValue={tabValue}
-                        centralBody={orbiter}
-                        system={system}
-                        plotSize={plotSize}
-                        date={date}
-                        isSun={false}
-                        depth={depth+1}
-                        centeredAt={orbiterPosition}
-                        flightPlans={flightPlans}
-                        infoItemAtom={infoItemAtom}
-                        setTarget={setTarget}
-                    />    
-                </>
+            {centralBody.orbiters.map((body, index) => {
+                return <OrbiterDisplay 
+                    key={body.name}
+                    index={index}
+                    tabValue={tabValue}
+                    body={body}
+                    system={system}
+                    plotSize={plotSize}
+                    date={date}
+                    depth={depth}
+                    centeredAt={centeredAt}
+                    flightPlans={flightPlans}
+                    infoItemAtom={infoItemAtom}
+                    displayOptions={displayOptions}
+                    setTarget={setTarget}
+                />
             })}
             {bodyFlightPlans.map((trajectories, fpindex) => 
                 trajectories.map((trajectory, tindex) => 
-                    <TrajectoryDisplay key={centralBody.name + String(fpindex) + String(tindex)}
+                    <TrajectoryDisplay 
+                        key={centralBody.name + String(index) + String(fpindex) + String(tindex)}
                         index={index}
                         tabValue={tabValue}
                         trajectory={trajectory.trajectory}

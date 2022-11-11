@@ -51,6 +51,7 @@ function ParentBodies({centralBody, system, date, plotSize, infoItemAtom}: {cent
     <>
         { parentBodies.map((bd, i) =>
             <BodySphere 
+                key={bd.name}
                 body={bd} 
                 system={system} 
                 date={date} 

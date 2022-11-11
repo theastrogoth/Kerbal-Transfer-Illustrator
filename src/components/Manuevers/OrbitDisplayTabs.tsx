@@ -28,15 +28,23 @@ function bodyPlotProps(centralBody: CelestialBody, idx: number, flightPlans: Fli
 }
 
 export function prepareAllDisplayProps(flightPlans: FlightPlan[], system: SolarSystem): OrbitDisplayProps[] {
+    let minStartDate = 0;
     const bodies = new Map<number, {body: CelestialBody, startDate: number, endDate: number}>();
     for(let i=0; i<flightPlans.length; i++) {
         const fp = flightPlans[i];
         for(let j=0; j<fp.trajectories.length; j++) {
             let startDate = fp.trajectories[j].intersectTimes[0];
             startDate = Number.isFinite(startDate) && !isNaN(startDate) ? startDate : fp.trajectories[j].intersectTimes[1];
-            let endDate = fp.trajectories[j].intersectTimes[fp.trajectories[j].intersectTimes.length - 1];
-            endDate = Number.isFinite(endDate) && !isNaN(endDate) ? endDate : fp.trajectories[j].intersectTimes[fp.trajectories[j].intersectTimes.length - 2];
+            if ( (i + j) === 0) {
+                minStartDate = startDate;
+            } else {
+                minStartDate = Math.min(startDate, minStartDate);
+            }
+            // let endDate = fp.trajectories[j].intersectTimes[fp.trajectories[j].intersectTimes.length - 1];
+            // endDate = Number.isFinite(endDate) && !isNaN(endDate) ? endDate : fp.trajectories[j].intersectTimes[fp.trajectories[j].intersectTimes.length - 2];
+            const endDate = startDate + 1;
             const bodyIdx = fp.trajectories[j].orbits[0].orbiting;
+            if (bodyIdx === 0) { continue }
             if(bodies.has(bodyIdx)) {
                 const bd = bodies.get(bodyIdx) as {body: CelestialBody, startDate: number, endDate: number};
                 bd.startDate = Math.min(startDate, bd.startDate);
@@ -47,7 +55,9 @@ export function prepareAllDisplayProps(flightPlans: FlightPlan[], system: SolarS
             }
         }
     }
-    const bodyIdxs = [...bodies.keys()]
+    const bodyIdxs = [0, ...bodies.keys()]
+    bodies.set(0, { body: system.sun, startDate: minStartDate, endDate: minStartDate + 1 });
+
     return bodyIdxs.map((idx, i) => {
         const {body, startDate, endDate} = bodies.get(idx) as {body: CelestialBody, startDate: number, endDate: number};
         return bodyPlotProps(body, i, flightPlans, system, startDate, endDate);

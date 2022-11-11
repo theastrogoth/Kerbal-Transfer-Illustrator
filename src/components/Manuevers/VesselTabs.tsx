@@ -7,6 +7,11 @@ import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import Button from "@mui/material/Button";
 import AddIcon from '@mui/icons-material/Add';
+import ClearIcon from '@mui/icons-material/Clear';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
 
 import VesselControls from "./VesselControls";
 import SystemSelect from "../SystemSelect";
@@ -14,7 +19,12 @@ import TimeSettingsControls from "../TimeSettingsControls";
 import { defaultOrbit } from "../../utils";
 
 import { useAtom } from "jotai";
-import { systemAtom, vesselPlansAtom } from "../../App";
+import { systemAtom, vesselPlansAtom, vesselsAtom } from "../../App";
+
+function createPlanItems(vesselPlans: IVessel[]) {
+    const options = vesselPlans.map((p,i) => <MenuItem key={i} value={i}>{p.name}</MenuItem> )
+    return options;
+}
 
 const VesselTabPanel = React.memo(function WrappedVesselTabPanel({value, index, tabValues, setTabValues, setValue}: {value: number, index: number, tabValues: number[], setTabValues: React.Dispatch<React.SetStateAction<number[]>>, setValue: React.Dispatch<React.SetStateAction<number>>}) {
     useEffect(() => {
@@ -34,9 +44,11 @@ const VesselTabPanel = React.memo(function WrappedVesselTabPanel({value, index, 
 function VesselTabs() {
     const [system] = useAtom(systemAtom);
     const [vesselPlans, setVesselPlans] = useAtom(vesselPlansAtom);
+    const [vessels] = useAtom(vesselsAtom);
 
     const [value, setValue] = useState(0);
     const [tabValues, setTabValues] = useState([] as number[]);
+    const [planOpts, setPlanOpts] = useState(createPlanItems(vesselPlans));
     
     useEffect(() => {
         if(value < 0) {
@@ -45,6 +57,7 @@ function VesselTabs() {
         if(value > vesselPlans.length) {
             setValue(vesselPlans.length - 1);
         }
+        setPlanOpts(createPlanItems(vesselPlans));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [vesselPlans])
 
@@ -76,6 +89,33 @@ function VesselTabs() {
         setVesselPlans(newVesselPlans);
     };
 
+    const handleClear = () => {
+        const newVesselPlans: IVessel[] = [];
+        setValue(0);
+        setVesselPlans(newVesselPlans);
+    }
+
+    const handleAddSavedVessels = () => {
+        const newVesselPlans = vessels.filter( x => x.type !== "SpaceObject" && x.type !== "Debris");
+        setValue(0);
+        setVesselPlans(newVesselPlans);
+        
+    }
+
+    const handleAddSavedRelays = () => {
+        const newVesselPlans = vessels.filter( x => x.type === "Relay");
+        setValue(0);
+        setVesselPlans(newVesselPlans);
+        
+    }
+
+    const handleAddSavedObjects = () => {
+        const newVesselPlans = vessels.filter( x => x.type === "SpaceObject");
+        setValue(0);
+        setVesselPlans(newVesselPlans);
+        
+    }
+
     return (
         <Stack alignItems='center' >
             <Stack spacing={1} sx={{ width: '90%', maxWidth: 600, my: 2, mx: 2 }} >
@@ -91,12 +131,53 @@ function VesselTabs() {
                         onClick={handleAddVessel}
                         startIcon={<AddIcon />}
                     >
-                        Add Flight Plan
+                        Add New Flight Plan
+                    </Button>
+                    <Button 
+                        onClick={handleClear}
+                        startIcon={<ClearIcon />}
+                    >
+                        Clear All Flight Plans
                     </Button>
                     {/* <Button sx={{border: "1px solid"}} onClick={handleRemoveVessel(vesselPlans, setVesselPlans, value, setValue, tabValues, setTabValues)}>
                         <RemoveIcon />
                     </Button> */}
                 </Stack>
+                { vessels.length > 0 &&
+                    <Stack direction="row" spacing={2} textAlign="center" justifyContent="center">
+                        <Button
+                            onClick={handleAddSavedVessels}
+                            startIcon={<AddIcon />}
+                        >
+                            Load All Crafts
+                        </Button>
+                        <Button
+                            onClick={handleAddSavedRelays}
+                            startIcon={<AddIcon />}
+                        >
+                            Load All Relays
+                        </Button>
+                        <Button
+                            onClick={handleAddSavedObjects}
+                            startIcon={<AddIcon />}
+                        >
+                            Load All Space Objects
+                        </Button>
+                    </Stack>
+                    }
+                <FormControl sx={{ minWidth: 120 }}>
+                    <InputLabel id={"plan-select-label"}>Jump to Flight Plan</InputLabel>
+                    <Select
+                        labelId={"plan-select-label"}
+                        label='Jump to Flight Plan'
+                        id={'plan-select'}
+                        value={planOpts.length > 0 ? value : ''}
+                        onChange={(event) => setValue(Number(event.target.value))}
+                    >
+                        {planOpts}
+                    </Select>
+                </FormControl>
+                <Divider />
                 <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons={true}>
                     {vesselPlans.map((f, index) => <Tab key={index} value={index} label={f.name} ></Tab>)}
                 </Tabs>

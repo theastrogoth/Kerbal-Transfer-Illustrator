@@ -138,6 +138,7 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
             newVesselPlans[idx] = plan;
             setVesselPlans(newVesselPlans);
             setOrbit(plan.orbit);
+            setCommRange(String(plan.commRange || 0));
             orbitRef.current = plan.orbit;
         } else if(!Kepler.orbitalElementsAreEqual(orbit, orbitRef.current)) {
             orbitRef.current = orbit;
