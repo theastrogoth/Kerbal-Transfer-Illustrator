@@ -119,7 +119,7 @@ export const displayOptionsAtom = atom<DisplayOptions>({
   craftOrbits:    true,
   craftApses:     false,
   craftNodes:     false,
-  comms:          false,
+  comms:          true,
   referenceLine:  false,
   skyBox:         false,
 });
