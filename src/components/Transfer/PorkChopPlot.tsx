@@ -22,7 +22,7 @@ function PorkchopPlot({plotCount, setCalculating}: PorkchopPlotProps) {
     const [plotData, setPlotData] = useAtom(porkchopPlotDataAtom);
     const [, setTransfer] = useAtom(transferAtom);
     const [, setUnrefinedTransfer] = useAtom(unrefinedTransferAtom);
-
+    
     useEffect(() => {
         porkchopWorker.onmessage = (event: MessageEvent<PorkchopPlotData>) => {
             if (event && event.data) {
@@ -32,6 +32,7 @@ function PorkchopPlot({plotCount, setCalculating}: PorkchopPlotProps) {
                 setTransfer(newTransfer)
                 setUnrefinedTransfer(newTransfer)
                 setCalculating(false);
+                // setRevision(prev => prev + 1);
             }
         }
         // Hide warning for missing setters
@@ -49,6 +50,7 @@ function PorkchopPlot({plotCount, setCalculating}: PorkchopPlotProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inputs]);
 
+    console.log(plotData.startDays[0], plotData.startDays[plotData.startDays.length-1], plotData.flightDays[0], plotData.flightDays[plotData.flightDays.length-1])
     return (
         inputs.nTimes === 0 ?
         <Box component="div" width="100%" height="450px" justifyContent="center" textAlign="center" display="flex" flexDirection={"column"}>
@@ -105,6 +107,7 @@ function PorkchopPlot({plotCount, setCalculating}: PorkchopPlotProps) {
                         paper_bgcolor:  'rgba(0,0,0,0)',
                         plot_bgcolor:   'rgba(0,0,0,0)',
                         xaxis: {
+                            range:          [plotData.startDays[0], plotData.startDays[plotData.startDays.length-1]],
                             showspikes:     true,
                             spikemode:      'across',
                             spikecolor:     "rgb(200, 200, 200)",
@@ -114,6 +117,7 @@ function PorkchopPlot({plotCount, setCalculating}: PorkchopPlotProps) {
                             title:          "Departure Day #"
                         },
                         yaxis: {
+                            range:          [plotData.flightDays[0], plotData.flightDays[plotData.flightDays.length-1]],
                             showspikes:     true,
                             spikemode:      'across',
                             spikecolor:     "rgb(200, 200, 200)",

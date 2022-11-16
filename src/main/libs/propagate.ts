@@ -204,6 +204,7 @@ export function vesselToFlightPlan(vessel: IVessel, system: ISolarSystem, startD
         type:           vessel.type,
         color:          vessel.color || {r: 255, g: 255, b: 255},
         trajectories:   propagateVessel(vessel, system, startDate, nRevs),
+        commRange:      vessel.commRange,
     }
     return fp;
 }

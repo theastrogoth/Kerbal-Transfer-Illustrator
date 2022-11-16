@@ -10,7 +10,7 @@ import SkyBox from './SkyBox';
 import CelestialBody, { OrbitingBody } from '../../main/objects/body';
 import SolarSystem from '../../main/objects/system';
 
-import { vec3, div3, add3 } from '../../main/libs/math';
+import { vec3, div3 } from '../../main/libs/math';
 import Kepler from '../../main/libs/kepler';
 import Trajectories from '../../main/libs/trajectories';
 import ReferenceLine from './ReferenceLine';
@@ -18,6 +18,7 @@ import ReferenceLine from './ReferenceLine';
 import { PrimitiveAtom, useAtom } from 'jotai';
 import { displayOptionsAtom } from '../../App';
 import ParentBodies from './ParentBodies';
+import CommLines from './CommLines';
 
 export type OrbitPlotProps = {
     index:              number,
@@ -37,24 +38,6 @@ function getPlotSize(centralBody: CelestialBody) {
             centralBody.soi as number);
 }
 
-function getOrbitPosition(orbit: IOrbit, system: SolarSystem, centralBody: ICelestialBody, date: number) {
-    const commonParentId = system.commonAttractorId(orbit.orbiting, centralBody.id);
-    if(commonParentId !== centralBody.id) {
-        return vec3(0,0,0);
-    }
-    let pos = Kepler.orbitToPositionAtDate(orbit, date);
-    let bd = system.bodyFromId(orbit.orbiting);
-    while(bd.id !== centralBody.id) {
-        if(bd.hasOwnProperty("orbiting")) {
-            pos = add3(pos, Kepler.orbitToPositionAtDate((bd as unknown as IOrbitingBody).orbit, date));
-            bd = system.bodyFromId((bd as unknown as IOrbitingBody).orbiting);
-        } else {
-            return vec3(0,0,0);
-        }
-    } 
-    return pos;
-}
-
 function getTargetPosition(target: ICelestialBody | IOrbitingBody | IVessel | IOrbit | FlightPlan, system: SolarSystem, centralBody: ICelestialBody, date: number) {
     let orbit: IOrbit | null = null;
     if (target.hasOwnProperty('eccentricity')) {
@@ -64,7 +47,7 @@ function getTargetPosition(target: ICelestialBody | IOrbitingBody | IVessel | IO
     } else if(target.hasOwnProperty('trajectories')) {
         orbit = Trajectories.currentOrbitForFlightPlan((target as FlightPlan), date);
     }
-    return orbit === null ? vec3(0,0,0) : getOrbitPosition(orbit, system, centralBody, date);
+    return orbit === null ? vec3(0,0,0) : Kepler.orbitPositionFromCentralBody(orbit, system, centralBody, date);
 }
 
 function OrbitPlot({index, tabValue, centralBody, system, date, flightPlans=[], infoItemAtom}: OrbitPlotProps) {
@@ -115,6 +98,13 @@ function OrbitPlot({index, tabValue, centralBody, system, date, flightPlans=[], 
                 plotSize={plotSize}
                 infoItemAtom={infoItemAtom}
             /> 
+            <CommLines
+                flightPlans={flightPlans}
+                centralBody={centralBody}
+                system={system}
+                date={date}
+                plotSize={plotSize}
+            />
             <ambientLight key={'ambient'} intensity={0.1} />
             <ReferenceLine />
             <OrbitControls enablePan={false} rotateSpeed={0.5} zoomSpeed={1} target={targetPosition.current} />

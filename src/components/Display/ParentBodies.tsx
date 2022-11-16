@@ -10,7 +10,7 @@ import { PrimitiveAtom } from 'jotai';
 // import { useShadowHelper } from '../../utils';
 
 
-function getParentPositions(parentBodies: CelestialBody[], system: SolarSystem, date: number) {
+function getParentPositions(parentBodies: CelestialBody[], date: number) {
     const positions: Vector3[] = [];
     for(let i=0; i<parentBodies.length-1; i++) {
         positions.push(Kepler.orbitToPositionAtDate((parentBodies[i] as OrbitingBody).orbit, date))
@@ -30,7 +30,7 @@ function ParentBodies({centralBody, system, date, plotSize, infoItemAtom}: {cent
     const parentIdxs = system.sequenceToSun(centralBody.id).slice(1);
     const parentBodies = parentIdxs.map(idx => system.bodyFromId(idx));
     const bodyPosition = centralBody.hasOwnProperty("orbit") ? Kepler.orbitToPositionAtDate((centralBody as OrbitingBody).orbit, date) : vec3(0,0,0);
-    const parentPositions = getParentPositions(parentBodies, system, date);
+    const parentPositions = getParentPositions(parentBodies, date);
     const relativePositions = getRelativePositions(bodyPosition, parentPositions);
     const sunPosition = normalize3(relativePositions[relativePositions.length-1]);
     const lightDistance = (parentBodies.length >= 2 ? (centralBody as OrbitingBody).orbit.semiMajorAxis as number : centralBody.furtherstOrbiterDistance || plotSize) * 2 / plotSize;
@@ -51,6 +51,7 @@ function ParentBodies({centralBody, system, date, plotSize, infoItemAtom}: {cent
     <>
         { parentBodies.map((bd, i) =>
             <BodySphere 
+                key={bd.name}
                 body={bd} 
                 system={system} 
                 date={date} 
