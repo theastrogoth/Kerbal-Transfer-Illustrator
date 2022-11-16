@@ -52,31 +52,31 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
             system.bodyFromId(Math.max(...[...system.orbiterIds.keys()]))
     );
 
-    const [sma, setSma] = useState(String(orbit.semiMajorAxis));
+    const [sma, setSma] = useState(orbit.semiMajorAxis);
     const smaRef = useRef(sma);
 
-    const [alt, setAlt] = useState(String(orbit.semiMajorAxis - body.radius));
+    const [alt, setAlt] = useState(orbit.semiMajorAxis - body.radius);
     const altRef = useRef(alt);
 
-    const [ecc, setEcc] = useState(String(orbit.eccentricity));
-    const [inc, setInc] = useState(String(orbit.inclination));
-    const [arg, setArg] = useState(String(orbit.argOfPeriapsis));
-    const [lan, setLan] = useState(String(orbit.ascNodeLongitude));
-    const [moe, setMoe] = useState(String(orbit.meanAnomalyEpoch));
-    const [epoch, setEpoch] = useState(String(orbit.epoch));
+    const [ecc, setEcc] = useState(orbit.eccentricity);
+    const [inc, setInc] = useState(orbit.inclination);
+    const [arg, setArg] = useState(orbit.argOfPeriapsis);
+    const [lan, setLan] = useState(orbit.ascNodeLongitude);
+    const [moe, setMoe] = useState(orbit.meanAnomalyEpoch);
+    const [epoch, setEpoch] = useState(orbit.epoch);
 
     const [optsVisible, setOptsVisible] = useState(false);
 
     function setFields(newOrbit: OrbitalElements, newAlt: number | undefined = undefined) {
-        setSma(String(newOrbit.semiMajorAxis));
-        smaRef.current = String(newOrbit.semiMajorAxis);
+        setSma(newOrbit.semiMajorAxis);
+        smaRef.current = newOrbit.semiMajorAxis;
 
-        setEcc(String(newOrbit.eccentricity));
-        setInc(String(radToDeg(newOrbit.inclination)));
-        setArg(String(radToDeg(newOrbit.argOfPeriapsis)));
-        setLan(String(radToDeg(newOrbit.ascNodeLongitude)));
-        setMoe(String(newOrbit.meanAnomalyEpoch));
-        setEpoch(String(newOrbit.epoch));
+        setEcc(newOrbit.eccentricity);
+        setInc(radToDeg(newOrbit.inclination));
+        setArg(radToDeg(newOrbit.argOfPeriapsis));
+        setLan(radToDeg(newOrbit.ascNodeLongitude));
+        setMoe(newOrbit.meanAnomalyEpoch);
+        setEpoch(newOrbit.epoch);
 
         setBodyId(newOrbit.orbiting);
         bodyIdRef.current = newOrbit.orbiting;
@@ -85,9 +85,9 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
         setBody(newBody);
 
         if(newAlt) {
-            setAlt(String(newAlt));
+            setAlt(newAlt);
         } else {
-            const newAlt = String(newOrbit.semiMajorAxis - newBody.radius)
+            const newAlt = newOrbit.semiMajorAxis - newBody.radius;
             setAlt(newAlt);
             altRef.current = newAlt;
         }
@@ -118,23 +118,23 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
             const newBody = system.bodyFromId(bodyId);
             const orb = defaultOrbit(system, bodyId);
             const newAlt = orb.semiMajorAxis - newBody.radius;
-            altRef.current = String(newAlt);
+            altRef.current = newAlt;
             setFields(orb, newAlt);
         // detect a change in the altitude, and change the SMA to match
         } else if(alt !== altRef.current) {
             altRef.current = alt;
             const newSMA = Number(alt) + body.radius;
-            setSma(String(newSMA));
+            setSma(newSMA);
         // detect a change in the orbital element inputs, and update the orbit to match
         } else {
             const newOrbit = {
-                semiMajorAxis:      Number(sma),
-                eccentricity:       Number(ecc),
-                inclination:        Number(inc),
-                argOfPeriapsis:     Number(arg),
-                ascNodeLongitude:   Number(lan),
-                meanAnomalyEpoch:   Number(moe),
-                epoch:              Number(epoch),
+                semiMajorAxis:      sma,
+                eccentricity:       ecc,
+                inclination:        inc,
+                argOfPeriapsis:     arg,
+                ascNodeLongitude:   lan,
+                meanAnomalyEpoch:   moe,
+                epoch:              epoch,
                 orbiting:           bodyId,
             } as OrbitalElements;
             setOrbit(newOrbit);
@@ -143,8 +143,8 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
             if(sma !== smaRef.current) {
                 smaRef.current = sma;
                 const newSma = Number(sma)
-                if(!isNaN(newSma) && sma !== '' && newSma !== Number(altRef.current)) {
-                    const newAlt = String(newSma - body.radius);
+                if(!isNaN(newSma) && !isNaN(sma) && newSma !== altRef.current) {
+                    const newAlt = newSma - body.radius;
                     if(newAlt !== altRef.current) {
                         setAlt(newAlt);
                         altRef.current = newAlt;
@@ -191,7 +191,6 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
                     value={alt}
                     setValue={setAlt}
                     min={0}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAlt(e.target.value)}
                  />
                 <Collapse in={optsVisible} timeout="auto">
                     <Stack spacing={1.5}>
@@ -199,8 +198,7 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
                             label='Semi-major Axis (m)' 
                             value={sma}
                             setValue={setSma}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSma(e.target.value)}
-                            error = {parseFloat(sma) === 0 || parseFloat(ecc) === 1 || (parseFloat(ecc) < 1 && parseFloat(sma) < 0) || (parseFloat(ecc) > 1 && parseFloat(sma) > 0)}
+                            error = {sma === 0 || ecc === 1 || (ecc < 1 && sma < 0) || (ecc > 1 && sma > 0)}
                         />
                         <RequiredNumberField
                             label='Eccentricity' 
@@ -208,38 +206,32 @@ function OrbitControls({label, orbitAtom, vesselSelect = true}: OrbitControlsPro
                             min={0}
                             step={0.1}
                             setValue={setEcc}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEcc(e.target.value)}
-                            error={parseFloat(ecc) === 1 || (parseFloat(ecc) < 1 && parseFloat(sma) < 0) || (parseFloat(ecc) > 1 && parseFloat(sma) > 0)}
+                            error={ecc === 1 || (ecc < 1 && sma < 0) || (ecc > 1 && sma > 0)}
                          />
                         <RequiredNumberField
                             label={'Inclination (\u00B0)'} 
                             value={inc}
                             setValue={setInc}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInc(e.target.value)}
                          />
                         <RequiredNumberField
                             label={'Argument of the Periapsis (\u00B0)'} 
                             value={arg}
                             setValue={setArg}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setArg(e.target.value)}
                          />
                         <RequiredNumberField
                             label={'Longitude of the Ascending Node (\u00B0)'} 
                             value={lan}
                             setValue={setLan}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLan(e.target.value)}
                          />
                         <RequiredNumberField
                             label='Mean Anomaly at Epoch (rad)' 
                             value={moe}
                             setValue={setMoe}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMoe(e.target.value)}
                          />
                         <RequiredNumberField
                             label='Epoch (s)' 
                             value={epoch}
                             setValue={setEpoch}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEpoch(e.target.value)}
                          />
                     </Stack>
                 </Collapse>

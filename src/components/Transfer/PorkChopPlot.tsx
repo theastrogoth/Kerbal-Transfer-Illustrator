@@ -50,7 +50,6 @@ function PorkchopPlot({plotCount, setCalculating}: PorkchopPlotProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inputs]);
 
-    console.log(plotData.startDays[0], plotData.startDays[plotData.startDays.length-1], plotData.flightDays[0], plotData.flightDays[plotData.flightDays.length-1])
     return (
         inputs.nTimes === 0 ?
         <Box component="div" width="100%" height="450px" justifyContent="center" textAlign="center" display="flex" flexDirection={"column"}>

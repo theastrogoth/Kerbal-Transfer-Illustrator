@@ -10,18 +10,18 @@ const toHHMMSS = (hours: string, minutes: string, seconds: string) => {
 };
 
 type HourMinSecProps = {
-  hour:       string,
-  setHour:    React.Dispatch<React.SetStateAction<string>>,
-  minute:     string,
-  setMinute:  React.Dispatch<React.SetStateAction<string>>,
-  second:     string,
-  setSecond:  React.Dispatch<React.SetStateAction<string>>,
+  hour:       number,
+  setHour:    React.Dispatch<React.SetStateAction<number | undefined>>,
+  minute:     number,
+  setMinute:  React.Dispatch<React.SetStateAction<number | undefined>>,
+  second:     number,
+  setSecond:  React.Dispatch<React.SetStateAction<number | undefined>>,
   error:      boolean,
   disabled?:  boolean,
 }
 
 function HourMinSecField({hour, setHour, minute, setMinute, second, setSecond, error = false, disabled}: HourMinSecProps) {
-  const [value, setValue] = React.useState(toHHMMSS(hour, minute, second));
+  const [value, setValue] = React.useState(toHHMMSS(String(hour), String(minute), String(second)));
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
@@ -34,15 +34,15 @@ function HourMinSecField({hour, setHour, minute, setMinute, second, setSecond, e
     const val = toHHMMSS(str1, str2, str3);
     setValue(val);
 
-    setHour(String(Number(hour)));
-    setMinute(String(Number(minute)));
-    setSecond(String(Number(second)));
+    setHour(Number(str1));
+    setMinute(Number(str2));
+    setSecond(Number(str3));
   };
 
   useEffect(() => {
     const [str1, str2, str3] = value.split(":");
     if(Number(hour) !== Number(str1) || Number(minute) !== Number(str2) || Number(second) !== Number(str3)) {
-      setValue(toHHMMSS(hour, minute, second))
+      setValue(toHHMMSS(String(hour), String(minute), String(second)))
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hour, minute, second])

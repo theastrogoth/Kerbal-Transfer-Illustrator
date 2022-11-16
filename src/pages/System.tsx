@@ -122,8 +122,7 @@ function SolarSystemAppContent() {
                   value={systemScale}
                   setValue={setSystemScale}
                   min={0}
-                  error={Number(systemScale) === 0}
-                  onChange={(e) => setSystemScale(e.target.value)}
+                  error={systemScale <= 0}
                 />
               </Stack>
               <Stack spacing={1.5} sx={{mx: 2, my: 2}} alignItems='center' justifyContent='center'>

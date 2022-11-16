@@ -215,42 +215,42 @@ type OrbitingBodyInputs = {
 }
 
 type SunConfig = {
-    flightGlobalsIndex?:   string;
+    flightGlobalsIndex?:   number;
     name?:                 string;
-    radius?:               string;
-    atmosphereHeight?:     string;
-    geeASL?:               string;
-    mass?:                 string;
-    stdGravParam?:         string;
+    radius?:               number;
+    atmosphereHeight?:     number;
+    geeASL?:               number;
+    mass?:                 number;
+    stdGravParam?:         number;
     color?:                string;
     templateName?:         string;
-    rotationPeriod?:       string;
-    initialRotation?:      string;
+    rotationPeriod?:       number;
+    initialRotation?:      number;
 }
 
 type OrbitingBodyConfig = {
-    flightGlobalsIndex?:   string;
+    flightGlobalsIndex?:   number;
     name?:                 string;
-    radius?:               string;
-    maxTerrainHeight?:     string;
-    atmosphereHeight?:     string;
-    geeASL?:               string;
-    mass?:                 string;
-    stdGravParam?:         string;
-    soi?:                  string;
-    semiMajorAxis?:        string,
-    eccentricity?:         string,
-    inclination?:          string,
-    argOfPeriapsis?:       string,
-    ascNodeLongitude?:     string,
-    meanAnomalyEpoch?:     string,
-    epoch?:                string,
+    radius?:               number;
+    maxTerrainHeight?:     number;
+    atmosphereHeight?:     number;
+    geeASL?:               number;
+    mass?:                 number;
+    stdGravParam?:         number;
+    soi?:                  number;
+    semiMajorAxis?:        number,
+    eccentricity?:         number,
+    inclination?:          number,
+    argOfPeriapsis?:       number,
+    ascNodeLongitude?:     number,
+    meanAnomalyEpoch?:     number,
+    epoch?:                number,
     color?:                string;
     referenceBody?:        string;
     templateName?:         string;
-    tidallyLocked?:        string;
-    rotationPeriod?:       string;
-    initialRotation?:      string;
+    tidallyLocked?:        boolean;
+    rotationPeriod?:       number;
+    initialRotation?:      number;
 }
 
 type FlybyInputs = {

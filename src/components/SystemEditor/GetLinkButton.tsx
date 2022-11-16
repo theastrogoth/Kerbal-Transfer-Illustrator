@@ -31,7 +31,7 @@ const hashOpts = {
     replaceState:   true,
 };
 
-const systemScaleHashAtom = atomWithHash<string | null>("systemScale", null, {replaceState: true});
+const systemScaleHashAtom = atomWithHash<number | null>("systemScale", null, {replaceState: true});
 const bodyConfigsHashAtom = atomWithHash<(SunConfig | OrbitingBodyConfig)[] | null>("bodyConfigs", null, hashOpts);
 
 const userAgent = navigator.userAgent;

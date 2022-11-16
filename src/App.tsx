@@ -181,7 +181,7 @@ export const configTreeAtom = atom<{tree: TreeNode<SunConfig | OrbitingBodyConfi
     return tree;
   }
 );
-export const systemScaleAtom = atom('1');
+export const systemScaleAtom = atom(1);
 
 function AppBody() {
   const [mode, setMode] = useAtom(lightModeAtom);
