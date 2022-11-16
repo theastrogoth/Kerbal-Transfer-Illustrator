@@ -92,12 +92,14 @@ function VesselTabs() {
     const handleClear = () => {
         const newVesselPlans: IVessel[] = [];
         setValue(0);
+        setTabValues([]);
         setVesselPlans(newVesselPlans);
     }
 
     const handleAddSavedVessels = () => {
         const newVesselPlans = vessels.filter( x => x.type !== "SpaceObject" && x.type !== "Debris");
         setValue(0);
+        setTabValues(newVesselPlans.map((p,i) => i));
         setVesselPlans(newVesselPlans);
         
     }
@@ -105,6 +107,7 @@ function VesselTabs() {
     const handleAddSavedRelays = () => {
         const newVesselPlans = vessels.filter( x => x.type === "Relay");
         setValue(0);
+        setTabValues(newVesselPlans.map((p,i) => i));
         setVesselPlans(newVesselPlans);
         
     }
@@ -112,6 +115,7 @@ function VesselTabs() {
     const handleAddSavedObjects = () => {
         const newVesselPlans = vessels.filter( x => x.type === "SpaceObject");
         setValue(0);
+        setTabValues(newVesselPlans.map((p,i) => i));
         setVesselPlans(newVesselPlans);
         
     }
