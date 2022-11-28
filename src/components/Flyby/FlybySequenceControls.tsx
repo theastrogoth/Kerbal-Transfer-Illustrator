@@ -84,11 +84,11 @@ function FlybySequenceControls() {
     const [flightTimesAtoms, setFlightTimesAtoms] = useAtom(multiFlybyFlightTimesAtomsAtom);
     const [DSNperLeg, setDSNperLeg] = useAtom(multiFlybyDSNperLegAtom);
 
-    const [bodyOptions, setBodyOptions] = useState(createBodyItems(system, startOrbit.orbiting, endOrbit.orbiting));
-    const [DSNLabels, setDSNLabels] = useState(getDSNLabels(startOrbit.orbiting, endOrbit.orbiting, flybyIdSequence, system));
+    const [bodyOptions, setBodyOptions] = useState(createBodyItems(system, startOrbit.orbit.orbiting, endOrbit.orbit.orbiting));
+    const [DSNLabels, setDSNLabels] = useState(getDSNLabels(startOrbit.orbit.orbiting, endOrbit.orbit.orbiting, flybyIdSequence, system));
 
     const handleAddFlyby = (event: any): void => {
-        const transferBodyId = system.commonAttractorId(startOrbit.orbiting, endOrbit.orbiting);
+        const transferBodyId = system.commonAttractorId(startOrbit.orbit.orbiting, endOrbit.orbit.orbiting);
         const transferBody = system.bodyFromId(transferBodyId);
         if(transferBody.orbiterIds.length > 0){
             const newFlybyIdSequence = flybyIdSequence.slice();
@@ -125,13 +125,13 @@ function FlybySequenceControls() {
 
     useEffect(() => {
         console.log("trigger update based on new system or start/end body")
-        setBodyOptions(createBodyItems(system, startOrbit.orbiting, endOrbit.orbiting));
-        setDSNLabels(getDSNLabels(startOrbit.orbiting, endOrbit.orbiting, flybyIdSequence, system));
+        setBodyOptions(createBodyItems(system, startOrbit.orbit.orbiting, endOrbit.orbit.orbiting));
+        setDSNLabels(getDSNLabels(startOrbit.orbit.orbiting, endOrbit.orbit.orbiting, flybyIdSequence, system));
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [system, startOrbit.orbiting, endOrbit.orbiting]);   
+    }, [system, startOrbit.orbit.orbiting, endOrbit.orbit.orbiting]);   
 
     useEffect(() => {
-        setDSNLabels(getDSNLabels(startOrbit.orbiting, endOrbit.orbiting, flybyIdSequence, system));
+        setDSNLabels(getDSNLabels(startOrbit.orbit.orbiting, endOrbit.orbit.orbiting, flybyIdSequence, system));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [flybyIdSequence])
 

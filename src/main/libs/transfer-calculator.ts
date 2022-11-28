@@ -375,7 +375,7 @@ class TransferCalculator {
 
     public get soiPatchPositionError() {
         const errors = this.soiPatchPositionErrors;
-        return errors.reduce((p,c) => p + c);
+        return errors.reduce((p,c) => p + c, 0);
     }
 
     /// temporal SoI patch error ///

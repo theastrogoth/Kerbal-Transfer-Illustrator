@@ -34,24 +34,20 @@ export function orbitFromElementsAndSystem(system: SolarSystem, orbit: OrbitalEl
 }
 
 export function isInvalidOrbitInput(orbit: OrbitalElements): boolean {
-    let invalid = false;
     const a = orbit.semiMajorAxis;
     const e = orbit.eccentricity;
-
-    invalid = isNaN(orbit.orbiting) ? true : invalid;
-    invalid = isNaN(a) ? true : invalid;
-    invalid = isNaN(e) ? true : invalid;
-    invalid = isNaN(orbit.inclination) ? true : invalid;
-    invalid = isNaN(orbit.argOfPeriapsis) ? true : invalid;
-    invalid = isNaN(orbit.ascNodeLongitude) ? true : invalid;
-    invalid = isNaN(orbit.meanAnomalyEpoch) ? true : invalid;
-    invalid = isNaN(orbit.epoch) ? true : invalid;
-
-    invalid = e === 1 ? true : invalid;
-    invalid = e < 0 ? true : invalid;
-    invalid = a > 0 && e > 1 ? true : invalid;
-    invalid = a < 0 && e < 1 ? true : invalid;
-    return invalid;
+    return isNaN(orbit.orbiting) ||
+        isNaN(a) ||
+        isNaN(e) ||
+        isNaN(orbit.inclination) ||
+        isNaN(orbit.argOfPeriapsis) ||
+        isNaN(orbit.ascNodeLongitude) ||
+        isNaN(orbit.meanAnomalyEpoch) ||
+        isNaN(orbit.epoch) ||
+        e === 1 ||
+        e < 0 ||
+        (a > 0 && e > 1) ||
+        (a < 0 && e < 1);
 }
 
 export function defaultOrbit(system: SolarSystem, id: number = 1, altitude: number | undefined = undefined): Orbit {
