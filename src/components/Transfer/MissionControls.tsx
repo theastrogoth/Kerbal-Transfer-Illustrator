@@ -11,8 +11,11 @@ import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 
 import { transferStartOrbitAtom, transferEndOrbitAtom, transferControlsOptionsAtom } from "../../App";
+import { useAtom } from "jotai";
 
 function MissionControls() {
+    const [startOrbit, setStartOrbit] = useAtom(transferStartOrbitAtom);
+    const [endOrbit, setEndOrbit] = useAtom(transferEndOrbitAtom);
     return (
         <Stack alignItems='center' >
             <Stack spacing={1} sx={{ width: '90%', maxWidth: 500, my: 2, mx: 2 }} >
@@ -22,8 +25,8 @@ function MissionControls() {
                 <Divider />
                 <SystemSelect />
                 <Typography variant="h6">Orbit Settings</Typography>
-                <OrbitControls label='Starting Orbit' orbitAtom={transferStartOrbitAtom} />
-                <OrbitControls label='Target Orbit'   orbitAtom={transferEndOrbitAtom} />
+                <OrbitControls label='Starting Orbit' vessel={startOrbit} setVessel={setStartOrbit} />
+                <OrbitControls label='Target Orbit'   vessel={endOrbit}   setVessel={setEndOrbit} />
                 <Divider />
                 <Typography variant="h6">Time Settings</Typography>
                 <TimeSettingsControls />

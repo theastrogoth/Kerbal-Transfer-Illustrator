@@ -45,7 +45,6 @@ function DateControls() {
         if(!sfEmpty || !lfEmpty) {
             const sfTime = timeFromDateFieldState(shortFlightTime, timeSettings, 0, 0);
             const lfTime = timeFromDateFieldState(longFlightTime,  timeSettings, 0, 0);
-            console.log(sfTime > lfTime, !sfEmpty && sfTime < 0, !lfEmpty && lfTime < 0)
             if((!sfEmpty && !lfEmpty && sfTime > lfTime) || (!sfEmpty && sfTime < 0) || (!lfEmpty && lfTime < 0)) {
                 setFlightErr(true);
             } else {

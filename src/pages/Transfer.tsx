@@ -80,8 +80,8 @@ function TransferAppContent() {
 
   function handlePlotButtonPress() {
     // ensure there are no invalid orbit inputs
-    let invalidFlag = isInvalidOrbitInput(startOrbit);
-    invalidFlag = isInvalidOrbitInput(endOrbit) ? true : invalidFlag;
+    let invalidFlag = isInvalidOrbitInput(startOrbit.orbit);
+    invalidFlag = isInvalidOrbitInput(endOrbit.orbit) ? true : invalidFlag;
     
     // display a warning and do not calculate a Porkchop if the inputs are invalid
     setInvalidInput(invalidFlag);
@@ -92,7 +92,7 @@ function TransferAppContent() {
     // prepare porkchop inputs
     let porkInputs: PorkchopInputs;
     try{
-      porkInputs = porkchopInputsFromUI(system, startOrbit, endOrbit, earlyStartDate, lateStartDate, shortFlightTime, longFlightTime, controlsOptionsState, timeSettings);
+      porkInputs = porkchopInputsFromUI(system, startOrbit.orbit, endOrbit.orbit, earlyStartDate, lateStartDate, shortFlightTime, longFlightTime, controlsOptionsState, timeSettings);
     } catch {
       setInvalidInput(true);
       return

@@ -64,33 +64,33 @@ function BodyConfigControls() {
 
     const [color, setColor] = useState(bodyConfigs[idx].color || '');
 
-    const [flightGlobalsIndex, setFlightGlobalsIndex] = useState(bodyConfigs[idx].flightGlobalsIndex || '');
+    const [flightGlobalsIndex, setFlightGlobalsIndex] = useState(bodyConfigs[idx].flightGlobalsIndex);
 
-    const [radius, setRadius] = useState(bodyConfigs[idx].radius || '');
-    const [maxTerrainHeight, setMaxTerrainHeight] = useState((bodyConfigs[idx] as OrbitingBodyConfig).maxTerrainHeight || '');
-    const [atmosphereHeight, setAtmosphereHeight] = useState(bodyConfigs[idx].atmosphereHeight || '');
-    const [geeASL, setGeeASL] = useState(bodyConfigs[idx].geeASL || '');
-    const [stdGravParam, setStdGravParam] = useState(bodyConfigs[idx].stdGravParam || '');
-    const [mass, setMass] = useState(bodyConfigs[idx].stdGravParam || '');
-    const [soi, setSoi] = useState((bodyConfigs[idx] as OrbitingBodyConfig).soi || '');
+    const [radius, setRadius] = useState(bodyConfigs[idx].radius);
+    const [maxTerrainHeight, setMaxTerrainHeight] = useState((bodyConfigs[idx] as OrbitingBodyConfig).maxTerrainHeight);
+    const [atmosphereHeight, setAtmosphereHeight] = useState(bodyConfigs[idx].atmosphereHeight);
+    const [geeASL, setGeeASL] = useState(bodyConfigs[idx].geeASL);
+    const [stdGravParam, setStdGravParam] = useState(bodyConfigs[idx].stdGravParam);
+    const [mass, setMass] = useState(bodyConfigs[idx].stdGravParam);
+    const [soi, setSoi] = useState((bodyConfigs[idx] as OrbitingBodyConfig).soi);
 
-    const [rotationPeriod, setRotationPeriod] = useState(bodyConfigs[idx].rotationPeriod || '');
-    const [initialRotation, setInitialRotation] = useState(bodyConfigs[idx].initialRotation || '');
-    const [tidallyLocked, setTidallyLocked] = useState((bodyConfigs[idx] as OrbitingBodyConfig).tidallyLocked || '');
+    const [rotationPeriod, setRotationPeriod] = useState(bodyConfigs[idx].rotationPeriod);
+    const [initialRotation, setInitialRotation] = useState(bodyConfigs[idx].initialRotation);
+    const [tidallyLocked, setTidallyLocked] = useState((bodyConfigs[idx] as OrbitingBodyConfig).tidallyLocked || false);
 
-    const [semiMajorAxis, setSemiMajorAxis] = useState((bodyConfigs[idx] as OrbitingBodyConfig).semiMajorAxis || '');
-    const [eccentricity, setEccentricity] = useState((bodyConfigs[idx] as OrbitingBodyConfig).eccentricity || '');
-    const [inclination, setInclination] = useState((bodyConfigs[idx] as OrbitingBodyConfig).inclination || '');
-    const [argOfPeriapsis, setArgOfPeriapsis] = useState((bodyConfigs[idx] as OrbitingBodyConfig).argOfPeriapsis || '');
-    const [ascNodeLongitude, setAscNodeLongitude] = useState((bodyConfigs[idx] as OrbitingBodyConfig).ascNodeLongitude || '');
-    const [meanAnomalyEpoch, setMeanAnomalyEpoch] = useState((bodyConfigs[idx] as OrbitingBodyConfig).meanAnomalyEpoch || '');
-    const [epoch, setEpoch] = useState((bodyConfigs[idx] as OrbitingBodyConfig).epoch || '');
+    const [semiMajorAxis, setSemiMajorAxis] = useState((bodyConfigs[idx] as OrbitingBodyConfig).semiMajorAxis);
+    const [eccentricity, setEccentricity] = useState((bodyConfigs[idx] as OrbitingBodyConfig).eccentricity);
+    const [inclination, setInclination] = useState((bodyConfigs[idx] as OrbitingBodyConfig).inclination);
+    const [argOfPeriapsis, setArgOfPeriapsis] = useState((bodyConfigs[idx] as OrbitingBodyConfig).argOfPeriapsis);
+    const [ascNodeLongitude, setAscNodeLongitude] = useState((bodyConfigs[idx] as OrbitingBodyConfig).ascNodeLongitude);
+    const [meanAnomalyEpoch, setMeanAnomalyEpoch] = useState((bodyConfigs[idx] as OrbitingBodyConfig).meanAnomalyEpoch);
+    const [epoch, setEpoch] = useState((bodyConfigs[idx] as OrbitingBodyConfig).epoch);
 
     const [physOpen, setPhysOpen] = useState(true);
     const [orbitOpen, setOrbitOpen] = useState(true);
 
     function setValue(property: string) {
-        return (value: string) => {
+        return (value: any) => {
             const newConfigs = [...bodyConfigs];
             const newConfig = Object.assign(bodyConfigs[idx]);
             newConfig[property] = value === '' ? undefined : value;
@@ -168,27 +168,27 @@ function BodyConfigControls() {
 
             setColor(bodyConfigs[newIdx].color || '');
 
-            setFlightGlobalsIndex(bodyConfigs[newIdx].flightGlobalsIndex || '');
+            setFlightGlobalsIndex(bodyConfigs[newIdx].flightGlobalsIndex);
         
-            setRadius(bodyConfigs[newIdx].radius || '');
-            setMaxTerrainHeight((bodyConfigs[newIdx] as OrbitingBodyConfig).maxTerrainHeight || '');
-            setAtmosphereHeight(bodyConfigs[newIdx].atmosphereHeight || '');
-            setGeeASL(bodyConfigs[newIdx].geeASL || '');
-            setStdGravParam(bodyConfigs[newIdx].stdGravParam || '');
-            setMass(bodyConfigs[newIdx].mass || '');
-            setSoi((bodyConfigs[newIdx] as OrbitingBodyConfig).soi || '');
+            setRadius(bodyConfigs[newIdx].radius);
+            setMaxTerrainHeight((bodyConfigs[newIdx] as OrbitingBodyConfig).maxTerrainHeight);
+            setAtmosphereHeight(bodyConfigs[newIdx].atmosphereHeight);
+            setGeeASL(bodyConfigs[newIdx].geeASL);
+            setStdGravParam(bodyConfigs[newIdx].stdGravParam);
+            setMass(bodyConfigs[newIdx].mass);
+            setSoi((bodyConfigs[newIdx] as OrbitingBodyConfig).soi);
 
-            setRotationPeriod(bodyConfigs[newIdx].rotationPeriod || '');
-            setInitialRotation(bodyConfigs[newIdx].initialRotation || '');
-            setTidallyLocked((bodyConfigs[newIdx] as OrbitingBodyConfig).tidallyLocked || '');
+            setRotationPeriod(bodyConfigs[newIdx].rotationPeriod);
+            setInitialRotation(bodyConfigs[newIdx].initialRotation);
+            setTidallyLocked((bodyConfigs[newIdx] as OrbitingBodyConfig).tidallyLocked || false);
         
-            setSemiMajorAxis((bodyConfigs[newIdx] as OrbitingBodyConfig).semiMajorAxis || '');
-            setEccentricity((bodyConfigs[newIdx] as OrbitingBodyConfig).eccentricity || '');
-            setInclination((bodyConfigs[newIdx] as OrbitingBodyConfig).inclination || '');
-            setArgOfPeriapsis((bodyConfigs[newIdx] as OrbitingBodyConfig).argOfPeriapsis || '');
-            setAscNodeLongitude((bodyConfigs[newIdx] as OrbitingBodyConfig).ascNodeLongitude || '');
-            setMeanAnomalyEpoch((bodyConfigs[newIdx] as OrbitingBodyConfig).meanAnomalyEpoch || '');
-            setEpoch((bodyConfigs[newIdx] as OrbitingBodyConfig).epoch || '');
+            setSemiMajorAxis((bodyConfigs[newIdx] as OrbitingBodyConfig).semiMajorAxis);
+            setEccentricity((bodyConfigs[newIdx] as OrbitingBodyConfig).eccentricity);
+            setInclination((bodyConfigs[newIdx] as OrbitingBodyConfig).inclination);
+            setArgOfPeriapsis((bodyConfigs[newIdx] as OrbitingBodyConfig).argOfPeriapsis);
+            setAscNodeLongitude((bodyConfigs[newIdx] as OrbitingBodyConfig).ascNodeLongitude);
+            setMeanAnomalyEpoch((bodyConfigs[newIdx] as OrbitingBodyConfig).meanAnomalyEpoch);
+            setEpoch((bodyConfigs[newIdx] as OrbitingBodyConfig).epoch);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedName, bodyConfigs[0]])
@@ -196,63 +196,63 @@ function BodyConfigControls() {
     // update config from input changes
 
     useEffect(() => {
-        if(!isNaN(Number(flightGlobalsIndex)) || flightGlobalsIndex === '') {
+        if(!(flightGlobalsIndex !== undefined && isNaN(flightGlobalsIndex))) {
             setValue("flightGlobalsIndex")(flightGlobalsIndex);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [flightGlobalsIndex])
 
     useEffect(() => {
-        if(!isNaN(Number(radius)) || radius === '') {
+        if(!isNaN(Number(radius))) {
             setValue("radius")(radius);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [radius])
     useEffect(() => {
-        if(!isNaN(Number(maxTerrainHeight)) || maxTerrainHeight === '') {
+        if(!isNaN(Number(maxTerrainHeight))) {
             setValue("maxTerrainHeight")(maxTerrainHeight);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [maxTerrainHeight])
     useEffect(() => {
-        if(!isNaN(Number(atmosphereHeight)) || atmosphereHeight === '') {
+        if(!isNaN(Number(atmosphereHeight))) {
             setValue("atmosphereHeight")(atmosphereHeight);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [atmosphereHeight])
     useEffect(() => {
-        if(!isNaN(Number(geeASL)) || geeASL === '') {
+        if(!isNaN(Number(geeASL))) {
             setValue("geeASL")(geeASL);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [geeASL])
     useEffect(() => {
-        if(!isNaN(Number(stdGravParam)) || stdGravParam === '') {
+        if(!isNaN(Number(stdGravParam))) {
             setValue("stdGravParam")(stdGravParam);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [stdGravParam])
     useEffect(() => {
-        if(!isNaN(Number(mass)) || mass === '') {
+        if(!isNaN(Number(mass))) {
             setValue("mass")(mass);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mass])
     useEffect(() => {
-        if(!isNaN(Number(soi)) || soi === '') {
+        if(!isNaN(Number(soi))) {
             setValue("soi")(soi);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [soi])
 
     useEffect(() => {
-        if(!isNaN(Number(rotationPeriod)) || rotationPeriod === '') {
+        if(!isNaN(Number(rotationPeriod))) {
             setValue("rotationPeriod")(rotationPeriod);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [rotationPeriod])
     useEffect(() => {
-        if(!isNaN(Number(initialRotation)) || initialRotation === '') {
+        if(!isNaN(Number(initialRotation))) {
             setValue("initialRotation")(initialRotation);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -263,43 +263,43 @@ function BodyConfigControls() {
     }, [tidallyLocked])
 
     useEffect(() => {
-        if(!isNaN(Number(semiMajorAxis)) || semiMajorAxis === '') {
+        if(!isNaN(Number(semiMajorAxis))) {
             setValue("semiMajorAxis")(semiMajorAxis);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [semiMajorAxis])
     useEffect(() => {
-        if(!isNaN(Number(eccentricity)) || eccentricity === '') {
+        if(!isNaN(Number(eccentricity))) {
             setValue("eccentricity")(eccentricity);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [eccentricity])
     useEffect(() => {
-        if(!isNaN(Number(inclination)) || inclination === '') {
+        if(!isNaN(Number(inclination))) {
             setValue("inclination")(inclination);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inclination])
     useEffect(() => {
-        if(!isNaN(Number(argOfPeriapsis)) || argOfPeriapsis === '') {
+        if(!isNaN(Number(argOfPeriapsis))) {
             setValue("argOfPeriapsis")(argOfPeriapsis);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [argOfPeriapsis])
     useEffect(() => {
-        if(!isNaN(Number(ascNodeLongitude)) || ascNodeLongitude === '') {
+        if(!isNaN(Number(ascNodeLongitude))) {
             setValue("ascNodeLongitude")(ascNodeLongitude);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ascNodeLongitude])
     useEffect(() => {
-        if(!isNaN(Number(meanAnomalyEpoch)) || meanAnomalyEpoch === '') {
+        if(!isNaN(Number(meanAnomalyEpoch))) {
             setValue("meanAnomalyEpoch")(meanAnomalyEpoch);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [meanAnomalyEpoch])
     useEffect(() => {
-        if(!isNaN(Number(epoch)) || epoch === '') {
+        if(!isNaN(Number(epoch))) {
             setValue("epoch")(epoch);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -370,10 +370,9 @@ function BodyConfigControls() {
                 {idx !== 0 &&
                     <NumberField
                         label='Flight Globals Index' 
-                        value={bodyConfigs[idx].flightGlobalsIndex || ''}
+                        value={bodyConfigs[idx].flightGlobalsIndex}
                         setValue={setFlightGlobalsIndex}
-                        onChange={(e) => setFlightGlobalsIndex(e.target.value)}
-                        error={flightGlobalsIndex !== '' ? (Number(flightGlobalsIndex) < 1) : false}
+                        error={flightGlobalsIndex !== undefined ? (flightGlobalsIndex < 1) : false}
                     />
                 }
 
@@ -398,71 +397,62 @@ function BodyConfigControls() {
                             label='Radius (m)' 
                             value={radius}
                             setValue={setRadius}
-                            onChange={(e) => setRadius(e.target.value)}
-                            error={radius !== '' ? (Number(radius) <= 0) : false}
+                            error={radius !== undefined ? (radius <= 0) : false}
                         />
                         {idx !==0 &&                    
                             <NumberField
                                 label='Maximum Terrain Height (m)' 
                                 value={maxTerrainHeight}
                                 setValue={setMaxTerrainHeight}
-                                onChange={(e) => setMaxTerrainHeight(e.target.value)}
-                                error={maxTerrainHeight !== '' ? (Number(maxTerrainHeight) <= 0) : false}
+                                error={maxTerrainHeight !== undefined ? (maxTerrainHeight <= 0) : false}
                             />
                         }
                         <NumberField
                             label='Atmosphere Height (m)' 
                             value={atmosphereHeight}
                             setValue={setAtmosphereHeight}
-                            onChange={(e) => setAtmosphereHeight(e.target.value)}
-                            error={atmosphereHeight !== '' ? (Number(atmosphereHeight) <= 0) : false}
+                            error={atmosphereHeight !== undefined ? (atmosphereHeight <= 0) : false}
                         />
                         <NumberField
                             label='Surface Gravity (/ 9.80665m/s)' 
                             value={geeASL}
                             setValue={setGeeASL}
-                            onChange={(e) => setGeeASL(e.target.value)}
-                            error={geeASL !== '' ? (Number(geeASL) <= 0) : false}
+                            error={geeASL !== undefined ? (geeASL <= 0) : false}
                         />
                         <NumberField
                             label='Gravity Parameter (m3/s2)' 
                             value={stdGravParam}
                             setValue={setStdGravParam}
-                            onChange={(e) => setStdGravParam(e.target.value)}
-                            error={stdGravParam !== '' ? (Number(stdGravParam) <= 0) : false}
+                            error={stdGravParam !== undefined ? (stdGravParam <= 0) : false}
                         />
                         <NumberField
                             label='Mass (kg)' 
                             value={mass}
                             setValue={setMass}
-                            onChange={(e) => setMass(e.target.value)}
-                            error={mass !== '' ? (Number(mass) <= 0) : false}
+                            error={mass !== undefined ? (mass <= 0) : false}
                         />
                         {idx !==0 &&    
                             <NumberField
                                 label='Sphere of Influence (m)' 
-                                value={soi || ''}
+                                value={soi}
                                 setValue={setSoi}
-                                onChange={(e) => setSoi(e.target.value)}
-                                error={soi !== '' ? (Number(soi) <= 0) : false}
+                                error={soi !== undefined ? (soi <= 0) : false}
                             />
                         }
                         <NumberField
                             label='Rotation Period (s)' 
                             value={rotationPeriod}
                             setValue={setRotationPeriod}
-                            onChange={(e) => setRotationPeriod(e.target.value)}
-                            error={rotationPeriod !== '' ? (Number(rotationPeriod) <= 0) : false}
-                            disabled={tidallyLocked === 'True' || tidallyLocked === 'true'}
+                            error={rotationPeriod !== undefined ? (rotationPeriod <= 0) : false}
+                            disabled={tidallyLocked}
                         />
                         <NumberField
                             label={'Initial Rotation (\u00B0)'}
                             value={initialRotation}
                             setValue={setInitialRotation}
-                            onChange={(e) => setInitialRotation(e.target.value)}
                         />
                         {idx !==0 &&
-                            <FormControlLabel control={<Checkbox checked={tidallyLocked === 'True' || tidallyLocked === 'true'} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTidallyLocked(e.target.checked ? 'true' : '')}/>} label="Tidally Locked" />
+                            <FormControlLabel control={<Checkbox checked={tidallyLocked} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTidallyLocked(e.target.checked)}/>} label="Tidally Locked" />
                         }
                     </Stack>
                 </Collapse>
@@ -503,46 +493,39 @@ function BodyConfigControls() {
                                     label='Semi-major Axis (m)' 
                                     value={semiMajorAxis}
                                     setValue={setSemiMajorAxis}
-                                    onChange={(e) => setSemiMajorAxis(e.target.value)}
-                                    error={semiMajorAxis !== '' ? (Number(semiMajorAxis) <= 0) : false}
+                                    error={semiMajorAxis !== undefined ? (Number(semiMajorAxis) <= 0) : false}
                                 />
                                 <NumberField
                                     label='Eccentricity' 
                                     value={eccentricity}
                                     setValue={setEccentricity}
-                                    onChange={(e) => setEccentricity(e.target.value)}
                                     step={0.1}
-                                    error={eccentricity !== '' ? (Number(eccentricity) < 0 || Number(eccentricity) >= 1) : false}
+                                    error={eccentricity !== undefined ? (Number(eccentricity) < 0 || Number(eccentricity) >= 1) : false}
                                 />
                                 <NumberField
                                     label={'Inclination (\u00B0)'} 
                                     value={inclination}
                                     setValue={setInclination}
-                                    onChange={(e) => setInclination(e.target.value)}
                                 />
                                 <NumberField
                                     label={'Argument of the Periapsis (\u00B0)'} 
                                     value={argOfPeriapsis}
                                     setValue={setArgOfPeriapsis}
-                                    onChange={(e) => setArgOfPeriapsis(e.target.value)}
                                 />
                                 <NumberField
                                     label={'Longitude of the Ascending Node (\u00B0)'} 
                                     value={ascNodeLongitude}
                                     setValue={setAscNodeLongitude}
-                                    onChange={(e) => setAscNodeLongitude(e.target.value)}
                                 />
                                 <NumberField
                                     label='Mean Anomaly at Epoch (rad)' 
                                     value={meanAnomalyEpoch}
                                     setValue={setMeanAnomalyEpoch}
-                                    onChange={(e) => setMeanAnomalyEpoch(e.target.value)}
                                 />
                                 <NumberField
                                     label='Epoch (s)' 
                                     value={epoch}
                                     setValue={setEpoch}
-                                    onChange={(e) => setEpoch(e.target.value)}
                                 />
                             </Stack>
                         </Collapse>

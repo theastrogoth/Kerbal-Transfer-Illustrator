@@ -5,7 +5,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 
 function createVesselItems(vessels: IVessel[] | LandedVessel[]) {
-    const options = [<MenuItem key={-1} value={-1}>Select a Saved Craft</MenuItem>];
+    const options: JSX.Element[] = [];
     for(let i=0; i<vessels.length; i++) {
         options.push(<MenuItem key={i} value={i}>{vessels[i].name}</MenuItem>)
     }
@@ -22,12 +22,12 @@ function VesselSelect({vessels, label, vesselId, handleVesselIdChange}: {vessels
     return (<>
         {(vessels.length > 0) &&
             <FormControl sx={{ minWidth: 120 }}>
-                <InputLabel id={"vessel-select-label-"+label}>Load Saved Craft</InputLabel>
+                <InputLabel id={"vessel-select-label-"+label}>Load a Saved Craft</InputLabel>
                 <Select
                     labelId={"vessel-select-label-"+label}
-                    label='Load Saved Craft'
+                    label='Load a Saved Craft'
                     id={'vessel-'+label}
-                    value={vesselId}
+                    value={vesselId >= 0 ? vesselId : ''}
                     onChange={handleVesselIdChange}
                 >
                     {vesselOptions}

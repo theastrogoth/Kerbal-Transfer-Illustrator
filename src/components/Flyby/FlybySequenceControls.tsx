@@ -84,11 +84,11 @@ function FlybySequenceControls() {
     const [flightTimesAtoms, setFlightTimesAtoms] = useAtom(multiFlybyFlightTimesAtomsAtom);
     const [DSNperLeg, setDSNperLeg] = useAtom(multiFlybyDSNperLegAtom);
 
-    const [bodyOptions, setBodyOptions] = useState(createBodyItems(system, startOrbit.orbiting, endOrbit.orbiting));
-    const [DSNLabels, setDSNLabels] = useState(getDSNLabels(startOrbit.orbiting, endOrbit.orbiting, flybyIdSequence, system));
+    const [bodyOptions, setBodyOptions] = useState(createBodyItems(system, startOrbit.orbit.orbiting, endOrbit.orbit.orbiting));
+    const [DSNLabels, setDSNLabels] = useState(getDSNLabels(startOrbit.orbit.orbiting, endOrbit.orbit.orbiting, flybyIdSequence, system));
 
     const handleAddFlyby = (event: any): void => {
-        const transferBodyId = system.commonAttractorId(startOrbit.orbiting, endOrbit.orbiting);
+        const transferBodyId = system.commonAttractorId(startOrbit.orbit.orbiting, endOrbit.orbit.orbiting);
         const transferBody = system.bodyFromId(transferBodyId);
         if(transferBody.orbiterIds.length > 0){
             const newFlybyIdSequence = flybyIdSequence.slice();
@@ -125,14 +125,13 @@ function FlybySequenceControls() {
 
     useEffect(() => {
         console.log("trigger update based on new system or start/end body")
-        setBodyOptions(createBodyItems(system, startOrbit.orbiting, endOrbit.orbiting));
-        setDSNLabels(getDSNLabels(startOrbit.orbiting, endOrbit.orbiting, flybyIdSequence, system));
+        setBodyOptions(createBodyItems(system, startOrbit.orbit.orbiting, endOrbit.orbit.orbiting));
+        setDSNLabels(getDSNLabels(startOrbit.orbit.orbiting, endOrbit.orbit.orbiting, flybyIdSequence, system));
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [system, startOrbit.orbiting, endOrbit.orbiting]);   
+    }, [system, startOrbit.orbit.orbiting, endOrbit.orbit.orbiting]);   
 
     useEffect(() => {
-        console.log("update flyby names", flybyIdSequence)
-        setDSNLabels(getDSNLabels(startOrbit.orbiting, endOrbit.orbiting, flybyIdSequence, system));
+        setDSNLabels(getDSNLabels(startOrbit.orbit.orbiting, endOrbit.orbit.orbiting, flybyIdSequence, system));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [flybyIdSequence])
 
@@ -152,7 +151,7 @@ function FlybySequenceControls() {
                 <Box component='div' sx={{ display: {flexGrow: 1}}} />
                 <NumberField 
                     label={DSNLabels[0]}
-                    value={String(DSNperLeg[0])}
+                    value={DSNperLeg[0]}
                     setValue={handleDSNchange(0)}
                     error={DSNperLeg[0] % 1 !== 0}
                     min={0}
@@ -166,7 +165,7 @@ function FlybySequenceControls() {
                     {createBodyDropdown(bodyOptions, index, id, flybyIdSequence, setFlybyIdSequence)}
                     <NumberField 
                         label={DSNLabels[index + 1]}
-                        value={String(DSNperLeg[index + 1])}
+                        value={DSNperLeg[index + 1]}
                         setValue={handleDSNchange(index + 1)}
                         error={DSNperLeg[index + 1] % 1 !== 0}
                         min={0}

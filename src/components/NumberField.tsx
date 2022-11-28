@@ -6,32 +6,35 @@ import Button from '@mui/material/Button';
 import { clamp } from "../main/libs/math";
 
 type NumberFieldProps = {
-    label:      string,
-    value:      string,
-    setValue:   React.Dispatch<React.SetStateAction<string>> | Function,
-    step?:      number,
-    max?:       number,
-    min?:       number,
-    error?:     boolean,
-    onChange?:  (event: React.ChangeEvent<HTMLInputElement>) => void,
-    sx?:        any,
-    disabled?:  boolean,
+    label:          string,
+    value:          number | undefined,
+    setValue:       React.Dispatch<React.SetStateAction<number | undefined>> | Function,
+    step?:          number,
+    max?:           number,
+    min?:           number,
+    error?:         boolean,
+    sx?:            any,
+    disabled?:      boolean,
+    shift?:         number,
+    useSetState?:   boolean,
 }
 
 type IncrementButtonProps = {
-    value:      string,
-    setValue:   React.Dispatch<React.SetStateAction<string>> | Function,
-    step?:      number,
-    max?:       number,
-    min?:       number,
-    text?:      string,
-    style?:     any,
-    disabled?:  boolean,
+    value:          number | undefined,
+    setValue:       React.Dispatch<React.SetStateAction<number | undefined>> | Function,
+    step?:          number,
+    max?:           number,
+    min?:           number,
+    text?:          string,
+    style?:         any,
+    disabled?:      boolean,
+    useSetState?:   boolean,
 }
 
-function IncrementButton({value, setValue, step = 1, max = Infinity, min = -Infinity, text="+", disabled = false, style={}}: IncrementButtonProps) {
+function IncrementButton({value, setValue, step = 1, max = Infinity, min = -Infinity, text="+", disabled = false, useSetState = true, style={}}: IncrementButtonProps) {
     const counterRef = useRef(0);
     const intervalRef = useRef<null | NodeJS.Timer>(null);
+    const prevValueRef = useRef(value);
 
     const handleIncrement = (event: React.MouseEvent | React.TouchEvent, count = 0) => {
         const numVal = Number(value);
@@ -46,23 +49,31 @@ function IncrementButton({value, setValue, step = 1, max = Infinity, min = -Infi
             if(event.altKey) {
                 increment *= 0.1;
             }
-            setValue((prevValue) => String(clamp(Number(prevValue) + increment, min, max)))
-        } else if(value === '') {
-            setValue('1')
+            if (useSetState) {
+                setValue((prevValue) => clamp(Number(prevValue) + increment, min, max));
+            } else {
+                const newVal = clamp(Number(prevValueRef.current) + increment, min, max);
+                setValue(newVal)
+                prevValueRef.current = newVal;
+            }
+        } else if(value === undefined || isNaN(value)) {
+            setValue(step)
+            prevValueRef.current = step;
         }
     }
 
     const startIncrement = (event: React.MouseEvent | React.TouchEvent) => {
         if (intervalRef.current) return;
-            intervalRef.current = setInterval(() => {
-                if(counterRef.current === 0) {
-                    counterRef.current += 1;
-                    handleIncrement(event);
-                }else if(counterRef.current < 20) {
-                    counterRef.current += 1;
-                } else {
-                    handleIncrement(event);
-                }
+        prevValueRef.current = value;
+        intervalRef.current = setInterval(() => {
+            if(counterRef.current === 0) {
+                counterRef.current += 1;
+                handleIncrement(event);
+            }else if(counterRef.current < 20) {
+                counterRef.current += 1;
+            } else {
+                handleIncrement(event);
+            }
         }, 20);
     };
 
@@ -103,8 +114,8 @@ function IncrementButton({value, setValue, step = 1, max = Infinity, min = -Infi
     )
 }
 
-const RequiredNumberField = React.memo(function WrappedRequiredNumberField({label, value, setValue, step = 1, max = Infinity, min = -Infinity, error = false, onChange = (e) => {}, disabled = false, sx = {}}: NumberFieldProps) {
-    const numValue = Number(value);
+const RequiredNumberField = React.memo(function WrappedRequiredNumberField({label, value, setValue, step = 1, max = Infinity, min = -Infinity, error = false, disabled = false, shift = 0, useSetState = true, sx = {}}: NumberFieldProps) {
+    const strVal = (value === undefined || isNaN(value)) ? '' : String((value + shift));
     return (
     <Stack direction='row' spacing={0} sx={{marginBottom: 1}}>
         <IncrementButton 
@@ -116,15 +127,16 @@ const RequiredNumberField = React.memo(function WrappedRequiredNumberField({labe
             text="-"
             style={{borderRadius: "8px 0 0 8px"}} 
             disabled={disabled}
+            useSetState={useSetState}
         />
         <TextField
             type="text"
             spellCheck={false}
             label={label}
-            value={value}
+            value={strVal}
             InputLabelProps={{ shrink: true }}
-            error={isNaN(numValue) || numValue < min || numValue > max || error}
-            onChange={onChange}
+            error={error || value === undefined || isNaN(value) || value < min || value > max}
+            onChange={(e) => {const str=e.target.value; setValue(str === '' ? undefined : Number(e.target.value) - shift)}}
             sx={sx}
             disabled={disabled}
         />
@@ -137,14 +149,15 @@ const RequiredNumberField = React.memo(function WrappedRequiredNumberField({labe
             text="+"
             style={{borderRadius: "0 8px 8px 0", marginRight: "8px" }} 
             disabled={disabled}
+            useSetState={useSetState}
         />
     </Stack>
 
     )
 }, (prevProps, nextProps) => prevProps.value === nextProps.value && prevProps.error === nextProps.error && prevProps.disabled === nextProps.disabled && prevProps.label === nextProps.label);
 
-export const NumberField = React.memo(function WrappedNumberField({label, value, setValue, step = 1, max = Infinity, min = -Infinity, error = false, onChange = (e) => {}, disabled=false, sx = {}}: NumberFieldProps) {
-    const numValue = Number(value);
+export const NumberField = React.memo(function WrappedNumberField({label, value, setValue, step = 1, max = Infinity, min = -Infinity, error = false, disabled=false, shift = 0, useSetState = true, sx = {}}: NumberFieldProps) {
+    const strVal = (value === undefined || isNaN(value)) ? '' : String((value + shift));
     return (
         <Stack direction='row' spacing={0} sx={{marginBottom: 1}}>
             <IncrementButton 
@@ -157,15 +170,16 @@ export const NumberField = React.memo(function WrappedNumberField({label, value,
                 text="-"
                 style={{borderRadius: "8px 0 0 8px"}}
                 disabled={disabled}
+                useSetState={useSetState}
             />
             <TextField
                 type="text"
                 spellCheck={false}
                 label={label}
-                value={value}
+                value={strVal}
                 InputLabelProps={{ shrink: true }}
-                error={isNaN(numValue) || numValue < min || numValue > max || error}
-                onChange={onChange}
+                error={error || (!(value === undefined || isNaN(value)) && (value < min || value > max))}
+                onChange={(e) => {const str=e.target.value; setValue(str === '' ? undefined : Number(e.target.value) - shift)}}
                 sx={sx}
                 disabled={disabled}
             />
@@ -179,6 +193,7 @@ export const NumberField = React.memo(function WrappedNumberField({label, value,
                 text="+"
                 style={{borderRadius: "0 8px 8px 0", marginRight: "8px" }} 
                 disabled={disabled}
+                useSetState={useSetState}
             />
         </Stack>
     )

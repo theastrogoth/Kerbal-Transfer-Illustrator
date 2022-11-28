@@ -3,7 +3,7 @@ import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 
-function PasteButton({setObj, copiedObj, variant = "icon", label = "Paste"}: {setObj: ((m: ManeuverComponents) => void) | ((o :IOrbit) => void) | React.Dispatch<React.SetStateAction<IVessel>>, copiedObj: ManeuverComponents | IOrbit | IVessel, variant?: "icon" | "text", label?: string}) {
+function PasteButton({setObj, copiedObj, variant = "icon", label = "Paste"}: {setObj: ((m: ManeuverComponents) => void) | ((o :IOrbit) => void) | ((v :IVessel) => void) | React.Dispatch<React.SetStateAction<IVessel>>, copiedObj: ManeuverComponents | IOrbit | IVessel, variant?: "icon" | "text", label?: string}) {
     return ( variant === "icon" ?
         <IconButton 
             size="small"

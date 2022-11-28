@@ -15,12 +15,12 @@ export function fileToSunConfig(configFile: string): SunConfig {
 
     const sunConfig: SunConfig = {
         name,
-        radius:             sunData.Properties.radius,
-        atmosphereHeight:   sunData.Atmosphere ? (sunData.Atmosphere.maxAltitude || sunData.Atmosphere.altitude) : undefined,
-        stdGravParam:       sunData.Properties.gravParameter,
-        geeASL:             sunData.Properties.geeASL,
-        rotationPeriod:     sunData.Properties.rotationPeriod,
-        initialRotation:    sunData.Properties.initialRotation,
+        radius:             sunData.Properties.radius ? parseFloat(sunData.Properties.radius) : undefined,
+        atmosphereHeight:   sunData.Atmosphere ? parseFloat(sunData.Atmosphere.maxAltitude || sunData.Atmosphere.altitude) : undefined,
+        stdGravParam:       sunData.Properties.gravParameter ? parseFloat(sunData.Properties.gravParameter) : undefined,
+        geeASL:             sunData.Properties.geeASL ? parseFloat(sunData.Properties.geeASL) : undefined,
+        rotationPeriod:     sunData.Properties.rotationPeriod ? parseFloat(sunData.Properties.rotationPeriod) : undefined,
+        initialRotation:    sunData.Properties.initialRotation ? parseFloat(sunData.Properties.initialRotation) : undefined,
         templateName:       "Sun",
     }
     return sunConfig;
@@ -36,30 +36,30 @@ export function fileToBodyConfig(configFile: string): OrbitingBodyConfig {
     const name = bodyData.name;
     // name = configData[topKey].cbNameLater || name;
 
-    const flightGlobalsIndex = bodyData.flightGlobalsIndex || (bodyData.name === "Kerbin" ? "1" : undefined);
+    const flightGlobalsIndex = bodyData.flightGlobalsIndex ? parseInt(bodyData.flightGlobalsIndex) : (bodyData.name === "Kerbin" ? 1 : undefined);
     
-    const radius = bodyData.Properties.radius;
-    const stdGravParam = bodyData.Properties.gravParameter;
-    const geeASL = bodyData.Properties.geeASL;
-    const mass = bodyData.Properties.mass;
-    const soi = bodyData.Properties.sphereOfInfluence;
+    const radius = parseFloat(bodyData.Properties.radius);
+    const stdGravParam = parseFloat(bodyData.Properties.gravParameter);
+    const geeASL = parseFloat(bodyData.Properties.geeASL);
+    const mass = parseFloat(bodyData.Properties.mass);
+    const soi = parseFloat(bodyData.Properties.sphereOfInfluence);
 
-    const tidallyLocked = bodyData.Properties.tidallyLocked;
-    const rotationPeriod = bodyData.Properties.rotationPeriod;
-    const initialRotation = bodyData.Properties.initialRotation;
+    const tidallyLocked = bodyData.Properties.tidallyLocked === "true" || bodyData.Properties.tidallyLocked === "True" || bodyData.Properties.tidallyLocked === "TRUE";
+    const rotationPeriod = parseFloat(bodyData.Properties.rotationPeriod);
+    const initialRotation = parseFloat(bodyData.Properties.initialRotation);
 
-    const atmosphereHeight = bodyData.Atmosphere ? (bodyData.Atmosphere.maxAltitude || bodyData.Atmosphere.altitude) : undefined;
+    const atmosphereHeight = bodyData.Atmosphere ? parseFloat(bodyData.Atmosphere.maxAltitude || bodyData.Atmosphere.altitude) : undefined;
 
-    const semiMajorAxis = bodyData.Orbit.semiMajorAxis;
-    const eccentricity = bodyData.Orbit.eccentricity;
-    const inclination = bodyData.Orbit.inclination;
-    const argOfPeriapsis = bodyData.Orbit.argumentOfPeriapsis;
-    const ascNodeLongitude = bodyData.Orbit.longitudeOfAscendingNode;
-    const meanAnomalyEpoch = bodyData.Orbit.meanAnomalyAtEpoch || String(degToRad(Number(bodyData.Orbit.meanAnomalyAtEpochD)));
-    const epoch = bodyData.Orbit.epoch;
-    const referenceBody = bodyData.Orbit.referenceBody;
+    const semiMajorAxis = parseFloat(bodyData.Orbit.semiMajorAxis);
+    const eccentricity = parseFloat(bodyData.Orbit.eccentricity);
+    const inclination = parseFloat(bodyData.Orbit.inclination);
+    const argOfPeriapsis = parseFloat(bodyData.Orbit.argumentOfPeriapsis);
+    const ascNodeLongitude = parseFloat(bodyData.Orbit.longitudeOfAscendingNode);
+    const meanAnomalyEpoch = bodyData.Orbit.meanAnomalyAtEpoch ? parseFloat(bodyData.Orbit.meanAnomalyAtEpoch) : degToRad(parseFloat(bodyData.Orbit.meanAnomalyAtEpochD));
+    const epoch = parseFloat(bodyData.Orbit.epoch);
+    const referenceBody: string = bodyData.Orbit.referenceBody;
 
-    const color = bodyData.Orbit.color;
+    const color: string = bodyData.Orbit.color;
 
     const bodyConfig: OrbitingBodyConfig = {
         flightGlobalsIndex,
@@ -89,15 +89,15 @@ export function fileToBodyConfig(configFile: string): OrbitingBodyConfig {
 
 export function sunToConfig(sun: ICelestialBody): SunConfig {
     return {
-        flightGlobalsIndex:     String(sun.id),
-        name:                   String(sun.name),
-        radius:                 String(sun.radius),
-        atmosphereHeight:       sun.atmosphereHeight ? String(sun.atmosphereHeight) : undefined,
-        // geeASL:                 sun.geeASL ? String(sun.geeASL) : undefined,
-        // mass:                   sun.mass ? String(sun.mass) : undefined,
-        stdGravParam:           String(sun.stdGravParam),
-        rotationPeriod:         sun.rotationPeriod ? String(sun.rotationPeriod) : undefined,
-        initialRotation:        sun.initialRotation !== undefined ? String(sun.initialRotation) : undefined,
+        flightGlobalsIndex:     sun.id,
+        name:                   sun.name,
+        radius:                 sun.radius,
+        atmosphereHeight:       sun.atmosphereHeight,
+        // geeASL:                 sun.geeASL,
+        // mass:                   sun.mass,
+        stdGravParam:           sun.stdGravParam,
+        rotationPeriod:         sun.rotationPeriod,
+        initialRotation:        sun.initialRotation,
         color:                  (new Color(sun.color)).toString(),
         templateName:           sun.name,
     }
@@ -105,25 +105,25 @@ export function sunToConfig(sun: ICelestialBody): SunConfig {
 
 export function bodyToConfig(body: IOrbitingBody, system: SolarSystem): OrbitingBodyConfig {
     return {
-        flightGlobalsIndex:     String(body.id),
+        flightGlobalsIndex:     body.id,
         name:                   body.name,
-        radius:                 String(body.radius),
-        maxTerrainHeight:       body.maxTerrainHeight ? String(body.maxTerrainHeight) : undefined,
-        atmosphereHeight:       body.atmosphereHeight ? String(body.atmosphereHeight) : undefined,
-        // geeASL:                 body.geeASL ? String(body.geeASL) : undefined,
-        // mass:                   body.mass ? String(body.mass) : undefined,
-        stdGravParam:           String(body.stdGravParam),
-        soi:                    String(body.soi),
-        tidallyLocked:          body.tidallyLocked ? String(body.tidallyLocked) : undefined,
-        rotationPeriod:         body.rotationPeriod ? String(body.rotationPeriod) : undefined,
-        initialRotation:        body.initialRotation !== undefined ? String(body.initialRotation) : undefined,
-        semiMajorAxis:          String(body.orbit.semiMajorAxis),
-        eccentricity:           String(body.orbit.eccentricity),
-        inclination:            String(radToDeg(body.orbit.inclination)),
-        argOfPeriapsis:         String(radToDeg(body.orbit.argOfPeriapsis)),
-        ascNodeLongitude:       String(radToDeg(body.orbit.ascNodeLongitude)),
-        meanAnomalyEpoch:       String(body.orbit.meanAnomalyEpoch),
-        epoch:                  String(body.orbit.epoch),
+        radius:                 body.radius,
+        maxTerrainHeight:       body.maxTerrainHeight,
+        atmosphereHeight:       body.atmosphereHeight,
+        // geeASL:                 body.geeASL,
+        // mass:                   body.mass,
+        stdGravParam:           body.stdGravParam,
+        soi:                    body.soi,
+        tidallyLocked:          body.tidallyLocked,
+        rotationPeriod:         body.rotationPeriod,
+        initialRotation:        body.initialRotation,
+        semiMajorAxis:          body.orbit.semiMajorAxis,
+        eccentricity:           body.orbit.eccentricity,
+        inclination:            radToDeg(body.orbit.inclination),
+        argOfPeriapsis:         radToDeg(body.orbit.argOfPeriapsis),
+        ascNodeLongitude:       radToDeg(body.orbit.ascNodeLongitude),
+        meanAnomalyEpoch:       body.orbit.meanAnomalyEpoch,
+        epoch:                  body.orbit.epoch,
         color:                  (new Color(body.color)).toString(),
         referenceBody:          system.bodyFromId(body.orbiting).name,
         templateName:           body.name,
@@ -284,7 +284,7 @@ function bodyConfigToSystemInputs(data: OrbitingBodyConfig, id: number, parentId
     const allGravityMissing = (data.mass === undefined) && (data.stdGravParam === undefined) && (data.geeASL === undefined);
 
     // we need to have the stdGravParam ready here
-    const radius = data.radius ? Number(data.radius) : template!.radius;
+    const radius = data.radius !== undefined ? data.radius : template!.radius;
     let stdGravParam: number = 1;
     if(!allGravityMissing && (data.stdGravParam === undefined || data.stdGravParam === null)) {
         if(data.geeASL !== undefined) {
@@ -297,24 +297,24 @@ function bodyConfigToSystemInputs(data: OrbitingBodyConfig, id: number, parentId
     const body: OrbitingBodyInputs = {
         id,
         name:               data.name || template!.name,
-        radius:             data.radius ? Number(data.radius) : template!.radius,
-        atmosphereHeight:   data.atmosphereHeight ? Number(data.atmosphereHeight) : template!.atmosphereHeight,
-        mass:               allGravityMissing ? template!.mass : (data.mass ? Number(data.mass) : undefined),
-        geeASL:             allGravityMissing ? template!.geeASL : (data.geeASL ? Number(data.geeASL) : undefined),
-        stdGravParam:       allGravityMissing ? template!.stdGravParam : (data.stdGravParam ? Number(data.stdGravParam) : stdGravParam),
-        soi:                data.soi ? Number(data.soi) : undefined,
-        tidallyLocked:      data.tidallyLocked ? (data.tidallyLocked === "True" || data.tidallyLocked === "true") : false,
-        rotationPeriod:     data.rotationPeriod ? Number(data.rotationPeriod) : template!.rotationPeriod,
-        initialRotation:    data.initialRotation ? Number(data.initialRotation) : template!.initialRotation,
+        radius:             data.radius || template!.radius,
+        atmosphereHeight:   data.atmosphereHeight || template!.atmosphereHeight,
+        mass:               allGravityMissing ? template!.mass : (data.mass || undefined),
+        geeASL:             allGravityMissing ? template!.geeASL : (data.geeASL || undefined),
+        stdGravParam:       allGravityMissing ? template!.stdGravParam : (data.stdGravParam || stdGravParam),
+        soi:                data.soi || undefined,
+        tidallyLocked:      data.tidallyLocked,
+        rotationPeriod:     data.rotationPeriod !== undefined ? data.rotationPeriod : template!.rotationPeriod,
+        initialRotation:    data.initialRotation !== undefined ? data.initialRotation : template!.initialRotation,
         color:              data.color ? colorFromRGBA(data.color) : {r: 200, g: 200, b:200} as IColor,
         orbit:              {
-                                semiMajorAxis:      data.semiMajorAxis ? Number(data.semiMajorAxis) : template!.orbit.semiMajorAxis,
-                                eccentricity:       data.eccentricity ? Number(data.eccentricity) : template!.orbit.eccentricity,
-                                inclination:        data.inclination ? Number(data.inclination) : radToDeg(template!.orbit.inclination),
-                                argOfPeriapsis:     data.argOfPeriapsis ? Number(data.argOfPeriapsis) : radToDeg(template!.orbit.argOfPeriapsis),
-                                ascNodeLongitude:   data.ascNodeLongitude ? Number(data.ascNodeLongitude) : radToDeg(template!.orbit.ascNodeLongitude),
-                                meanAnomalyEpoch:   data.meanAnomalyEpoch ? Number(data.meanAnomalyEpoch) : template!.orbit.meanAnomalyEpoch,
-                                epoch:              data.epoch ? Number(data.epoch) : template!.orbit.epoch,
+                                semiMajorAxis:      data.semiMajorAxis !== undefined ? data.semiMajorAxis : template!.orbit.semiMajorAxis,
+                                eccentricity:       data.eccentricity !== undefined ? data.eccentricity : template!.orbit.eccentricity,
+                                inclination:        data.inclination !== undefined ? data.inclination : radToDeg(template!.orbit.inclination),
+                                argOfPeriapsis:     data.argOfPeriapsis !== undefined ? data.argOfPeriapsis : radToDeg(template!.orbit.argOfPeriapsis),
+                                ascNodeLongitude:   data.ascNodeLongitude !== undefined ? data.ascNodeLongitude : radToDeg(template!.orbit.ascNodeLongitude),
+                                meanAnomalyEpoch:   data.meanAnomalyEpoch !== undefined ? data.meanAnomalyEpoch : template!.orbit.meanAnomalyEpoch,
+                                epoch:              data.epoch !== undefined ? data.epoch : template!.orbit.epoch,
                                 orbiting:           parentId,
                             }
     }

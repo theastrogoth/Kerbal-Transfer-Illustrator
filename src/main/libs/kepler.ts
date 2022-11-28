@@ -23,46 +23,66 @@ namespace Kepler {
         }
     }
 
+    export function orbitalElementsAreInvalid(els: OrbitalElements) {
+        return  isNaN(els.semiMajorAxis) || 
+                isNaN(els.eccentricity) || 
+                isNaN(els.inclination) || 
+                isNaN(els.argOfPeriapsis) || 
+                isNaN(els.ascNodeLongitude) || 
+                isNaN(els.meanAnomalyEpoch) || 
+                isNaN(els.epoch) || 
+                isNaN(els.orbiting);
+    }
+
     export function keplerElementsAreEqual(els1: KeplerElements, els2: KeplerElements) {
-        let equal = true;
-        equal = equal && els1.semiMajorAxis     === els2.semiMajorAxis;
-        equal = equal && els1.eccentricity      === els2.eccentricity;
-        equal = equal && els1.inclination       === els2.inclination;
-        equal = equal && els1.argOfPeriapsis    === els2.argOfPeriapsis;
-        equal = equal && els1.ascNodeLongitude  === els2.ascNodeLongitude;
-        equal = equal && els1.meanAnomalyEpoch  === els2.meanAnomalyEpoch;
-        equal = equal && els1.epoch             === els2.epoch;
-        return equal;
+        return  els1.semiMajorAxis === els2.semiMajorAxis &&
+                els1.eccentricity === els2.eccentricity &&
+                els1.inclination === els2.inclination &&
+                els1.argOfPeriapsis === els2.argOfPeriapsis &&
+                els1.ascNodeLongitude === els2.ascNodeLongitude &&
+                els1.meanAnomalyEpoch === els2.meanAnomalyEpoch &&
+                els1.epoch === els2.epoch;
     }
 
     export function orbitalElementsAreEqual(els1: OrbitalElements, els2: OrbitalElements) {
-        let equal = keplerElementsAreEqual(els1, els2);
-        equal = equal && els1.orbiting === els2.orbiting;
-        return equal;
+        return  els1.semiMajorAxis === els2.semiMajorAxis &&
+                els1.eccentricity === els2.eccentricity &&
+                els1.inclination === els2.inclination &&
+                els1.argOfPeriapsis === els2.argOfPeriapsis &&
+                els1.ascNodeLongitude === els2.ascNodeLongitude &&
+                els1.meanAnomalyEpoch === els2.meanAnomalyEpoch &&
+                els1.epoch === els2.epoch &&
+                els1.orbiting === els2.orbiting;
     }
 
     export function orbitsAreEqual(orb1: IOrbit, orb2: IOrbit) {
-        let equal = orbitalElementsAreEqual(orb1, orb2);
-        equal = equal && orb1.siderealPeriod  === orb2.siderealPeriod;
-        equal = equal && orb1.semiLatusRectum === orb2.semiLatusRectum;
-        return equal;
+        return  orb1.semiMajorAxis === orb2.semiMajorAxis &&
+                orb1.eccentricity === orb2.eccentricity &&
+                orb1.inclination === orb2.inclination &&
+                orb1.argOfPeriapsis === orb2.argOfPeriapsis &&
+                orb1.ascNodeLongitude === orb2.ascNodeLongitude &&
+                orb1.meanAnomalyEpoch === orb2.meanAnomalyEpoch &&
+                orb1.epoch === orb2.epoch &&
+                orb1.orbiting === orb2.orbiting &&
+                orb1.siderealPeriod  === orb2.siderealPeriod &&
+                orb1.semiLatusRectum === orb2.semiLatusRectum;
     }
 
     export function maneuverComponentsAreEqual(man1: ManeuverComponents, man2: ManeuverComponents) {
-        let equal = true;
-        equal = equal && man1.prograde === man2.prograde;
-        equal = equal && man1.normal === man2.normal;
-        equal = equal && man1.radial === man2.radial;
-        equal = equal && man1.date === man2.date;
-        return equal;
+        return  man1.prograde === man2.prograde &&
+                man1.normal === man2.normal &&
+                man1.radial === man2.radial &&
+                man1.date === man2.date;
     }
 
     export function vesselsAreEqual(ves1: IVessel, ves2: IVessel) {
         let equal = orbitalElementsAreEqual(ves1.orbit, ves2.orbit);
+        if(!equal) { return false; }
         equal = equal && ves1.maneuvers.length === ves2.maneuvers.length;
         equal = equal && ves1.name === ves2.name;
         equal = equal && ves1.type === ves2.type;
         equal = equal && ves1.commRange === ves2.commRange;
+        if(!equal) { return false; }
         if(ves1.color !== ves2.color) {
             if(ves1.color !== undefined && ves2.color !== undefined) {
                 equal = equal && colorsAreEqual(ves1.color, ves2.color);

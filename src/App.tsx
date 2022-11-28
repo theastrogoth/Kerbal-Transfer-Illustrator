@@ -125,8 +125,20 @@ export const displayOptionsAtom = atom<DisplayOptions>({
 });
 
 // transfer planner state (atoms)
-export const transferStartOrbitAtom = atom(defaultOrbit(kspSystem, 1) as OrbitalElements);
-export const transferEndOrbitAtom = atom(defaultOrbit(kspSystem, 6) as OrbitalElements);
+export const transferStartOrbitAtom = atom({
+  name:       "Starting Orbit",
+  orbit:      defaultOrbit(kspSystem, 1),
+  maneuvers:  [],
+  type:       "Ship",
+  commRange:  0,
+} as IVessel);
+export const transferEndOrbitAtom = atom({
+  name:       "Target Orbit",
+  orbit:      defaultOrbit(kspSystem, 6),
+  maneuvers:  [],
+  type:       "Ship",
+  commRange:  0,
+} as IVessel);
 export const transferEarlyStartDateAtom = atom(makeDateFields(1,1,0));
 export const transferLateStartDateAtom = atom(makeDateFields()); 
 export const transferShortFlightTimeAtom = atom(makeDateFields());
@@ -144,8 +156,20 @@ export const transferControlsOptionsAtom = atom({
 });
 
 // flyby planner state (atoms)
-export const multiFlybyStartOrbitAtom = atom(defaultOrbit(kspSystem, 1) as OrbitalElements);
-export const multiFlybyEndOrbitAtom = atom(defaultOrbit(kspSystem, 16) as OrbitalElements);
+export const multiFlybyStartOrbitAtom = atom({
+  name:       "Starting Orbit",
+  orbit:      defaultOrbit(kspSystem, 1),
+  maneuvers:  [],
+  type:       "Ship",
+  commRange:  0,
+} as IVessel);
+export const multiFlybyEndOrbitAtom = atom({
+  name:       "Target Orbit",
+  orbit:      defaultOrbit(kspSystem, 16),
+  maneuvers:  [],
+  type:       "Ship",
+  commRange:  0,
+} as IVessel);
 export const flybyIdSequenceAtom = atom<number[]>([5, 8]);
 export const multiFlybyEarlyStartDateAtom = atom(makeDateFields(1,1,0));
 export const multiFlybyLateStartDateAtom = atom(makeDateFields());
@@ -181,7 +205,7 @@ export const configTreeAtom = atom<{tree: TreeNode<SunConfig | OrbitingBodyConfi
     return tree;
   }
 );
-export const systemScaleAtom = atom('1');
+export const systemScaleAtom = atom(1);
 
 function AppBody() {
   const [mode, setMode] = useAtom(lightModeAtom);

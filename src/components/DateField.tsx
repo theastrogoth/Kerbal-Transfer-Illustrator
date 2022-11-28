@@ -18,23 +18,15 @@ type DateFieldProps = {
     disabled?:          boolean,
 }
 
-function handleChange(setFunction: Function) {
-    return (
-        (event: React.ChangeEvent<HTMLInputElement>): void => {
-            setFunction(event.target.value)
-        }
-    )
-}
-
 function DateField({id, label, calendarDateAtom, required = false, error = false, correctFormat = false, variant = "hour", disabled = false}: DateFieldProps) {
     const [calendarDate, setCalendarDate] = useAtom(calendarDateAtom);
     const calendarDateRef = useRef(calendarDate);
 
-    const [year, setYear]       = useState(isNaN(calendarDate.year)   ? '' : String(calendarDate.year));
-    const [day, setDay]         = useState(isNaN(calendarDate.day)    ? '' : String(calendarDate.day));
-    const [hour, setHour]       = useState(isNaN(calendarDate.hour)   ? '' : String(calendarDate.hour));
-    const [minute, setMinute]   = useState(isNaN(calendarDate.minute) ? '' : String(calendarDate.minute));
-    const [second, setSecond]   = useState(isNaN(calendarDate.second) ? '' : String(calendarDate.second));
+    const [year, setYear]       = useState(isNaN(calendarDate.year)   ? undefined : calendarDate.year);
+    const [day, setDay]         = useState(isNaN(calendarDate.day)    ? undefined : calendarDate.day);
+    const [hour, setHour]       = useState(isNaN(calendarDate.hour)   ? undefined : calendarDate.hour);
+    const [minute, setMinute]   = useState(isNaN(calendarDate.minute) ? undefined : calendarDate.minute);
+    const [second, setSecond]   = useState(isNaN(calendarDate.second) ? undefined : calendarDate.second);
 
     const [timeSettings] = useAtom(timeSettingsAtom);
     const timeSettingsRef = useRef(timeSettings);
@@ -43,11 +35,11 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
     
     const NumField = required ? RequiredNumberField : NumberField;
     const HourField =   variant === "hhmmss" ? <HourMinSecField
-                                    hour={hour}
+                                    hour={hour || 0}
                                     setHour={setHour}
-                                    minute={minute}
+                                    minute={minute || 0}
                                     setMinute={setMinute}
-                                    second={second}
+                                    second={second || 0}
                                     setSecond={setSecond}
                                     error={error} 
                                     disabled={disabled}
@@ -57,7 +49,6 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                                     value={hour} 
                                     setValue={setHour}
                                     error={error}    
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHour(e.target.value)} 
                                     sx={{minWidth: "60px", maxWidth: "65px"}}
                                     disabled={disabled}
                                 /> :
@@ -68,7 +59,6 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                                 value={hour} 
                                 setValue={setHour}
                                 error={error}    
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHour(e.target.value)}
                                 sx={{minWidth: "60px", maxWidth: "65px"}}
                                 disabled={disabled}
                             />,
@@ -78,7 +68,6 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                                 value={minute} 
                                 setValue={setMinute}
                                 error={error}    
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMinute(e.target.value)} 
                                 sx={{minWidth: "60px", maxWidth: "65px"}}
                                 disabled={disabled}
                             />,
@@ -88,7 +77,6 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                                 value={second} 
                                 setValue={setSecond}
                                 error={error}    
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSecond(e.target.value)} 
                                 sx={{minWidth: "60px", maxWidth: "78px"}}
                                 disabled={disabled}
                             />,
@@ -100,34 +88,34 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
         } else if(calendarDateRef.current !== calendarDate) {
             if(calendarDateRef.current !== calendarDate) {
                 calendarDateRef.current = calendarDate;
-                if(calendarDate.year !== Number(year)) {
-                    setYear(isNaN(calendarDate.year) ? '' : String(calendarDate.year));
+                if(calendarDate.year !== year) {
+                    setYear(calendarDate.year);
                 }
-                if(calendarDate.day !== Number(day)) {
-                    setDay(isNaN(calendarDate.day) ? '' : String(calendarDate.day));
+                if(calendarDate.day !== day) {
+                    setDay(calendarDate.day);
                 }
-                if(calendarDate.hour !== Number(hour)) {
-                    setHour(isNaN(calendarDate.hour) ? '' : String(calendarDate.hour));
+                if(calendarDate.hour !== hour) {
+                    setHour(calendarDate.hour);
                 }
-                if(calendarDate.minute !== Number(minute)) {
-                    setMinute(isNaN(calendarDate.minute) ? '' : String(calendarDate.minute));
+                if(calendarDate.minute !== minute) {
+                    setMinute(calendarDate.minute);
                 }
-                if(calendarDate.second !== Number(second)) {
-                    setSecond(isNaN(calendarDate.second) ? '' : String(calendarDate.second));
+                if(calendarDate.second !== second) {
+                    setSecond(calendarDate.second);
                 }
             }
         } else if(!alreadyUpdatedFields.current) {
-            let newYear     = parseFloat(year);
-            let newDay      = parseFloat(day);
-            let newHour     = parseFloat(hour);
-            let newMinute   = parseFloat(minute);
-            let newSecond   = parseFloat(second);
+            let newYear     = year;
+            let newDay      = day;
+            let newHour     = hour;
+            let newMinute   = minute;
+            let newSecond   = second;
             if(correctFormat) {
-                newYear     = isNaN(newYear)   ? 0 : newYear;
-                newDay      = isNaN(newDay)    ? 0 : newDay;
-                newHour     = isNaN(newHour)   ? 0 : newHour;
-                newMinute   = isNaN(newMinute) ? 0 : newMinute;
-                newSecond   = isNaN(newSecond) ? 0 : newSecond;
+                newYear     = (newYear   === undefined || isNaN(newYear))   ? 0 : newYear;
+                newDay      = (newDay    === undefined || isNaN(newDay))    ? 0 : newDay;
+                newHour     = (newHour   === undefined || isNaN(newHour))   ? 0 : newHour;
+                newMinute   = (newMinute === undefined || isNaN(newMinute)) ? 0 : newMinute;
+                newSecond   = (newSecond === undefined || isNaN(newSecond)) ? 0 : newSecond;
     
                 let changeYear      = false;
                 let changeDay       = false;
@@ -211,11 +199,11 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                     changeYear = true;
                 }
     
-                if(changeYear)   { setYear(String(newYear)) };
-                if(changeDay)    { setDay(String(newDay)) };
-                if(changeHour)   { setHour(String(newHour)) };
-                if(changeMinute) { setMinute(String(newMinute)) };
-                if(changeSecond) { setSecond(String(newSecond)) };
+                if(changeYear)   { setYear(newYear) };
+                if(changeDay)    { setDay(newDay) };
+                if(changeHour)   { setHour(newHour) };
+                if(changeMinute) { setMinute(newMinute) };
+                if(changeSecond) { setSecond(newSecond) };
 
                 if(!(changeYear || changeDay || changeHour || changeMinute || changeSecond)) {
                     setCalendarDate({year: newYear, day: newDay, hour: newHour, minute: newMinute, second: newSecond});
@@ -223,10 +211,20 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                     alreadyUpdatedFields.current = true;
                 }
             } else {
-                setCalendarDate({year: newYear, day: newDay, hour: newHour, minute: newMinute, second: newSecond});
+                setCalendarDate({
+                    year: year === undefined ? NaN : year, 
+                    day: day === undefined ? NaN : day, 
+                    hour: hour === undefined ? NaN : hour, 
+                    minute: minute === undefined ? NaN : minute, 
+                    second: second === undefined ? NaN : second});
             }
         } else {
-            setCalendarDate({year: Number(year), day: Number(day), hour: Number(hour), minute: Number(minute), second: Number(second)});
+            setCalendarDate({
+                year: year === undefined ? NaN : year, 
+                day: day === undefined ? NaN : day, 
+                hour: hour === undefined ? NaN : hour, 
+                minute: minute === undefined ? NaN : minute, 
+                second: second === undefined ? NaN : second});
             alreadyUpdatedFields.current = false;
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -243,7 +241,6 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                     value={year}
                     setValue={setYear}
                     error={error}    
-                    onChange={handleChange(setYear)} 
                     sx={{minWidth: "60px", maxWidth: "65px"}}
                     disabled={disabled}
                 />      
@@ -252,7 +249,6 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                     value={day} 
                     setValue={setDay}
                     error={error}    
-                    onChange={handleChange(setDay)} 
                     sx={{minWidth: "60px", maxWidth: "65px"}}
                     disabled={disabled}
                 />            

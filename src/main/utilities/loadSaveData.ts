@@ -1,6 +1,5 @@
 import Kepler from "../libs/kepler";
 import Vessel from "../objects/vessel";
-import { degToRad } from "../libs/math";
 import parseConfigNodes from "./parseConfigNodes";
 import antennas from "./antennas.json";
 
@@ -42,9 +41,9 @@ function dataToVessel(vesselObject: any, system: ISolarSystem): IVessel {
     // orbit
     const sma   = parseFloat(vesselObject.ORBIT.SMA);
     const ecc   = parseFloat(vesselObject.ORBIT.ECC);
-    const inc   = degToRad(parseFloat(vesselObject.ORBIT.INC));
-    const arg   = degToRad(parseFloat(vesselObject.ORBIT.LPE));
-    const lan   = degToRad(parseFloat(vesselObject.ORBIT.LAN));
+    const inc   = parseFloat(vesselObject.ORBIT.INC);
+    const arg   = parseFloat(vesselObject.ORBIT.LPE);
+    const lan   = parseFloat(vesselObject.ORBIT.LAN);
     const mo    = parseFloat(vesselObject.ORBIT.MNA);
     const epoch = parseFloat(vesselObject.ORBIT.EPH); 
 

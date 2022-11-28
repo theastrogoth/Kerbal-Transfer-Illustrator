@@ -84,12 +84,11 @@ function FlybyAppContent() {
 
   function handleButtonPress() {
     // update orbits
-    let invalid = isInvalidOrbitInput(startOrbit);
-    invalid = isInvalidOrbitInput(endOrbit) ? true : invalid;
+    let invalid = isInvalidOrbitInput(startOrbit.orbit) || isInvalidOrbitInput(endOrbit.orbit);
 
     let transferBody: CelestialBody;
     try{
-      transferBody = system.bodyFromId(system.commonAttractorId(startOrbit.orbiting, endOrbit.orbiting));
+      transferBody = system.bodyFromId(system.commonAttractorId(startOrbit.orbit.orbiting, endOrbit.orbit.orbiting));
     } catch {
       setInvalidInput(true);
       return
@@ -109,7 +108,7 @@ function FlybyAppContent() {
       return
     }
 
-    const newMfSearchInputs = searchInputsFromUI(system, startOrbit, endOrbit, flybyIdSequence, earlyStartDate, lateStartDate, flightTimes, DSNperLeg, controlsOptionsState, timeSettings);
+    const newMfSearchInputs = searchInputsFromUI(system, startOrbit.orbit, endOrbit.orbit, flybyIdSequence, earlyStartDate, lateStartDate, flightTimes, DSNperLeg, controlsOptionsState, timeSettings);
     setMfSearchInputs(newMfSearchInputs);
     setButtonPresses(buttonPresses + 1);
 
