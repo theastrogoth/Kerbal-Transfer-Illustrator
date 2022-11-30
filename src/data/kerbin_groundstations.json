@@ -1,0 +1,65 @@
+[
+    {
+        "name": "KSC",
+        "bodyIndex": 1,
+        "latitude": -0.1025,
+        "longitude": -74.57527777777777,
+        "altitude": 100,
+        "type": "Center",
+        "commRange": 250000000000
+    },
+    {
+        "name": "Baikerbanur",
+        "bodyIndex": 1,
+        "latitude": 20.679167 ,
+        "longitude": -146.501111,
+        "altitude": 100,
+        "type": "Dish",
+        "commRange": 250000000000
+    },
+    {
+        "name": "Crater Rim",
+        "bodyIndex": 1,
+        "latitude": 9.45,
+        "longitude": -172.110278,
+        "altitude": 100,
+        "type": "Dish",
+        "commRange": 250000000000
+    },
+    {
+        "name": "Nye Island",
+        "bodyIndex": 1,
+        "latitude": 5.363611,
+        "longitude": 108.548056,
+        "altitude": 100,
+        "type": "Dish",
+        "commRange": 250000000000
+    },
+    {
+        "name": "Harvester Massif",
+        "bodyIndex": 1,
+        "latitude": -11.95,
+        "longitude": 33.740278,
+        "altitude": 100,
+        "type": "Dish",
+        "commRange": 250000000000
+    },
+    {
+        "name": "North Station One",
+        "bodyIndex": 1,
+        "latitude": 63.095,
+        "longitude": -90.079722,
+        "altitude": 100,
+        "type": "Dish",
+        "commRange": 250000000000
+    },
+    {
+        "name": "Mesa South",
+        "bodyIndex": 1,
+        "latitude": -59.589722,
+        "longitude": -25.861667,
+        "altitude": 100,
+        "type": "Dish",
+        "commRange": 250000000000
+    }
+]

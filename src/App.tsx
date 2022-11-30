@@ -20,6 +20,8 @@ import ksrssconfigs from './data/ksrss_configs.json';
 import jnsqconfigs from './data/jnsq_configs.json';
 import galileoconfigs from './data/galileo_configs.json';
 
+import kerbingroundstations from './data/kerbin_groundstations.json';
+
 import SolarSystem from './main/objects/system';
 import Vessel from './main/objects/vessel';
 import loadSystemData, { loadSystemFromConfigs } from './main/utilities/loadSystem';
@@ -36,6 +38,8 @@ const jnsqSystem = loadSystemFromConfigs(jnsqconfigs, kspSystem);
 const rssSystem = loadSystemFromConfigs(rssconfigs, kspSystem);
 const ksrssSystem = loadSystemFromConfigs(ksrssconfigs, kspSystem);
 const galileoSystem = loadSystemFromConfigs(galileoconfigs, kspSystem);
+
+const kerbinGroundStations = kerbingroundstations.map(gs => gs as LandedVessel);
 
 const systemOptions = new Map<string, SolarSystem>()
 systemOptions.set('Kerbol System (Stock)', kspSystem);
@@ -91,6 +95,7 @@ export const systemAtom = atom<SolarSystem>(
 );
 export const vesselsAtom = atom([] as Vessel[]);
 export const landedVesselsAtom = atom([] as LandedVessel[]);
+export const groundStationsAtom = atom(kerbinGroundStations);
 export const timeSettingsAtom = atom(kspTimeSettings);
 
 export const copiedOrbitAtom = atom(defaultOrbit(kspSystem) as IOrbit);

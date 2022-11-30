@@ -1,7 +1,7 @@
 import Kepler from "../libs/kepler";
 import Vessel from "../objects/vessel";
 import parseConfigNodes from "./parseConfigNodes";
-import antennas from "./antennas.json";
+import antennas from "../../data/antennas.json";
 
 function dataToCommRange(vesselObject: any): number {
     let bestDistance = 0;

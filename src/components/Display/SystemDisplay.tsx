@@ -10,7 +10,7 @@ import Kepler from '../../main/libs/kepler';
 import { vec3, add3 } from '../../main/libs/math';
 
 import { PrimitiveAtom, useAtom } from 'jotai';
-import { displayOptionsAtom } from '../../App';
+import { displayOptionsAtom, groundStationsAtom } from '../../App';
 
 type OrbiterDisplayProps = {
     body:           OrbitingBody,
@@ -116,9 +116,11 @@ function OrbiterDisplay({index, tabValue, body, system, plotSize, date, depth, c
 
 function SystemDisplay({index, tabValue, centralBody, system, plotSize, date, isSun = true, depth = 0, centeredAt = vec3(0,0,0), flightPlans = [], infoItemAtom, setTarget}: SystemDisplayProps) {
     const [displayOptions] = useAtom(displayOptionsAtom);
+    const [groundStations, ] = useAtom(groundStationsAtom);
     
     const bodyFlightPlans = flightPlans.map((flightPlan) => flightPlan.trajectories.map((trajectory, trajIndex) => {return {trajectory, index: trajIndex}}).filter(traj => traj.trajectory.orbits[0].orbiting === centralBody.id));
     const iconInfos = bodyFlightPlans.map((trajectories, index) => trajectories.map(trajectory => getTrajectoryIcons(trajectory.trajectory, trajectory.index, flightPlans[index], centralBody, system)));
+    const bodyGroundStations = groundStations.filter(gs => gs.bodyIndex === centralBody.id);
 
     return (
         <>
@@ -133,6 +135,7 @@ function SystemDisplay({index, tabValue, centralBody, system, plotSize, date, is
                 centeredAt={centeredAt}
                 infoItemAtom={infoItemAtom}
                 setTarget={setTarget}
+                landedVessels={bodyGroundStations}
             />
             {centralBody.orbiters.map((body, index) => {
                 return <OrbiterDisplay 
