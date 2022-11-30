@@ -69,7 +69,6 @@ function getGroundPosition(radius: number, plotSize: number, vessel: LandedVesse
     const coslong = Math.cos(longRad);
     const sinlong = Math.sin(longRad);
     const groundPos = [-r * coslong * coslat, r * sinlat, r * sinlong * coslat];
-    console.log(r, Math.sqrt(groundPos[1] * groundPos[1] + groundPos[2] * groundPos[2] + groundPos[0] * groundPos[0] ))
     return groundPos;
 }
 
