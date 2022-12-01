@@ -16,7 +16,7 @@ import Trajectories from '../../main/libs/trajectories';
 import ReferenceLine from './ReferenceLine';
 
 import { PrimitiveAtom, useAtom } from 'jotai';
-import { displayOptionsAtom, groundStationsAtom } from '../../App';
+import { displayOptionsAtom, landedVesselsAtom } from '../../App';
 import ParentBodies from './ParentBodies';
 import CommLines from './CommLines';
 
@@ -52,7 +52,7 @@ function getTargetPosition(target: ICelestialBody | IOrbitingBody | IVessel | IO
 
 function OrbitPlot({index, tabValue, centralBody, system, date, flightPlans=[], infoItemAtom}: OrbitPlotProps) {
     const [displayOptions] = useAtom(displayOptionsAtom);
-    const [groundStations] = useAtom(groundStationsAtom);
+    const [landedVessels] = useAtom(landedVesselsAtom);
     const [plotSize, setPlotSize] = useState(getPlotSize(centralBody));
     const state = useThree();
     
@@ -101,7 +101,7 @@ function OrbitPlot({index, tabValue, centralBody, system, date, flightPlans=[], 
             /> 
             <CommLines
                 flightPlans={flightPlans}
-                landedVessels={groundStations}
+                landedVessels={landedVessels}
                 centralBody={centralBody}
                 system={system}
                 date={date}

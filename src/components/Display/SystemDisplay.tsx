@@ -10,7 +10,7 @@ import Kepler from '../../main/libs/kepler';
 import { vec3, add3 } from '../../main/libs/math';
 
 import { PrimitiveAtom, useAtom } from 'jotai';
-import { displayOptionsAtom, groundStationsAtom } from '../../App';
+import { commsOptionsAtom, displayOptionsAtom, groundStationsAtom, landedVesselsAtom, systemNameAtom } from '../../App';
 
 type OrbiterDisplayProps = {
     body:           OrbitingBody,
@@ -116,11 +116,23 @@ function OrbiterDisplay({index, tabValue, body, system, plotSize, date, depth, c
 
 function SystemDisplay({index, tabValue, centralBody, system, plotSize, date, isSun = true, depth = 0, centeredAt = vec3(0,0,0), flightPlans = [], infoItemAtom, setTarget}: SystemDisplayProps) {
     const [displayOptions] = useAtom(displayOptionsAtom);
-    const [groundStations, ] = useAtom(groundStationsAtom);
+    const [commsOptions] = useAtom(commsOptionsAtom);
+    const [systemName] = useAtom(systemNameAtom);
+    const [groundStations] = useAtom(groundStationsAtom);
+    const [landedVessels] = useAtom(landedVesselsAtom);
     
     const bodyFlightPlans = flightPlans.map((flightPlan) => flightPlan.trajectories.map((trajectory, trajIndex) => {return {trajectory, index: trajIndex}}).filter(traj => traj.trajectory.orbits[0].orbiting === centralBody.id));
     const iconInfos = bodyFlightPlans.map((trajectories, index) => trajectories.map(trajectory => getTrajectoryIcons(trajectory.trajectory, trajectory.index, flightPlans[index], centralBody, system)));
-    const bodyGroundStations = groundStations.filter(gs => gs.bodyIndex === centralBody.id);
+
+    const bodyLandedVessels = landedVessels.filter(lv => lv.bodyIndex === centralBody.id);
+    if (centralBody.id === 1 && (systemName === "Kerbol System (Stock)" || systemName === "Kerbol System (OPM)") ) {
+        if (commsOptions.spaceCenter) {
+            bodyLandedVessels.push(groundStations[0]);
+        }
+        if (commsOptions.groundStations) {
+            bodyLandedVessels.push(...groundStations.slice(1));
+        }
+    }
 
     return (
         <>
@@ -135,7 +147,7 @@ function SystemDisplay({index, tabValue, centralBody, system, plotSize, date, is
                 centeredAt={centeredAt}
                 infoItemAtom={infoItemAtom}
                 setTarget={setTarget}
-                landedVessels={bodyGroundStations}
+                landedVessels={bodyLandedVessels}
             />
             {centralBody.orbiters.map((body, index) => {
                 return <OrbiterDisplay 

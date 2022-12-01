@@ -7,10 +7,13 @@ import { bodiesBlockComms, signalStrength } from '../../main/libs/comm';
 import { TWO_PI, Z_DIR, div3, degToRad, roderigues, vec3, add3 } from '../../main/libs/math';
 
 import { useAtom } from 'jotai';
-import { displayOptionsAtom } from '../../App';
+import { commsOptionsAtom, displayOptionsAtom, systemNameAtom } from '../../App';
 import CelestialBody, { OrbitingBody } from '../../main/objects/body';
 import Kepler from '../../main/libs/kepler';
 import Trajectories from '../../main/libs/trajectories';
+
+import { groundStationsAtom } from '../../App';
+
 
 type CommLineProps = {
     flightPlan1:    FlightPlan,
@@ -62,6 +65,7 @@ function CommLine({flightPlan1, flightPlan2, centralBody, system, date, plotSize
     if ( orb1 === null) { return <></> };
     const orb2 = Trajectories.currentOrbitForFlightPlan(flightPlan2, date);
     if ( orb2 === null) { return <></> };
+    if (system.commonAttractorId(orb1.orbiting, orb2.orbiting) !== centralBody.id) { return <></> }
     let pos1 = Kepler.orbitPositionFromCentralBody(orb1, system, centralBody, date);
     let pos2 = Kepler.orbitPositionFromCentralBody(orb2, system, centralBody, date);
     const strength = signalStrength(flightPlan1.commRange as number, flightPlan2.commRange as number, pos1, pos2);
@@ -89,6 +93,7 @@ function MixedLine({flightPlan, landedVessel, centralBody, system, date, plotSiz
     if ( (landedVessel.bodyIndex || 0) === 0) { return <></>}
     const orb = Trajectories.currentOrbitForFlightPlan(flightPlan, date);
     if ( orb === null) { return <></> };
+    if (system.commonAttractorId(orb.orbiting, landedVessel.bodyIndex) !== centralBody.id) { return <></> }
     let pos1 = Kepler.orbitPositionFromCentralBody(orb, system, centralBody, date);
     const body2 = (system.bodyFromId(landedVessel.bodyIndex) as OrbitingBody);
     let pos2 =Kepler.orbitPositionFromCentralBody(body2.orbit, system, centralBody, date);
@@ -118,6 +123,7 @@ function GroundLine({landedVessel1, landedVessel2, centralBody, system, date, pl
     if ( (landedVessel1.commRange || 0) === 0) { return <></> }
     if ( (landedVessel2.commRange || 0) === 0) { return <></> }
     if ( (landedVessel2.bodyIndex || 0) === 0) { return <></>}
+    if (system.commonAttractorId(landedVessel1.bodyIndex, landedVessel2.bodyIndex) !== centralBody.id) { return <></> }
     const body1 = (system.bodyFromId(landedVessel1.bodyIndex) as OrbitingBody);
     const body2 = (system.bodyFromId(landedVessel2.bodyIndex) as OrbitingBody);
     let pos1 = Kepler.orbitPositionFromCentralBody(body1.orbit, system, centralBody, date);
@@ -178,15 +184,28 @@ function getCombos2(len1: number, len2: number) {
 
 
 function CommLines({flightPlans, landedVessels, centralBody, system, date, plotSize}: CommLinesProps) {
+    const [groundStations] = useAtom(groundStationsAtom);
+    const [commsOptions] = useAtom(commsOptionsAtom);
+    const [systemName] = useAtom(systemNameAtom);
     const [commCombos, setCommCombos] = useState(getCombos(flightPlans.length));
     const [mixCombos, setMixCombos] = useState(getCombos2(flightPlans.length, landedVessels.length));
     const [groundCombos, setGroundCombos] = useState(getCombos(landedVessels.length));
 
+    const allGroundComms = [...landedVessels];
+    if (systemName === "Kerbol System (Stock)" || systemName === "Kerbol System (OPM)") {
+        if (commsOptions.spaceCenter) {
+            allGroundComms.push(groundStations[0]);
+        } 
+        if (commsOptions.groundStations) {
+            allGroundComms.push(...groundStations.slice(1));
+        }
+    }
+
     useEffect(() => {
         setCommCombos(getCombos(flightPlans.length))
-        setMixCombos(getCombos2(flightPlans.length, landedVessels.length))
-        setGroundCombos(getCombos(landedVessels.length))
-    }, [flightPlans.length, landedVessels.length])
+        setMixCombos(getCombos2(flightPlans.length, allGroundComms.length))
+        setGroundCombos(getCombos(allGroundComms.length))
+    }, [flightPlans.length, allGroundComms.length])
     return (<>
         { commCombos.map(x => <CommLine 
                             key={"c" + String(x[0]) + String(x[1])}
@@ -201,7 +220,7 @@ function CommLines({flightPlans, landedVessels, centralBody, system, date, plotS
         { mixCombos.map(x => <MixedLine 
                     key={"m" + String(x[0]) + String(x[1])}
                     flightPlan={flightPlans[x[0]]} 
-                    landedVessel={landedVessels[x[1]]} 
+                    landedVessel={allGroundComms[x[1]]} 
                     centralBody={centralBody} 
                     system={system}
                     date={date} 
@@ -210,8 +229,8 @@ function CommLines({flightPlans, landedVessels, centralBody, system, date, plotS
         }
             { groundCombos.map(x => <GroundLine 
                 key={"g" + String(x[0]) + String(x[1])}
-                landedVessel1={landedVessels[x[0]]} 
-                landedVessel2={landedVessels[x[1]]} 
+                landedVessel1={allGroundComms[x[0]]} 
+                landedVessel2={allGroundComms[x[1]]} 
                 centralBody={centralBody} 
                 system={system}
                 date={date} 

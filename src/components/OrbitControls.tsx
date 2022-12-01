@@ -16,11 +16,10 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { defaultOrbit } from "../utils";
 
 import { useAtom } from "jotai";
-import { systemAtom, vesselsAtom, copiedOrbitAtom } from "../App";
+import { systemAtom, vesselsAtom, copiedOrbitAtom, commsOptionsAtom } from "../App";
 import { Typography } from "@mui/material";
 import BodySelect from "./BodySelect";
 import { radToDeg } from "../main/libs/math";
-
 
 type OrbitControlsProps = {
     label:          string,
@@ -34,6 +33,8 @@ function OrbitControls({label, vessel, setVessel, vesselSelect = true}: OrbitCon
 
     const [vessels] = useAtom(vesselsAtom);
     const vesselsRef = useRef(vessels);
+
+    const [commsOptions, setCommsOptions] = useAtom(commsOptionsAtom);
 
     const [system] = useAtom(systemAtom);
     const systemRef = useRef(system);
@@ -126,6 +127,7 @@ function OrbitControls({label, vessel, setVessel, vesselSelect = true}: OrbitCon
                 setVessel({...vessel, orbit: vessels[vesselId].orbit});
                 orbitRef.current = vessels[vesselId].orbit;
             }
+            setCommsOptions({...commsOptions, commStrength: vessels[vesselId].commRange / 1e6});
         }
         // I've disabled the check for exhaustive deps to remove the warning for missing the setters, which shouldn't cause an issue.
         // eslint-disable-next-line react-hooks/exhaustive-deps

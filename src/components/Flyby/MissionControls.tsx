@@ -4,13 +4,14 @@ import FlybyDateControls from "./FlybyDateControls";
 import TimeSettingsControls from "../TimeSettingsControls";
 import ControlsOptions from "../ControlsOptions";
 import SystemSelect from "../SystemSelect";
+import CommsControls from "../Transfer/CommsControls";
 
 import Stack from "@mui/material/Stack";
 import Box from '@mui/system/Box';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 
-import { multiFlybyStartOrbitAtom, multiFlybyEndOrbitAtom, multiFlybyControlsOptionsAtom } from "../../App";
+import { multiFlybyStartOrbitAtom, multiFlybyEndOrbitAtom, multiFlybyControlsOptionsAtom, commsOptionsAtom } from "../../App";
 import { useAtom } from "jotai";
 
 function MissionControls() {
@@ -37,6 +38,9 @@ function MissionControls() {
                 <Divider />
                 <Typography variant="h6">Mission Settings</Typography>
                 <ControlsOptions optsAtom={multiFlybyControlsOptionsAtom}/>
+                <Divider />
+                <Typography variant="h6">CommNet Settings</Typography>
+                <CommsControls optsAtom={commsOptionsAtom} showStrength={true}/>
             </Stack>
         </Stack>
     )

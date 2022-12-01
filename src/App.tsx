@@ -129,20 +129,27 @@ export const displayOptionsAtom = atom<DisplayOptions>({
   skyBox:         false,
 });
 
+export const commsOptionsAtom = atom<{spaceCenter: boolean, groundStations: boolean, commStrength: number, trackingLevel: number}>({
+  spaceCenter:      true,
+  groundStations:   true,
+  commStrength:     0,
+  trackingLevel:    3,
+})
+
 // transfer planner state (atoms)
 export const transferStartOrbitAtom = atom({
   name:       "Starting Orbit",
   orbit:      defaultOrbit(kspSystem, 1),
   maneuvers:  [],
   type:       "Ship",
-  commRange:  0,
+  commRange:  100000000000,
 } as IVessel);
 export const transferEndOrbitAtom = atom({
   name:       "Target Orbit",
   orbit:      defaultOrbit(kspSystem, 6),
   maneuvers:  [],
   type:       "Ship",
-  commRange:  0,
+  commRange:  100000000000,
 } as IVessel);
 export const transferEarlyStartDateAtom = atom(makeDateFields(1,1,0));
 export const transferLateStartDateAtom = atom(makeDateFields()); 
@@ -166,14 +173,14 @@ export const multiFlybyStartOrbitAtom = atom({
   orbit:      defaultOrbit(kspSystem, 1),
   maneuvers:  [],
   type:       "Ship",
-  commRange:  0,
+  commRange:  100000000000,
 } as IVessel);
 export const multiFlybyEndOrbitAtom = atom({
   name:       "Target Orbit",
   orbit:      defaultOrbit(kspSystem, 16),
   maneuvers:  [],
   type:       "Ship",
-  commRange:  0,
+  commRange:  100000000000,
 } as IVessel);
 export const flybyIdSequenceAtom = atom<number[]>([5, 8]);
 export const multiFlybyEarlyStartDateAtom = atom(makeDateFields(1,1,0));

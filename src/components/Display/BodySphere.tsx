@@ -18,6 +18,35 @@ const textureLoader = new THREE.TextureLoader();
 const sphereTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/sphere.png");
 const kscTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/ksc.png");
 const dishTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/dish.png");
+const podTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/pod.png");
+const probeTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/probe.png");
+const relayTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/relay.png");
+const planeTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/plane.png");
+const evaTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/eva.png");
+const stationTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/station.png");
+const landerTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/lander.png");
+const asteroidTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/asteroid.png");
+const debrisTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/debris.png");
+const roverTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/rover.png");
+const baseTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/base.png");
+// const flagTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/flag.png");
+
+const iconMap = new Map<string, THREE.Texture>([
+    ["Center",      kscTexture],
+    ["Dish",        dishTexture],
+    ["Ship",        podTexture],
+    ["Probe",       probeTexture],
+    ["Relay",       relayTexture],
+    ["Plane",       planeTexture],
+    ["Eva",         evaTexture],
+    ["Station",     stationTexture],
+    ["Lander",      landerTexture],
+    ["SpaceObject", asteroidTexture],
+    ["Debris",      debrisTexture],
+    ["Rover",       roverTexture],
+    ["Base",        baseTexture],
+    // ["Flag",        flagTexture],
+])
 
 type BodySphereProps = {
     body:           CelestialBody,
@@ -77,6 +106,11 @@ function LandedObject({position, rotation, radius, plotSize, vessel, visible}: {
     const groundPos = new THREE.Vector3(...groundPosVec.current);
     groundPos.applyAxisAngle(new THREE.Vector3(0,1,0), rotation);
     groundPos.add(position);
+    
+    const [texture, setTexture] = useState(iconMap.get(String(vessel.type)));
+    useEffect(() => {
+        setTexture(iconMap.get(String(vessel.type)));
+    }, [vessel])
 
     return (
         <sprite
@@ -84,7 +118,7 @@ function LandedObject({position, rotation, radius, plotSize, vessel, visible}: {
             scale={[0.05,0.05,0.05]}
             position={groundPos}
         >
-            <spriteMaterial map={vessel.type === "Center" ? kscTexture : dishTexture} sizeAttenuation={false} color={'white'} depthTest={false} visible={visible}/>
+            <spriteMaterial map={texture || dishTexture} sizeAttenuation={false} color={'white'} depthTest={false} visible={visible}/>
         </sprite>
     )
 }
@@ -222,8 +256,8 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
                 <div>{body.name}</div> 
             </Html>
         }
-        {landedVessels.map(lv => 
-            <LandedObject position={position} rotation={rotation} radius={body.radius} plotSize={plotSize} vessel={lv} visible={veryCloseVisible}/>
+        {landedVessels.map((lv, idx) => 
+            <LandedObject key={idx} position={position} rotation={rotation} radius={body.radius} plotSize={plotSize} vessel={lv} visible={veryCloseVisible}/>
         )}
         </>
     )
