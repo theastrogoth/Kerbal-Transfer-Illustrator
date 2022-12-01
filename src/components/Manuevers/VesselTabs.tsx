@@ -19,7 +19,7 @@ import TimeSettingsControls from "../TimeSettingsControls";
 import { defaultOrbit } from "../../utils";
 
 import { useAtom } from "jotai";
-import { systemAtom, vesselPlansAtom, vesselsAtom } from "../../App";
+import { landedVesselPlansAtom, landedVesselsAtom, systemAtom, vesselPlansAtom, vesselsAtom } from "../../App";
 
 function createPlanItems(vesselPlans: IVessel[]) {
     const options = vesselPlans.map((p,i) => <MenuItem key={i} value={i}>{p.name}</MenuItem> )
@@ -44,7 +44,9 @@ const VesselTabPanel = React.memo(function WrappedVesselTabPanel({value, index, 
 function VesselTabs() {
     const [system] = useAtom(systemAtom);
     const [vesselPlans, setVesselPlans] = useAtom(vesselPlansAtom);
+    const [, setLandedVesselPlans] = useAtom(landedVesselPlansAtom)
     const [vessels] = useAtom(vesselsAtom);
+    const [landedVessels] = useAtom(landedVesselsAtom);
 
     const [value, setValue] = useState(0);
     const [tabValues, setTabValues] = useState([] as number[]);
@@ -91,25 +93,25 @@ function VesselTabs() {
 
     const handleClear = () => {
         const newVesselPlans: IVessel[] = [];
+        const newLandedVesselPlans: LandedVessel[] = [];
         setValue(0);
         setTabValues([]);
         setVesselPlans(newVesselPlans);
+        setLandedVesselPlans(newLandedVesselPlans);
     }
 
-    const handleAddSavedVessels = () => {
-        const newVesselPlans = vessels.filter( x => x.type !== "SpaceObject" && x.type !== "Debris");
-        setValue(0);
-        setTabValues(newVesselPlans.map((p,i) => i));
-        setVesselPlans(newVesselPlans);
-        
-    }
+    // const handleAddSavedVessels = () => {
+    //     const newVesselPlans = vessels.filter( x => x.type !== "SpaceObject" && x.type !== "Debris");
+    //     setValue(0);
+    //     setTabValues(newVesselPlans.map((p,i) => i));
+    //     setVesselPlans(newVesselPlans);
+    // }
 
     const handleAddSavedRelays = () => {
         const newVesselPlans = vessels.filter( x => x.type === "Relay");
         setValue(0);
         setTabValues(newVesselPlans.map((p,i) => i));
-        setVesselPlans(newVesselPlans);
-        
+        setVesselPlans(newVesselPlans);  
     }
 
     const handleAddSavedObjects = () => {
@@ -117,7 +119,11 @@ function VesselTabs() {
         setValue(0);
         setTabValues(newVesselPlans.map((p,i) => i));
         setVesselPlans(newVesselPlans);
-        
+    }
+
+    const handleAddSavedLandedVessels = () => {
+        const newLandedVesselPlans = [...landedVessels];
+        setLandedVesselPlans(newLandedVesselPlans);
     }
 
     return (
@@ -141,7 +147,7 @@ function VesselTabs() {
                         onClick={handleClear}
                         startIcon={<ClearIcon />}
                     >
-                        Clear All Flight Plans
+                        Clear All
                     </Button>
                     {/* <Button sx={{border: "1px solid"}} onClick={handleRemoveVessel(vesselPlans, setVesselPlans, value, setValue, tabValues, setTabValues)}>
                         <RemoveIcon />
@@ -149,12 +155,12 @@ function VesselTabs() {
                 </Stack>
                 { vessels.length > 0 &&
                     <Stack direction="row" spacing={2} textAlign="center" justifyContent="center">
-                        <Button
+                        {/* <Button
                             onClick={handleAddSavedVessels}
                             startIcon={<AddIcon />}
                         >
                             Load All Crafts
-                        </Button>
+                        </Button> */}
                         <Button
                             onClick={handleAddSavedRelays}
                             startIcon={<AddIcon />}
@@ -166,6 +172,12 @@ function VesselTabs() {
                             startIcon={<AddIcon />}
                         >
                             Load All Space Objects
+                        </Button>
+                        <Button
+                            onClick={handleAddSavedLandedVessels}
+                            startIcon={<AddIcon />}
+                        >
+                            Show All Landed Crafts
                         </Button>
                     </Stack>
                     }

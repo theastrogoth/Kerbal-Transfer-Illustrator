@@ -16,7 +16,7 @@ import Trajectories from '../../main/libs/trajectories';
 import ReferenceLine from './ReferenceLine';
 
 import { PrimitiveAtom, useAtom } from 'jotai';
-import { displayOptionsAtom, landedVesselsAtom } from '../../App';
+import { displayOptionsAtom } from '../../App';
 import ParentBodies from './ParentBodies';
 import CommLines from './CommLines';
 
@@ -27,6 +27,7 @@ export type OrbitPlotProps = {
     system:             SolarSystem,
     date:               number,
     flightPlans?:       FlightPlan[],
+    landedVessels?:     LandedVessel[],
     infoItemAtom:       PrimitiveAtom<InfoItem>,
 }
 
@@ -50,9 +51,8 @@ function getTargetPosition(target: ICelestialBody | IOrbitingBody | IVessel | IO
     return orbit === null ? vec3(0,0,0) : Kepler.orbitPositionFromCentralBody(orbit, system, centralBody, date);
 }
 
-function OrbitPlot({index, tabValue, centralBody, system, date, flightPlans=[], infoItemAtom}: OrbitPlotProps) {
+function OrbitPlot({index, tabValue, centralBody, system, date, flightPlans=[], landedVessels=[], infoItemAtom}: OrbitPlotProps) {
     const [displayOptions] = useAtom(displayOptionsAtom);
-    const [landedVessels] = useAtom(landedVesselsAtom);
     const [plotSize, setPlotSize] = useState(getPlotSize(centralBody));
     const state = useThree();
     
@@ -86,6 +86,7 @@ function OrbitPlot({index, tabValue, centralBody, system, date, flightPlans=[], 
                 centralBody={centralBody}
                 system={system}
                 flightPlans={flightPlans}
+                landedVessels={landedVessels}
                 plotSize={plotSize}
                 date={date}
                 isSun={isSun}
@@ -109,7 +110,7 @@ function OrbitPlot({index, tabValue, centralBody, system, date, flightPlans=[], 
             />
             <ambientLight key={'ambient'} intensity={0.1} />
             <ReferenceLine />
-            <OrbitControls enablePan={false} rotateSpeed={0.5} zoomSpeed={1} target={targetPosition.current} />
+            <OrbitControls enablePan={false} rotateSpeed={0.5} zoomSpeed={2.5} target={targetPosition.current} />
         </>
     )
 }

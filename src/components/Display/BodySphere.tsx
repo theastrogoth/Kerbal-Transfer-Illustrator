@@ -29,7 +29,7 @@ const asteroidTexture = textureLoader.load("https://raw.githubusercontent.com/th
 const debrisTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/debris.png");
 const roverTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/rover.png");
 const baseTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/base.png");
-// const flagTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/flag.png");
+const flagTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/flag.png");
 
 const iconMap = new Map<string, THREE.Texture>([
     ["Center",      kscTexture],
@@ -45,7 +45,7 @@ const iconMap = new Map<string, THREE.Texture>([
     ["Debris",      debrisTexture],
     ["Rover",       roverTexture],
     ["Base",        baseTexture],
-    // ["Flag",        flagTexture],
+    ["Flag",        flagTexture],
 ])
 
 type BodySphereProps = {

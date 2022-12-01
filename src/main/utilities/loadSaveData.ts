@@ -103,7 +103,8 @@ function dataToLandedVessel(vesselObject: any): LandedVessel {
     const latitude = parseFloat(vesselObject.lat);
     const longitude = parseFloat(vesselObject.lon);
     const altitude = parseFloat(vesselObject.alt) + parseFloat(vesselObject.hgt);
-    return {name, type, bodyIndex, latitude, longitude, altitude}
+    const commRange = dataToCommRange(vesselObject);
+    return {name, type, bodyIndex, latitude, longitude, altitude, commRange}
 }
 
 function saveDataToVessels(saveData: any, system: ISolarSystem): {vessels: Vessel[], landedVessels: LandedVessel[]} {

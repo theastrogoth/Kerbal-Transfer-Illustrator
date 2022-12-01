@@ -29,6 +29,7 @@ export type OrbitDisplayProps = {
   centralBody:        CelestialBody,
   system:             SolarSystem,
   flightPlans?:       FlightPlan[],
+  landedVessels?:     LandedVessel[],
   startDate?:         number,
   endDate?:           number,
   slider?:            boolean,
@@ -40,7 +41,7 @@ interface OrbitDisplayPropsWithInfo extends OrbitDisplayProps {
   infoItemAtom: PrimitiveAtom<InfoItem>,
 }
 
-function OrbitDisplay({tabValue = 0, index, centralBody, system, flightPlans=[], startDate=0, endDate=startDate + 9201600, slider=false, marks=[], infoItemAtom}: OrbitDisplayPropsWithInfo) {
+function OrbitDisplay({tabValue = 0, index, centralBody, system, flightPlans=[], landedVessels=[], startDate=0, endDate=startDate + 9201600, slider=false, marks=[], infoItemAtom}: OrbitDisplayPropsWithInfo) {
   const sDate = Number.isFinite(startDate) && !isNaN(startDate) ? startDate : (
                 Number.isFinite(endDate) && !isNaN(endDate) ? endDate : 0);
   const eDate = Number.isFinite(endDate) && !isNaN(endDate) ? endDate : (
@@ -154,6 +155,7 @@ function OrbitDisplay({tabValue = 0, index, centralBody, system, flightPlans=[],
           system={system} 
           date={date} 
           flightPlans={flightPlans}
+          landedVessels={landedVessels}
           infoItemAtom={infoItemAtom}
         />
       </Canvas>

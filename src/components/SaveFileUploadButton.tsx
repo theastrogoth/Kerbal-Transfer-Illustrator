@@ -41,7 +41,7 @@ function SaveFileUploadButton() {
               component="span" 
               startIcon={<UploadFileOutlined />}
       >
-        Upload Save File
+        Load Save File
       </Button>
     </label>
   </>)
