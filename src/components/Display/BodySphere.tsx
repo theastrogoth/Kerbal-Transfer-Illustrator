@@ -110,7 +110,11 @@ function LandedObject({position, rotation, radius, plotSize, vessel, visible}: {
     const [texture, setTexture] = useState(iconMap.get(String(vessel.type)));
     useEffect(() => {
         setTexture(iconMap.get(String(vessel.type)));
-    }, [vessel])
+    }, [vessel.type])
+    useEffect(() => {
+        groundPosVec.current = getGroundPosition(radius, plotSize, vessel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [plotSize, radius, vessel.altitude, vessel.latitude, vessel.longitude])
 
     return (
         <sprite
