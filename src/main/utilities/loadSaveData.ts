@@ -135,7 +135,6 @@ function saveDataToVessels(saveData: any, system: ISolarSystem): {vessels: Vesse
 function saveFileToVessels(saveFile: string, system: ISolarSystem): {vessels: Vessel[], landedVessels: LandedVessel[]} {
     const saveData = parseConfigNodes(saveFile);
     const {vessels, landedVessels} = saveDataToVessels(saveData, system);
-    console.log(landedVessels)
     return {vessels, landedVessels};
 }
 

@@ -30,7 +30,7 @@ import { useAtom } from "jotai";
 import { copiedFlightPlanAtom, vesselPlansAtom, vesselsAtom } from "../../App";
 import { flightPlannerVesselOpenAtom, flightPlannerOrbitsOpenAtom, flightPlannerManeuversOpenAtom } from "./VesselTabs";
 
-function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, tabValues: number[], setTabValues: React.Dispatch<React.SetStateAction<number[]>>, setValue: React.Dispatch<React.SetStateAction<number>>}) {
+function VesselControls({idx, value, tabValue, tabValues, setTabValue, setTabValues, setValue}: {idx: number, value: number, tabValue: number, tabValues: number[], setTabValue: React.Dispatch<React.SetStateAction<number>>, setTabValues: React.Dispatch<React.SetStateAction<number[]>>, setValue: React.Dispatch<React.SetStateAction<number>>}) {
     const [vesselPlans, setVesselPlans] = useAtom(vesselPlansAtom);
     const [vessels] = useAtom(vesselsAtom);
     const [copiedFlightPlan] = useAtom(copiedFlightPlanAtom);
@@ -38,6 +38,8 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
     const [vesselOpen, setVesselOpen] = useAtom(flightPlannerVesselOpenAtom);
     const [orbitOpen, setOrbitOpen] = useAtom(flightPlannerOrbitsOpenAtom);
     const [maneuversOpen, setManeuversOpen] = useAtom(flightPlannerManeuversOpenAtom);
+    
+    const [updateOrbit, setUpdateOrbit] = useState(false);
 
     const planRef = useRef(vesselPlans[idx]);
     const plan = planRef.current;
@@ -46,19 +48,22 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
         newVesselPlans[idx] = np;
         setVesselPlans(newVesselPlans);
         planRef.current = np;
+        // console.log("set to", np, vesselPlans)
     }
 
     const [color, setColor] = useState(plan.color ? new Color(plan.color).toString() : 'lightgray');
-    const [commRange, setCommRange] = useState(String(plan.commRange || 0));
+    const [commStrength, setCommStrength] = useState(String((plan.commRange || 0) / 1e6));
 
-    const [vesselId, setVesselId] = useState(-1);
+    // const [vesselId, setVesselId] = useState(-1);
     
     const handleVesselIdChange = (event: any): void => {
         const newId = Number(event.target.value)
         if(newId >= 0 && newId < vessels.length) {
-            setVesselId(newId);
-            setPlan(vessels[newId]);
-            planRef.current = vessels[newId];
+            const newPlan = vessels[newId]
+            setPlan(newPlan);
+            setColor('lightgray');
+            setCommStrength(String((newPlan.commRange || 0) / 1e6));
+            setUpdateOrbit(true);
         }
     }
 
@@ -66,7 +71,6 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
         const newPlan = {...planRef.current};
         newPlan.maneuvers = maneuvers.sort((a,b) => a.date - b.date);
         setPlan(newPlan);
-        planRef.current = newPlan;
     };
 
     const handleAddManeuver = () => {
@@ -82,11 +86,9 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
             const color = new Color(colorFromString(event.target.value));
             newPlan.color = color.data;
             setPlan(newPlan);
-            planRef.current = newPlan;
         } else {
             newPlan.color = undefined;
             setPlan(newPlan);
-            planRef.current = newPlan;
         }
     }
 
@@ -94,28 +96,23 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
         const newPlan = {...planRef.current};
         newPlan.name = event.target.value;
         setPlan(newPlan);
-        planRef.current = newPlan;
     };
 
     const handleTypeChange = (event: any) => {
         const newPlan = {...planRef.current};
         newPlan.type = event.target.value as VesselType;
         setPlan(newPlan);
-        planRef.current = newPlan;
     };
 
     const handleCommChange = (event: any) => {
-        setCommRange(event.target.value);
+        setCommStrength(event.target.value);
         const newPlan = {...planRef.current};
-        newPlan.commRange = Number(event.target.value) || 0;
+        newPlan.commRange = (Number(event.target.value) || 0) * 1e6;
         setPlan(newPlan);
-        planRef.current = newPlan;
     };
 
     const handleRemoveVessel = () => {
         if(vesselPlans.length > 0) {
-            const value = tabValues[idx]
-
             const newTabValues = [...tabValues];
             newTabValues.splice(idx, 1);
             setTabValues(newTabValues);
@@ -124,15 +121,23 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
             newVesselPlans.splice(idx, 1);
             setVesselPlans(newVesselPlans);
 
-            if(value === idx && value !== 0) {
-                setValue(value - 1)
+            if(idx <= 1) {
+                setValue(0);
+                setTabValue(newTabValues[0]);
+                planRef.current = newVesselPlans[0];
+            } else {
+                setValue(idx - 1);
+                setTabValue(newTabValues[idx - 1]);
+                planRef.current = newVesselPlans[idx - 1];
             }
         }
     };
 
     useEffect(() => {
         planRef.current = vesselPlans[idx];
-    }, [vesselPlans, idx])
+    }, [vesselPlans, idx, value, tabValue, tabValues])
+
+    // console.log(idx, value, tabValue, plan.name)
 
     return (
         <Stack spacing={1} sx={{ my: 1 }} >
@@ -151,7 +156,7 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
                     <VesselSelect 
                         vessels={vessels}
                         label={''}
-                        vesselId={vesselId}
+                        vesselId={-1}
                         handleVesselIdChange={handleVesselIdChange} 
                     />
                     <TextField
@@ -174,11 +179,11 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
                     />    
                     <TextField
                         id={'comm-'+String(idx)}
-                        label='Comms Range (m)'
+                        label='Comms Range (Mm)'
                         spellCheck={false}
-                        value={commRange}
+                        value={commStrength}
                         onChange={handleCommChange}
-                        error={Number.isNaN(Number(commRange)) || (Number(commRange) < 0) }
+                        error={Number.isNaN(Number(commStrength)) || (Number(commStrength) < 0) }
                         sx={{ fullWidth: "true" }} 
                     />    
                     <FormControl>
@@ -216,7 +221,7 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
                 <Box component="div" sx={{ flexGrow: 1 }} />
             </Stack>
             <Collapse in={orbitOpen}>
-                <OrbitControls label={"Starting Orbit"} vessel={plan} setVessel={setPlan} vesselSelect={false} />
+                <OrbitControls label={"Starting Orbit"} vessel={plan} setVessel={setPlan} vesselSelect={false} update={updateOrbit} setUpdate={setUpdateOrbit} />
             </Collapse>
             <Divider />
             <Stack direction="row">

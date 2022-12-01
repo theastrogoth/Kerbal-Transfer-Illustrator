@@ -37,7 +37,7 @@ function createPlanItems(vesselPlans: IVessel[]) {
     return options;
 }
 
-const VesselTabPanel = React.memo(function WrappedVesselTabPanel({value, index, tabValues, setTabValues, setValue}: {value: number, index: number, tabValues: number[], setTabValues: React.Dispatch<React.SetStateAction<number[]>>, setValue: React.Dispatch<React.SetStateAction<number>>}) {
+const VesselTabPanel = React.memo(function WrappedVesselTabPanel({value, index, tabValue, tabValues, setTabValue, setTabValues, setValue}: {value: number, index: number, tabValue: number, tabValues: number[], setTabValue: React.Dispatch<React.SetStateAction<number>>, setTabValues: React.Dispatch<React.SetStateAction<number[]>>, setValue: React.Dispatch<React.SetStateAction<number>>}) {
     useEffect(() => {
         if(value === index) {
             window.dispatchEvent(new Event('resize'));
@@ -47,7 +47,7 @@ const VesselTabPanel = React.memo(function WrappedVesselTabPanel({value, index, 
 
     return (
         <div style={{ display: (value === index ? 'block' : 'none'), width: "100%", height: "100%" }}>
-            <VesselControls idx={index} tabValues={tabValues} setTabValues={setTabValues} setValue={setValue} />
+            <VesselControls idx={index} value={value} tabValue={tabValue} tabValues={tabValues} setTabValue={setTabValue} setTabValues={setTabValues} setValue={setValue} />
         </div>
     )
 });
@@ -60,6 +60,7 @@ function VesselTabs() {
     const [landedVessels] = useAtom(landedVesselsAtom);
 
     const [value, setValue] = useState(0);
+    const [tabValue, setTabValue] = useState(0);
     const [tabValues, setTabValues] = useState(vesselPlans.map((p,i) => i));
     const [planOpts, setPlanOpts] = useState(createPlanItems(vesselPlans));
 
@@ -69,9 +70,11 @@ function VesselTabs() {
     useEffect(() => {
         if(value < 0) {
             setValue(0);
+            setTabValue(0);
         }
         if(value > vesselPlans.length) {
             setValue(vesselPlans.length - 1);
+            setTabValue(vesselPlans.length - 1);
         }
         setPlanOpts(createPlanItems(vesselPlans));
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -94,6 +97,7 @@ function VesselTabs() {
         }
         setTabValues(newTabValues)
         setValue(index);
+        setTabValue(index);
 
         const name = "Craft #" + String(index+1);
         const type = "Ship";
@@ -140,6 +144,8 @@ function VesselTabs() {
         const newLandedVesselPlans = [...landedVessels];
         setLandedVesselPlans(newLandedVesselPlans);
     }
+
+    // console.log(value, tabValue, tabValues, vesselPlans)
 
     return (
         <Stack alignItems='center' >
@@ -228,7 +234,7 @@ function VesselTabs() {
                         label='Select Flight Plan'
                         id={'plan-select'}
                         value={planOpts.length > 0 ? value : ''}
-                        onChange={(event) => setValue(Number(event.target.value))}
+                        onChange={(event) => { setValue(Number(event.target.value)); setTabValue(tabValues[Number(event.target.value)]); }}
                     >
                         {planOpts}
                     </Select>
@@ -237,7 +243,7 @@ function VesselTabs() {
                 {/* <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons={true}>
                     {vesselPlans.map((f, index) => <Tab key={index} value={index} label={f.name} ></Tab>)}
                 </Tabs> */}
-                {vesselPlans.map((f, index) => <VesselTabPanel key={index} value={value} index={index} tabValues={tabValues} setTabValues={setTabValues} setValue={setValue} />)}
+                {vesselPlans.map((f, index) => <VesselTabPanel key={index} value={value} index={index} tabValue={tabValue} tabValues={tabValues} setTabValue={setTabValue} setTabValues={setTabValues} setValue={setValue} />)}
             </Stack>
         </Stack>
     )

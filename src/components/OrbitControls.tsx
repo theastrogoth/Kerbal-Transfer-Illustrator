@@ -26,9 +26,11 @@ type OrbitControlsProps = {
     vessel:         IVessel,
     setVessel:      React.Dispatch<React.SetStateAction<IVessel>> | ((v: IVessel) => void),
     vesselSelect?:  boolean,
+    update?:        boolean,
+    setUpdate?:     React.Dispatch<React.SetStateAction<boolean>> | ((b: boolean) => void),
 };
 
-function OrbitControls({label, vessel, setVessel, vesselSelect = true}: OrbitControlsProps) {
+function OrbitControls({label, vessel, setVessel, vesselSelect = true, update = false, setUpdate = (b: boolean) => {return}}: OrbitControlsProps) {
     const [copiedOrbit] = useAtom(copiedOrbitAtom);
 
     const [vessels] = useAtom(vesselsAtom);
@@ -39,6 +41,7 @@ function OrbitControls({label, vessel, setVessel, vesselSelect = true}: OrbitCon
     const [system] = useAtom(systemAtom);
     const systemRef = useRef(system);
 
+    const vesselRef = useRef(vessel);
     const orbitRef = useRef(vessel.orbit);
     const orbit = orbitRef.current;
 
@@ -65,13 +68,15 @@ function OrbitControls({label, vessel, setVessel, vesselSelect = true}: OrbitCon
 
     const setField = (fieldName: string) => {
         return (val: number) => {
-            let newOrbit = {...orbitRef.current};
+            const newOrbitEls = {...orbitRef.current};
             // @ts-ignore
-            newOrbit[fieldName] = val;
-            newOrbit = Kepler.orbitFromElements(newOrbit, body.current);
-            orbitRef.current = newOrbit;
-            const newVessel = {...vessel, orbit: newOrbit}
+            newOrbitEls[fieldName] = val;
+            const newOrbit = Kepler.orbitFromElements(newOrbitEls, body.current);
+            const newVessel = {...vesselRef.current, orbit: newOrbit}
             setVessel(newVessel);
+            vesselRef.current = newVessel;
+            orbitRef.current = newOrbit;
+            console.log("orbit setField", vessel);
         }
     };
     
@@ -82,9 +87,11 @@ function OrbitControls({label, vessel, setVessel, vesselSelect = true}: OrbitCon
         const newBody = system.bodyFromId(id);
         body.current = newBody;
         const newOrbit = defaultOrbit(system, id);
-        const newVessel = {...vessel, orbit: newOrbit}
+        const newVessel = {...vesselRef.current, orbit: newOrbit}
         setVessel(newVessel);
+        vesselRef.current = newVessel;
         orbitRef.current = newOrbit;
+        console.log("orbit setBodyId", vessel);
     }
 
     // function setFields(newOrbit: OrbitalElements) {
@@ -111,8 +118,10 @@ function OrbitControls({label, vessel, setVessel, vesselSelect = true}: OrbitCon
                 const newBodyId = Math.max(...[...system.orbiterIds.keys()]);
                 setBodyId(newBodyId);
             } else {
-                const newOrb = defaultOrbit(system, bodyId)
-                setVessel({...vessel, orbit: newOrb});
+                const newOrb = defaultOrbit(system, bodyId);
+                const newVessel = {...vesselRef.current, orbit: newOrb};
+                setVessel(newVessel);
+                vesselRef.current = newVessel;
                 orbitRef.current = newOrb;
                 if (newOrb.orbiting !== vessel.orbit.orbiting) {
                     const newBody = system.bodyFromId(newOrb.orbiting);
@@ -124,23 +133,30 @@ function OrbitControls({label, vessel, setVessel, vesselSelect = true}: OrbitCon
             vesselIdRef.current = vesselId;
             vesselsRef.current = vessels;
             if(vesselId >= 0) {
-                setVessel({...vessel, orbit: vessels[vesselId].orbit});
+                const newVessel = {...vessel, orbit: vessels[vesselId].orbit}
+                setVessel(newVessel);
+                vesselRef.current = newVessel;
                 orbitRef.current = vessels[vesselId].orbit;
+                setCommsOptions({...commsOptions, commStrength: (vessels[vesselId].commRange || 0) / 1e6});
             }
-            setCommsOptions({...commsOptions, commStrength: vessels[vesselId].commRange / 1e6});
-        }
+        } 
+        // else if (update) {
+        //     orbitRef.current = vessel.orbit;
+        //     body.current = system.bodyFromId(vessel.orbit.orbiting);
+        //     setUpdate(false);
+        // }
         // I've disabled the check for exhaustive deps to remove the warning for missing the setters, which shouldn't cause an issue.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [vesselId, vessels, system])
 
-    // useEffect(() => {
-    //     // detect a change in the orbit from elsewhere
-    //     if(!Kepler.orbitalElementsAreEqual(orbit, orbitRef.current)) {
-    //         orbitRef.current = orbit;
-    //         setFields(orbit);
-    //     }
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, [orbit])
+    useEffect(() => {
+        vesselRef.current = vessel;
+        orbitRef.current = vessel.orbit;
+        body.current = system.bodyFromId(vessel.orbit.orbiting);
+        setUpdate(false);
+    }, [vessel, update])
+
+    console.log(vessel)
 
     return (
         <>
@@ -238,7 +254,9 @@ function OrbitControls({label, vessel, setVessel, vesselSelect = true}: OrbitCon
                             argOfPeriapsis:     radToDeg(orb.argOfPeriapsis),
                             ascNodeLongitude:   radToDeg(orb.ascNodeLongitude),
                         }
-                        setVessel({...vessel, orbit: degOrb}); 
+                        const newVessel = {...vessel, orbit: degOrb};
+                        setVessel(newVessel);
+                        vesselRef.current = newVessel; 
                         orbitRef.current = degOrb;
                         setVesselId(-1); 
                         if (degOrb.orbiting !== vessel.orbit.orbiting) {
@@ -251,7 +269,7 @@ function OrbitControls({label, vessel, setVessel, vesselSelect = true}: OrbitCon
                     size="small"
                     color="inherit"
                     // @ts-ignore
-                    onClick={() => { const newOrb = defaultOrbit(system, bodyId); setVessel({...vessel, orbit: newOrb}); orbitRef.current = newOrb; setVesselId(-1); }}
+                    onClick={() => { const newOrb = defaultOrbit(system, bodyId); const newVessel = {...vesselRef.current, orbit: newOrb}; setVessel(newVessel); vesselRef.current = newVessel; orbitRef.current = newOrb; setVesselId(-1); }}
                 >
                     <ClearIcon />
                 </IconButton>
