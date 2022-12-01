@@ -7,10 +7,10 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControl from "@mui/material/FormControl";
 import RadioGroup from "@mui/material/RadioGroup";
 import Radio from "@mui/material/Radio";
-import { NumberField } from "../NumberField";
+import { NumberField } from "./NumberField";
 
-import { PrimitiveAtom, useAtom } from "jotai";
-import { groundStationsAtom, systemNameAtom } from "../../App";
+import { useAtom } from "jotai";
+import { commsOptionsAtom, groundStationsAtom, systemNameAtom } from "../App";
 
 export type CommsOptionsState = {
     spaceCenter:        boolean,
@@ -19,8 +19,8 @@ export type CommsOptionsState = {
     trackingLevel:      number,
 }
 
-function ControlsOptions({optsAtom, showStrength}: {optsAtom: PrimitiveAtom<CommsOptionsState>, showStrength: boolean}) {
-    const [opts, setOpts] = useAtom(optsAtom);
+function ControlsOptions({showStrength=true}: {showStrength?: boolean}) {
+    const [opts, setOpts] = useAtom(commsOptionsAtom);
     const [systemName] = useAtom(systemNameAtom);
     const [groundStations, setGroundStations] = useAtom(groundStationsAtom);
     const optsRef = useRef(opts);
@@ -69,7 +69,7 @@ function ControlsOptions({optsAtom, showStrength}: {optsAtom: PrimitiveAtom<Comm
             <FormControl disabled={disabled}>
                 <FormLabel>Tracking Station Level</FormLabel>
                 <RadioGroup
-                    defaultValue={3}
+                    value={3}
                     onChange={setTrackingLevel}
                 >
                     <Stack direction="row" >

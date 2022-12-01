@@ -11,6 +11,10 @@ import Button from "@mui/material/Button";
 import AddIcon from '@mui/icons-material/Add';
 import ClearIcon from '@mui/icons-material/Clear';
 import Divider from "@mui/material/Divider";
+import Collapse from "@mui/material/Collapse";
+import IconButton from '@mui/material/IconButton';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 
 import Color from "../../main/objects/color";
 
@@ -24,11 +28,16 @@ import { radToDeg, colorFromString, hexFromColorString } from "../../main/libs/m
 
 import { useAtom } from "jotai";
 import { copiedFlightPlanAtom, vesselPlansAtom, vesselsAtom } from "../../App";
+import { flightPlannerVesselOpenAtom, flightPlannerOrbitsOpenAtom, flightPlannerManeuversOpenAtom } from "./VesselTabs";
 
 function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, tabValues: number[], setTabValues: React.Dispatch<React.SetStateAction<number[]>>, setValue: React.Dispatch<React.SetStateAction<number>>}) {
     const [vesselPlans, setVesselPlans] = useAtom(vesselPlansAtom);
     const [vessels] = useAtom(vesselsAtom);
     const [copiedFlightPlan] = useAtom(copiedFlightPlanAtom);
+
+    const [vesselOpen, setVesselOpen] = useAtom(flightPlannerVesselOpenAtom);
+    const [orbitOpen, setOrbitOpen] = useAtom(flightPlannerOrbitsOpenAtom);
+    const [maneuversOpen, setManeuversOpen] = useAtom(flightPlannerManeuversOpenAtom);
 
     const planRef = useRef(vesselPlans[idx]);
     const plan = planRef.current;
@@ -39,7 +48,7 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
         planRef.current = np;
     }
 
-    const [color, setColor] = useState(plan.color ? new Color(plan.color).toString() : 'rgb(200,200,200)');
+    const [color, setColor] = useState(plan.color ? new Color(plan.color).toString() : 'lightgray');
     const [commRange, setCommRange] = useState(String(plan.commRange || 0));
 
     const [vesselId, setVesselId] = useState(-1);
@@ -126,76 +135,113 @@ function VesselControls({idx, tabValues, setTabValues, setValue}: {idx: number, 
     }, [vesselPlans, idx])
 
     return (
-        <Stack spacing={1} sx={{ my: 2 }} >
-             <VesselSelect 
-                vessels={vessels}
-                label={''}
-                vesselId={vesselId}
-                handleVesselIdChange={handleVesselIdChange} 
-            />
-            <TextField
-                id={'name-'+String(idx)}
-                label='Name'
-                spellCheck={false}
-                value={plan.name}
-                onChange={handleNameChange}
-                sx={{ fullWidth: "true" }} 
-            />
-            <TextField
-                id={'color-'+String(idx)}
-                label='Color'
-                spellCheck={false}
-                value={color}
-                onChange={handleColorChange}
-                sx={{ fullWidth: "true" }} 
-                // @ts-ignore
-                inputProps={{ style: {color: color !== '' ? hexFromColorString(color) : 'primary'} }}
-            />    
-            <TextField
-                id={'comm-'+String(idx)}
-                label='Comms Range (m)'
-                spellCheck={false}
-                value={commRange}
-                onChange={handleCommChange}
-                error={Number.isNaN(Number(commRange)) || (Number(commRange) < 0) }
-                sx={{ fullWidth: "true" }} 
-            />    
-            <FormControl>
-                <InputLabel id={"type-select-label-"+String(idx)}>Craft Type</InputLabel>
-                <Select 
-                    labelId={"type-select-label-"+String(idx)}
-                    label='Craft Type'
-                    value={plan.type || ''}
-                    onChange={handleTypeChange}
+        <Stack spacing={1} sx={{ my: 1 }} >
+            <Stack direction="row">
+                <Typography variant="h6">{plan.name + " Details"}</Typography>
+                <IconButton
+                    size="small"
+                    onClick={() => setVesselOpen(!vesselOpen)}
                 >
-                    <MenuItem value={"Ship"}>{"Ship"}</MenuItem>
-                    <MenuItem value={"Probe"}>{"Probe"}</MenuItem>
-                    <MenuItem value={"Relay"}>{"Relay"}</MenuItem>
-                    <MenuItem value={"Plane"}>{"Plane"}</MenuItem>
-                    <MenuItem value={"Lander"}>{"Lander"}</MenuItem>
-                    <MenuItem value={"Station"}>{"Station"}</MenuItem>
-                    <MenuItem value={"Base"}>{"Base"}</MenuItem>
-                    <MenuItem value={"Rover"}>{"Rover"}</MenuItem>
-                    <MenuItem value={"Debris"}>{"Debris"}</MenuItem>
-                    <MenuItem value={"SpaceObject"}>{"Space Object"}</MenuItem>
-                    <MenuItem value={"Eva"}>{"EVA"}</MenuItem>
-                </Select>
-            </FormControl>  
-            <Divider />
-            <OrbitControls label={"Starting Orbit"} vessel={plan} setVessel={setPlan} vesselSelect={false} />
-            <Divider />
-            <Typography variant="body1">{"Maneuvers"} </Typography>
-            <Stack spacing={2} >
-                { plan.maneuvers.map( (m, idx) => <ManeuverControls key={idx} idx={idx} maneuvers={plan.maneuvers} setManeuvers={setManeuvers} /> ) }
+                    {vesselOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+                </IconButton>
+                <Box component="div" sx={{ flexGrow: 1 }} />
             </Stack>
-            <Stack direction="row" spacing={2} textAlign="center" justifyContent="center">
-                <Button 
-                    onClick={handleAddManeuver}
-                    startIcon={<AddIcon />}
+            <Collapse in={vesselOpen}>
+                <Stack spacing={1}>
+                    <VesselSelect 
+                        vessels={vessels}
+                        label={''}
+                        vesselId={vesselId}
+                        handleVesselIdChange={handleVesselIdChange} 
+                    />
+                    <TextField
+                        id={'name-'+String(idx)}
+                        label='Name'
+                        spellCheck={false}
+                        value={plan.name}
+                        onChange={handleNameChange}
+                        sx={{ fullWidth: "true" }} 
+                    />
+                    <TextField
+                        id={'color-'+String(idx)}
+                        label='Color'
+                        spellCheck={false}
+                        value={color}
+                        onChange={handleColorChange}
+                        sx={{ fullWidth: "true" }} 
+                        // @ts-ignore
+                        inputProps={{ style: {color: color !== '' ? hexFromColorString(color) : 'primary'} }}
+                    />    
+                    <TextField
+                        id={'comm-'+String(idx)}
+                        label='Comms Range (m)'
+                        spellCheck={false}
+                        value={commRange}
+                        onChange={handleCommChange}
+                        error={Number.isNaN(Number(commRange)) || (Number(commRange) < 0) }
+                        sx={{ fullWidth: "true" }} 
+                    />    
+                    <FormControl>
+                        <InputLabel id={"type-select-label-"+String(idx)}>Craft Type</InputLabel>
+                        <Select 
+                            labelId={"type-select-label-"+String(idx)}
+                            label='Craft Type'
+                            value={plan.type || ''}
+                            onChange={handleTypeChange}
+                        >
+                            <MenuItem value={"Ship"}>{"Ship"}</MenuItem>
+                            <MenuItem value={"Probe"}>{"Probe"}</MenuItem>
+                            <MenuItem value={"Relay"}>{"Relay"}</MenuItem>
+                            <MenuItem value={"Plane"}>{"Plane"}</MenuItem>
+                            <MenuItem value={"Lander"}>{"Lander"}</MenuItem>
+                            <MenuItem value={"Station"}>{"Station"}</MenuItem>
+                            <MenuItem value={"Base"}>{"Base"}</MenuItem>
+                            <MenuItem value={"Rover"}>{"Rover"}</MenuItem>
+                            <MenuItem value={"Debris"}>{"Debris"}</MenuItem>
+                            <MenuItem value={"SpaceObject"}>{"Space Object"}</MenuItem>
+                            <MenuItem value={"Eva"}>{"EVA"}</MenuItem>
+                        </Select>
+                    </FormControl>  
+                </Stack>
+            </Collapse>
+            <Divider />
+            <Stack direction="row">
+                <Typography variant="h6">Starting Orbit</Typography>
+                <IconButton
+                    size="small"
+                    onClick={() => setOrbitOpen(!orbitOpen)}
                 >
-                    Add Maneuver
-                </Button>
+                    {orbitOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+                </IconButton>
+                <Box component="div" sx={{ flexGrow: 1 }} />
             </Stack>
+            <Collapse in={orbitOpen}>
+                <OrbitControls label={"Starting Orbit"} vessel={plan} setVessel={setPlan} vesselSelect={false} />
+            </Collapse>
+            <Divider />
+            <Stack direction="row">
+                <Typography variant="h6">Maneuvers</Typography>
+                <IconButton
+                    size="small"
+                    onClick={() => setManeuversOpen(!maneuversOpen)}
+                >
+                    {maneuversOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+                </IconButton>
+                <Box component="div" sx={{ flexGrow: 1 }} />
+            </Stack>
+            <Collapse in={maneuversOpen}>
+                <Stack spacing={2} >
+                    { plan.maneuvers.map( (m, idx) => <ManeuverControls key={idx} idx={idx} maneuvers={plan.maneuvers} setManeuvers={setManeuvers} /> ) }
+                </Stack>
+                <Stack direction="row" spacing={2} textAlign="center" justifyContent="center">
+                    <Button 
+                        onClick={handleAddManeuver}
+                        startIcon={<AddIcon />}
+                    >
+                        Add Maneuver
+                    </Button>
+                </Stack>
+            </Collapse>
             <Divider />
             <Stack direction="column" spacing={2} justifyContent="center" alignItems="center" >
                 <Box component="div" display="flex" justifyContent="center" alignItems="center">

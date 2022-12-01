@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Box from '@mui/system/Box';
-import Tab from "@mui/material/Tab"
-import Tabs from "@mui/material/Tabs";
+// import Tab from "@mui/material/Tab"
+// import Tabs from "@mui/material/Tabs";
 import Stack from "@mui/material/Stack"
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
@@ -12,14 +12,25 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
+import Collapse from "@mui/material/Collapse";
+import IconButton from '@mui/material/IconButton';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 
 import VesselControls from "./VesselControls";
 import SystemSelect from "../SystemSelect";
 import TimeSettingsControls from "../TimeSettingsControls";
+import CommsControls from "../CommsControls";
 import { defaultOrbit } from "../../utils";
 
-import { useAtom } from "jotai";
+import { atom, useAtom } from "jotai";
 import { landedVesselPlansAtom, landedVesselsAtom, systemAtom, vesselPlansAtom, vesselsAtom } from "../../App";
+
+
+export const flightPlannerVesselOpenAtom = atom<boolean>(true);
+export const flightPlannerOrbitsOpenAtom = atom<boolean>(true);
+export const flightPlannerManeuversOpenAtom = atom<boolean>(true);
+
 
 function createPlanItems(vesselPlans: IVessel[]) {
     const options = vesselPlans.map((p,i) => <MenuItem key={i} value={i}>{p.name}</MenuItem> )
@@ -49,8 +60,11 @@ function VesselTabs() {
     const [landedVessels] = useAtom(landedVesselsAtom);
 
     const [value, setValue] = useState(0);
-    const [tabValues, setTabValues] = useState([] as number[]);
+    const [tabValues, setTabValues] = useState(vesselPlans.map((p,i) => i));
     const [planOpts, setPlanOpts] = useState(createPlanItems(vesselPlans));
+
+    const [timeOpen, setTimeOpen] = useState(true);
+    const [commsOpen, setCommsOpen] = useState(false);
     
     useEffect(() => {
         if(value < 0) {
@@ -63,10 +77,10 @@ function VesselTabs() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [vesselPlans])
 
-    const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-        setValue(newValue);
-        console.log('Vessel tab '.concat(String(newValue)).concat(' selected.'));
-    }
+    // const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    //     setValue(newValue);
+    //     console.log('Vessel tab '.concat(String(newValue)).concat(' selected.'));
+    // }
 
     const handleAddVessel = () => {
         const newTabValues = [...tabValues];
@@ -81,13 +95,14 @@ function VesselTabs() {
         setTabValues(newTabValues)
         setValue(index);
 
-        const name = "Vessel #" + String(index+1);
+        const name = "Craft #" + String(index+1);
         const type = "Ship";
         const orbit = defaultOrbit(system);
         const maneuvers = [] as ManeuverComponents[];
+        const commRange = 5000;
 
         const newVesselPlans = [...vesselPlans];
-        newVesselPlans.splice(index, 0, {name, type, orbit, maneuvers});
+        newVesselPlans.splice(index, 0, {name, type, orbit, maneuvers, commRange});
         setVesselPlans(newVesselPlans);
     };
 
@@ -129,13 +144,38 @@ function VesselTabs() {
     return (
         <Stack alignItems='center' >
             <Stack spacing={1} sx={{ width: '90%', maxWidth: 600, my: 2, mx: 2 }} >
+                <SystemSelect />
+                <Stack direction="row">
+                    <Typography variant="h6">Time Settings</Typography>
+                    <IconButton
+                        size="small"
+                        onClick={() => setTimeOpen(!timeOpen)}
+                    >
+                        {timeOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+                    </IconButton>
+                    <Box component="div" sx={{ flexGrow: 1 }} />
+                </Stack>
+                <Collapse in={timeOpen}>
+                    <TimeSettingsControls />
+                </Collapse>
+                <Divider />
+                <Stack direction="row">
+                    <Typography variant="h6">CommNet Settings</Typography>
+                    <IconButton
+                        size="small"
+                        onClick={() => setCommsOpen(!commsOpen)}
+                    >
+                        {commsOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+                    </IconButton>
+                    <Box component="div" sx={{ flexGrow: 1 }} />
+                </Stack>
+                <Collapse in={commsOpen}>
+                    <CommsControls showStrength={false}/>
+                </Collapse>
+                <Divider />
                 <Box component="div" textAlign="center" >
                     <Typography variant="h5">Flight Plan Controls</Typography>
-                    <Divider />
                 </Box>
-                <SystemSelect />
-                <TimeSettingsControls />
-                <Divider />
                 <Stack direction="row" spacing={2} textAlign="center" justifyContent="center">
                     <Button 
                         onClick={handleAddVessel}
@@ -182,10 +222,10 @@ function VesselTabs() {
                     </Stack>
                     }
                 <FormControl sx={{ minWidth: 120 }}>
-                    <InputLabel id={"plan-select-label"}>Jump to Flight Plan</InputLabel>
+                    <InputLabel id={"plan-select-label"}>Select Flight Plan</InputLabel>
                     <Select
                         labelId={"plan-select-label"}
-                        label='Jump to Flight Plan'
+                        label='Select Flight Plan'
                         id={'plan-select'}
                         value={planOpts.length > 0 ? value : ''}
                         onChange={(event) => setValue(Number(event.target.value))}
@@ -194,9 +234,9 @@ function VesselTabs() {
                     </Select>
                 </FormControl>
                 <Divider />
-                <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons={true}>
+                {/* <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons={true}>
                     {vesselPlans.map((f, index) => <Tab key={index} value={index} label={f.name} ></Tab>)}
-                </Tabs>
+                </Tabs> */}
                 {vesselPlans.map((f, index) => <VesselTabPanel key={index} value={value} index={index} tabValues={tabValues} setTabValues={setTabValues} setValue={setValue} />)}
             </Stack>
         </Stack>
