@@ -17,12 +17,8 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 
 import { multiFlybyStartOrbitAtom, multiFlybyEndOrbitAtom, multiFlybyControlsOptionsAtom } from "../../App";
-import { useAtom } from "jotai";
 
 function MissionControls() {
-    const [startOrbit, setStartOrbit] = useAtom(multiFlybyStartOrbitAtom);
-    const [endOrbit, setEndOrbit] = useAtom(multiFlybyEndOrbitAtom);
-
     const [orbitsOpen, setOrbitsOpen] = useState(true);
     const [flybyOpen, setFlybyOpen] = useState(true);
     const [timeOpen, setTimeOpen] = useState(true);
@@ -48,8 +44,8 @@ function MissionControls() {
                     <Box component="div" sx={{ flexGrow: 1 }} />
                 </Stack>
                 <Collapse in={orbitsOpen}>
-                    <OrbitControls label='Starting Orbit' vessel={startOrbit} setVessel={setStartOrbit} />
-                    <OrbitControls label='Target Orbit'   vessel={endOrbit}   setVessel={setEndOrbit} />
+                    <OrbitControls label='Starting Orbit' vesselAtom={multiFlybyStartOrbitAtom} />
+                    <OrbitControls label='Target Orbit'   vesselAtom={multiFlybyEndOrbitAtom} />
                 </Collapse>
                 <Divider />
                 <Stack direction="row">

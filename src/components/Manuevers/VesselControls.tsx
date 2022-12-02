@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import Box from "@mui/system/Box"
 import Typography from '@mui/material/Typography';
 import Stack from "@mui/material/Stack"
@@ -26,12 +26,12 @@ import { defaultManeuverComponents } from "../../utils";
 
 import { radToDeg, colorFromString, hexFromColorString } from "../../main/libs/math";
 
-import { useAtom } from "jotai";
-import { copiedFlightPlanAtom, vesselPlansAtom, vesselsAtom } from "../../App";
+import { PrimitiveAtom, useAtom } from "jotai";
+import { copiedFlightPlanAtom, vesselsAtom } from "../../App";
 import { flightPlannerVesselOpenAtom, flightPlannerOrbitsOpenAtom, flightPlannerManeuversOpenAtom } from "./VesselTabs";
 
-function VesselControls({idx, value, tabValue, tabValues, setTabValue, setTabValues, setValue}: {idx: number, value: number, tabValue: number, tabValues: number[], setTabValue: React.Dispatch<React.SetStateAction<number>>, setTabValues: React.Dispatch<React.SetStateAction<number[]>>, setValue: React.Dispatch<React.SetStateAction<number>>}) {
-    const [vesselPlans, setVesselPlans] = useAtom(vesselPlansAtom);
+function VesselControls({idx, vesselAtom, remove}: {idx: number, vesselAtom: PrimitiveAtom<IVessel>, remove: () => void}) {
+    const [plan, setPlan] = useAtom(vesselAtom);
     const [vessels] = useAtom(vesselsAtom);
     const [copiedFlightPlan] = useAtom(copiedFlightPlanAtom);
 
@@ -39,22 +39,8 @@ function VesselControls({idx, value, tabValue, tabValues, setTabValue, setTabVal
     const [orbitOpen, setOrbitOpen] = useAtom(flightPlannerOrbitsOpenAtom);
     const [maneuversOpen, setManeuversOpen] = useAtom(flightPlannerManeuversOpenAtom);
     
-    const [updateOrbit, setUpdateOrbit] = useState(false);
-
-    const planRef = useRef(vesselPlans[idx]);
-    const plan = planRef.current;
-    const setPlan = (np: IVessel) => {
-        const newVesselPlans = [...vesselPlans];
-        newVesselPlans[idx] = np;
-        setVesselPlans(newVesselPlans);
-        planRef.current = np;
-        // console.log("set to", np, vesselPlans)
-    }
-
     const [color, setColor] = useState(plan.color ? new Color(plan.color).toString() : 'lightgray');
     const [commStrength, setCommStrength] = useState(String((plan.commRange || 0) / 1e6));
-
-    // const [vesselId, setVesselId] = useState(-1);
     
     const handleVesselIdChange = (event: any): void => {
         const newId = Number(event.target.value)
@@ -63,25 +49,24 @@ function VesselControls({idx, value, tabValue, tabValues, setTabValue, setTabVal
             setPlan(newPlan);
             setColor('lightgray');
             setCommStrength(String((newPlan.commRange || 0) / 1e6));
-            setUpdateOrbit(true);
         }
     }
 
     const setManeuvers = (maneuvers: ManeuverComponents[]) => {
-        const newPlan = {...planRef.current};
+        const newPlan = {...plan};
         newPlan.maneuvers = maneuvers.sort((a,b) => a.date - b.date);
         setPlan(newPlan);
     };
 
     const handleAddManeuver = () => {
         const date = plan.maneuvers.length > 0 ? plan.maneuvers[plan.maneuvers.length - 1].date : Number(plan.orbit.epoch);
-        const newManeuvers = [...planRef.current.maneuvers, defaultManeuverComponents(date)];
+        const newManeuvers = [...plan.maneuvers, defaultManeuverComponents(date)];
         setManeuvers(newManeuvers);
     }
 
     const handleColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setColor(event.target.value);
-        const newPlan = {...planRef.current};
+        const newPlan = {...plan};
         if(event.target.value !== ''){
             const color = new Color(colorFromString(event.target.value));
             newPlan.color = color.data;
@@ -93,51 +78,23 @@ function VesselControls({idx, value, tabValue, tabValues, setTabValue, setTabVal
     }
 
     const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newPlan = {...planRef.current};
+        const newPlan = {...plan};
         newPlan.name = event.target.value;
         setPlan(newPlan);
     };
 
     const handleTypeChange = (event: any) => {
-        const newPlan = {...planRef.current};
+        const newPlan = {...plan};
         newPlan.type = event.target.value as VesselType;
         setPlan(newPlan);
     };
 
     const handleCommChange = (event: any) => {
         setCommStrength(event.target.value);
-        const newPlan = {...planRef.current};
+        const newPlan = {...plan};
         newPlan.commRange = (Number(event.target.value) || 0) * 1e6;
         setPlan(newPlan);
     };
-
-    const handleRemoveVessel = () => {
-        if(vesselPlans.length > 0) {
-            const newTabValues = [...tabValues];
-            newTabValues.splice(idx, 1);
-            setTabValues(newTabValues);
-
-            const newVesselPlans = [...vesselPlans];
-            newVesselPlans.splice(idx, 1);
-            setVesselPlans(newVesselPlans);
-
-            if(idx <= 1) {
-                setValue(0);
-                setTabValue(newTabValues[0]);
-                planRef.current = newVesselPlans[0];
-            } else {
-                setValue(idx - 1);
-                setTabValue(newTabValues[idx - 1]);
-                planRef.current = newVesselPlans[idx - 1];
-            }
-        }
-    };
-
-    useEffect(() => {
-        planRef.current = vesselPlans[idx];
-    }, [vesselPlans, idx, value, tabValue, tabValues])
-
-    // console.log(idx, value, tabValue, plan.name)
 
     return (
         <Stack spacing={1} sx={{ my: 1 }} >
@@ -221,7 +178,7 @@ function VesselControls({idx, value, tabValue, tabValues, setTabValue, setTabVal
                 <Box component="div" sx={{ flexGrow: 1 }} />
             </Stack>
             <Collapse in={orbitOpen}>
-                <OrbitControls label={"Starting Orbit"} vessel={plan} setVessel={setPlan} vesselSelect={false} update={updateOrbit} setUpdate={setUpdateOrbit} />
+                <OrbitControls label={"Starting Orbit"} vesselAtom={vesselAtom} vesselSelect={false} />
             </Collapse>
             <Divider />
             <Stack direction="row">
@@ -260,7 +217,6 @@ function VesselControls({idx, value, tabValue, tabValues, setTabValue, setTabVal
                             };
                             const newPlan = {...p, orbit: degOrbit};
                             setPlan(newPlan);
-                            planRef.current = newPlan;
                         }} 
                         copiedObj={copiedFlightPlan} 
                         variant="text"
@@ -271,7 +227,7 @@ function VesselControls({idx, value, tabValue, tabValues, setTabValue, setTabVal
                     <Button 
                         variant="text"
                         color="inherit"
-                        onClick={handleRemoveVessel}
+                        onClick={remove}
                         startIcon={<ClearIcon />}
                     >
                         Delete Flight Plan

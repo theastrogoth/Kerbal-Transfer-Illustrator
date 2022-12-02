@@ -30,6 +30,7 @@ import { defaultManeuverComponents, defaultOrbit, makeDateFields } from './utils
 import { bodyConfigsToTree, bodyToConfig, sunToConfig } from './main/utilities/loadPlanetConfig';
 
 import { PrimitiveAtom, atom, useAtom } from 'jotai';
+import { splitAtom } from 'jotai/utils';
 
 // prepare popular systems
 export const kspSystem = loadSystemData(kspbodies);
@@ -202,8 +203,9 @@ export const multiFlybyControlsOptionsAtom = atom({
 });
 
 // flight planner state (atoms)
-export const vesselPlansAtom = atom([{name: "Craft #1", orbit: defaultOrbit(kspSystem), maneuvers: [], commRange: 5000, type: "Ship"}] as IVessel[]);
+export const vesselPlansAtom = atom([{name: "New Craft", orbit: defaultOrbit(kspSystem), maneuvers: [], commRange: 5000, type: "Ship"}] as IVessel[]);
 // export const vesselPlansAtom = atom([] as (IVessel)[]);
+export const vesselPlansAtomAtom = splitAtom(vesselPlansAtom);
 export const landedVesselPlansAtom = atom([] as LandedVessel[])
 export const flightPlansAtom = atom([] as FlightPlan[]);
 

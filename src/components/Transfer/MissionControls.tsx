@@ -17,12 +17,8 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 
 
 import { transferStartOrbitAtom, transferEndOrbitAtom, transferControlsOptionsAtom } from "../../App";
-import { useAtom } from "jotai";
 
 function MissionControls() {
-    const [startOrbit, setStartOrbit] = useAtom(transferStartOrbitAtom);
-    const [endOrbit, setEndOrbit] = useAtom(transferEndOrbitAtom);
-
     const [orbitsOpen, setOrbitsOpen] = useState(true);
     const [timeOpen, setTimeOpen] = useState(true);
     const [optsOpen, setOptsOpen] = useState(false);
@@ -47,8 +43,8 @@ function MissionControls() {
                     <Box component="div" sx={{ flexGrow: 1 }} />
                 </Stack>
                 <Collapse in={orbitsOpen}>
-                    <OrbitControls label='Starting Orbit' vessel={startOrbit} setVessel={setStartOrbit} />
-                    <OrbitControls label='Target Orbit'   vessel={endOrbit}   setVessel={setEndOrbit} />
+                    <OrbitControls label='Starting Orbit' vesselAtom={transferStartOrbitAtom} />
+                    <OrbitControls label='Target Orbit'   vesselAtom={transferEndOrbitAtom} />
                 </Collapse>
                 <Divider />
                 <Stack direction="row">

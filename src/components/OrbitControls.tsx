@@ -15,7 +15,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 import { defaultOrbit } from "../utils";
 
-import { useAtom } from "jotai";
+import { PrimitiveAtom, useAtom } from "jotai";
 import { systemAtom, vesselsAtom, copiedOrbitAtom, commsOptionsAtom } from "../App";
 import { Typography } from "@mui/material";
 import BodySelect from "./BodySelect";
@@ -23,14 +23,12 @@ import { radToDeg } from "../main/libs/math";
 
 type OrbitControlsProps = {
     label:          string,
-    vessel:         IVessel,
-    setVessel:      React.Dispatch<React.SetStateAction<IVessel>> | ((v: IVessel) => void),
+    vesselAtom:     PrimitiveAtom<IVessel>,
     vesselSelect?:  boolean,
-    update?:        boolean,
-    setUpdate?:     React.Dispatch<React.SetStateAction<boolean>> | ((b: boolean) => void),
 };
 
-function OrbitControls({label, vessel, setVessel, vesselSelect = true, update = false, setUpdate = (b: boolean) => {return}}: OrbitControlsProps) {
+function OrbitControls({label, vesselAtom, vesselSelect = true}: OrbitControlsProps) {
+    const [vessel, setVessel] = useAtom(vesselAtom);
     const [copiedOrbit] = useAtom(copiedOrbitAtom);
 
     const [vessels] = useAtom(vesselsAtom);
@@ -65,6 +63,7 @@ function OrbitControls({label, vessel, setVessel, vesselSelect = true, update = 
     const epoch = orbit.epoch;
 
     const [optsVisible, setOptsVisible] = useState(false);
+    const [, setUpdateCount] = useState(0);
 
     const setField = (fieldName: string) => {
         return (val: number) => {
@@ -76,7 +75,6 @@ function OrbitControls({label, vessel, setVessel, vesselSelect = true, update = 
             setVessel(newVessel);
             vesselRef.current = newVessel;
             orbitRef.current = newOrbit;
-            console.log("orbit setField", vessel);
         }
     };
     
@@ -91,24 +89,7 @@ function OrbitControls({label, vessel, setVessel, vesselSelect = true, update = 
         setVessel(newVessel);
         vesselRef.current = newVessel;
         orbitRef.current = newOrbit;
-        console.log("orbit setBodyId", vessel);
     }
-
-    // function setFields(newOrbit: OrbitalElements) {
-    //     setSma(newOrbit.semiMajorAxis);
-    //     setEcc(newOrbit.eccentricity);
-    //     setInc(newOrbit.inclination);
-    //     setArg(newOrbit.argOfPeriapsis);
-    //     setLan(newOrbit.ascNodeLongitude);
-    //     setMoe(newOrbit.meanAnomalyEpoch);
-    //     setEpoch(newOrbit.epoch);
-
-    //     setBodyId(newOrbit.orbiting);
-    //     bodyIdRef.current = newOrbit.orbiting;
-
-    //     const newBody = system.bodyFromId(newOrbit.orbiting);
-    //     setBody(newBody);
-    // }
 
     useEffect(() => {
         // detect a system change, and reset the orbit to the default for the new body
@@ -140,23 +121,16 @@ function OrbitControls({label, vessel, setVessel, vesselSelect = true, update = 
                 setCommsOptions({...commsOptions, commStrength: (vessels[vesselId].commRange || 0) / 1e6});
             }
         } 
-        // else if (update) {
-        //     orbitRef.current = vessel.orbit;
-        //     body.current = system.bodyFromId(vessel.orbit.orbiting);
-        //     setUpdate(false);
-        // }
-        // I've disabled the check for exhaustive deps to remove the warning for missing the setters, which shouldn't cause an issue.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [vesselId, vessels, system])
 
     useEffect(() => {
         vesselRef.current = vessel;
         orbitRef.current = vessel.orbit;
         body.current = system.bodyFromId(vessel.orbit.orbiting);
-        setUpdate(false);
-    }, [vessel, update])
-
-    console.log(vessel)
+        setUpdateCount((prev) => prev + 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [vessel])
 
     return (
         <>

@@ -24,7 +24,7 @@ import CommsControls from "../CommsControls";
 import { defaultOrbit } from "../../utils";
 
 import { atom, useAtom } from "jotai";
-import { landedVesselPlansAtom, landedVesselsAtom, systemAtom, vesselPlansAtom, vesselsAtom } from "../../App";
+import { landedVesselPlansAtom, landedVesselsAtom, systemAtom, vesselPlansAtom, vesselPlansAtomAtom, vesselsAtom } from "../../App";
 
 
 export const flightPlannerVesselOpenAtom = atom<boolean>(true);
@@ -37,31 +37,15 @@ function createPlanItems(vesselPlans: IVessel[]) {
     return options;
 }
 
-const VesselTabPanel = React.memo(function WrappedVesselTabPanel({value, index, tabValue, tabValues, setTabValue, setTabValues, setValue}: {value: number, index: number, tabValue: number, tabValues: number[], setTabValue: React.Dispatch<React.SetStateAction<number>>, setTabValues: React.Dispatch<React.SetStateAction<number[]>>, setValue: React.Dispatch<React.SetStateAction<number>>}) {
-    useEffect(() => {
-        if(value === index) {
-            window.dispatchEvent(new Event('resize'));
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [value])
-
-    return (
-        <div style={{ display: (value === index ? 'block' : 'none'), width: "100%", height: "100%" }}>
-            <VesselControls idx={index} value={value} tabValue={tabValue} tabValues={tabValues} setTabValue={setTabValue} setTabValues={setTabValues} setValue={setValue} />
-        </div>
-    )
-});
-
 function VesselTabs() {
     const [system] = useAtom(systemAtom);
     const [vesselPlans, setVesselPlans] = useAtom(vesselPlansAtom);
+    const [vesselPlansAtoms, dispatch] = useAtom(vesselPlansAtomAtom);
     const [, setLandedVesselPlans] = useAtom(landedVesselPlansAtom)
     const [vessels] = useAtom(vesselsAtom);
     const [landedVessels] = useAtom(landedVesselsAtom);
 
     const [value, setValue] = useState(0);
-    const [tabValue, setTabValue] = useState(0);
-    const [tabValues, setTabValues] = useState(vesselPlans.map((p,i) => i));
     const [planOpts, setPlanOpts] = useState(createPlanItems(vesselPlans));
 
     const [timeOpen, setTimeOpen] = useState(true);
@@ -70,51 +54,32 @@ function VesselTabs() {
     useEffect(() => {
         if(value < 0) {
             setValue(0);
-            setTabValue(0);
         }
         if(value > vesselPlans.length) {
             setValue(vesselPlans.length - 1);
-            setTabValue(vesselPlans.length - 1);
         }
         setPlanOpts(createPlanItems(vesselPlans));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [vesselPlans])
 
-    // const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    //     setValue(newValue);
-    //     console.log('Vessel tab '.concat(String(newValue)).concat(' selected.'));
-    // }
-
     const handleAddVessel = () => {
-        const newTabValues = [...tabValues];
-        let index = 0;
-        for(let i=0; i<=newTabValues.length; i++) {
-            if(newTabValues[i] !== i) {
-                newTabValues.splice(i, 0, i);
-                index = i;
-                break;
-            }
-        }
-        setTabValues(newTabValues)
-        setValue(index);
-        setTabValue(index);
-
-        const name = "Craft #" + String(index+1);
+        const name = "New Craft";
         const type = "Ship";
         const orbit = defaultOrbit(system);
         const maneuvers = [] as ManeuverComponents[];
         const commRange = 5000;
 
         const newVesselPlans = [...vesselPlans];
-        newVesselPlans.splice(index, 0, {name, type, orbit, maneuvers, commRange});
+        newVesselPlans.push({name, type, orbit, maneuvers, commRange});
         setVesselPlans(newVesselPlans);
+        setValue(vesselPlans.length);
+        setPlanOpts(createPlanItems(newVesselPlans));
     };
 
     const handleClear = () => {
         const newVesselPlans: IVessel[] = [];
         const newLandedVesselPlans: LandedVessel[] = [];
         setValue(0);
-        setTabValues([]);
         setVesselPlans(newVesselPlans);
         setLandedVesselPlans(newLandedVesselPlans);
     }
@@ -129,14 +94,12 @@ function VesselTabs() {
     const handleAddSavedRelays = () => {
         const newVesselPlans = vessels.filter( x => x.type === "Relay");
         setValue(0);
-        setTabValues(newVesselPlans.map((p,i) => i));
         setVesselPlans(newVesselPlans);  
     }
 
     const handleAddSavedObjects = () => {
         const newVesselPlans = vessels.filter( x => x.type === "SpaceObject");
         setValue(0);
-        setTabValues(newVesselPlans.map((p,i) => i));
         setVesselPlans(newVesselPlans);
     }
 
@@ -144,8 +107,6 @@ function VesselTabs() {
         const newLandedVesselPlans = [...landedVessels];
         setLandedVesselPlans(newLandedVesselPlans);
     }
-
-    // console.log(value, tabValue, tabValues, vesselPlans)
 
     return (
         <Stack alignItems='center' >
@@ -195,9 +156,6 @@ function VesselTabs() {
                     >
                         Clear All
                     </Button>
-                    {/* <Button sx={{border: "1px solid"}} onClick={handleRemoveVessel(vesselPlans, setVesselPlans, value, setValue, tabValues, setTabValues)}>
-                        <RemoveIcon />
-                    </Button> */}
                 </Stack>
                 { vessels.length > 0 &&
                     <Stack direction="row" spacing={2} textAlign="center" justifyContent="center">
@@ -234,16 +192,26 @@ function VesselTabs() {
                         label='Select Flight Plan'
                         id={'plan-select'}
                         value={planOpts.length > 0 ? value : ''}
-                        onChange={(event) => { setValue(Number(event.target.value)); setTabValue(tabValues[Number(event.target.value)]); }}
+                        onChange={(event) => { setValue(Number(event.target.value)); }}
                     >
                         {planOpts}
                     </Select>
                 </FormControl>
                 <Divider />
-                {/* <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons={true}>
-                    {vesselPlans.map((f, index) => <Tab key={index} value={index} label={f.name} ></Tab>)}
-                </Tabs> */}
-                {vesselPlans.map((f, index) => <VesselTabPanel key={index} value={value} index={index} tabValue={tabValue} tabValues={tabValues} setTabValue={setTabValue} setTabValues={setTabValues} setValue={setValue} />)}
+                {vesselPlansAtoms.map((atom, index) => 
+                    <div key={index} style={{ display: (value === index ? 'block' : 'none'), width: "100%", height: "100%" }}>
+                        <VesselControls 
+                            idx={index}
+                            vesselAtom={atom}
+                            remove={() => {
+                                dispatch({ type: 'remove', atom }); 
+                                if (index > 0) {
+                                    setValue(index - 1);
+                                }
+                            }}
+                        />
+                    </div>
+                )}
             </Stack>
         </Stack>
     )

@@ -57,16 +57,7 @@ function ManeuverControls({idx, maneuvers, setManeuvers}: ManeuverControlsState)
         newManeuvers.splice(idx,1);
         setManeuvers(newManeuvers);
     }
-
-    // const setUTandUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //     setUT(parseFloat(event.target.value));
-    //     if(Number(event.target.value) !== Number(UT)) {
-    //         const calendarDate = timeToCalendarDate(Number(event.target.value), timeSettings, 1, 1);
-    //         setDateField(calendarDate);
-    //         dateFieldRef.current = calendarDate;
-    //     }
-    // }
-
+    
     useEffect(() => {
         if(timeSettings !== timeSettingsRef.current) {
             timeSettingsRef.current = timeSettings;
