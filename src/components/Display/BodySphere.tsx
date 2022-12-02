@@ -14,7 +14,39 @@ import { TWO_PI, degToRad, linspace, wrapAngle, vec3, sub3, div3, hexFromColorSt
 import { PrimitiveAtom, useAtom } from 'jotai';
 import { displayOptionsAtom } from '../../App';
 
-const sphereTexture = new THREE.TextureLoader().load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/sphere.png");
+const textureLoader = new THREE.TextureLoader();
+const sphereTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/sphere.png");
+const kscTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/ksc.png");
+const dishTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/dish.png");
+const podTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/pod.png");
+const probeTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/probe.png");
+const relayTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/relay.png");
+const planeTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/plane.png");
+const evaTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/eva.png");
+const stationTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/station.png");
+const landerTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/lander.png");
+const asteroidTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/asteroid.png");
+const debrisTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/debris.png");
+const roverTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/rover.png");
+const baseTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/base.png");
+const flagTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/flag.png");
+
+const iconMap = new Map<string, THREE.Texture>([
+    ["Center",      kscTexture],
+    ["Dish",        dishTexture],
+    ["Ship",        podTexture],
+    ["Probe",       probeTexture],
+    ["Relay",       relayTexture],
+    ["Plane",       planeTexture],
+    ["Eva",         evaTexture],
+    ["Station",     stationTexture],
+    ["Lander",      landerTexture],
+    ["SpaceObject", asteroidTexture],
+    ["Debris",      debrisTexture],
+    ["Rover",       roverTexture],
+    ["Base",        baseTexture],
+    ["Flag",        flagTexture],
+])
 
 type BodySphereProps = {
     body:           CelestialBody,
@@ -25,6 +57,7 @@ type BodySphereProps = {
     depth?:         number,
     centeredAt?:    Vector3,
     infoItemAtom:   PrimitiveAtom<InfoItem>,
+    landedVessels?: LandedVessel[],
     setTarget:      React.Dispatch<React.SetStateAction<TargetObject>> | ((body: CelestialBody) => void),
 }
 
@@ -56,6 +89,44 @@ function getCentralBodyOrbit(body: OrbitingBody, date: number, plotSize: number)
     )
 }
 
+function getGroundPosition(radius: number, plotSize: number, vessel: LandedVessel) {
+    const r = (radius + vessel.altitude) / plotSize;
+    const latRad = degToRad(vessel.latitude);
+    const longRad = degToRad(vessel.longitude) + Math.PI;
+    const coslat = Math.cos(latRad);
+    const sinlat = Math.sin(latRad);
+    const coslong = Math.cos(longRad);
+    const sinlong = Math.sin(longRad);
+    const groundPos = [-r * coslong * coslat, r * sinlat, r * sinlong * coslat];
+    return groundPos;
+}
+
+function LandedObject({position, rotation, radius, plotSize, vessel, visible}: {position: THREE.Vector3, rotation: number, radius: number, plotSize: number, vessel: LandedVessel, visible: boolean}) {
+    const groundPosVec = useRef(getGroundPosition(radius, plotSize, vessel));
+    const groundPos = new THREE.Vector3(...groundPosVec.current);
+    groundPos.applyAxisAngle(new THREE.Vector3(0,1,0), rotation);
+    groundPos.add(position);
+    
+    const [texture, setTexture] = useState(iconMap.get(String(vessel.type)));
+    useEffect(() => {
+        setTexture(iconMap.get(String(vessel.type)));
+    }, [vessel.type])
+    useEffect(() => {
+        groundPosVec.current = getGroundPosition(radius, plotSize, vessel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [plotSize, radius, vessel.altitude, vessel.latitude, vessel.longitude])
+
+    return (
+        <sprite
+            key={vessel.name}
+            scale={[0.05,0.05,0.05]}
+            position={groundPos}
+        >
+            <spriteMaterial map={texture || dishTexture} sizeAttenuation={false} color={'white'} depthTest={false} visible={visible}/>
+        </sprite>
+    )
+}
+
 function BodyTexture({textureURL, isSun = false, hasTexture = true, color = 'white', shadows = false, wireframe = false}: {textureURL: string, isSun?: boolean, hasTexture?: boolean, color?: string, shadows?: boolean, wireframe?: boolean}) {
     const texture = useTexture(textureURL);
     return (
@@ -66,7 +137,7 @@ function BodyTexture({textureURL, isSun = false, hasTexture = true, color = 'whi
     )
 }
 
-function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, centeredAt = vec3(0,0,0), infoItemAtom, setTarget}: BodySphereProps) {
+function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, centeredAt = vec3(0,0,0), infoItemAtom, landedVessels = [], setTarget}: BodySphereProps) {
     const [displayOptions] = useAtom(displayOptionsAtom);
     const [, setInfoItem] = useAtom(infoItemAtom);
     
@@ -93,11 +164,15 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
     const pos = div3(centeredAt, plotSize);
     const position = new THREE.Vector3(-pos.x, pos.z, pos.y);
 
-    const [closeVisible, setCloseVisible] = useState(true);
-    const [farVisible, setFarVisible] = useState(true);
+    const rotation = degToRad(body.initialRotation || 0) + Math.PI + TWO_PI * ((date % (body.rotationPeriod || Infinity)) / (body.rotationPeriod || Infinity));
+
+    const [veryCloseVisible, setVeryCloseVisible] = useState(false);
+    const [closeVisible, setCloseVisible] = useState(false);
+    const [farVisible, setFarVisible] = useState(false);
     useFrame((state) => {
         setFarVisible(depth <= 1 ? true : state.camera.position.distanceTo(position) < 10 * attractorSoi.current / plotSize);
         setCloseVisible(depth <= 0 ? true : state.camera.position.distanceTo(position) < 10 * (body.soi as number) / plotSize);
+        setVeryCloseVisible(state.camera.position.distanceTo(position) < 10 * body.radius / plotSize);
     })
 
     useEffect(() => {}, [closeVisible, farVisible])
@@ -122,12 +197,13 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
         }
     }
 
+
     return (
         <>    
         {displayOptions.bodies &&
             <mesh 
                 position={position}
-                rotation={[0, degToRad(body.initialRotation || 0) + Math.PI + TWO_PI * ((date % (body.rotationPeriod || Infinity)) / (body.rotationPeriod || Infinity)), 0]} 
+                rotation={[0, rotation, 0]} 
                 onClick={handleClick(farVisible)}
                 onDoubleClick={handleDoubleClick(farVisible)}
                 visible={farVisible}
@@ -184,6 +260,9 @@ function BodySphere({body, system, date, plotSize, isSun = true, depth = 0, cent
                 <div>{body.name}</div> 
             </Html>
         }
+        {landedVessels.map((lv, idx) => 
+            <LandedObject key={idx} position={position} rotation={rotation} radius={body.radius} plotSize={plotSize} vessel={lv} visible={veryCloseVisible}/>
+        )}
         </>
     )
   }

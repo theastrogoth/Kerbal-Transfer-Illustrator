@@ -49,7 +49,7 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                                     value={hour} 
                                     setValue={setHour}
                                     error={error}    
-                                    sx={{minWidth: "60px", maxWidth: "65px"}}
+                                    sx={{minWidth: "55px", maxWidth: "55px"}}
                                     disabled={disabled}
                                 /> :
                         [
@@ -59,25 +59,25 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                                 value={hour} 
                                 setValue={setHour}
                                 error={error}    
-                                sx={{minWidth: "60px", maxWidth: "65px"}}
+                                sx={{minWidth: "55px", maxWidth: "55px"}}
                                 disabled={disabled}
                             />,
                             <NumField
                                 key='min'
-                                label='Minute'
+                                label='Min'
                                 value={minute} 
                                 setValue={setMinute}
                                 error={error}    
-                                sx={{minWidth: "60px", maxWidth: "65px"}}
+                                sx={{minWidth: "55px", maxWidth: "55px"}}
                                 disabled={disabled}
                             />,
                             <NumField
                                 key='sec'
-                                label='Second'
+                                label='Sec'
                                 value={second} 
                                 setValue={setSecond}
                                 error={error}    
-                                sx={{minWidth: "60px", maxWidth: "78px"}}
+                                sx={{minWidth: "55px", maxWidth: "65px"}}
                                 disabled={disabled}
                             />,
                         ];
@@ -241,7 +241,7 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                     value={year}
                     setValue={setYear}
                     error={error}    
-                    sx={{minWidth: "60px", maxWidth: "65px"}}
+                    sx={{minWidth: "55px", maxWidth: "55px"}}
                     disabled={disabled}
                 />      
                 <NumField
@@ -249,7 +249,7 @@ function DateField({id, label, calendarDateAtom, required = false, error = false
                     value={day} 
                     setValue={setDay}
                     error={error}    
-                    sx={{minWidth: "60px", maxWidth: "65px"}}
+                    sx={{minWidth: "55px", maxWidth: "55px"}}
                     disabled={disabled}
                 />            
                 {HourField}

@@ -20,6 +20,8 @@ import ksrssconfigs from './data/ksrss_configs.json';
 import jnsqconfigs from './data/jnsq_configs.json';
 import galileoconfigs from './data/galileo_configs.json';
 
+import kerbingroundstations from './data/kerbin_groundstations.json';
+
 import SolarSystem from './main/objects/system';
 import Vessel from './main/objects/vessel';
 import loadSystemData, { loadSystemFromConfigs } from './main/utilities/loadSystem';
@@ -28,6 +30,7 @@ import { defaultManeuverComponents, defaultOrbit, makeDateFields } from './utils
 import { bodyConfigsToTree, bodyToConfig, sunToConfig } from './main/utilities/loadPlanetConfig';
 
 import { PrimitiveAtom, atom, useAtom } from 'jotai';
+import { splitAtom } from 'jotai/utils';
 
 // prepare popular systems
 export const kspSystem = loadSystemData(kspbodies);
@@ -36,6 +39,8 @@ const jnsqSystem = loadSystemFromConfigs(jnsqconfigs, kspSystem);
 const rssSystem = loadSystemFromConfigs(rssconfigs, kspSystem);
 const ksrssSystem = loadSystemFromConfigs(ksrssconfigs, kspSystem);
 const galileoSystem = loadSystemFromConfigs(galileoconfigs, kspSystem);
+
+const kerbinGroundStations = kerbingroundstations.map(gs => gs as LandedVessel);
 
 const systemOptions = new Map<string, SolarSystem>()
 systemOptions.set('Kerbol System (Stock)', kspSystem);
@@ -91,6 +96,7 @@ export const systemAtom = atom<SolarSystem>(
 );
 export const vesselsAtom = atom([] as Vessel[]);
 export const landedVesselsAtom = atom([] as LandedVessel[]);
+export const groundStationsAtom = atom(kerbinGroundStations);
 export const timeSettingsAtom = atom(kspTimeSettings);
 
 export const copiedOrbitAtom = atom(defaultOrbit(kspSystem) as IOrbit);
@@ -124,20 +130,27 @@ export const displayOptionsAtom = atom<DisplayOptions>({
   skyBox:         false,
 });
 
+export const commsOptionsAtom = atom<{spaceCenter: boolean, groundStations: boolean, commStrength: number, trackingLevel: number}>({
+  spaceCenter:      true,
+  groundStations:   true,
+  commStrength:     0,
+  trackingLevel:    3,
+})
+
 // transfer planner state (atoms)
 export const transferStartOrbitAtom = atom({
   name:       "Starting Orbit",
   orbit:      defaultOrbit(kspSystem, 1),
   maneuvers:  [],
   type:       "Ship",
-  commRange:  0,
+  commRange:  100000000000,
 } as IVessel);
 export const transferEndOrbitAtom = atom({
   name:       "Target Orbit",
   orbit:      defaultOrbit(kspSystem, 6),
   maneuvers:  [],
   type:       "Ship",
-  commRange:  0,
+  commRange:  100000000000,
 } as IVessel);
 export const transferEarlyStartDateAtom = atom(makeDateFields(1,1,0));
 export const transferLateStartDateAtom = atom(makeDateFields()); 
@@ -161,14 +174,14 @@ export const multiFlybyStartOrbitAtom = atom({
   orbit:      defaultOrbit(kspSystem, 1),
   maneuvers:  [],
   type:       "Ship",
-  commRange:  0,
+  commRange:  100000000000,
 } as IVessel);
 export const multiFlybyEndOrbitAtom = atom({
   name:       "Target Orbit",
   orbit:      defaultOrbit(kspSystem, 16),
   maneuvers:  [],
   type:       "Ship",
-  commRange:  0,
+  commRange:  100000000000,
 } as IVessel);
 export const flybyIdSequenceAtom = atom<number[]>([5, 8]);
 export const multiFlybyEarlyStartDateAtom = atom(makeDateFields(1,1,0));
@@ -190,8 +203,10 @@ export const multiFlybyControlsOptionsAtom = atom({
 });
 
 // flight planner state (atoms)
-// export const vesselPlansAtom = atom([{name: "Vessel #1", orbit: defaultOrbit(kspSystem), maneuvers: [{prograde: 0, normal: 0, radial: 0, date: 0}]}] as IVessel[]);
-export const vesselPlansAtom = atom([] as (IVessel)[]);
+export const vesselPlansAtom = atom([{name: "New Craft", orbit: defaultOrbit(kspSystem), maneuvers: [], commRange: 5000, type: "Ship"}] as IVessel[]);
+// export const vesselPlansAtom = atom([] as (IVessel)[]);
+export const vesselPlansAtomAtom = splitAtom(vesselPlansAtom);
+export const landedVesselPlansAtom = atom([] as LandedVessel[])
 export const flightPlansAtom = atom([] as FlightPlan[]);
 
 // system editor (atoms)
@@ -217,7 +232,7 @@ function AppBody() {
       values: {
           xs: 0,
           sm: 750,
-          md: 1250,
+          md: 1280,
           lg: 1630,
           xl: 1800,
       },

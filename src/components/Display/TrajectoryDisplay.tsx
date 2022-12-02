@@ -30,6 +30,20 @@ const roverTexture = textureLoader.load("https://raw.githubusercontent.com/theas
 const baseTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/base.png");
 // const flagTexture = textureLoader.load("https://raw.githubusercontent.com/theastrogoth/Kerbal-Transfer-Illustrator/assets/icons/flag.png");
 
+const iconMap = new Map<string, THREE.Texture>([
+    ["Ship",        podTexture],
+    ["Probe",       probeTexture],
+    ["Relay",       relayTexture],
+    ["Plane",       planeTexture],
+    ["Eva",         evaTexture],
+    ["Station",     stationTexture],
+    ["Lander",      landerTexture],
+    ["SpaceObject", asteroidTexture],
+    ["Debris",      debrisTexture],
+    ["Rover",       roverTexture],
+    ["Base",        baseTexture],
+])
+
 const defaultColor: IColor = {r:255, g:255, b:255};
 
 type TrajectoryDisplayProps = {
@@ -214,33 +228,9 @@ function TrajectoryDisplay({trajectory, flightPlan, system, date, plotSize, cent
     }, [trajectory, system, plotSize])
 
     useEffect(() => {
-        const type = flightPlan.type
-        if(type !== undefined) {
-            if(type === "Ship") {
-                setSpriteMap(podTexture);
-            } else if(type === "Probe") {
-                setSpriteMap(probeTexture);
-            } else if(type === "Relay") {
-                setSpriteMap(relayTexture);
-            } else if(type === "Station") {
-                setSpriteMap(stationTexture);
-            } else if(type === "Base") {
-                setSpriteMap(baseTexture);
-            } else if(type === "Lander") {
-                setSpriteMap(landerTexture);
-            } else if(type === "Rover") {
-                setSpriteMap(roverTexture);
-            } else if(type === "Plane") {
-                setSpriteMap(planeTexture);
-            } else if(type === "Eva") {
-                setSpriteMap(evaTexture);
-            } else if(type === "Debris") {
-                setSpriteMap(debrisTexture);
-            } else if(type === "SpaceObject") {
-                setSpriteMap(asteroidTexture);
-            } else{
-                setSpriteMap(podTexture);
-            }
+        const texture = iconMap.get(String(flightPlan.type));
+        if(texture !== undefined) {
+            setSpriteMap(texture)
         } else {
             setSpriteMap(podTexture);
         }

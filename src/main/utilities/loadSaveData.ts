@@ -1,7 +1,7 @@
 import Kepler from "../libs/kepler";
 import Vessel from "../objects/vessel";
 import parseConfigNodes from "./parseConfigNodes";
-import antennas from "./antennas.json";
+import antennas from "../../data/antennas.json";
 
 function dataToCommRange(vesselObject: any): number {
     let bestDistance = 0;
@@ -103,7 +103,8 @@ function dataToLandedVessel(vesselObject: any): LandedVessel {
     const latitude = parseFloat(vesselObject.lat);
     const longitude = parseFloat(vesselObject.lon);
     const altitude = parseFloat(vesselObject.alt) + parseFloat(vesselObject.hgt);
-    return {name, type, bodyIndex, latitude, longitude, altitude}
+    const commRange = dataToCommRange(vesselObject);
+    return {name, type, bodyIndex, latitude, longitude, altitude, commRange}
 }
 
 function saveDataToVessels(saveData: any, system: ISolarSystem): {vessels: Vessel[], landedVessels: LandedVessel[]} {
@@ -134,7 +135,6 @@ function saveDataToVessels(saveData: any, system: ISolarSystem): {vessels: Vesse
 function saveFileToVessels(saveFile: string, system: ISolarSystem): {vessels: Vessel[], landedVessels: LandedVessel[]} {
     const saveData = parseConfigNodes(saveFile);
     const {vessels, landedVessels} = saveDataToVessels(saveData, system);
-    console.log(landedVessels)
     return {vessels, landedVessels};
 }
 

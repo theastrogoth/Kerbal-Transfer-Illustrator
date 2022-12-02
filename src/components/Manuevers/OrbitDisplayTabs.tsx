@@ -9,25 +9,26 @@ import InfoPopper from "../Display/InfoPopper";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import { atom, PrimitiveAtom, useAtom } from "jotai";
-import { flightPlansAtom, systemAtom, timeSettingsAtom } from "../../App";
+import { flightPlansAtom, landedVesselPlansAtom, systemAtom, timeSettingsAtom } from "../../App";
 
 
 const emptyProps: OrbitDisplayProps[] = [];
 
-function bodyPlotProps(centralBody: CelestialBody, idx: number, flightPlans: FlightPlan[], system: SolarSystem, startDate: number, endDate: number): OrbitDisplayProps {
+function bodyPlotProps(centralBody: CelestialBody, idx: number, flightPlans: FlightPlan[], landedVessels: LandedVessel[], system: SolarSystem, startDate: number, endDate: number): OrbitDisplayProps {
     return {
         index:              idx,
         label:              centralBody.name + ' System',
         centralBody,
         system,
         flightPlans,
+        landedVessels,
         startDate,
         endDate,
         slider:             false,
     };
 }
 
-export function prepareAllDisplayProps(flightPlans: FlightPlan[], system: SolarSystem): OrbitDisplayProps[] {
+export function prepareAllDisplayProps(flightPlans: FlightPlan[], landedVessels: LandedVessel[], system: SolarSystem): OrbitDisplayProps[] {
     let minStartDate = 0;
     const bodies = new Map<number, {body: CelestialBody, startDate: number, endDate: number}>();
     for(let i=0; i<flightPlans.length; i++) {
@@ -60,7 +61,7 @@ export function prepareAllDisplayProps(flightPlans: FlightPlan[], system: SolarS
 
     return bodyIdxs.map((idx, i) => {
         const {body, startDate, endDate} = bodies.get(idx) as {body: CelestialBody, startDate: number, endDate: number};
-        return bodyPlotProps(body, i, flightPlans, system, startDate, endDate);
+        return bodyPlotProps(body, i, flightPlans, landedVessels, system, startDate, endDate);
     });
 } 
 
@@ -88,6 +89,7 @@ const OrbitTabPanel = React.memo(function WrappedOrbitTabPanel({value, index, pr
 
 function OrbitDisplayTabs() {
     const [flightPlans] = useAtom(flightPlansAtom);
+    const [landedVessels] = useAtom(landedVesselPlansAtom);
     const [system] = useAtom(systemAtom);
 
     const [timeSettings] = useAtom(timeSettingsAtom);
@@ -113,15 +115,16 @@ function OrbitDisplayTabs() {
                 system,
                 startDate:          0,
                 endDate:            0,
+                landedVessels,
                 slider:             false,
             };
             setOrbitDisplayProps([plotProps]);
         } else {
-            setOrbitDisplayProps(prepareAllDisplayProps(flightPlans, system));
+            setOrbitDisplayProps(prepareAllDisplayProps(flightPlans, landedVessels, system));
         }
         // hide warning for missing setters
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [flightPlans, timeSettings, system, value]);
+    }, [flightPlans, timeSettings, system, value, landedVessels]);
     
     useEffect(() => {
         if(value < 0) {

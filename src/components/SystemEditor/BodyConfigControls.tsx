@@ -404,14 +404,14 @@ function BodyConfigControls() {
                                 label='Maximum Terrain Height (m)' 
                                 value={maxTerrainHeight}
                                 setValue={setMaxTerrainHeight}
-                                error={maxTerrainHeight !== undefined ? (maxTerrainHeight <= 0) : false}
+                                error={maxTerrainHeight !== undefined ? (maxTerrainHeight < 0) : false}
                             />
                         }
                         <NumberField
                             label='Atmosphere Height (m)' 
                             value={atmosphereHeight}
                             setValue={setAtmosphereHeight}
-                            error={atmosphereHeight !== undefined ? (atmosphereHeight <= 0) : false}
+                            error={atmosphereHeight !== undefined ? (atmosphereHeight < 0) : false}
                         />
                         <NumberField
                             label='Surface Gravity (/ 9.80665m/s)' 

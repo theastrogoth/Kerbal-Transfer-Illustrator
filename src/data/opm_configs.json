@@ -198,7 +198,7 @@
 		"ascNodeLongitude":280,
 		"meanAnomalyEpoch":3.14,
 		"epoch":0,
-		"color":"rgba(198,202,200,1)",
+		"color":"rgba(110,85,65,1)",
 		"referenceBody":"Sun",
 		"templateName":"Dres"
 	},

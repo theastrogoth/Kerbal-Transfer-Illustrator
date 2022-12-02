@@ -35,6 +35,11 @@ function ManeuversAppContent() {
   // const [invalidInput, setInvalidInput] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
+useEffect(() => {
+  propagateWorker
+    .postMessage({vesselPlans, system});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [])
 
 useEffect(() => {
   propagateWorker.onmessage = (event: MessageEvent<FlightPlan[]>) => {

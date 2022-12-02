@@ -21,11 +21,11 @@ import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 
 import { atom, PrimitiveAtom, useAtom } from "jotai";
-import { multiFlybyAtom, timeSettingsAtom, unrefinedMultiFlybyAtom } from "../../App";
+import { commsOptionsAtom, multiFlybyAtom, timeSettingsAtom, unrefinedMultiFlybyAtom } from "../../App";
 
 const emptyProps: OrbitDisplayProps[] = [];
 
-function transferPlotProps(multiFlyby: MultiFlyby): OrbitDisplayProps {
+function transferPlotProps(multiFlyby: MultiFlyby, commsRange: number): OrbitDisplayProps {
     const startDate = multiFlyby.startDate;
     const endDate = multiFlyby.endDate;
 
@@ -46,14 +46,14 @@ function transferPlotProps(multiFlyby: MultiFlyby): OrbitDisplayProps {
         marks,
         centralBody:    multiFlyby.transferBody,
         system:         multiFlyby.system,
-        flightPlans:    [multiFlyby.flightPlan],
+        flightPlans:    [multiFlyby.flightPlan(commsRange)],
         startDate:      startDate,
         endDate:        endDate,
         slider:         true,
     };
 }
 
-function ejectionPlotProps(multiFlyby: MultiFlyby, ejectionIdx: number): OrbitDisplayProps {
+function ejectionPlotProps(multiFlyby: MultiFlyby, ejectionIdx: number, commsRange: number): OrbitDisplayProps {
     const trajectory = multiFlyby.ejections[ejectionIdx];
     const trajLen = trajectory.orbits.length;
     const body = multiFlyby.system.bodyFromId(trajectory.orbits[0].orbiting) as OrbitingBody;
@@ -76,14 +76,14 @@ function ejectionPlotProps(multiFlyby: MultiFlyby, ejectionIdx: number): OrbitDi
         label:          body.name + ' Departure',
         centralBody:    body,
         system:         multiFlyby.system,
-        flightPlans:    [multiFlyby.flightPlan],
+        flightPlans:    [multiFlyby.flightPlan(commsRange)],
         startDate:      startDate,
         endDate:        endDate,
         slider:         true,
     };
 }
 
-function insertionPlotProps(multiFlyby: MultiFlyby, insertionIdx: number): OrbitDisplayProps {
+function insertionPlotProps(multiFlyby: MultiFlyby, insertionIdx: number, commsRange: number): OrbitDisplayProps {
     const trajectory = multiFlyby.insertions[insertionIdx];
     const trajLen = trajectory.orbits.length;
     const body = multiFlyby.system.bodyFromId(trajectory.orbits[0].orbiting) as OrbitingBody;
@@ -106,14 +106,14 @@ function insertionPlotProps(multiFlyby: MultiFlyby, insertionIdx: number): Orbit
         label:          body.name + ' Arrival',
         centralBody:    body,
         system:         multiFlyby.system,
-        flightPlans:    [multiFlyby.flightPlan],
+        flightPlans:    [multiFlyby.flightPlan(commsRange)],
         startDate:      startDate,
         endDate:        endDate,
         slider:         true,
     };
 }
 
-function flybyPlotProps(multiFlyby: MultiFlyby, flybyIdx: number): OrbitDisplayProps {
+function flybyPlotProps(multiFlyby: MultiFlyby, flybyIdx: number, commsRange: number): OrbitDisplayProps {
     const trajectory = multiFlyby.flybys[flybyIdx];
     const trajLen = trajectory.orbits.length;
     const body = multiFlyby.system.bodyFromId(trajectory.orbits[0].orbiting) as OrbitingBody;
@@ -141,27 +141,27 @@ function flybyPlotProps(multiFlyby: MultiFlyby, flybyIdx: number): OrbitDisplayP
         label:          body.name + " Flyby",
         centralBody:    body,
         system:         multiFlyby.system,
-        flightPlans:    [multiFlyby.flightPlan],
+        flightPlans:    [multiFlyby.flightPlan(commsRange)],
         startDate:      startDate,
         endDate:        endDate,
         slider:         true,
     };
 }
 
-export function prepareAllDisplayProps(multiFlyby: MultiFlyby) {
+export function prepareAllDisplayProps(multiFlyby: MultiFlyby, commsRange: number) {
     const orbDisplayProps: OrbitDisplayProps[] = [];    
 
     for(let i=0; i<multiFlyby.ejections.length; i++) {
-        orbDisplayProps.push(ejectionPlotProps(multiFlyby, i));
+        orbDisplayProps.push(ejectionPlotProps(multiFlyby, i, commsRange));
     }
 
-    orbDisplayProps.push(transferPlotProps(multiFlyby));
+    orbDisplayProps.push(transferPlotProps(multiFlyby, commsRange));
 
     for(let i=0; i<multiFlyby.flybys.length; i++) {
-        orbDisplayProps.push(flybyPlotProps(multiFlyby, i));
+        orbDisplayProps.push(flybyPlotProps(multiFlyby, i, commsRange));
     }
     for(let i=0; i<multiFlyby.insertions.length; i++) {
-        orbDisplayProps.push(insertionPlotProps(multiFlyby, i));
+        orbDisplayProps.push(insertionPlotProps(multiFlyby, i, commsRange));
     }
 
     // console.log('...Orbit plot traces computed from trajectory.')
@@ -199,6 +199,9 @@ function OrbitDisplayTabs() {
 
     const [timeSettings] = useAtom(timeSettingsAtom);
     const timeSettingsRef = useRef(timeSettings);
+
+    const [commsOptions] = useAtom(commsOptionsAtom);
+    const commsOptionsRef = useRef(commsOptions);
 
     const [value, setValue] = useState(0);
     const valueRef = useRef(value);
@@ -239,16 +242,25 @@ function OrbitDisplayTabs() {
             valueRef.current = value;
         } else if(timeSettings !== timeSettingsRef.current) {
             timeSettingsRef.current = timeSettings;
+        } else if (commsOptions !== commsOptionsRef.current) {
+            commsOptionsRef.current = commsOptions;
+            const newDisplayProps = orbitDisplayProps.map(odp => {
+                const newFlightPlans = (odp.flightPlans || []).map(fp => {
+                    return {...fp, commRange: commsOptions.commStrength * 1e6};
+                });
+                return {...odp, flightPlans: newFlightPlans};
+            })
+            setOrbitDisplayProps(newDisplayProps);
         } else {
             console.log('Updating Orbit plots with a new multi-flyby')
             if(value < -multiFlyby.ejections.length || value > multiFlyby.flybys.length + multiFlyby.insertions.length) {
                 setValue(0);
             }
-            setOrbitDisplayProps(prepareAllDisplayProps(multiFlyby));
+            setOrbitDisplayProps(prepareAllDisplayProps(multiFlyby, commsOptions.commStrength * 1e6));
         }
         // hide warning for missing setters
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [multiFlyby, timeSettings, value]);
+    }, [multiFlyby, timeSettings, value, commsOptions]);
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);

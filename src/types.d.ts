@@ -78,7 +78,7 @@ interface IPorkchop {
     readonly matchEndMo:                boolean;
 }
 
-type VesselType = "Ship" | "Probe" | "Relay" | "Station" | "Lander" | "Rover" | "Plane" | "Eva" | "Base" | "Flag" | "Debris" | "SpaceObject"
+type VesselType = "Ship" | "Probe" | "Relay" | "Station" | "Lander" | "Rover" | "Plane" | "Eva" | "Base" | "Flag" | "Debris" | "SpaceObject" | "Dish" | "Center"
 
 interface IVessel {
     readonly name:          string,

@@ -142,7 +142,7 @@ export class Transfer implements ITransfer {
         return wrapAngle(eAngle - sAngle);
     }
 
-    public get flightPlan(): FlightPlan {
+    public flightPlan(commRange: number = 0): FlightPlan {
         const name = 'Transfer';
         const color = {r: 255, g: 255, b: 255};
         const trajectories: Trajectory[] = [];
@@ -190,7 +190,7 @@ export class Transfer implements ITransfer {
             trajectories.push({orbits, maneuvers, intersectTimes});
         }
 
-        return {name, color, trajectories, maneuverContexts: this.maneuverContexts};
+        return {name, color, trajectories, maneuverContexts: this.maneuverContexts, commRange};
     }
 }
 

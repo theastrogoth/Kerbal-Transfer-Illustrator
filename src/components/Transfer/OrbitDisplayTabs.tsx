@@ -21,18 +21,18 @@ import TableCell from '@mui/material/TableCell';
 import Grid from "@mui/material/Grid";
 
 import { atom, PrimitiveAtom, useAtom } from "jotai";
-import { transferAtom, timeSettingsAtom, unrefinedTransferAtom } from "../../App";
+import { transferAtom, timeSettingsAtom, unrefinedTransferAtom, commsOptionsAtom } from "../../App";
 
 
 const emptyProps: OrbitDisplayProps[] = [];
 
-function transferPlotProps(transfer: Transfer): OrbitDisplayProps {
+function transferPlotProps(transfer: Transfer, commRange: number): OrbitDisplayProps {
     const centralBody = transfer.transferBody;
     const system = transfer.system;
     const startDate = transfer.startDate;
     const endDate = transfer.endDate;
 
-    const flightPlans = transfer.transferTrajectory.orbits.length > 0 ? [transfer.flightPlan] : [];
+    const flightPlans = transfer.transferTrajectory.orbits.length > 0 ? [transfer.flightPlan(commRange)] : [];
 
     const marks = [
         {
@@ -58,7 +58,7 @@ function transferPlotProps(transfer: Transfer): OrbitDisplayProps {
     }
 }
 
-function ejectionPlotProps(transfer: Transfer, ejectionIdx: number): OrbitDisplayProps {
+function ejectionPlotProps(transfer: Transfer, ejectionIdx: number, commRange: number): OrbitDisplayProps {
     const trajectory = transfer.ejections[ejectionIdx];
     const trajLen = trajectory.orbits.length;
     const centralBody  = transfer.system.bodyFromId(trajectory.orbits[0].orbiting) as OrbitingBody;
@@ -66,7 +66,7 @@ function ejectionPlotProps(transfer: Transfer, ejectionIdx: number): OrbitDispla
     const startDate  = trajectory.intersectTimes[0];
     const endDate = trajectory.intersectTimes[trajLen];
 
-    const flightPlans = transfer.transferTrajectory.orbits.length > 0 ? [transfer.flightPlan] : [];
+    const flightPlans = transfer.transferTrajectory.orbits.length > 0 ? [transfer.flightPlan(commRange)] : [];
 
     const marks = [
         {
@@ -92,7 +92,7 @@ function ejectionPlotProps(transfer: Transfer, ejectionIdx: number): OrbitDispla
     }
 }
 
-function insertionPlotProps(transfer: Transfer, insertionIdx: number): OrbitDisplayProps {
+function insertionPlotProps(transfer: Transfer, insertionIdx: number, commRange: number): OrbitDisplayProps {
     const trajectory = transfer.insertions[insertionIdx];
     const trajLen = trajectory.orbits.length;
     const centralBody  = transfer.system.bodyFromId(trajectory.orbits[0].orbiting) as OrbitingBody;
@@ -100,7 +100,7 @@ function insertionPlotProps(transfer: Transfer, insertionIdx: number): OrbitDisp
     const startDate  = trajectory.intersectTimes[0];
     const endDate = trajectory.intersectTimes[trajLen];
 
-    const flightPlans = transfer.transferTrajectory.orbits.length > 0 ? [transfer.flightPlan] : [];
+    const flightPlans = transfer.transferTrajectory.orbits.length > 0 ? [transfer.flightPlan(commRange)] : [];
 
     const marks = [
         {
@@ -126,17 +126,17 @@ function insertionPlotProps(transfer: Transfer, insertionIdx: number): OrbitDisp
     }
 }
 
-export function prepareAllDisplayProps(transfer: Transfer) {
+export function prepareAllDisplayProps(transfer: Transfer, commRange: number) {
     const orbDisplayProps: OrbitDisplayProps[] = [];    
 
     for(let i=0; i<transfer.ejections.length; i++) {
-        orbDisplayProps.push(ejectionPlotProps(transfer, i));
+        orbDisplayProps.push(ejectionPlotProps(transfer, i, commRange));
     }
 
-    orbDisplayProps.push(transferPlotProps(transfer));
+    orbDisplayProps.push(transferPlotProps(transfer, commRange));
 
     for(let i=0; i<transfer.insertions.length; i++) {
-        orbDisplayProps.push(insertionPlotProps(transfer, i))
+        orbDisplayProps.push(insertionPlotProps(transfer, i, commRange))
     }
     // console.log('...Orbit plot traces computed from transfer.')
     return orbDisplayProps;
@@ -173,6 +173,9 @@ function OrbitDisplayTabs() {
 
     const [timeSettings] = useAtom(timeSettingsAtom);
     const timeSettingsRef = useRef(timeSettings);
+
+    const [commsOptions] = useAtom(commsOptionsAtom);
+    const commsOptionsRef = useRef(commsOptions);
 
     const [value, setValue] = useState(0);
     const valueRef = useRef(value);
@@ -215,16 +218,25 @@ function OrbitDisplayTabs() {
             valueRef.current = value;
         } else if(timeSettings !== timeSettingsRef.current) {
             timeSettingsRef.current = timeSettings;
+        } else if (commsOptions !== commsOptionsRef.current) {
+            commsOptionsRef.current = commsOptions;
+            const newDisplayProps = orbitDisplayProps.map(odp => {
+                const newFlightPlans = (odp.flightPlans || []).map(fp => {
+                    return {...fp, commRange: commsOptions.commStrength * 1e6};
+                });
+                return {...odp, flightPlans: newFlightPlans};
+            })
+            setOrbitDisplayProps(newDisplayProps);
         } else {
             console.log('Updating Orbit plots with a new transfer')
             if(value < -transfer.ejections.length || value > transfer.insertions.length) {
                 setValue(0);
             }
-            setOrbitDisplayProps(prepareAllDisplayProps(transfer));
+            setOrbitDisplayProps(prepareAllDisplayProps(transfer, commsOptions.commStrength * 1e6));
         }
         // hide warning for missing setters
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [transfer, timeSettings, value]);
+    }, [transfer, timeSettings, value, commsOptions]);
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);

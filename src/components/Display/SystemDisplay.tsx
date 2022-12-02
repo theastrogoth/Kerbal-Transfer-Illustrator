@@ -10,7 +10,7 @@ import Kepler from '../../main/libs/kepler';
 import { vec3, add3 } from '../../main/libs/math';
 
 import { PrimitiveAtom, useAtom } from 'jotai';
-import { displayOptionsAtom } from '../../App';
+import { commsOptionsAtom, displayOptionsAtom, groundStationsAtom, systemNameAtom } from '../../App';
 
 type OrbiterDisplayProps = {
     body:           OrbitingBody,
@@ -22,6 +22,7 @@ type OrbiterDisplayProps = {
     depth:          number,
     centeredAt:     Vector3,
     flightPlans:    FlightPlan[],
+    landedVessels?: LandedVessel[],
     infoItemAtom:   PrimitiveAtom<InfoItem>,
     displayOptions: DisplayOptions,
     setTarget:      React.Dispatch<React.SetStateAction<TargetObject>>,
@@ -38,6 +39,7 @@ type SystemDisplayProps = {
     depth?:         number,
     centeredAt?:    Vector3,
     flightPlans?:   FlightPlan[],
+    landedVessels?: LandedVessel[],
     infoItemAtom:   PrimitiveAtom<InfoItem>,
     setTarget:      React.Dispatch<React.SetStateAction<TargetObject>>,
 }
@@ -79,7 +81,7 @@ function getTrajectoryIcons(trajectory: Trajectory, index: number, flightPlan: F
     return {maneuver, soi};
 }
 
-function OrbiterDisplay({index, tabValue, body, system, plotSize, date, depth, centeredAt, flightPlans, infoItemAtom, displayOptions, setTarget}: OrbiterDisplayProps) {
+function OrbiterDisplay({index, tabValue, body, system, plotSize, date, depth, centeredAt, flightPlans, landedVessels, infoItemAtom, displayOptions, setTarget}: OrbiterDisplayProps) {
     const position = add3(Kepler.orbitToPositionAtDate(body.orbit, date), centeredAt);
     return (<> 
         <OrbitLine 
@@ -108,18 +110,32 @@ function OrbiterDisplay({index, tabValue, body, system, plotSize, date, depth, c
             depth={depth+1}
             centeredAt={position}
             flightPlans={flightPlans}
+            landedVessels={landedVessels}
             infoItemAtom={infoItemAtom}
             setTarget={setTarget}
         />    
     </>);
 }
 
-function SystemDisplay({index, tabValue, centralBody, system, plotSize, date, isSun = true, depth = 0, centeredAt = vec3(0,0,0), flightPlans = [], infoItemAtom, setTarget}: SystemDisplayProps) {
+function SystemDisplay({index, tabValue, centralBody, system, plotSize, date, isSun = true, depth = 0, centeredAt = vec3(0,0,0), flightPlans = [], landedVessels = [], infoItemAtom, setTarget}: SystemDisplayProps) {
     const [displayOptions] = useAtom(displayOptionsAtom);
+    const [commsOptions] = useAtom(commsOptionsAtom);
+    const [systemName] = useAtom(systemNameAtom);
+    const [groundStations] = useAtom(groundStationsAtom);
     
     const bodyFlightPlans = flightPlans.map((flightPlan) => flightPlan.trajectories.map((trajectory, trajIndex) => {return {trajectory, index: trajIndex}}).filter(traj => traj.trajectory.orbits[0].orbiting === centralBody.id));
     const iconInfos = bodyFlightPlans.map((trajectories, index) => trajectories.map(trajectory => getTrajectoryIcons(trajectory.trajectory, trajectory.index, flightPlans[index], centralBody, system)));
 
+    const bodyLandedVessels = landedVessels.filter(lv => lv.bodyIndex === centralBody.id);
+    if (centralBody.id === 1 && (systemName === "Kerbol System (Stock)" || systemName === "Kerbol System (OPM)") ) {
+        if (commsOptions.spaceCenter) {
+            bodyLandedVessels.push(groundStations[0]);
+        }
+        if (commsOptions.groundStations) {
+            bodyLandedVessels.push(...groundStations.slice(1));
+        }
+    }
+    
     return (
         <>
             <BodySphere 
@@ -133,6 +149,7 @@ function SystemDisplay({index, tabValue, centralBody, system, plotSize, date, is
                 centeredAt={centeredAt}
                 infoItemAtom={infoItemAtom}
                 setTarget={setTarget}
+                landedVessels={bodyLandedVessels}
             />
             {centralBody.orbiters.map((body, index) => {
                 return <OrbiterDisplay 
@@ -146,6 +163,7 @@ function SystemDisplay({index, tabValue, centralBody, system, plotSize, date, is
                     depth={depth}
                     centeredAt={centeredAt}
                     flightPlans={flightPlans}
+                    landedVessels={landedVessels}
                     infoItemAtom={infoItemAtom}
                     displayOptions={displayOptions}
                     setTarget={setTarget}
