@@ -143,6 +143,7 @@ function EvolutionPlot({inputs, buttonPresses, setCalculating}: EvolutionPlotPro
             } else {
                 setCalculating(false);
                 setGeneration(null);
+                clearTimeout(timer.current as NodeJS.Timeout)
                 timer.current = null;
                 const bestIdx = fitnesses.current.findIndex(fitness => fitness === bestFitness(fitnesses.current));
                 const mfInputs = FlybyCalcs.multiFlybyInputsFromAgent(population.current[bestIdx], inputs);
