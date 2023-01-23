@@ -10,7 +10,7 @@ function dataToCommRange(vesselObject: any): number {
     if(vesselObject.PART !== undefined) {
         if(Array.isArray(vesselObject.PART)) {
             for(let i=0; i<vesselObject.PART.length; i++) {
-                const nameIdx = antennas.names.findIndex(name => name === vesselObject.PART[i].name);
+                const nameIdx = antennas.names.findIndex(name => name === (vesselObject.PART[i].name as string).split(".")[0]);
                 if(nameIdx !== -1) {
                     const dist = antennas.distances[nameIdx];
                     bestDistance = Math.max(dist, bestDistance);
