@@ -69,7 +69,7 @@ function ControlsOptions({showStrength=true}: {showStrength?: boolean}) {
             <FormControl disabled={disabled}>
                 <FormLabel>Tracking Station Level</FormLabel>
                 <RadioGroup
-                    value={3}
+                    value={opts.trackingLevel}
                     onChange={setTrackingLevel}
                 >
                     <Stack direction="row" >
