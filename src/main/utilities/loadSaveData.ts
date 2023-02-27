@@ -209,7 +209,7 @@ function dataToLandedVessel2(vesselObject: any, system: ISolarSystem): LandedVes
             bodyIndex: body.id, 
             latitude: radToDeg(theta - HALF_PI), 
             longitude: radToDeg(phi), 
-            altitude: Math.sqrt(x*x + y*y + z*z) - body.radius, 
+            altitude: r - body.radius, 
             commRange};
 }
 
