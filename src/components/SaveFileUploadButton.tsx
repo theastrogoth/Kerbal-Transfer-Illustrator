@@ -11,25 +11,34 @@ function SaveFileUploadButton() {
   const [, setLandedVessels] = useAtom(landedVesselsAtom);
   const [system] = useAtom(systemAtom);
 
-  const handleFile = (e: any) => {
+  const handleSfsFile = (e: any) => {
     const content = e.target.result;
-    const {vessels, landedVessels} = saveFileToVessels(content, system);
+    const {vessels, landedVessels} = saveFileToVessels(content, system, "sfs");
     setVessels(vessels);
     setLandedVessels(landedVessels);
-    console.log("...Vessels loaded from save data.")
+    console.log("...Vessels loaded from KSP1 save data.")
+  }
+
+  const handleJsonFile = (e: any) => {
+    const content = e.target.result;
+    const {vessels, landedVessels} = saveFileToVessels(content, system, "json");
+    setVessels(vessels);
+    setLandedVessels(landedVessels);
+    console.log("...Vessels loaded from KSP2 save data.")
   }
   
   const handleChangeFile = (file: any) => {
-    console.log("Reading save file...")
+    console.log("Reading save file " + file.name + "...")
+    const extension = file.name.split('.').pop();
     let fileData = new FileReader();
-    fileData.onloadend = handleFile;
+    fileData.onloadend = extension === "json" ? handleJsonFile : handleSfsFile;
     fileData.readAsText(file);
   }
   
   return ( <>
     <input
       type="file"
-      accept=".sfs"
+      accept=".sfs,.json"
       style={{ display: 'none' }}
       id="uploaded-save-file"
       // @ts-ignore

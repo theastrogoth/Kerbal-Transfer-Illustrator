@@ -2,6 +2,11 @@ import Kepler from "../libs/kepler";
 import Vessel from "../objects/vessel";
 import parseConfigNodes from "./parseConfigNodes";
 import antennas from "../../data/antennas.json";
+import SolarSystemUtils from "../libs/systemutils";
+
+import { vec3, cartesianToSpherical, radToDeg, HALF_PI } from "../libs/math";
+
+/// READ KSP1 SAVES (.sfs FILES) ///
 
 function dataToCommRange(vesselObject: any): number {
     let bestDistance = 0;
@@ -132,10 +137,111 @@ function saveDataToVessels(saveData: any, system: ISolarSystem): {vessels: Vesse
     return {vessels, landedVessels};
 }
 
-function saveFileToVessels(saveFile: string, system: ISolarSystem): {vessels: Vessel[], landedVessels: LandedVessel[]} {
-    const saveData = parseConfigNodes(saveFile);
-    const {vessels, landedVessels} = saveDataToVessels(saveData, system);
+/// READ KSP2 SAVES (.json FILES) ///
+
+function dataToCommRange2(vesselObject: any): number {
+    // TO DO
+    return 0;
+}
+
+function dataToVessel2(vesselObject: any, system: ISolarSystem): IVessel {
+    // name
+    const name  = vesselObject.AssemblyDefinition.assemblyName;
+
+    // type (for sprite icon/display toggle)
+    const type = "Ship"; // not sure if/where this is stored now
+
+    // orbit
+    const sma   = parseFloat(vesselObject.location.serializedOrbit.semiMajorAxis);
+    const ecc   = parseFloat(vesselObject.location.serializedOrbit.eccentricity);
+    const inc   = parseFloat(vesselObject.location.serializedOrbit.inclination);
+    const arg   = parseFloat(vesselObject.location.serializedOrbit.argumentOfPeriapsis);
+    const lan   = parseFloat(vesselObject.location.serializedOrbit.longitudeOfAscendingNode);
+    const mo    = parseFloat(vesselObject.location.serializedOrbit.meanAnomalyAtEpoch);
+    const epoch = parseFloat(vesselObject.location.serializedOrbit.epoch); 
+
+    const body = SolarSystemUtils.bodyFromName(system, vesselObject.location.serializedOrbit.referenceBodyGuid)
+    const orbiting = body.id;
+
+    const elements: OrbitalElements = {
+        semiMajorAxis: sma,
+        eccentricity: ecc,
+        inclination: inc,
+        argOfPeriapsis: arg,
+        ascNodeLongitude: lan,
+        meanAnomalyEpoch: mo,
+        epoch: epoch,
+        orbiting: orbiting,
+    }
+
+    const orbit: IOrbit = Kepler.orbitFromElements(elements, body);
+
+    // maneuvers
+    const maneuvers: ManeuverComponents[] = [];
+    const saveManeuvers = vesselObject.maneuverPlanState.maneuvers;
+    for(let i=0; i<saveManeuvers.length; i++) {
+        const date = parseFloat(saveManeuvers[i].Time);
+        const prograde = parseFloat(saveManeuvers[i].BurnVector.z);
+        const normal = parseFloat(saveManeuvers[i].BurnVector.y);
+        const radial = parseFloat(saveManeuvers[i].BurnVector.x);
+        const maneuver: ManeuverComponents = { date, prograde, normal, radial };
+        maneuvers.push(maneuver)
+    }
+
+    // comm distance
+    const commRange = dataToCommRange2(vesselObject);
+
+    const vessel: IVessel = {name, type, orbit, maneuvers, commRange};
+    return vessel;
+}
+
+function dataToLandedVessel2(vesselObject: any, system: ISolarSystem): LandedVessel {
+    const name  = vesselObject.AssemblyDefinition.assemblyName;
+    const type = "Ship";
+    const body = SolarSystemUtils.bodyFromName(system, vesselObject.location.serializedOrbit.referenceBodyGuid);
+    const x = parseFloat(vesselObject.location.rigidbodyState.localPosition.x)
+    const y = parseFloat(vesselObject.location.rigidbodyState.localPosition.z)
+    const z = parseFloat(vesselObject.location.rigidbodyState.localPosition.y)
+    const {r, theta, phi} = cartesianToSpherical(vec3(x,y,z)); 
+    const commRange = dataToCommRange2(vesselObject);
+    return {name, 
+            type, 
+            bodyIndex: body.id, 
+            latitude: radToDeg(theta - HALF_PI), 
+            longitude: radToDeg(phi), 
+            altitude: Math.sqrt(x*x + y*y + z*z) - body.radius, 
+            commRange};
+}
+
+function saveDataToVessels2(saveData: any, system: ISolarSystem): {vessels: Vessel[], landedVessels: LandedVessel[]} {
+    const vesselObjects = saveData.Vessels;
+    const vessels: Vessel[] = [];
+    const landedVessels: LandedVessel[] = [];
+    for(let i=0; i<vesselObjects.length; i++) {
+        if(vesselObjects[i].vesselState.Situation !== "Landed" && vesselObjects[i].vesselState.Situation !== "Splashed" && vesselObjects[i].vesselState.Situation !== "PreLaunch") {
+            vessels.push(new Vessel(dataToVessel2(vesselObjects[i], system), system));
+        } else {
+            landedVessels.push(dataToLandedVessel2(vesselObjects[i], system))
+        }
+    }
+
     return {vessels, landedVessels};
+}
+
+/// EXPORTED FUNCTION FOR READING ANY SAVE FILES ///
+
+function saveFileToVessels(saveFile: string, system: ISolarSystem, filetype: "sfs" | "json"): {vessels: Vessel[], landedVessels: LandedVessel[]} {
+    if (filetype === 'sfs') {
+        const saveData = parseConfigNodes(saveFile);
+        const {vessels, landedVessels} = saveDataToVessels(saveData, system);
+        return {vessels, landedVessels};
+    } else if (filetype === 'json') {
+        const saveData = JSON.parse(saveFile);
+        const {vessels, landedVessels} = saveDataToVessels2(saveData, system);
+        return {vessels, landedVessels};
+    } else {
+        return {vessels: [], landedVessels: []}
+    }
 }
 
 export default saveFileToVessels
