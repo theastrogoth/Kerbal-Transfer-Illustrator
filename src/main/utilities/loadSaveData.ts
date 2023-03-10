@@ -36,7 +36,7 @@ function dataToCommRange(vesselObject: any): number {
     return bestDistance * ((sumDistance / bestDistance) ** (sumCombinability / sumDistance));
 }
 
-function dataToVessel(vesselObject: any, system: ISolarSystem): IVessel {
+function dataToVessel(vesselObject: any, system: ISolarSystem): IVessel | undefined {
     // name
     const name  = vesselObject.name;
 
@@ -53,7 +53,10 @@ function dataToVessel(vesselObject: any, system: ISolarSystem): IVessel {
     const epoch = parseFloat(vesselObject.ORBIT.EPH); 
 
     const orbiting = parseInt(vesselObject.ORBIT.REF);
-    const body = orbiting === 0 ? system.sun : (system.orbiterIds.get(orbiting) as IOrbitingBody);
+    const body = orbiting === 0 ? system.sun : system.orbiterIds.get(orbiting);
+    if (!body) {
+        return undefined
+    }
     
     const elements: OrbitalElements = {
         semiMajorAxis: sma,
@@ -65,7 +68,6 @@ function dataToVessel(vesselObject: any, system: ISolarSystem): IVessel {
         epoch: epoch,
         orbiting: orbiting,
     }
-
     const orbit: IOrbit = Kepler.orbitFromElements(elements, body);
 
     // maneuvers
@@ -122,16 +124,28 @@ function saveDataToVessels(saveData: any, system: ISolarSystem): {vessels: Vesse
     if(Array.isArray(vesselObjects)) {
         for(let i=0; i<vesselObjects.length; i++) {
             if(vesselObjects[i].landed === "False" && vesselObjects[i].splashed === "False") {
-                vessels.push(new Vessel(dataToVessel(vesselObjects[i], system), system));
+                const newVessel = dataToVessel(vesselObjects[i], system);
+                if (newVessel) {
+                    vessels.push(new Vessel(newVessel, system));
+                }
             } else {
-                landedVessels.push(dataToLandedVessel(vesselObjects[i]))
+                const newVessel = dataToLandedVessel(vesselObjects[i]);
+                if (newVessel) {
+                    landedVessels.push(newVessel);
+                }
             }
         }
     } else {
         if(vesselObjects.landed === "False" && vesselObjects.splashed === "False") {
-            vessels.push(new Vessel(dataToVessel(vesselObjects, system), system));
+            const newVessel = dataToVessel(vesselObjects, system) as IVessel;
+            if (newVessel) {
+                vessels.push(new Vessel(newVessel, system));
+            }
         } else {
-            landedVessels.push(dataToLandedVessel(vesselObjects))
+            const newVessel = dataToLandedVessel(vesselObjects);
+            if (newVessel) {
+                landedVessels.push(newVessel);
+            }
         }
     }
     return {vessels, landedVessels};
