@@ -48,7 +48,10 @@ namespace Trajectories {
                 vel:  Kepler.velocityAtTrueAnomaly(transferOrbit1, transferBody.stdGravParam, planeChangeNu),
             };
             const n1vec = normalize3(cross3(planeChangePreState.pos, planeChangePreState.vel));
-            const n2vec = normalize3(cross3(planeChangePreState.pos, endPos));
+            let n2vec = normalize3(cross3(planeChangePreState.pos, endPos));
+            if (dot3(n1vec, n2vec) < 0) {
+                n2vec = mult3(n2vec, -1)
+            }
             const rotationAngle = acosClamped(dot3(n1vec, n2vec));
             let rotationAxis = rotationAngle === 0 ? Z_DIR : normalize3(cross3(n1vec, n2vec));
             rotationAxis = isNaN(rotationAxis.x) ? Z_DIR : rotationAxis;
@@ -109,8 +112,11 @@ namespace Trajectories {
                 pos:  Kepler.positionAtTrueAnomaly(transferOrbit2, planeChangeNu),
                 vel:  Kepler.velocityAtTrueAnomaly(transferOrbit2, transferBody.stdGravParam, planeChangeNu),
             };
-            const n1vec = normalize3(cross3(startPos, planeChangePostState.pos));
+            let n1vec = normalize3(cross3(startPos, planeChangePostState.pos));
             const n2vec = normalize3(cross3(planeChangePostState.pos, planeChangePostState.vel));
+            if (dot3(n1vec, n2vec) < 0) {
+                n1vec = mult3(n1vec, -1)
+            }
             const rotationAngle = acosClamped(dot3(n1vec, n2vec));
             console.log(rotationAngle)
             let rotationAxis = rotationAngle === 0 ? Z_DIR : normalize3(cross3(n1vec, n2vec));
