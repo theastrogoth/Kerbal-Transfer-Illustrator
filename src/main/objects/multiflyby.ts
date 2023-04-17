@@ -22,7 +22,7 @@ class MultiFlyby implements IMultiFlyby {
     readonly soiPatchPositions:      Vector3[];
     readonly flybyDurations:         { inTime: number; outTime: number; total: number; }[];
     readonly ejectionInsertionType:  "fastdirect" | "direct" | "fastoberth" | "oberth";
-    readonly planeChange:            boolean;
+    readonly planeChange:            0 | 1 | 2;;
     readonly matchStartMo:           boolean;
     readonly matchEndMo:             boolean;
     readonly noInsertionBurn:        boolean;

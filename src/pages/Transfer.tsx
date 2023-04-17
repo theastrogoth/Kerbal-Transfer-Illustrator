@@ -46,7 +46,7 @@ export function blankTransfer(system: SolarSystem): Transfer {
     maneuverContexts:       [],
     deltaV:                 0.0,
     ejectionInsertionType:  "fastoberth",
-    planeChange:            false,
+    planeChange:            0,
     matchStartMo:           true,
     matchEndMo:             false,
     noInsertionBurn:        false,

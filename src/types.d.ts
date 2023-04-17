@@ -56,7 +56,7 @@ interface ITransfer {
     readonly deltaV:                    number;
     readonly soiPatchPositions:         Vector3[];
     readonly ejectionInsertionType:     "fastdirect" | "direct" | "fastoberth" | "oberth";
-    readonly planeChange:               boolean;
+    readonly planeChange:               0 | 1 | 2;
     readonly noInsertionBurn:           boolean;
     readonly matchStartMo:              boolean;
     readonly matchEndMo:                boolean;
@@ -72,7 +72,7 @@ interface IPorkchop {
     readonly flightTimes:               number[];
     readonly deltaVs:                   number[][];
     readonly ejectionInsertionType:     "fastdirect" | "direct" | "fastoberth" | "oberth",
-    readonly planeChange:               boolean;
+    readonly planeChange:               0 | 1 | 2;
     readonly noInsertionBurn:           boolean;
     readonly matchStartMo:              boolean;
     readonly matchEndMo:                boolean;
@@ -126,7 +126,7 @@ interface IMultiFlyby {
     readonly flybyDurations:        {inTime: number, outTime: number, total: number}[];
     readonly deltaV:                number,
     readonly ejectionInsertionType: "fastdirect" | "direct" | "fastoberth" | "oberth";
-    readonly planeChange:           boolean,
+    readonly planeChange:           0 | 1 | 2;
     readonly matchStartMo:          boolean,
     readonly matchEndMo:            boolean,
     readonly noInsertionBurn:       boolean,
@@ -294,7 +294,7 @@ type TransferInputs = {
     readonly transferBody?:             ICelestialBody;
     readonly soiPatchPositions?:        Vector3[];
     readonly ejectionInsertionType?:    "fastdirect" | "direct" | "fastoberth" | "oberth",
-    readonly planeChange?:              boolean;
+    readonly planeChange?:              0 | 1 | 2;
     readonly matchStartMo?:             boolean;
     readonly matchEndMo?:               boolean;
     readonly noInsertionBurn?:          boolean;
@@ -310,7 +310,7 @@ type PorkchopInputs = {
     flightTimeMax:                      number;
     readonly nTimes:                    number;
     readonly ejectionInsertionType?:    "fastdirect" | "direct" | "fastoberth" | "oberth",
-    readonly planeChange?:              boolean;
+    readonly planeChange?:              0 | 1 | 2;
     readonly matchStartMo?:             boolean;
     readonly matchEndMo?:               boolean;
     readonly noInsertionBurn?:          boolean;
@@ -327,7 +327,7 @@ type MultiFlybyInputs = {
     readonly soiPatchPositions?:        Vector3[];
     readonly flybyDurations?:           {inTime: number, outTime: number, total: number}[],
     readonly ejectionInsertionType?:    "fastdirect" | "direct" | "fastoberth" | "oberth",
-    readonly planeChange?:              boolean;
+    readonly planeChange?:              0 | 1 | 2;
     readonly matchStartMo?:             boolean;
     readonly matchEndMo?:               boolean;
     readonly noInsertionBurn?:          boolean;
@@ -344,7 +344,7 @@ type MultiFlybySearchInputs = {
     readonly flightTimesMax:            number[];
     readonly DSMperLeg:                 number[];
     readonly ejectionInsertionType?:    "fastdirect" | "direct" | "fastoberth" | "oberth",
-    readonly planeChange?:              boolean;
+    readonly planeChange?:              0 | 1 | 2;
     readonly matchStartMo?:             boolean;
     readonly matchEndMo?:               boolean;
     readonly noInsertionBurn?:          boolean;

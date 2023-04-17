@@ -11,7 +11,7 @@ import Checkbox from "@mui/material/Checkbox";
 import { PrimitiveAtom, useAtom } from "jotai";
 
 export type ControlsOptionsState = {
-    planeChange:        boolean,
+    planeChange:        0 | 1 | 2,
     matchStartMo:       boolean,
     matchEndMo:         boolean,
     oberthManeuvers:    boolean,
@@ -36,6 +36,15 @@ function handleCheckboxChange(setOpts: React.Dispatch<React.SetStateAction<Contr
         }
     )
 }
+function handlePlaneChangeChange(setOpts: React.Dispatch<React.SetStateAction<ControlsOptionsState>>, oldOpts: ControlsOptionsState) {
+    return (
+        (event: React.ChangeEvent<HTMLInputElement>): void => {
+            const newOpts = Object.assign(oldOpts) as ControlsOptionsState;
+            newOpts.planeChange = parseInt(event.target.value) as 0 | 1 | 2;
+            setOpts(newOpts);
+        }
+    )
+}
 
 function ControlsOptions({optsAtom}: {optsAtom: PrimitiveAtom<ControlsOptionsState>}) {
     const [opts, setOpts] = useAtom(optsAtom)
@@ -44,11 +53,12 @@ function ControlsOptions({optsAtom}: {optsAtom: PrimitiveAtom<ControlsOptionsSta
             <FormControl>
                 <FormLabel>Transfer Type</FormLabel>
                 <RadioGroup
-                    defaultValue={false}
-                    onChange={handleChange(setOpts, "planeChange", opts)}
+                    defaultValue={0}
+                    onChange={handlePlaneChangeChange(setOpts, opts)}
                 >
-                    <FormControlLabel value={false} control={<Radio />} label="Ballistic" />
-                    <FormControlLabel value={true}  control={<Radio />} label="Mid-course plane change" />
+                    <FormControlLabel value={0} control={<Radio />} label="Ballistic" />
+                    <FormControlLabel value={1}  control={<Radio />} label="Mid-course plane change (Type 1)" />
+                    <FormControlLabel value={2}  control={<Radio />} label="Mid-course plane change (Type 2)" />
                 </RadioGroup>
             </FormControl>
             <FormControl>

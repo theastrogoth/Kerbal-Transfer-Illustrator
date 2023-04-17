@@ -6,14 +6,14 @@ import FlybyCalcs from './flybycalcs';
 
 namespace Trajectories {
     export function transferTrajectory(startOrbit: IOrbit, endOrbit: IOrbit, transferBody: ICelestialBody, startDate: number, flightTime: number, endDate: number, 
-                                       planeChange: boolean, startPatchPosition: Vector3 = vec3(0,0,0), endPatchPosition: Vector3 = vec3(0,0,0)): Trajectory {
+                                       planeChange: number, startPatchPosition: Vector3 = vec3(0,0,0), endPatchPosition: Vector3 = vec3(0,0,0)): Trajectory {
         
         const startState = Kepler.orbitToStateAtDate(startOrbit, transferBody, startDate);
         const endState   = Kepler.orbitToStateAtDate(endOrbit,   transferBody, endDate); 
         const startPos = add3(startState.pos, startPatchPosition);
         const endPos   = add3(endState.pos,   endPatchPosition);
 
-        if(planeChange) { // for plane-change-style transfer...
+        if(planeChange === 1) { // for plane-change-style transfer, matching the starting orbital plane in the first half...
             // project the end position to the perifocal plane of the pre-transfer orbit, and compute a transfer
             let planeEndPos = Kepler.rotateToPerifocalFromInertial(endPos, startOrbit);
             planeEndPos = Kepler.rotateToInertialFromPerifocal(vec3(planeEndPos.x, planeEndPos.y, 0.0), startOrbit);
@@ -48,7 +48,10 @@ namespace Trajectories {
                 vel:  Kepler.velocityAtTrueAnomaly(transferOrbit1, transferBody.stdGravParam, planeChangeNu),
             };
             const n1vec = normalize3(cross3(planeChangePreState.pos, planeChangePreState.vel));
-            const n2vec = normalize3(cross3(planeChangePreState.pos, endPos));
+            let n2vec = normalize3(cross3(planeChangePreState.pos, endPos));
+            if (dot3(n1vec, n2vec) < 0) {
+                n2vec = mult3(n2vec, -1)
+            }
             const rotationAngle = acosClamped(dot3(n1vec, n2vec));
             let rotationAxis = rotationAngle === 0 ? Z_DIR : normalize3(cross3(n1vec, n2vec));
             rotationAxis = isNaN(rotationAxis.x) ? Z_DIR : rotationAxis;
@@ -82,6 +85,72 @@ namespace Trajectories {
                                 maneuvers:      [departManeuver, planeManeuver, arriveManeuver]};
                    
             return trajectory;    
+        } else if(planeChange === 2) { // for plane-change-style transfer, matching the target orbital plane in the second half... 
+            // project the start position to the perifocal plane of the post-transfer orbit, and compute a transfer
+            let planeStartPos = Kepler.rotateToPerifocalFromInertial(startPos, endOrbit);
+            planeStartPos = Kepler.rotateToInertialFromPerifocal(vec3(planeStartPos.x, planeStartPos.y, 0.0), endOrbit);
+
+            const v2 = Lambert.solve(planeStartPos, endPos, flightTime, transferBody).v2;
+            // state at the beginning of the transfer
+            const arriveState: OrbitalState = {
+                date: endDate,
+                pos:  endPos,
+                vel:  v2,
+            }
+            const transferOrbit2 = Kepler.stateToOrbit(arriveState, transferBody);
+            
+            // identify the true anomaly and date at the plane change (use PI/2 prior to target encounter)
+            const endNu = Kepler.angleInOrbitPlane(endPos, transferOrbit2);
+            const startNu = Kepler.angleInOrbitPlane(planeStartPos, transferOrbit2);
+
+            const planeChangeNu = startNu + Math.max(0.0, (wrapAngle(endNu - startNu) - HALF_PI));
+            const planeChangeDate = Kepler.trueAnomalyToOrbitDate(planeChangeNu, transferOrbit2, startDate);
+
+            // rotate the velocity vector at the plane change location to hit the target at encounter
+            const planeChangePostState = {
+                date: planeChangeDate,
+                pos:  Kepler.positionAtTrueAnomaly(transferOrbit2, planeChangeNu),
+                vel:  Kepler.velocityAtTrueAnomaly(transferOrbit2, transferBody.stdGravParam, planeChangeNu),
+            };
+            let n1vec = normalize3(cross3(startPos, planeChangePostState.pos));
+            const n2vec = normalize3(cross3(planeChangePostState.pos, planeChangePostState.vel));
+            if (dot3(n1vec, n2vec) < 0) {
+                n1vec = mult3(n1vec, -1)
+            }
+            const rotationAngle = acosClamped(dot3(n1vec, n2vec));
+            console.log(rotationAngle)
+            let rotationAxis = rotationAngle === 0 ? Z_DIR : normalize3(cross3(n1vec, n2vec));
+            rotationAxis = isNaN(rotationAxis.x) ? Z_DIR : rotationAxis;
+            const oldVel = roderigues(planeChangePostState.vel, rotationAxis, -rotationAngle);
+
+            // compute the transfer orbit from the plane change position and post-maneuver velocity;
+            const planeChangePreState = {
+                date: planeChangeDate, 
+                pos: planeChangePostState.pos, 
+                vel: oldVel,
+            };
+            const transferOrbit1 = Kepler.stateToOrbit(planeChangePreState, transferBody);
+
+            // state at end of transfer
+            let departState = Kepler.orbitToStateAtDate(transferOrbit1, transferBody, startDate);
+            if(isNaN(departState.pos.x)) {  // in case Newton root solving fails for the inverse Kepler equation (near parabolic orbits?)
+                const arriveNu = Kepler.angleInOrbitPlane(endPos, transferOrbit2);
+                departState = {
+                    date: endDate,
+                    pos:  endPos,
+                    vel:  Kepler.velocityAtTrueAnomaly(transferOrbit2, transferBody.stdGravParam, arriveNu),
+                };
+            }
+            // prepare maneuvers
+            const departManeuver = Kepler.maneuverFromOrbitalStates(startState, departState);
+            const arriveManeuver = Kepler.maneuverFromOrbitalStates(arriveState, endState);
+            const planeManeuver  = Kepler.maneuverFromOrbitalStates(planeChangePreState, planeChangePostState)
+
+            const trajectory = {orbits:         [transferOrbit1, transferOrbit2],
+                                intersectTimes: [startDate, planeChangeDate, endDate],
+                                maneuvers:      [departManeuver, planeManeuver, arriveManeuver]};
+                   
+            return trajectory;  
         } else {
             const {v1, v2} = Lambert.solve(startPos, endPos, flightTime, transferBody)
 

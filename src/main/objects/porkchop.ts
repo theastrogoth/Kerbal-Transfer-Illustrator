@@ -10,7 +10,7 @@ export class Porkchop implements IPorkchop {
     readonly flightTimes:           number[];
     readonly deltaVs:               number[][];
     readonly ejectionInsertionType: "fastdirect" | "direct" | "fastoberth" | "oberth";
-    readonly planeChange:           boolean;
+    readonly planeChange:           0 | 1 | 2;
     readonly noInsertionBurn:       boolean;
     readonly matchStartMo:          boolean;
     readonly matchEndMo:            boolean;
