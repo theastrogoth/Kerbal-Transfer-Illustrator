@@ -51,7 +51,7 @@ export function blankMultiFlyby(system: SolarSystem): MultiFlyby {
     soiPatchPositions:      [],
     flybyDurations:         [],
     ejectionInsertionType:  'fastdirect',
-    planeChange:            false,
+    planeChange:            0,
     matchStartMo:           false,
     matchEndMo:             false,
     noInsertionBurn:        false,

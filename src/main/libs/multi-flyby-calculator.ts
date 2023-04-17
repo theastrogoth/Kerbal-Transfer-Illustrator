@@ -43,7 +43,7 @@ class MultiFlybyCalculator {
     private _patchOptimizationBounds?:  number[][];
 
     private _ejectionInsertionType:    "fastdirect" | "fastoberth" | "direct" | "oberth";
-    private _planeChange:               boolean;
+    private _planeChange:               0 | 1 | 2;
     private _matchStartMo:              boolean;
     private _matchEndMo:                boolean;
     private _noInsertionBurn:           boolean;
@@ -70,7 +70,7 @@ class MultiFlybyCalculator {
         this._transferBody      = this.bodyFromId(this.commonAttractorId(this._startBody.id, this._endBody.id));
 
         this._ejectionInsertionType = inputs.ejectionInsertionType || "fastdirect";
-        this._planeChange       = inputs.planeChange || false;    
+        this._planeChange       = inputs.planeChange || 0;    
         this._matchStartMo      = inputs.matchStartMo || true;
         this._matchEndMo        = inputs.matchEndMo || false;     
         this._noInsertionBurn   = inputs.noInsertionBurn || false;

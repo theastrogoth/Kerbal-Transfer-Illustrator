@@ -20,7 +20,7 @@ class PorkchopCalculator {
     private _nTimes:                number;
 
     private _ejectionInsertionType: "fastdirect" | "direct" | "fastoberth" | "oberth";
-    private _planeChange:           boolean;
+    private _planeChange:           0 | 1 | 2;
     private _matchStartMo:          boolean;
     private _matchEndMo:            boolean;
     private _noInsertionBurn:       boolean;
@@ -44,7 +44,7 @@ class PorkchopCalculator {
         this._nTimes!       = inputs.nTimes;
 
         this._ejectionInsertionType = inputs.ejectionInsertionType === undefined ? "fastdirect" : inputs.ejectionInsertionType;
-        this._planeChange     = inputs.planeChange     === undefined ? false : inputs.planeChange;    
+        this._planeChange     = inputs.planeChange     === undefined ? 0 : inputs.planeChange;    
         this._matchStartMo    = inputs.matchStartMo    === undefined ? true  : inputs.matchStartMo;
         this._matchEndMo      = inputs.matchEndMo      === undefined ? false : inputs.matchEndMo;     
         this._noInsertionBurn = inputs.noInsertionBurn === undefined ? false : inputs.noInsertionBurn;
