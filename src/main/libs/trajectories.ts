@@ -109,12 +109,13 @@ namespace Trajectories {
                 pos:  Kepler.positionAtTrueAnomaly(transferOrbit2, planeChangeNu),
                 vel:  Kepler.velocityAtTrueAnomaly(transferOrbit2, transferBody.stdGravParam, planeChangeNu),
             };
-            const n1vec = normalize3(cross3(planeChangePostState.pos, startPos));
+            const n1vec = normalize3(cross3(startPos, planeChangePostState.pos));
             const n2vec = normalize3(cross3(planeChangePostState.pos, planeChangePostState.vel));
             const rotationAngle = acosClamped(dot3(n1vec, n2vec));
+            console.log(rotationAngle)
             let rotationAxis = rotationAngle === 0 ? Z_DIR : normalize3(cross3(n1vec, n2vec));
             rotationAxis = isNaN(rotationAxis.x) ? Z_DIR : rotationAxis;
-            const oldVel = roderigues(planeChangePostState.vel, rotationAxis, rotationAngle);
+            const oldVel = roderigues(planeChangePostState.vel, rotationAxis, -rotationAngle);
 
             // compute the transfer orbit from the plane change position and post-maneuver velocity;
             const planeChangePreState = {

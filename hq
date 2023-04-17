@@ -1,0 +1,651 @@
+[33mcommit b1d0140b2c90fd60aaf95b6c1e81ee56a8fc8631[m[33m ([m[1;36mHEAD -> [m[1;32mplanechange2[m[33m)[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Sun Apr 16 19:20:14 2023 -0500
+
+    add second plane change strategy
+
+[33mcommit e3d250e09e8cd37b28caa8f74d5b771ac589cd13[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Fri Mar 10 12:05:36 2023 -0600
+
+    Fix Save Loading Behavior (#33)
+    
+    * don't load crafts with invalid bodies
+    
+    * v0.12.6
+
+[33mcommit bcf92cf3864bfddbe385100958b436cd0967ba2a[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Sun Feb 26 22:18:30 2023 -0600
+
+    Add support for loading KSP2 saves (#32)
+    
+    * support loading KSP2 saves
+    
+    * v0.12.5
+    
+    * avoid recalculating radius
+
+[33mcommit 71129a5a27ca42f3f45384771cc4eb0cde297cbb[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Mon Jan 23 16:47:37 2023 -0600
+
+    fix tracking station lvl display (#31)
+
+[33mcommit 2522eef5be66dbc4543e6f63e9b0bfb4d68defdd[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Mon Jan 23 16:36:20 2023 -0600
+
+    Fix reading antennas from save (#30)
+    
+    * fix reading antennas from save
+    
+    * v0.12.4
+
+[33mcommit e9fa51b62a306e21fc0e49dcf602ca16f4dfe47e[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Sun Jan 8 22:20:31 2023 -0600
+
+    Fix Flyby Search Timeout Issue (#29)
+    
+    * fix timeout issue with flyby search
+    
+    * v0.12.3
+
+[33mcommit 54e4374d25cfe58ece18c37dd8b9f266b8745b96[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Thu Dec 1 22:56:32 2022 -0600
+
+    Add ground stations (#28)
+    
+    * add ground stations
+    
+    * add comm lines to groundstations
+    
+    * add controls for comms
+    
+    * load landed crafts, clean up
+    
+    * tidy up UI with new options
+    
+    * adjust date field widths for 14in
+    
+    * adjust breakpoint
+    
+    * fix height for landed sprites
+    
+    * attempt to fix FP tabs (WIP)
+    
+    * fix OrbitControls updates
+
+[33mcommit 703205bad1c5007156dcff4e77ffe29c13b8a1d1[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Mon Nov 28 17:30:26 2022 -0600
+
+    UI Fixes (#27)
+    
+    * fix flight plan numbering
+    
+    * attempt to improve number fields
+    
+    * fixed behavior with various number fields
+    
+    * v0.12.2
+
+[33mcommit a9cfbe7c145778f07403ac232242f530bd1bd5de[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Wed Nov 16 10:25:46 2022 -0600
+
+    CommNet Visualization (#25)
+    
+    * add CommNet Lines
+    
+    * add CommNet visualization
+    
+    * fix Porkchop Updates
+    
+    * make comms visible by default
+    
+    * v0.12.0
+
+[33mcommit 12d31c1bb2e139f417a846757a6b9106b6260fa3[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Wed Nov 9 09:55:33 2022 -0600
+
+    More Vessel Icons (#24)
+    
+    * add additional properties for vessels
+    
+    * add missing sprites
+
+[33mcommit 9cb85b09928e7a08c05b9a0a70dcaaff1b85fd4c[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Mon Jul 18 22:48:42 2022 -0500
+
+    fix craft info update (again)
+
+[33mcommit 380643472f2ba39ddbaa07e1bbb8e9af062b60d6[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Mon Jul 18 22:30:48 2022 -0500
+
+    fix craft info update
+
+[33mcommit 382cececac75339f3a19d69620c42dac9761ad16[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Mon Jul 18 22:01:19 2022 -0500
+
+    fix RSS and KSRSS epoch, better craft info
+
+[33mcommit a0691cdfbec8516037e526e394959a8d03efba20[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Mon Jul 18 14:29:54 2022 -0500
+
+    fix patch optimization bug for certain cases
+
+[33mcommit 7e5b8f88902ca5c2ca6b9d0ec5db78a573bb3e97[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Mon Jul 18 13:49:53 2022 -0500
+
+    Add faster warp options
+
+[33mcommit 81b1094fc27558e4357dc85cc01519eca5ee6c0f[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Thu Jul 14 16:38:36 2022 -0500
+
+    Deep space maneuvers for Multi-Flybys (#22)
+    
+    * add DSN inputs, set up chunked DE
+    
+    * add DSMs for MultiFlyby
+
+[33mcommit 4b4bd4c580eaf5be260bcfac5309a2e5e3822a2b[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Mon Jul 11 15:49:05 2022 -0500
+
+    More texture options (#21)
+    
+    * add more texture options
+    
+    * various fixes
+    
+    * various fixes
+
+[33mcommit cc2c13d280434518fcef6b08b902fa72c61be25f[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Mon Jul 11 12:52:52 2022 -0500
+
+    fix initial rotations for bodies
+
+[33mcommit 96692d52e0c825632593709953c4786b15d07201[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Mon Jul 11 10:52:04 2022 -0500
+
+    fix editor crashes, add body rotation to editor, add tidal locking (#20)
+
+[33mcommit 1a585390e03ea082a7872ea4cf8804ab440162c6[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Mon Jul 11 10:40:14 2022 -0500
+
+    Reduce Netlify bandwidth usage (#19)
+    
+    * avoid serving images via Netlify
+    
+    * fetch icons and textures from the assets branch
+    
+    * fix skybox urls
+
+[33mcommit cb8df86d1fd3194b0add80a4b667f029ebdb19f0[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Sun Jul 10 02:16:41 2022 -0500
+
+    small fixes
+
+[33mcommit 76d87cf9b05f5b3e202449471c4cace735da6c2d[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Sun Jul 10 01:54:07 2022 -0500
+
+    Display improvements (#18)
+    
+    * add skybox
+    
+    * show parent bodies in sub-systems
+    
+    * attempt to get shadows working
+    
+    * improve shadow behavior
+    
+    * fix orbit line colors, small fixes
+
+[33mcommit 9f6cc43369cb63889d11d0b6c2bb0bec011f9042[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Thu Jul 7 12:18:08 2022 -0500
+
+    Patch optimization (#17)
+    
+    * use dimensionless values for transfer refinement objective
+    
+    * overhaul transfer patch optimization
+    
+    * start improving multiflyby patch optimization
+    
+    * overhaul patch optimization for multiflybys, various fixes
+
+[33mcommit 99d88d91c74ef03c143a24e1fe6c3802a0f816ed[m
+Author: theastrogoth <theastrogoth@gmail.com>
+Date:   Tue Jul 5 11:50:41 2022 -0500
+
+    make warp buttons accurate
+
+[33mcommit cd52b995737e09bb6c28d39fa139ddee65510aa0[m
+Author: theastrogoth <theastrogoth@gmail.com>
+Date:   Tue Jul 5 11:15:03 2022 -0500
+
+    small fixes
+
+[33mcommit 94331f6e1df8e79a7f8062b225ac1568e7e4cf27[m
+Author: theastrogoth <theastrogoth@gmail.com>
+Date:   Tue Jul 5 10:51:58 2022 -0500
+
+    add reference line and name labels
+
+[33mcommit ebeee6b4042d9a94117fc9e8824b07a5d425c3d6[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Mon Jul 4 22:11:36 2022 -0500
+
+    add warp buttons, display options
+
+[33mcommit fe4b9405f69baafe8145cd4a4b034f2a1aca71e9[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Thu Jun 30 16:28:47 2022 -0500
+
+    fix suspense for texture loading
+
+[33mcommit fa88fb9a67b52e025a5eee84b46f2391e43a72d6[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Thu Jun 30 13:00:49 2022 -0500
+
+    try readding textures
+
+[33mcommit 1e44d99f0008506a8f72df109760df07e9810c53[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Thu Jun 30 12:49:42 2022 -0500
+
+    fix info popper text color
+
+[33mcommit b46e4aba3b3af0531b1aa2f95151dce7b672b510[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Thu Jun 30 12:18:54 2022 -0500
+
+    test without texture loading
+
+[33mcommit f1b7b1bf728ba72b66e6d9ee8f12dbbdafc9e2e1[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Thu Jun 30 11:59:05 2022 -0500
+
+    update version
+
+[33mcommit 0d3b78428715c16c19e42e1c955f193e069da1c0[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Thu Jun 30 11:58:14 2022 -0500
+
+    click to focus, better zoom behavior, nested systems
+
+[33mcommit 5cb0fa7a9ffa1173d16f8d7d9d18d78a147385aa[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Mon Jun 27 22:18:02 2022 -0500
+
+    fix loading old links
+
+[33mcommit f4ecb265f580a3284e82c3baaad102351a009afb[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Mon Jun 27 21:40:13 2022 -0500
+
+    Use threejs to render orbits/bodies/systems (#16)
+    
+    * install three deps
+    
+    * extra commit
+    
+    * preliminary system display using THREE
+    
+    * start to add orbit gradient to display
+    
+    * add stock textures
+    
+    * add central body orbit lines
+    
+    * add OPM textures, small fixes
+    
+    * add trajectory plotting, switch all pages to new plots
+    
+    * small fix for deploy build
+    
+    * add maneuver and soi sprites
+    
+    * add RSS textures
+    
+    * add vessel sprite
+    
+    * prevent white plot background
+    
+    * add information popper to displays
+    
+    * fix build warnings
+    
+    * fix popper behavior, add more icons
+    
+    * further improve popper placement
+    
+    * update Help info for new plots
+    
+    * add body rotation to configs, add galileo pack
+    
+    * fix custom system ID ordering
+    
+    * new version
+
+[33mcommit 1aa61d00a89e2e27dcd10e27d9ecc4a904ce37e6[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Wed Jun 15 21:57:56 2022 -0500
+
+    fix plotting and json compression problems
+
+[33mcommit 222a9aaf2a512cfe751c481ddb2a8f802b13783c[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Wed Jun 15 15:48:45 2022 -0500
+
+    fix plot size bug for suns
+
+[33mcommit 5e6faaedbd24cb8b4a608653d204b024e8d6c0a5[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Wed Jun 15 15:22:54 2022 -0500
+
+    use type exctraction + compression to shrink URL hash
+
+[33mcommit 13654db74e98239492dda706a954ce8ad208253d[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Tue Jun 14 10:49:37 2022 -0500
+
+    reduce number of renders with equality checks
+
+[33mcommit 80988a6c1e8d4f5daac5bfc643da40807af13e35[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Tue Jun 14 10:22:29 2022 -0500
+
+    fix configs and flight plan links
+
+[33mcommit 260854c77f5521a6fccc2aa70547584ed0d93ec7[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Mon Jun 13 20:28:47 2022 -0500
+
+    UI improvements and Individualized Links (#15)
+    
+    * ui improvements, get link buttons
+    
+    * small UI fixes, fix errors related to hash loading
+    
+    * fix invalid input warnings
+    
+    * fix invalid input warning bug introduced in last commit
+
+[33mcommit 294652cc37457dca3b8e0fd557e5dea0deda1207[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Sat Jun 11 19:39:47 2022 -0500
+
+    avoid invalid selected body name on provided config selection
+
+[33mcommit bcc7b2278c735c8c9f4bc337cfe03c4ac00e828b[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Fri Jun 10 23:25:04 2022 -0500
+
+    try it without onTouchMove
+
+[33mcommit d85f7b30d115ff50ec4ad3fd4d18f441851c6cfd[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Fri Jun 10 23:08:26 2022 -0500
+
+    handle touch events with number inputs
+
+[33mcommit e4df62a4ae6f4bbcf9c62dd45a842696d5672bde[m
+Author: theastrogoth <theastrogoth@gmail.com>
+Date:   Fri Jun 10 17:02:04 2022 -0500
+
+    add option to select from provided configs in editor
+
+[33mcommit 35f0bb95829e9bc8ef80f6cb21d437c215bdffdf[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Fri Jun 10 16:32:35 2022 -0500
+
+    System Editor (#14)
+    
+    * start putting together config editor
+    
+    * add list for BodyConfig selection
+    
+    * add methods to load/sort body configs
+    
+    * make nicer loading buttons
+    
+    * add most of the system editor components
+    
+    * cleaning up
+    
+    * fix a couple more warnings
+    
+    * fix bug for color field when switching bodies
+    
+    * adding/removing of body configs
+    
+    * make add Sun Config and delete bodies buttons
+    
+    * finish up core system editor features
+    
+    * tidying up
+    
+    * accept only one sun upload at a time
+
+[33mcommit 7dec9e42523fa60d6b524a292a87b02fe6e349ee[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Tue Jun 7 16:51:05 2022 -0500
+
+    use MUI Buttons, improve layout, fix useEffect issues (#13)
+
+[33mcommit 034889050eb5b3356aac59793166bc5e272a0f53[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Sun Jun 5 16:02:30 2022 -0500
+
+    actually fix propagation bugs
+
+[33mcommit 5fbce8f00cdeff4985772283816e3ec61bff3a29[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Sat Jun 4 22:54:39 2022 -0500
+
+    Refactor for Netlify (#9)
+    
+    * prepare changes for migrating to Netlify
+    
+    * remove homepage from package.json
+    
+    * refactor for better state management, make use of atomWithURL
+    
+    use atoms wherever feasible to manage state, store system info and flight plan inputs in the URL hash, fix bug in flight propagation, clean up console logs
+    
+    * actually fix flight propagation bug
+    
+    * disable hook deps check to successfully build
+    
+    * remove unneeded deps
+
+[33mcommit d335fc9b953efe0a21b68014fc08fdb107423602[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Thu Jun 2 13:28:43 2022 -0500
+
+    State Management (#8)
+    
+    * use Jotai for better state management
+    
+    * useEffect deps
+    
+    * increment version
+
+[33mcommit 73afb6ab6516a8e2a58af7db1e545d2167f5acdd[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Tue May 31 21:52:33 2022 -0500
+
+    increment version
+
+[33mcommit 1ffecde1426431e3dabc44775ad9792de9511399[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Tue May 31 21:51:08 2022 -0500
+
+    Responsive UI & small fixes (#7)
+    
+    * prepare responsive layout for mobile
+    
+    * fix OrbitControls behavior on system change
+    
+    * add placeholder page for System editor
+    
+    * rearrange OrbitControls buttons
+    
+    * fix outgoing flyby direction calc, small UI fixes
+    
+    * revert propagation intercept tolerance
+
+[33mcommit 03cceb0e364b76221e9441d3690352b1c90e56e4[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Tue May 24 02:17:29 2022 -0500
+
+    Update README.md
+
+[33mcommit f93c7ac86ba47d9b024126b74ccd2d0fd4eda486[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Tue May 24 01:34:32 2022 -0500
+
+    Add more selectable solar systems (#6)
+    
+    * add system selection
+    
+    * add OPM and RSS systems
+    
+    Co-authored-by: theastrogoth <theastrogoth>
+
+[33mcommit c85d68780e0c2ab3f0d12fb3db33dcc81a432c80[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Sun May 22 14:46:12 2022 -0500
+
+    add more info to orbit/body hover text (#5)
+
+[33mcommit 3077edce7f711fac8fd88b18820cf009709ff0d0[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Sun May 22 03:33:27 2022 -0500
+
+    Add Flight Plan Illustrator (#4)
+    
+    * vessel controls
+    
+    * flight plan input fields
+    
+    * finish up vessel controls, propagation fixes
+    
+    * add dark mode support
+    
+    * add past button for Flight Plans
+
+[33mcommit dc320209a566b76efbd5ca86bb153488f2cbd3f0[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Wed May 18 13:41:45 2022 -0500
+
+    add max terrain heights for Kerbol system
+
+[33mcommit 6e16af364a0ce28b1c4becab56b9b451038eed1b[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Wed May 18 12:02:12 2022 -0500
+
+    fix some undesired date field behavior
+
+[33mcommit 6b59872308e8de347774aebc7f770699fb7cc99c[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Tue May 17 14:44:22 2022 -0500
+
+    fix flyby sequence state
+
+[33mcommit a8d50e9d6c16d4221f6e8f41e27539455ae84051[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Tue May 17 13:56:20 2022 -0500
+
+    attempt to fix routing again
+
+[33mcommit b92dcd704b6dcee882026d748207df16dcfe3300[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Tue May 17 13:46:32 2022 -0500
+
+    attempt to fix routing
+
+[33mcommit 05bcb5121efd09daf30f68b08bf182db82d6d80b[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Tue May 17 13:02:12 2022 -0500
+
+    Global state & UI improvements (#3)
+    
+    * add propagation methods
+    
+    * set up outline for Flight Plan Illustrator App
+    
+    * attempt flyby leg duration bounds
+    
+    * add 'global' states and navbar
+    
+    * add copy/paste buttons
+    
+    * fix multiflyby transfer leg bounds
+    
+    * load maneuvers from save file
+    
+    * start setting up flight plan orbit display
+    
+    * add date field to orbit display
+    
+    * add copying of Transfer/MultiFlyby flight plans
+    
+    * remove surface images
+    
+    * add hhmmss option for date fields
+    
+    * remove rounding from orbit display date
+    
+    * fix oberth maneuver labels
+
+[33mcommit c008061b578d664abfd5ca514565cc6c7fda2226[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Wed Mar 30 17:30:07 2022 -0500
+
+    fix loading of first vessel
+
+[33mcommit e5e1b0a3e46d74bd2a7504a3732e72abd367908e[m
+Author: theAstroGoth <52220914+theastrogoth@users.noreply.github.com>
+Date:   Tue Mar 29 09:17:46 2022 -0500
+
+    Oberth Maneuvers (#1)
+    
+    * added 'fast' oberth maneuver calculation
+    
+    * work toward oberth maneuvers for departure/arrival
+    
+    * previous commit had incorrect date due to WSL clock drif
+    
+    * added 'fast' oberth maneuver calculation
+    
+    * previous commit had incorrect date due to WSL clock drif
+    
+    * avoid Oberth maneuvers when not favorable
+    
+    * add radio buttons for depar/arrive type
+    
+    * full implementation of Oberth maneuvers
+
+[33mcommit f8cc44a7b4cd6e93947f62c9289dfcf3061305a0[m
+Author: theAstroGoth <theastrogoth@gmail.com>
+Date:   Fri Mar 25 15:22:48 2022 -0500
+
+    reupload
